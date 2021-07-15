@@ -1,4 +1,4 @@
-import { processPost } from '../utils/request';
+import { processPost } from './sys/utils/request';
 import { CdExec } from './CdExec';
 export async function CdInit(req, res) {
     console.log('starting CdInit (req, res)');

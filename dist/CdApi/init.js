@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CdInit = void 0;
-const request_1 = require("../utils/request");
+const request_1 = require("./sys/utils/request");
 const CdExec_1 = require("./CdExec");
 function CdInit(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
