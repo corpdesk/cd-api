@@ -1,8 +1,15 @@
+import config from './config';
 import express from 'express';
+import cors from 'cors';
 import { CdInit } from './CdApi/init';
 
 const app = express();
-const port = 3000;
+const port = config.port;
+const options: cors.CorsOptions = config.cors.options;
+
+app.use(cors(options));
+app.options('*', cors(options)); // enable pre-flight
+
 app.post('/', async (req: any, res: any) => {
     res.setHeader('Content-Type', 'application/json');
     CdInit(req, res);
