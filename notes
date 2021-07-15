@@ -3,7 +3,7 @@
 further refinement are required in the booting sequence.
     - implements cors
     - move 'utils' to 'sys'
-    - use .env file 
+    - setup config file
 
 - design and imlement architectural patterns
     - interfaces
@@ -15,3 +15,8 @@ further refinement are required in the booting sequence.
 
 15/07/2021
 - update readme file
+
+15/07/2021
+    - implements cors
+    - move 'utils' to 'sys'
+    - setup config file
