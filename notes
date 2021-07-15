@@ -1,0 +1,17 @@
+- update readme file
+- while it is not possible to install module at runtime,
+further refinement are required in the booting sequence.
+    - implements cors
+    - move 'utils' to 'sys'
+    - use .env file 
+
+- design and imlement architectural patterns
+    - interfaces
+    - decorators
+    - injectors
+    - IoC/Dependency Injection
+
+- develop cli and gui for designing and initializing modules
+
+15/07/2021
+- update readme file
