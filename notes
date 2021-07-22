@@ -71,3 +71,42 @@ further refinement are required in the booting sequence.
     - setup config file
 
 22/07/2012
+- design and imlement architectural patterns
+    - interfaces
+    - use modules and controllers as ingerited from base classes
+    - decorators
+        - https://blog.logrocket.com/a-practical-guide-to-typescript-decorators/
+    - injectors
+        - https://levelup.gitconnected.com/dependency-injection-in-typescript-2f66912d143c
+    - library development
+        - https://aganglada.com/blog/how-to-create-your-own-typescript-library
+    - IoC/Dependency Injection
+        - https://www.npmjs.com/package/node-dependency-injection
+- test TypeORM in isolation
+        https://github.com/amitavdevzone/nest-js-quiz-manager?utm_source=my-lnk&utm_medium=youtube&utm_campaign=social
+
+        validation:
+        https://www.npmjs.com/package/class-validator
+        https://github.com/typeorm/typeorm/issues/913
+
+        bcrypt field setting:
+        https://stackoverflow.com/questions/5881169/what-column-type-length-should-i-use-for-storing-a-bcrypt-hashed-password-in-a-d
+        https://github.com/ademarre/binary-mcf
+
+        nullable fields
+        https://github.com/typeorm/typeorm/issues/3738
+
+        auto date column:
+        https://github.com/typeorm/typeorm/issues/3738
+        @Entity()
+        export class MyEntity {
+            // ... a lot of attributes here
+            @UpdateDateColumn() // nothing more needed
+            public updated: Date;
+        }
+
+- setup and test TypeORM in cd environment
+    - test connection to mysql
+    - test execution at user controller
+    - test response from common b::response()
+
