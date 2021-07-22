@@ -64,4 +64,83 @@ export class BaseController {
     valid(req, res) {
         return true;
     }
+
+    controllerCreate(req, res) {
+        return 1;
+    }
+
+    controllerUpdate(req, res) {
+        return 1;
+    }
+
+    controllerDelete(req, res) {
+        return 1;
+    }
+
+    /**
+     *
+     * The type K is constrained to be a value computed from the keyof operator on
+     * type T. Remember that the keyof operator will return a string literal type that is made
+     * up of the properties of an object, so K will be constrained to the property names of
+     * the type T.
+     *
+     * @param object
+     * @param key
+     */
+    getProperty<T, K extends keyof T>
+        (object: T, key: K) {
+        const propertyValue = object[key];
+        console.log(`object[${key}] = ${propertyValue}`);
+    }
+
+    testGetProperty() {
+        const obj1 = {
+            id: 1,
+            name: 'myName',
+            print() { console.log(`${this.id}`) }
+        }
+        this.getProperty(obj1, 'id');
+        this.getProperty(obj1, 'name');
+        // this.getProperty(obj1, 'surname'); // fails
+    }
+
+    ///////////////////////
+
+    createClassInstance<T>(arg1: new () => T): T {
+        return new arg1();
+    }
+
+    ///////////////////////
+    // Promise
+    cdPromise(): Promise<void> {
+        // return new Promise object
+        return new Promise<void>
+            ( // start constructor
+                (
+                    resolve: () => void, // resolve function
+                    reject: () => void // reject function
+                ) => {
+                    // start of function definition
+                    function afterTimeout() {
+                        resolve();
+                    }
+                    setTimeout(afterTimeout, 1000);
+                    // end of function definition
+                }
+            ); // end constructor
+    }
+
+    testDelayedPromise(){
+        this.cdPromise().then(() => {
+            console.log(`delayed promise returned`);
+        });
+    }
+
+    async respond(req, res, data){
+        console.log(`starting BaseController::respond()`);
+        res.status(200).json({ data });
+    }
+
+    ///////////////////////
 }
+

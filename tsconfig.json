@@ -2,10 +2,16 @@
     "compilerOptions": {
         "module": "commonjs",
         "esModuleInterop": true,
-        "target": "es6",
+        "target": "es5",
         "moduleResolution": "node",
+        "experimentalDecorators": true, // allow decorators...also typeorm requirement
+        "emitDecoratorMetadata": true, // decorators metadata
         "sourceMap": true,
         "outDir": "dist"
     },
-    "lib": ["es2015"]
+    "lib": [
+        "es2015", 
+        "es5",
+        "es6" // typeorm requirement
+    ]
 }

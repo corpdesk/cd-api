@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GroupInvitationController = void 0;
-class GroupInvitationController {
-    constructor() {
+var GroupInvitationController = /** @class */ (function () {
+    function GroupInvitationController() {
         this.modelStr = 'group_invitation';
         this.result = null;
         this.rules = [];
@@ -24,9 +24,10 @@ class GroupInvitationController {
         };
         console.log('starting GroupInvitationController()');
     }
-    actionCreate() {
+    GroupInvitationController.prototype.actionCreate = function () {
         console.log('starting actionCreate()');
-    }
-}
+    };
+    return GroupInvitationController;
+}());
 exports.GroupInvitationController = GroupInvitationController;
 //# sourceMappingURL=group-invitation.controller.js.map

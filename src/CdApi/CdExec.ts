@@ -9,13 +9,11 @@ export class CdExec {
         if (this.b.valid(req, res)) {
             try {
                 const pl = req.post; // payload;
-                const ePath = './' + pl.ctx.toLowerCase() + '/' + pl.m.toLowerCase() + '/controllers/' + pl.c.toLowerCase();
-                console.log('init()/ePath:', ePath);
+                const ePath = `./${pl.ctx.toLowerCase()}/${pl.m.toLowerCase()}/controllers/${pl.c.toLowerCase()}`;
                 const eImport = await import(ePath);
                 const eCls = eImport[pl.c];
                 const cls = new eCls();
-                const ret = cls[pl.a]();
-                console.log('init()/ret:', ret);
+                const ret = await cls[pl.a](req, res);
             } catch (e) {
                 console.log('e:', e);
                 return e;
