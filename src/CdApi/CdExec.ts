@@ -9,20 +9,20 @@ export class CdExec {
         if (this.b.valid(req, res)) {
             try {
                 const pl = req.post; // payload;
-                const ePath = `./${pl.ctx.toLowerCase()}/${pl.m.toLowerCase()}/controllers/${pl.c.toLowerCase()}`;
-                const eImport = await import(ePath);
-                const eCls = eImport[pl.c];
-                const cls = new eCls();
-                const ret = await cls[pl.a](req, res);
+                const ePath = `../../${pl.ctx.toLowerCase()}/${pl.m.toLowerCase()}/controllers/${pl.c.toLowerCase()}`;
+                const clsCtx = {
+                    path: ePath,
+                    clsName: pl.c,
+                    action: pl.a
+                }
+                const ret = await this.b.resolveCls(req, res, clsCtx);
             } catch (e) {
                 console.log('e:', e);
                 return e;
             }
-
         } else {
             const err = 'invalid session';
             return this.b.returnErr(err);
         }
     }
-
 }

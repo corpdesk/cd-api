@@ -1,5 +1,5 @@
 
-
+// import { NodemailerService } from "../../";
 const USER_ANON = 1000;
 
 export class BaseController {
@@ -138,7 +138,15 @@ export class BaseController {
 
     async respond(req, res, data){
         console.log(`starting BaseController::respond()`);
+        console.log(`data: ${JSON.stringify(data)}`);
         res.status(200).json({ data });
+    }
+
+    async resolveCls(req, res, clsCtx) {
+        const eImport = await import(clsCtx.path);
+        const eCls = eImport[clsCtx.clsName];
+        const cls = new eCls();
+        return await cls[clsCtx.action](req, res);
     }
 
     ///////////////////////

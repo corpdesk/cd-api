@@ -50,10 +50,40 @@ further refinement are required in the booting sequence.
     - test execution at user controller
     - test response from common b::response()
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////
 - implement basic registration
     - implement email
-        https://www.cloudmailin.com/blog/sending_and_receiving_email_in_node_2021
+        - https://nodemailer.com/about/
+        - https://www.cloudmailin.com/blog/sending_and_receiving_email_in_node_2021
+        - set up nodemailer
+        - set up test mail at cloudmailin
+        - set up corpdesk mail account at zohomail.com
+        - successfully tested mail send
+    - alternatives to gmail accounts that works with nodmailer
+        - https://stackoverflow.com/questions/63288840/nodemailer-with-tutanota-mail-in-node-js
+        - https://www.zoho.com/mail/
+    - implement socket.io client notifications..eg mail notifications
+        - https://socket.io/docs/v4/client-initialization/
+        - https://tutorialedge.net/typescript/typescript-socket-io-tutorial/
+        - https://medium.com/medvine/play-around-with-socket-io-and-typescript-c889d391ed00
+    - 0nline push services
+        - https://pusher.com/tutorials/push-notifications-node-service-workers/
+        - https://www.section.io/engineering-education/push-notification-in-nodejs-using-service-worker/
+
+    - socket.io server multiple ports
+        - https://stackoverflow.com/questions/44277101/socket-io-listening-on-multiple-ports
+
+    - IMAP API
+        - https://imapapi.com/
+
+- Node js and SMS
+    - https://learn.vonage.com/blog/2019/09/16/how-to-send-and-receive-sms-messages-with-node-js-and-express-dr/#
+    - https://www.freecodecamp.org/news/how-to-send-an-sms-in-node-js-via-smpp-gateway-9c7b12e4600a/
+
+- Node.js USSD
+    - https://andela.com/insights/africas-talking-node-js-express-ussd-application/
+    - https://www.npmjs.com/package/ussd-menu-builder
+
 - implement basic login
 - design auto migration for various cd modules
 
@@ -109,4 +139,13 @@ further refinement are required in the booting sequence.
     - test connection to mysql
     - test execution at user controller
     - test response from common b::response()
+
+23/07/2021
+- implement email
+        - https://nodemailer.com/about/
+        - https://www.cloudmailin.com/blog/sending_and_receiving_email_in_node_2021
+        - set up nodemailer
+        - set up test mail at cloudmailin
+        - set up corpdesk mail account at zohomail.com
+        - successfully tested mail send
 
