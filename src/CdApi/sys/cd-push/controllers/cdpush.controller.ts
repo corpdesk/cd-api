@@ -21,6 +21,7 @@ export class CdPushController {
     }
 
     emit(eventName: string, data: any) {
+        console.log(`starting CdPushController::emit()`);
         this.socket.emit(eventName, data);
     }
 

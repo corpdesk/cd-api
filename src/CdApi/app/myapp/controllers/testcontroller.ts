@@ -1,5 +1,5 @@
 
-import { AppController } from '../../../sys/base/app.controller';
+
 
 interface IPerson {
     id: number;

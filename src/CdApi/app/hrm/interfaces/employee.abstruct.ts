@@ -1,6 +1,6 @@
-import { AppController } from '../../../sys/base/app.controller';
+import { CdService } from '../../../sys/base/cd.service';
 
-export abstract class EmployeeBase extends AppController {
+export abstract class EmployeeBase extends CdService {
     public id: number;
     public name: string;
     constructor(id: number, name: string) {

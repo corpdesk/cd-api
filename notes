@@ -59,16 +59,30 @@ further refinement are required in the booting sequence.
         - set up test mail at cloudmailin
         - set up corpdesk mail account at zohomail.com
         - successfully tested mail send
+/////////////////////////////////////////////////////////////////////////////////////////////
+    - register with confirmation email
+    - push notification:
+        - https://pusher.com/tutorials/push-notifications-node-service-workers/
+        - https://morioh.com/p/42a0bb87a165
+        - https://blog.angular-university.io/angular-push-notifications/
+        - https://www.thecoraledge.com/news/sending-message-from-nodejs-to-angular-by-service-worker-and-web-push-notifications
+        - https://www.section.io/engineering-education/push-notification-in-nodejs-using-service-worker/
+        - https://stackoverflow.com/questions/10703513/node-js-client-for-a-socket-io-server
+        - https://www.npmjs.com/package/web-push
+
     - alternatives to gmail accounts that works with nodmailer
         - https://stackoverflow.com/questions/63288840/nodemailer-with-tutanota-mail-in-node-js
         - https://www.zoho.com/mail/
+
     - implement socket.io client notifications..eg mail notifications
         - https://socket.io/docs/v4/client-initialization/
         - https://tutorialedge.net/typescript/typescript-socket-io-tutorial/
         - https://medium.com/medvine/play-around-with-socket-io-and-typescript-c889d391ed00
+
     - 0nline push services
         - https://pusher.com/tutorials/push-notifications-node-service-workers/
         - https://www.section.io/engineering-education/push-notification-in-nodejs-using-service-worker/
+        - test push service
 
     - socket.io server multiple ports
         - https://stackoverflow.com/questions/44277101/socket-io-listening-on-multiple-ports
@@ -84,13 +98,36 @@ further refinement are required in the booting sequence.
     - https://andela.com/insights/africas-talking-node-js-express-ussd-application/
     - https://www.npmjs.com/package/ussd-menu-builder
 
+////////////////////////////////////////////////////////
+
+- minor structural changes
+    - all services files to have X.service.ts. 
+        Similar treatment to controllers, models and decorators
+    - moving some codes to services
 - implement basic login
+    - b.valid()
+
+//////////////////////////////////////////////////
+- update user data
+    - update password
 - design auto migration for various cd modules
 
 
 - identify items that can be set as cd-api-library
 - develop a way for initializing cd-api modules dev environment
 - develop cli and gui for designing and initializing modules
+
+
+
+
+- Login:
+    - docprocessing
+    - Login/authenticate
+    - session
+    - ACL/authorize
+        - ACL
+        - cdobjects
+    
 
 15/07/2021
 - update readme file
@@ -148,4 +185,14 @@ further refinement are required in the booting sequence.
         - set up test mail at cloudmailin
         - set up corpdesk mail account at zohomail.com
         - successfully tested mail send
+
+26/07/2021
+- minor structural changes
+    - all services files to have X.service.ts. 
+        Similar treatment to controllers, models and decorators
+    - moving some codes to services
+- implement basic login
+    - b.valid()
+
+
 

@@ -1,14 +1,14 @@
 import { MessageClient, IncomingMail } from 'cloudmailin';
 import fs from 'fs';
 import { CdPushController } from '../../cd-push/controllers/cdpush.controller';
-import { BaseController } from '../../base/base.controller';
+import { BaseService } from '../../base/base.service';
 
 export class CloudmailinService {
-    b: BaseController;
+    b: BaseService;
     cdPush: CdPushController;
     constructor() {
         // console.log('starting NodemailerController::constructor()');
-        this.b = new BaseController();
+        this.b = new BaseService();
         this.cdPush = new CdPushController();
     }
     async sendMail(req, res) {
@@ -20,7 +20,7 @@ export class CloudmailinService {
             to: 'george.oremo@gmail.com',
             subject: 'Check Attachment',
             plain: 'Hello world?',
-            html: '<strong>Testing attachment?</strong>',
+            html: req.post.dat.f_vals[0].data.msg,
             headers: { 'x-myheader': 'test header' },
             attachments: [
                 {

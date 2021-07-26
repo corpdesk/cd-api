@@ -49,17 +49,17 @@ import 'reflect-metadata';
 import { createConnection, getConnection, } from 'typeorm';
 import nodemailer from 'nodemailer';
 import Mail from 'nodemailer/lib/mailer';
-import { BaseController } from '../../base/base.controller';
+import { BaseService } from '../../base/base.service';
 import { CdPushController } from '../../cd-push/controllers/cdpush.controller';
 import { mailConfig } from '../../../../config';
 import { Comm } from '../models/comm.model';
 
 export class NodemailerService {
-    b: BaseController;
+    b: BaseService;
     cdPush: CdPushController;
     constructor() {
         // console.log('starting NodemailerController::constructor()');
-        this.b = new BaseController();
+        this.b = new BaseService();
         this.cdPush = new CdPushController();
 
     }
@@ -83,17 +83,20 @@ export class NodemailerService {
         const mail = {
             from: `'CD Platform' <corpdesk@zohomail.com>`,
             to: 'george.oremo@gmail.com',
-            subject: 'Testing with Zoho',
+            subject: 'Welcome!',
             text: 'Hello world?',
-            html: '<strong>This is test with ret?</strong>',
+            html: req.post.dat.f_vals[0].data.msg,
             headers: { 'x-myheader': 'test header' }
         }
 
-        return await transporter.sendMail(mail, (err, info) => {
+        transporter.sendMail(mail, async (err, info) => {
             console.log(err);
             console.log(info.envelope);
             console.log(info.messageId);
+            return await info;
         });
+
+        return true;
     }
 
     /**
