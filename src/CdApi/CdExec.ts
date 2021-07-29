@@ -1,12 +1,10 @@
 import { BaseService } from './sys/base/base.service';
 import { IRespInfo } from './sys/base/IBase';
-import { CdPushController } from './sys/cd-push/controllers/cdpush.controller';
 
 export class CdExec {
-    b;
+    b: BaseService;
     constructor() {
         this.b = new BaseService();
-        // this.pushSubscribe();
     }
     async exec(req, res) {
         if (this.b.valid(req, res)) {
@@ -28,9 +26,9 @@ export class CdExec {
                 await this.b.returnErr(req, res, i);
             }
         } else {
-            const e = 'invalid request';
+            this.b.err.push('invalid request');
             const i: IRespInfo = {
-                messages: e,
+                messages: this.b.err,
                 code: 'CdExec:exec:02',
                 app_msg: ''
             }

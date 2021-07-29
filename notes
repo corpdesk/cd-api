@@ -108,6 +108,31 @@ further refinement are required in the booting sequence.
     - b.valid()
 
 //////////////////////////////////////////////////
+- refine UserService::create()
+    - clean up the code
+- test login
+    - catch errors
+- Refine register
+    - do cusom decorator for @IsUniqe
+    - set template
+        - header, body, signature, html, images
+    - implement activation from email link
+    - select mail host (Zoho, cloudmailer )
+    -
+- create interface for general query
+    - https://github.com/typeorm/typeorm/blob/master/docs/find-options.md
+- managing connections:
+    - https://orkhan.gitbook.io/typeorm/docs/connection
+    - https://orkhan.gitbook.io/typeorm/docs/connection-api
+    check if connection exists:
+    - https://stackoverflow.com/questions/42186674/typeorm-how-to-use-connection-as-standalone-object-with-types
+- move uniqueValidation to base
+- move requireValidation to base
+
+/////////////////////////////////////
+- do docProcessing
+- create session
+- table naming
 - update user data
     - update password
 - design auto migration for various cd modules
@@ -118,8 +143,6 @@ further refinement are required in the booting sequence.
 - develop cli and gui for designing and initializing modules
 
 
-
-
 - Login:
     - docprocessing
     - Login/authenticate
@@ -127,7 +150,25 @@ further refinement are required in the booting sequence.
     - ACL/authorize
         - ACL
         - cdobjects
-    
+
+
+29/07/2021
+- refine UserService::create()
+    - clean up the code
+- test login
+    - catch errors
+- Refine register
+    - do cusom decorator for @IsUniqe
+    - set template
+        - header, body, signature, html, images
+    - implement activation from email link
+    - select mail host (Zoho, cloudmailer )
+    -
+- create interface for general query
+- managing connections:
+    - check if connection exists:
+- move uniqueValidation to base
+- move requireValidation to base
 
 15/07/2021
 - update readme file
@@ -176,6 +217,7 @@ further refinement are required in the booting sequence.
     - test connection to mysql
     - test execution at user controller
     - test response from common b::response()
+
 
 23/07/2021
 - implement email

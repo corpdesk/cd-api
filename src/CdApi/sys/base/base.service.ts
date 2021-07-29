@@ -1,7 +1,10 @@
 
 import { isInstance } from 'class-validator';
 import { v4 as uuidv4 } from 'uuid';
-import { ICdRequest, ICdResponse, IControllerContext, IRespInfo, ISessResp } from './IBase';
+import { ClassRef, ICdRequest, ICdResponse, IControllerContext, IRespInfo, ISessResp } from './IBase';
+import { createConnection, EntityMetadata, getConnection, } from 'typeorm';
+import { Database } from './connect';
+// import { UserModel } from '../user/models/user.model';
 
 const USER_ANON = 1000;
 const INVALID_REQUEST = 'invalid request';
@@ -12,10 +15,18 @@ interface A {
 
 export class BaseService {
 
-    cdResp: ICdResponse;
-
+    cdResp: ICdResponse; // cd response
+    err: string[] = []; // error messages
+    db;
     constructor() {
         this.cdResp = this.initCdResp();
+    }
+
+    async init() {
+        if (!this.db) {
+            const db = await new Database();
+            const conn = await db.getConnection();
+        }
     }
 
     /**
@@ -27,7 +38,6 @@ export class BaseService {
      * @returns
      */
     async resolveCls(req, res, clsCtx: IControllerContext) {
-        console.log(`resolveCls:clsCtx: ${JSON.stringify(clsCtx)}`);
         const eImport = await import(clsCtx.path);
         const eCls = eImport[clsCtx.clsName];
         const cls = new eCls();
@@ -46,18 +56,13 @@ export class BaseService {
 
     valid(req, res): boolean {
         const pl = req.post;
-        console.log(`b::valid:001`);
         if (this.noToken(req, res)) {
-            console.log(`b::valid:002`);
             return true;
         } else {
             if (!this.instanceOfCdResponse(pl)) {
-                console.log(`b::valid:003`);
                 return false;
             }
         }
-
-        console.log(`b::valid:004`);
         return true;
         /*
          * else if token is required and the token is valid
@@ -87,41 +92,28 @@ export class BaseService {
         const m = pl.m;
         const c = pl.c;
         const a = pl.a;
-        console.log(`m:${m},c:${c},a:${a},`);
-        console.log(`b::NoToken:001`);
         if (!ctx || !m || !c || !a) {
             this.setInvalidRequest(req, res, 'BaseService:noTocken:01');
         }
         if (m === 'User' && (a === 'Login' || a === 'Register')) {
-            console.log(`b::NoToken:002`);
             return true;
         }
-        console.log(`b::NoToken:003`);
         // exempt reading list of consumers. Required during registration when token is not set yet
         if (m === 'Moduleman' && c === 'Consumer' && a === 'GetAll') {
             return true;
         }
-
         // exempt anon menu calls
         if (m === 'Moduleman' && c === 'Modules' && a === 'GetAll') {
             return true;
         }
-
         // exampt mpesa call backs
         if ('MSISDN' in pl) {
             return true;
         }
-
         return true;
     }
 
     instanceOfCdResponse(object: any): boolean {
-        // ctx: string;
-        // m: string;
-        // c: string;
-        // a: string;
-        // dat: any;
-        // args: object;
         return 'ctx' in object && 'm' in object && 'c' in object && 'a' in object && 'dat' in object && 'args' in object;
     }
 
@@ -131,18 +123,20 @@ export class BaseService {
      * @param Info
      * @param Sess
      */
-    setAppState(succ: boolean, i: IRespInfo | null, ss: ISessResp | null) {
-        this.cdResp.app_state = {
+    async setAppState(succ: boolean, i: IRespInfo | null, ss: ISessResp | null) {
+        this.cdResp.app_state = await {
             success: succ,
             info: i,
             sess: ss,
             cache: {}
         };
+        console.log('BaseService::setAppState/this.cdResp:', this.cdResp);
     }
 
     setInvalidRequest(req, res, eCode: string) {
+        this.err.push(INVALID_REQUEST);
         const i: IRespInfo = {
-            messages: INVALID_REQUEST,
+            messages: this.err,
             code: eCode,
             app_msg: ''
         }
@@ -164,7 +158,7 @@ export class BaseService {
             app_state: {
                 success: false,
                 info: {
-                    messages: '',
+                    messages: [],
                     code: '',
                     app_msg: '',
                 },
@@ -181,9 +175,122 @@ export class BaseService {
     }
 
     async respond(req, res, data) {
-        console.log(`starting BaseService::respond()`);
-        console.log(`data: ${JSON.stringify(data)}`);
+        console.log('----request:-----------------\n', JSON.stringify(req.post));
+        console.log('----response:----------------\n', JSON.stringify(this.cdResp));
         res.status(200).json(this.cdResp);
+    }
+
+    // setEntity<T>(u: T, d: object): T {
+    //     for (const key in d) {
+    //         if (key) {
+    //             u[key] = d[key];
+    //         }
+    //     }
+    //     return u;
+    // }
+
+    getPlData(req): any {
+        return req.post.dat.f_vals[0].data;
+    }
+
+    async getEntityPropertyMap(model) {
+        const entityMetadata: EntityMetadata = await getConnection().getMetadata(model);
+        const cols = await entityMetadata.columns;
+        const colsFiltd = await cols.map(async (col) => {
+            return { propertyAliasName: col.propertyAliasName, databaseNameWithoutPrefixes: col.databaseNameWithoutPrefixes };
+        });
+        // console.log('BaseService::colsFiltd:', colsFiltd);
+        return colsFiltd;
+    }
+
+    async validateUnique(req, res, params) {
+        // assign payload data to this.userModel
+        params.controllerInstance.userModel = this.getPlData(req);
+
+        // set connection
+        const userRepository = getConnection().getRepository(params.model);
+
+        // get model properties
+        const propMap = await this.getEntityPropertyMap(params.model);
+
+        // use model properties to set query for unique validation
+        const strQueryItems = [];
+        await propMap.forEach(async (field: any) => {
+            const f = await field;
+            const alias = f.propertyAliasName;
+            const fieldName = f.databaseNameWithoutPrefixes;
+            const isDuplicate = await this.isNoDuplicateField(fieldName, alias, params.controllerInstance.cRules);
+            if (isDuplicate) {
+                const item = `{ "${alias}": "${this.getPlData(req)[fieldName]}" }`;
+                strQueryItems.push(item);
+            }
+        });
+        console.log('validateUnique/strQueryItems:', await strQueryItems);
+
+        // convert the string items into JSON objects
+        const arrQueryItems = strQueryItems.map((item) => {
+            return JSON.parse(item);
+        })
+        console.log('validateUnique/arrQueryItems:', await arrQueryItems);
+
+        // execute the query
+        const results = await userRepository.count({
+            where: await arrQueryItems
+        });
+        console.log(`results:${JSON.stringify(results)}`);
+
+        // return boolean result
+        let ret = false;
+        if (results < 1) {
+            ret = true;
+        }
+        return ret;
+    }
+
+    /**
+     * filter mapping for no-duplicate-fields
+     * - the result is used in validateUnique(req, res, params)
+     * to query existence of duplicate entries
+     * @param name
+     * @param alias
+     * @param cRules
+     * @returns
+     */
+    async isNoDuplicateField(name, alias, cRules) {
+        const ndFieldNames = cRules.noDuplicate as object[];
+        const noDuplicateField = ndFieldNames.filter((fieldName) => name === fieldName);
+        if (noDuplicateField.length > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    async validateRequired(req, res, cRules) {
+        console.log('starting validateRequired(req, res)');
+        const rqFieldNames = cRules.required as string[];
+        const isInvalid = await rqFieldNames.filter((fieldName) => !Boolean(this.getPlData(req)[fieldName]));
+        console.log('BaseService::validateRequired/isInvalid:', isInvalid);
+        if (isInvalid.length > 0) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    async read(entity, cmd): Promise<any> {
+        const userRepository = getConnection().getRepository(entity);
+        let results: any = null;
+        switch (cmd.action) {
+            case 'find':
+                results = await userRepository.find(cmd.filter);
+                break;
+            case 'count':
+                results = await userRepository.count(cmd.filter);
+                break;
+        }
+        console.log(results);
+        return await results;
     }
 
     controllerCreate(req, res) {
@@ -211,7 +318,6 @@ export class BaseService {
     getProperty<T, K extends keyof T>
         (object: T, key: K) {
         const propertyValue = object[key];
-        console.log(`object[${key}] = ${propertyValue}`);
     }
 
     testGetProperty() {

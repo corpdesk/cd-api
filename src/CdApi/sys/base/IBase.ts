@@ -44,7 +44,7 @@ export interface ISessResp{
 }
 
 export interface IRespInfo{
-    messages: string;
+    messages: string[];
     code: string;
     app_msg: any;
 }

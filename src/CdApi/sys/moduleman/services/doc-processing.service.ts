@@ -1,91 +1,62 @@
 
-import { createConnection, getConnection, getConnectionManager, EntityMetadata } from 'typeorm';
+import { createConnection, getConnection, } from 'typeorm';
 import 'reflect-metadata';
 import { BaseService } from '../../base/base.service';
 import { ICdPushEnvelop, ICdResponse, ICommConversationSub, IRespInfo } from '../../base/IBase';
-import { UserModel } from '../models/user.model';
+import { User } from '../models/user.model';
 import { registerNotifTemplate } from '../models/registerNotifTemplate';
 import { CdService } from '../../base/cd.service';
 import { MailService } from '../../comm/services/mail.service';
-import userConfig from '../userConfig';
-import config from '../../../../config';
-import { Database } from '../../base/connect';
-import { isEmpty } from 'class-validator';
-
 
 export class UserService extends CdService {
     cdToken: string;
     b: BaseService;
-    userModel;
     mail: MailService;
-    db;
-    /*
-     * create rules
-     */
-    cRules = {
-        required: [
-            'user_name',
-            'email',
-            'password',
-        ],
-        noDuplicate: [
-            'user_name',
-            'email'
-        ],
-    };
 
     constructor() {
         super();
         this.b = new BaseService();
         this.mail = new MailService();
-        this.userModel = new UserModel();
-    }
-
-    async init() {
-        if (!this.db) {
-            const db = await new Database();
-            const conn = await db.getConnection();
-        }
     }
 
     async create(req, res): Promise<void> {
-        if (await this.validateCreate(req, res)) {
-            const regResp: any = await getConnection().manager.save(this.userModel);
-            this.sendEmailNotification(req, res);
+        await createConnection().then(async connection => {
+            let user = new User();
+            // const d = req.post.dat.f_vals[0].data;
+            const d = this.b.getPlData(req);
+            user = this.b.setEntity(user, d);
+            const regResp: any = await connection.manager.save(user);
+            req.post.dat.f_vals[0].data.msg = registerNotifTemplate(await user);
+            const mailRet = await this.mail.sendEmailNotif(await req, res);
             this.b.cdResp = await regResp;
+            const pRecepients: ICommConversationSub[] = [
+                {
+                    user_id: user.userId,
+                    sub_type_id: 1
+                }
+            ]
+            const pushEnvelop: ICdPushEnvelop = {
+                pushRecepients: pRecepients,
+                emittEvent: 'registered',
+                triggerEvent: 'register',
+                req: null,
+                resp: this.b.cdResp,
+                pushData: this.b.cdResp
+            };
+            getConnection().close();
             console.log('ret', regResp);
             const r = await this.b.respond(req, res, regResp);
-        } else {
-            this.b.err.push('duplication of email and user name not allowed');
-            const i = {
+        }).catch(async (e) => {
+            getConnection().close();
+            this.b.err.push(e.toString());
+            const i: IRespInfo = {
                 messages: this.b.err,
                 code: 'UserService:create',
                 app_msg: ''
-            };
-            await this.b.setAppState(false, i, null);
-            this.b.cdResp.data = [];
-            const r = await this.b.respond(req, res, this.b.cdResp.data);
-        }
-    }
-
-    async validateCreate(req, res) {
-        await this.init();
-        const params = {
-            controllerInstance: this,
-            model: UserModel,
-        }
-        if (await this.b.validateUnique(req, res, params) && await this.b.validateRequired(req, res, this.cRules)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    async sendEmailNotification(req, res) {
-        if (userConfig.register.notification.email) {
-            req.post.dat.f_vals[0].data.msg = registerNotifTemplate(await this.userModel);
-            const mailRet = await this.mail.sendEmailNotif(await req, res);
-        }
+            }
+            await this.b.setAppState(false,i,null);
+            this.b.respond(req,res,[]);
+        });
     }
 
     async createMulti(req, res): Promise<void> {
@@ -95,7 +66,7 @@ export class UserService extends CdService {
             const regResp = await getConnection()
                 .createQueryBuilder()
                 .insert()
-                .into(UserModel)
+                .into(User)
                 .values(
                     d
                     // [
@@ -118,7 +89,7 @@ export class UserService extends CdService {
         console.log(`Starting read(): req.post: ${req.post}`);
         return await createConnection().then(async connection => {
             console.log(`read()/createConnection()`);
-            const ret: UserModel[] = await connection.manager.find(UserModel);
+            const ret: User[] = await connection.manager.find(User);
             console.log(`ret: ${JSON.stringify(ret)}`);
             getConnection().close();
             // const r = await this.b.respond(req, res, regResp);
@@ -130,42 +101,6 @@ export class UserService extends CdService {
             return await e;
         });
     }
-
-    /**
-     * Use BaseService for simple search
-     * @param req
-     * @param res
-     */
-    async bRead(req, res): Promise<any> {
-        const f = { where: { email: 'george.oremo@gmail.com' } };
-        const cmd = {
-            action: 'find',
-            filter: f
-        }
-        this.b.cdResp.data = await this.b.read(UserModel, cmd);
-        const r = await this.b.respond(req, res, this.b.cdResp.data);
-    }
-
-    // /**
-    //  * Validate unique field
-    //  * @param req
-    //  * @param res
-    //  */
-    // async validateUniqueField(req, res): Promise<any> {
-    //     const f = {
-    //         where: [
-    //             { email: 'george.oremo@gmail.com' },
-    //             { userName: 'goremo' }
-    //         ]
-    //     };
-    //     const cmd = {
-    //         action: 'count',
-    //         filter: f
-    //     }
-    //     return await this.b.read(UserModel, cmd);
-    // }
-
-
 
     update(req, res): Promise<void> {
         console.log(`starting SessionService::update()`);
@@ -188,15 +123,6 @@ export class UserService extends CdService {
     rbRemove(): number {
         return 1;
     }
-
-    // private static async fetchUser() {
-    //     const product = await getManager().findOne(UserModel, {
-    //         relations: ['productType']
-    //     });
-
-    //     console.log(product);
-    //     console.log(product.productType);
-    // }
 
     // setEntity(u: User, d: object){
     //     for (const key in d) {

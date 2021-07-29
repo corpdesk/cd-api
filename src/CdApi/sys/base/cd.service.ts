@@ -11,7 +11,7 @@ export abstract class CdService {
     user: IUser;
 
     public abstract create(req, res): Promise<void>;
-    public abstract read(req, res): Promise<void>;
+    public abstract read(req, res): Promise<any>;
     public abstract update(req, res): Promise<void>;
     public abstract remove(req, res): Promise<void>;
 

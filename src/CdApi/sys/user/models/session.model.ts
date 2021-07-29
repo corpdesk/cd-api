@@ -25,52 +25,40 @@ import {
     Max,
     IsJSON,
 } from 'class-validator';
-import { CdModel, IsUnique } from '../../base/decorators/validators';
-import { UniqueOnDatabase } from '../../base/decorators/UniqueValidation';
-import { BaseService } from '../../base/base.service';
 
-@Entity(
-    {
-        name: 'user',
-        synchronize: false
-    }
-)
-// @CdModel
-export class UserModel {
-    b: BaseService;
+/**
+ * SELECT sid, device_id, browser_sid, login_time, page_accessed, pg_access_time, sess_expire_time, current_user_id, logout_time, comp_name, browser_fingerprint, log_info, cd_token, active, cookie, `_id`, p_sid, ttl, acc_time_int, acc_time_h, exp_time_int, exp_time_h, valid, start_time_int, start_h, consumer_guid
+ * FROM cd1212.`session`;
+ */
 
-    @PrimaryGeneratedColumn(
-        {
-            name: 'user_id'
-        }
-    )
-    userId?: number;
+@Entity({name:'session', synchronize: false})
+export class Session {
+
+    @PrimaryGeneratedColumn()
+    sid?: number;
 
     @Column({
-        name: 'user_guid',
         length: 36,
         default: uuidv4()
     })
-    userGuid?: string;
+    deviceId?: string;
 
     @Column(
         'varchar',
         {
-            name: 'user_name',
             length: 50,
             nullable: false
         }
     )
-    userName: string;
+    browserSid: string;
 
     @Column(
         'char',
         {
-            name: 'password',
             length: 60,
             default: null
         })
-    password: string;
+    loginTime: string;
 
     @Column(
         'varchar',
@@ -80,163 +68,188 @@ export class UserModel {
             nullable: false
         }
     )
-
     @IsEmail()
-    email: string;
+    pageAccessed: string;
 
     @Column(
         {
-            name: 'company_id',
             default: null
         }
     )
     // @IsInt()
-    companyId?: number;
+    pgAccessTime?: number;
 
     @Column(
         {
-            name: 'doc_id',
             default: null
         }
     )
     // @IsInt()
-    docId?: number;
+    currentUserId?: number;
 
     @Column(
         {
-            name: 'mobile',
             default: null
         }
     )
-    mobile?: string;
+    logoutTime?: string;
 
     @Column(
         {
-            name: 'gender',
             default: null
         }
     )
-    gender?: number;
+    compName?: number;
 
     @Column(
         {
-            name: 'birth_date',
             default: null
         }
     )
     // @IsDate()
-    birthDate?: Date;
+    browserFingerprint?: Date;
 
     @Column(
         {
-            name: 'postal_addr',
             default: null
         }
     )
-    postalAddr?: string;
+    logInfo?: string;
 
     @Column(
         {
-            name: 'f_name',
             default: null
         }
     )
-    fName: string;
+    cdToken: string;
 
     @Column(
         {
-            name: 'm_name',
             default: null
         }
     )
-    mName?: string;
+    active?: string;
 
     @Column(
         {
-            name: 'l_name',
             default: null
         }
     )
-    lName: string;
+    cookie: string;
 
     @Column(
         {
-            name: 'national_id',
             default: null
         }
     )
     // @IsInt()
-    nationalId?: number;
+    pSid?: number;
 
     @Column(
         {
-            name: 'passport_id',
             default: null
         }
     )
     // @IsInt()
-    passportId?: number;
+    ttl?: number;
 
     @Column(
         {
             default: null
         }
     )
-    trusted?: boolean;
+    accTime_int?: boolean;
 
     @Column(
         'char',
         {
-            name: 'zip_code',
             length: 5,
             default: null
         }
     )
-    zipCode?: string;
+    accTime_h?: string;
 
+    // exp_time_int, exp_time_h, valid, start_time_int, start_h, consumer_guid
     @Column(
         {
-            name: 'activation_key',
             length: 36,
             default: uuidv4()
         }
     )
-    activationKey?: string;
-
+    expTimeInt?: string;
 
     @Column(
         {
-            name: 'user_type_id',
             default: null
         }
     )
     // @IsInt()
-    userTypeId?: string;
+    valid?: number;
 
-    @BeforeInsert()
-    async setPassword() {
-        this.password = await bcrypt.hash(this.password, 10);
-    }
+    @Column(
+        'text',
+        {
+            default: null
+        }
+    )
+    // @IsJSON()
+    startTimeInt?: JSON;
+
+    @Column(
+        {
+            default: null
+        }
+    )
+    // @IsInt()
+    startH?: string;
+
+    @Column(
+        {
+            default: null
+        }
+    )
+    // @IsInt()
+    consumerGuid?: string;
+
+    @UpdateDateColumn()
+    updatedAt?: Date;
+
+    @Column(
+        'datetime',
+        {
+            default: null
+        }
+    )
+    createdAt?: string;
+
+    @Column(
+        {
+            default: null
+        }
+    )
+    temp?: boolean;
+
+    @Column(
+        {
+            default: null
+        }
+    )
+    doneAvatar?: boolean;
+
+    // @BeforeInsert()
+    // async setPassword() {
+    //     this.password = await bcrypt.hash(this.password, 10);
+    // }
 
     @BeforeInsert()
     async Now() {
-        // get current time
         const now = new Date();
         const date = await moment(
             now,
             'ddd MMM DD YYYY HH:mm:ss'
         );
-        const nowMySql = await date.format('YYYY-MM-DD HH:mm:ss'); // convert to mysql date
-
-        // get repeated usernames
-
+        this.createdAt = await date.format('YYYY-MM-DD HH:mm:ss'); // convert to mysql date
     }
-
-    // @BeforeInsert()
-    // validateEmail(email: string) {
-    //     const re = /^(([^<>()\[\]\\.,;:\s@']+(\.[^<>()\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    //     const isValid: boolean = re.test(String(email).toLowerCase());
-    // }
 
     // HOOKS
     @BeforeInsert()

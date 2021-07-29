@@ -28,7 +28,6 @@ export class MailController {
     //  * @param res
     //  */
     async sendMail(req, res) {
-        console.log(`starting MailController::sendMail()`);
         const service = req.post.dat.f_vals[0].service;
         /**
          * note that the path below is applied at BaseService
@@ -41,7 +40,6 @@ export class MailController {
             clsName: service,
             action: req.post.a, // all services must implement send
         }
-        console.log(`clsCtx: ${JSON.stringify(clsCtx)}`);
         const ret = await this.b.resolveCls(req, res, clsCtx);
         await this.b.respond(req, res, ret);
     }
