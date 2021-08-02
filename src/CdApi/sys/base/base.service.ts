@@ -398,7 +398,6 @@ export class BaseService {
     async read(req, res, serviceInput: IServiceInput): Promise<any> {
         await this.init();
         const userRepository = getConnection().getRepository(serviceInput.serviceModel);
-        console.log('BaseService::read()/serviceInput.cmd.filter:', serviceInput.cmd.filter);
         let results: any = null;
         switch (serviceInput.cmd.action) {
             case 'find':
@@ -408,7 +407,6 @@ export class BaseService {
                 results = await userRepository.count(serviceInput.cmd.filter);
                 break;
         }
-        console.log('BaseService::read()/results:', results);
         return await results;
     }
 

@@ -178,6 +178,12 @@ further refinement are required in the booting sequence.
             - https://dev.to/qoobes/express-session-failing-with-typescript-types-express-session-1ehk
 
 - return login together with GetUserData()
+
+//////////////////////////////////////////
+- implemented async getDeviceNetId(): Promise<JSON> 
+    - https://www.npmjs.com/package/device-detector-js
+- implemented getIP()
+
 - table naming
 - update user data
     - update password
@@ -196,6 +202,12 @@ further refinement are required in the booting sequence.
     - GetUserData()
         - ACL
         - cdobjects
+
+02/08/2021
+- implemented async getDeviceNetId(): Promise<JSON> 
+    - https://www.npmjs.com/package/device-detector-js
+- implemented getIP()
+    
 02/08/2021
 - views
 - do docProcessing

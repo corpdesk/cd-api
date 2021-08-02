@@ -38,7 +38,7 @@ export class UserController extends CdController {
             loginSuccess = await bcrypt.compare(req.post.dat.f_vals[0].data.password, guest.password);
             this.b.err.push('login success');
             if (loginSuccess) {
-                await this.svSess.setSession(guest);
+                await this.svSess.setSession(req,guest);
                 const sessResult: SessionModel = await this.svSess.create(req, res);
                 const sessData: ISessResp = {
                     cd_token: sessResult.cdToken,
