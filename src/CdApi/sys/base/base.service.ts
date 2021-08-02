@@ -1,9 +1,14 @@
 
-import { isInstance } from 'class-validator';
 import { v4 as uuidv4 } from 'uuid';
-import { ClassRef, ICdRequest, ICdResponse, IControllerContext, IRespInfo, ISessResp } from './IBase';
-import { createConnection, EntityMetadata, getConnection, } from 'typeorm';
+import { ICdRequest, ICdResponse, IControllerContext, IDoc, IRespInfo, IServiceInput, ISessResp } from './IBase';
+import { EntityMetadata, getConnection, } from 'typeorm';
+import { Observable, of, from, defer } from 'rxjs';
+import { map } from 'rxjs/operators';
+import moment from 'moment';
 import { Database } from './connect';
+import { DocModel } from '../moduleman/models/doc.model';
+import { UserModel } from '../user/models/user.model';
+import { umask } from 'process';
 // import { UserModel } from '../user/models/user.model';
 
 const USER_ANON = 1000;
@@ -18,14 +23,22 @@ export class BaseService {
     cdResp: ICdResponse; // cd response
     err: string[] = []; // error messages
     db;
+    cuid = 1000;
     constructor() {
         this.cdResp = this.initCdResp();
     }
+    models = [];
 
     async init() {
         if (!this.db) {
             const db = await new Database();
-            const conn = await db.getConnection();
+            // client expected to input the required models
+            this.models.forEach(async (model) => {
+                await db.setConnEntity(model);
+            });
+            // await db.setConnEntity(UserModel);
+            // await db.setConnEntity(DocModel);
+            await db.getConnection();
         }
     }
 
@@ -42,6 +55,18 @@ export class BaseService {
         const eCls = eImport[clsCtx.clsName];
         const cls = new eCls();
         return await cls[clsCtx.action](req, res);
+    }
+
+    async serviceErr(res, e, eCode) {
+        this.err.push(e.toString());
+        const i = {
+            messages: await this.err,
+            code: eCode,
+            app_msg: ''
+        };
+        await this.setAppState(false, i, null);
+        this.cdResp.data = [];
+        return await this.respond(null, res, this.cdResp.data);
     }
 
     async returnErr(req, res, i: IRespInfo) {
@@ -130,7 +155,6 @@ export class BaseService {
             sess: ss,
             cache: {}
         };
-        console.log('BaseService::setAppState/this.cdResp:', this.cdResp);
     }
 
     setInvalidRequest(req, res, eCode: string) {
@@ -163,9 +187,8 @@ export class BaseService {
                     app_msg: '',
                 },
                 sess: {
-                    cd_token: uuidv4(),
+                    cd_token: this.getGuid(),
                     jwt: '',
-                    p_sid: '',
                     ttl: 0,
                 },
                 cache: {}
@@ -175,19 +198,9 @@ export class BaseService {
     }
 
     async respond(req, res, data) {
-        console.log('----request:-----------------\n', JSON.stringify(req.post));
         console.log('----response:----------------\n', JSON.stringify(this.cdResp));
         res.status(200).json(this.cdResp);
     }
-
-    // setEntity<T>(u: T, d: object): T {
-    //     for (const key in d) {
-    //         if (key) {
-    //             u[key] = d[key];
-    //         }
-    //     }
-    //     return u;
-    // }
 
     getPlData(req): any {
         return req.post.dat.f_vals[0].data;
@@ -206,13 +219,10 @@ export class BaseService {
     async validateUnique(req, res, params) {
         // assign payload data to this.userModel
         params.controllerInstance.userModel = this.getPlData(req);
-
         // set connection
-        const userRepository = getConnection().getRepository(params.model);
-
+        const baseRepository = getConnection().getRepository(params.model);
         // get model properties
         const propMap = await this.getEntityPropertyMap(params.model);
-
         // use model properties to set query for unique validation
         const strQueryItems = [];
         await propMap.forEach(async (field: any) => {
@@ -225,20 +235,15 @@ export class BaseService {
                 strQueryItems.push(item);
             }
         });
-        console.log('validateUnique/strQueryItems:', await strQueryItems);
-
         // convert the string items into JSON objects
-        const arrQueryItems = strQueryItems.map((item) => {
+        const arrQueryItems = await strQueryItems.map((item) => {
             return JSON.parse(item);
-        })
-        console.log('validateUnique/arrQueryItems:', await arrQueryItems);
-
-        // execute the query
-        const results = await userRepository.count({
-            where: await arrQueryItems
         });
-        console.log(`results:${JSON.stringify(results)}`);
-
+        const filterItems = await arrQueryItems
+        // execute the query
+        const results = await baseRepository.count({
+            where: await filterItems
+        });
         // return boolean result
         let ret = false;
         if (results < 1) {
@@ -267,10 +272,8 @@ export class BaseService {
     }
 
     async validateRequired(req, res, cRules) {
-        console.log('starting validateRequired(req, res)');
         const rqFieldNames = cRules.required as string[];
         const isInvalid = await rqFieldNames.filter((fieldName) => !Boolean(this.getPlData(req)[fieldName]));
-        console.log('BaseService::validateRequired/isInvalid:', isInvalid);
         if (isInvalid.length > 0) {
             return false;
         } else {
@@ -278,18 +281,134 @@ export class BaseService {
         }
     }
 
-    async read(entity, cmd): Promise<any> {
-        const userRepository = getConnection().getRepository(entity);
+    async create(req, res, serviceInput: IServiceInput) {
+        await this.init();
+        let newDocData;
+        try{
+            newDocData = await this.saveDoc(req, res, serviceInput);
+        } catch(e){
+            this.serviceErr(res,e,'BaseService:create/savDoc')
+        }
+        let serviceRepository = null;
+        try {
+            serviceRepository = await getConnection().getRepository(serviceInput.serviceModel);
+        } catch (e) {
+            this.err.push(e.toString());
+            const i = {
+                messages: this.err,
+                code: 'BaseService:create/getConnection',
+                app_msg: ''
+            };
+            await this.setAppState(false, i, null);
+            return this.cdResp;
+        }
+
+        try {
+            let modelInstance = serviceInput.serviceModelInstance;
+            if('dSource' in serviceInput){
+                if(serviceInput.dSource === 1){ // data source is provided by the req...data.
+                    req.post.dat.f_vals[0].data.doc_id = await newDocData.docId;
+                    const serviceData = await this.getServiceData(req, serviceInput);
+                    modelInstance = await this.setEntity(serviceInput, serviceData);
+                }
+            }
+            return await serviceRepository.save(await modelInstance);
+        } catch (e) {
+            this.err.push(e.toString());
+            const i = {
+                messages: this.err,
+                code: 'BaseService:create',
+                app_msg: ''
+            };
+            await this.setAppState(false, i, null);
+            return this.cdResp;
+        }
+    }
+
+    async saveDoc(req, res, serviceInput) {
+        const docRepository: any = await getConnection().getRepository(serviceInput.docModel);
+        const doc = await this.setDoc(req, res, serviceInput);
+        return await docRepository.save(doc);
+    }
+
+    async addParam(req, param) {
+        return { ...req.post.dat.f_vals[0].data, ...param }; // merge objects
+    }
+
+    async getDocTypeId(req, res, serviceInput: IServiceInput): Promise<number> {
+        return 22;
+    }
+
+    async setDoc(req, res, serviceInput) {
+        const dm: DocModel = new DocModel();
+        dm.docFrom = this.cuid;
+        dm.docName = serviceInput.docName;
+        dm.docTypeId = await this.getDocTypeId(req, res, serviceInput);
+        dm.docDate = await this.mysqlNow();
+        return await dm;
+    }
+
+    // async setModels(m: any[]) {
+    //     this.init();
+    // }
+
+    async getServiceData(req, serviceInput: IServiceInput) {
+        if (serviceInput.data) {
+            return await serviceInput.data;
+        } else {
+            return await this.getPlData(req);
+        }
+    }
+
+    async setPropertyMapArr(serviceInput) {
+        const propMap = await this.getEntityPropertyMap(serviceInput.serviceModel);
+        const propMapArr = [];
+        await propMap.forEach(async (field: any) => {
+            const f = await field;
+            const aName = f.propertyAliasName;
+            const rName = f.databaseNameWithoutPrefixes;
+            propMapArr.push({ alias: aName, fieldName: rName });
+        });
+        return propMapArr;
+    }
+
+    async setEntity(serviceInput: IServiceInput, serviceData: any): Promise<any> {
+        const propMapArr = await this.setPropertyMapArr(serviceInput);
+        const serviceInstance = serviceInput.serviceModelInstance;
+        propMapArr.forEach(async (field: any, i) => {
+            serviceInstance[field.alias] = serviceData[field.fieldName];
+        });
+        return await serviceInstance;
+    }
+
+    async mysqlNow() {
+        const now = new Date();
+        const date = await moment(
+            now,
+            'ddd MMM DD YYYY HH:mm:ss'
+        );
+        return await date.format('YYYY-MM-DD HH:mm:ss'); // convert to mysql date
+    }
+
+    getGuid(){
+        return uuidv4();
+    }
+
+    // req, res, serviceInput: IServiceInput
+    async read(req, res, serviceInput: IServiceInput): Promise<any> {
+        await this.init();
+        const userRepository = getConnection().getRepository(serviceInput.serviceModel);
+        console.log('BaseService::read()/serviceInput.cmd.filter:', serviceInput.cmd.filter);
         let results: any = null;
-        switch (cmd.action) {
+        switch (serviceInput.cmd.action) {
             case 'find':
-                results = await userRepository.find(cmd.filter);
+                results = await userRepository.find(serviceInput.cmd.filter);
                 break;
             case 'count':
-                results = await userRepository.count(cmd.filter);
+                results = await userRepository.count(serviceInput.cmd.filter);
                 break;
         }
-        console.log(results);
+        console.log('BaseService::read()/results:', results);
         return await results;
     }
 

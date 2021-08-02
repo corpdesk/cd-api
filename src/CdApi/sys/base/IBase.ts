@@ -4,7 +4,7 @@
  * @clsName // class name
  * @action // class method to invoke
  */
- export interface IControllerContext {
+export interface IControllerContext {
     path: string;
     clsName: string;
     action: string;
@@ -36,14 +36,13 @@ export interface ICdResponse {
     data: object;
 }
 
-export interface ISessResp{
-    cd_token: string;
-    jwt: string;
-    p_sid: string;
+export interface ISessResp {
+    cd_token?: string;
+    jwt?: string;
     ttl: number;
 }
 
-export interface IRespInfo{
+export interface IRespInfo {
     messages: string[];
     code: string;
     app_msg: any;
@@ -56,6 +55,29 @@ export interface ICdPushEnvelop {
     req: ICdRequest;
     resp: ICdResponse;
     pushData?: any;
+}
+
+export interface IServiceInput {
+    serviceModel: any;
+    serviceModelInstance?:any;
+    docModel: any;
+    docName?: string;
+    cmd?:any;
+    data?:any;
+    dSource?:number;
+}
+
+export interface IDoc {
+    doc_id?: number;
+    doc_guid?: string;
+    doc_name?: string;
+    doc_description?: string;
+    company_id?: number;
+    doc_from: number;
+    doc_type_id: number;
+    doc_date?: Date;
+    attach_guid?: string;
+    doc_expire_date?: Date;
 }
 
 export type ClassRef = new (...args: any[]) => any;

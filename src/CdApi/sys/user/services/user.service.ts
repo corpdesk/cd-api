@@ -1,17 +1,16 @@
 
-import { createConnection, getConnection, getConnectionManager, EntityMetadata } from 'typeorm';
+import { createConnection, getConnection } from 'typeorm';
 import 'reflect-metadata';
 import { BaseService } from '../../base/base.service';
-import { ICdPushEnvelop, ICdResponse, ICommConversationSub, IRespInfo } from '../../base/IBase';
 import { UserModel } from '../models/user.model';
 import { registerNotifTemplate } from '../models/registerNotifTemplate';
 import { CdService } from '../../base/cd.service';
 import { MailService } from '../../comm/services/mail.service';
 import userConfig from '../userConfig';
-import config from '../../../../config';
 import { Database } from '../../base/connect';
-import { isEmpty } from 'class-validator';
-
+import * as bcrypt from 'bcrypt';
+import { DocModel } from '../../moduleman/models/doc.model';
+import { IServiceInput } from '../../base/IBase';
 
 export class UserService extends CdService {
     cdToken: string;
@@ -44,19 +43,28 @@ export class UserService extends CdService {
     async init() {
         if (!this.db) {
             const db = await new Database();
-            const conn = await db.getConnection();
+            await db.setConnEntity(UserModel);
+            await db.setConnEntity(DocModel);
+            await db.getConnection();
         }
     }
 
     async create(req, res): Promise<void> {
         if (await this.validateCreate(req, res)) {
-            const regResp: any = await getConnection().manager.save(this.userModel);
+            const user = new UserModel();
+            await this.beforCreate(req);
+            const serviceInput = {
+                serviceModel: UserModel,
+                serviceModelInstance: user,
+                docModel: DocModel,
+                docName: 'Register User',
+                dSource: 1,
+            }
+            const regResp: any = await this.b.create(req, res, serviceInput);
             this.sendEmailNotification(req, res);
             this.b.cdResp = await regResp;
-            console.log('ret', regResp);
             const r = await this.b.respond(req, res, regResp);
         } else {
-            this.b.err.push('duplication of email and user name not allowed');
             const i = {
                 messages: this.b.err,
                 code: 'UserService:create',
@@ -74,11 +82,28 @@ export class UserService extends CdService {
             controllerInstance: this,
             model: UserModel,
         }
-        if (await this.b.validateUnique(req, res, params) && await this.b.validateRequired(req, res, this.cRules)) {
-            return true;
+        if (await this.b.validateUnique(req, res, params)) {
+            if (await this.b.validateRequired(req, res, this.cRules)) {
+                return true;
+            } else {
+                this.b.err.push('you must provide username, password and email');
+                return false;
+            }
         } else {
+            this.b.err.push('duplication of email and user name not allowed');
             return false;
         }
+    }
+
+    async beforCreate(req) {
+        this.userModel.user_guid = this.b.getGuid();
+        this.userModel.activation_key = this.b.getGuid();
+        await this.cryptPassword(req);
+    }
+
+    async cryptPassword(req) {
+        const d = this.b.getPlData(req);
+        req.post.dat.f_vals[0].data.password = await bcrypt.hash(d.password, 10);
     }
 
     async sendEmailNotification(req, res) {
@@ -89,7 +114,6 @@ export class UserService extends CdService {
     }
 
     async createMulti(req, res): Promise<void> {
-        console.log(`starting SessionService::create()`);
         createConnection().then(async connection => {
             const d = req.post.dat.f_vals[0].data;
             const regResp = await getConnection()
@@ -114,21 +138,11 @@ export class UserService extends CdService {
         });
     }
 
-    async read(req, res): Promise<any> {
-        console.log(`Starting read(): req.post: ${req.post}`);
-        return await createConnection().then(async connection => {
-            console.log(`read()/createConnection()`);
-            const ret: UserModel[] = await connection.manager.find(UserModel);
-            console.log(`ret: ${JSON.stringify(ret)}`);
-            getConnection().close();
-            // const r = await this.b.respond(req, res, regResp);
-            return await ret;
-        }).catch(async (e) => {
-            getConnection().close();
-            console.log(`Error: ${e}`);
-            // await this.b.respond(req, res, error);
-            return await e;
-        });
+    async createDoc(req, res, savedUser) {
+        const doc = new DocModel();
+        const userRepository = await getConnection().getRepository(UserModel);
+        doc.docName = 'Register User';
+        return await userRepository.save(this.b.getPlData(req));
     }
 
     /**
@@ -136,36 +150,9 @@ export class UserService extends CdService {
      * @param req
      * @param res
      */
-    async bRead(req, res): Promise<any> {
-        const f = { where: { email: 'george.oremo@gmail.com' } };
-        const cmd = {
-            action: 'find',
-            filter: f
-        }
-        this.b.cdResp.data = await this.b.read(UserModel, cmd);
-        const r = await this.b.respond(req, res, this.b.cdResp.data);
+    async read(req, res, serviceInput: IServiceInput): Promise<any> {
+        return await this.b.read(req, res, serviceInput);
     }
-
-    // /**
-    //  * Validate unique field
-    //  * @param req
-    //  * @param res
-    //  */
-    // async validateUniqueField(req, res): Promise<any> {
-    //     const f = {
-    //         where: [
-    //             { email: 'george.oremo@gmail.com' },
-    //             { userName: 'goremo' }
-    //         ]
-    //     };
-    //     const cmd = {
-    //         action: 'count',
-    //         filter: f
-    //     }
-    //     return await this.b.read(UserModel, cmd);
-    // }
-
-
 
     update(req, res): Promise<void> {
         console.log(`starting SessionService::update()`);
@@ -188,99 +175,4 @@ export class UserService extends CdService {
     rbRemove(): number {
         return 1;
     }
-
-    // private static async fetchUser() {
-    //     const product = await getManager().findOne(UserModel, {
-    //         relations: ['productType']
-    //     });
-
-    //     console.log(product);
-    //     console.log(product.productType);
-    // }
-
-    // setEntity(u: User, d: object){
-    //     for (const key in d) {
-    //         if (key) {
-    //             u[key] = d[key];
-    //         }
-    //     }
-    //     return u;
-    // }
-
-    // async Register(req, res) {
-    //     createConnection().then(async connection => {
-
-    //         console.log('Inserting a new user into the database...');
-    //         const user = new User();
-    //         const d = req.post.dat.f_vals[0].data;
-    //         user.fname = d.fname;
-    //         user.lname = d.lname;
-    //         user.password = d.password;
-    //         user.email = d.email;
-    //         user.username = d.username;
-    //         console.log('email: ' + JSON.stringify(d.email));
-    //         const regResp = await connection.manager.save(user);
-    //         console.log('Saved a new user with id: ' + user.user_id);
-    //         req.post.dat.f_vals[0].data.msg = registerNotifTemplate(await user);
-    //         const mailRet = await this.sendEmailNotif(await req, res);
-    //         console.log(`Register/regResp: ${JSON.stringify(regResp)}`);
-    //         this.b.cdResp = await regResp;
-    //         console.log(`Register/this.b.cdResp: ${JSON.stringify(this.b.cdResp)}`);
-    //         const pRecepients: ICommConversationSub[] = [
-    //             {
-    //                 user_id: user.user_id,
-    //                 sub_type_id: 1
-    //             }
-    //         ]
-    //         const pushEnvelop: ICdPushEnvelop = {
-    //             pushRecepients: pRecepients,
-    //             emittEvent: 'registered',
-    //             triggerEvent: 'register',
-    //             req: null,
-    //             resp: this.b.cdResp,
-    //             pushData: this.b.cdResp
-    //         };
-
-    //         /////////////////////////////////////
-
-    //         // console.log('Loading users from the database...');
-    //         // const users = await connection.manager.find(User);
-    //         // console.log('Loaded users: ', users);
-
-    //         // console.log('Here you can setup and run express/koa/any other framework.');
-
-
-    //         // const ret = await getConnection()
-    //         //     .createQueryBuilder()
-    //         //     .insert()
-    //         //     .into(User)
-    //         //     .values([
-    //         //         { fname: 'Timber', lname: 'Saw', password: 'secret', email: 'eee', username: 'tisaw' },
-    //         //         { fname: 'Phantom', lname: 'Lancer', password: 'admin', email: 'fff', username: 'phalance' }
-    //         //     ])
-    //         //     .execute();
-    //         getConnection().close();
-    //         console.log('ret', regResp);
-    //         const r = await this.b.respond(req, res, regResp);
-    //         // return ret;
-    //     }).catch(async (error) => {
-    //         getConnection().close();
-    //         console.log(`Error: ${error}`);
-    //         // return error;
-    //         await this.b.respond(req, res, error);
-    //     });
-    // }
-
-    // async sendEmailNotif(req, res) {
-    //     console.log(`starting UserController::sendEmailNotif(req, res)`);
-    //     const mailService = 'NodemailerService';
-    //     const cPath = `../comm/services/${mailService.toLowerCase()}`; // relative to BaseService because it is called from there
-    //     const clsCtx = {
-    //         path: cPath,
-    //         clsName: mailService,
-    //         action: 'sendMail'
-    //     }
-    //     console.log(`clsCtx: ${JSON.stringify(clsCtx)}`);
-    //     const ret = await this.b.resolveCls(req, res, clsCtx);
-    // }
 }

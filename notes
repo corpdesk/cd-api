@@ -130,8 +130,54 @@ further refinement are required in the booting sequence.
 - move requireValidation to base
 
 /////////////////////////////////////
+- typeorem/save to related tables: 
+        - https://stackoverflow.com/questions/54885935/how-to-save-relation-in-manytomany-in-typeorm
+- views
+    - https://orkhan.gitbook.io/typeorm/docs/view-entities
 - do docProcessing
+    - relate with service table
+    - implement doc_date
+- challenge cannot get propertyMapping to work in the base class using async await:
+    - Try spread syntax ...foo
+    - Try rxjs:
+        - https://stackoverflow.com/questions/59332631/is-there-any-way-to-get-data-from-the-database-without-using-async-await-in-nest
 - create session
+    - json column
+        - https://github.com/typeorm/typeorm/blob/master/docs/entities.md#simple-json-column-type
+            @Entity()
+            export class User {
+
+                @PrimaryGeneratedColumn()
+                id: number;
+
+                @Column("simple-json")
+                profile: { name: string, nickname: string };
+
+            }
+//////////////////////////////////
+
+    - clientNetID()
+        - https://www.npmjs.com/package/node-device-detector
+        - https://www.npmjs.com/package/device-detector-js
+        - client_ip: 
+            - https://www.npmjs.com/package/request-ip
+            - https://stackoverflow.com/questions/8107856/how-to-determine-a-users-ip-address-in-node
+        - browser fingerprint
+            - https://www.npmjs.com/package/get-browser-fingerprint
+        - hostname
+            - https://stackoverflow.com/questions/4255264/getting-client-hostname-in-node-js
+        - express session
+            - https://www.section.io/engineering-education/session-management-in-nodejs-using-expressjs-and-express-session/
+            - https://www.js-tutorials.com/nodejs-tutorial/nodejs-session-example-using-express-session/
+            - https://www.geeksforgeeks.org/session-management-using-express-session-module-in-node-js/
+            - https://medium.com/@irvingdinh/express-session-with-typescript-85bf6dff3dc9
+            - https://www.rockyourcode.com/how-to-extend-express-request-with-session-in-typescript-ts23339-error/
+            - https://stackoverflow.com/questions/38900537/typescript-extend-express-session-interface-with-own-class
+            - https://www.npmjs.com/package/express-session
+            - https://tsed.io/tutorials/session.html
+            - https://dev.to/qoobes/express-session-failing-with-typescript-types-express-session-1ehk
+
+- return login together with GetUserData()
 - table naming
 - update user data
     - update password
@@ -147,10 +193,16 @@ further refinement are required in the booting sequence.
     - docprocessing
     - Login/authenticate
     - session
-    - ACL/authorize
+    - GetUserData()
         - ACL
         - cdobjects
-
+02/08/2021
+- views
+- do docProcessing
+    - relate with service table
+    - implement doc_date
+- create session
+- return login with session
 
 29/07/2021
 - refine UserService::create()

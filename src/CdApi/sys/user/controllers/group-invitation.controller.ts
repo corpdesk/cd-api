@@ -22,6 +22,7 @@ export class GroupInvitationController {
             'group_id',
         ],
     };
+
     constructor() {
         console.log('starting GroupInvitationController()');
     }

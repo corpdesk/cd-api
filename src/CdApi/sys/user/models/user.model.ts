@@ -7,7 +7,8 @@ import {
     BeforeUpdate,
     IsNull,
     Not,
-    UpdateDateColumn
+    UpdateDateColumn,
+    OneToMany
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
@@ -28,6 +29,7 @@ import {
 import { CdModel, IsUnique } from '../../base/decorators/validators';
 import { UniqueOnDatabase } from '../../base/decorators/UniqueValidation';
 import { BaseService } from '../../base/base.service';
+import { DocModel } from '../../moduleman/models/doc.model';
 
 @Entity(
     {
@@ -203,7 +205,6 @@ export class UserModel {
     )
     activationKey?: string;
 
-
     @Column(
         {
             name: 'user_type_id',
@@ -213,30 +214,8 @@ export class UserModel {
     // @IsInt()
     userTypeId?: string;
 
-    @BeforeInsert()
-    async setPassword() {
-        this.password = await bcrypt.hash(this.password, 10);
-    }
-
-    @BeforeInsert()
-    async Now() {
-        // get current time
-        const now = new Date();
-        const date = await moment(
-            now,
-            'ddd MMM DD YYYY HH:mm:ss'
-        );
-        const nowMySql = await date.format('YYYY-MM-DD HH:mm:ss'); // convert to mysql date
-
-        // get repeated usernames
-
-    }
-
-    // @BeforeInsert()
-    // validateEmail(email: string) {
-    //     const re = /^(([^<>()\[\]\\.,;:\s@']+(\.[^<>()\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    //     const isValid: boolean = re.test(String(email).toLowerCase());
-    // }
+    @OneToMany(type => DocModel, doc => doc.user) // note: we will create user property in the Docs class
+    docs: DocModel[];
 
     // HOOKS
     @BeforeInsert()

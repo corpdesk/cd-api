@@ -27,97 +27,32 @@ import {
 } from 'class-validator';
 
 /**
- * SELECT sid, device_id, browser_sid, login_time, page_accessed, pg_access_time, sess_expire_time, current_user_id, logout_time, comp_name, browser_fingerprint, log_info, cd_token, active, cookie, `_id`, p_sid, ttl, acc_time_int, acc_time_h, exp_time_int, exp_time_h, valid, start_time_int, start_h, consumer_guid
- * FROM cd1212.`session`;
+ * SELECT session_id, current_user_id, cd_token, active, ttl, acc_time, start_time, consumer_guid, device_net_id
+ * FROM cd1213.`session`;
  */
 
-@Entity({name:'session', synchronize: false})
-export class Session {
+@Entity({ name: 'session', synchronize: false })
+export class SessionModel {
 
-    @PrimaryGeneratedColumn()
-    sid?: number;
-
-    @Column({
-        length: 36,
-        default: uuidv4()
-    })
-    deviceId?: string;
-
-    @Column(
-        'varchar',
+    @PrimaryGeneratedColumn(
         {
-            length: 50,
-            nullable: false
+            name: 'session_id'
         }
     )
-    browserSid: string;
-
-    @Column(
-        'char',
-        {
-            length: 60,
-            default: null
-        })
-    loginTime: string;
-
-    @Column(
-        'varchar',
-        {
-            length: 60,
-            unique: true,
-            nullable: false
-        }
-    )
-    @IsEmail()
-    pageAccessed: string;
+    sessionId?: number;
 
     @Column(
         {
-            default: null
+            name: 'current_user_id',
+            default: 1000
         }
     )
     // @IsInt()
-    pgAccessTime?: number;
+    currentUserId: number;
 
     @Column(
         {
-            default: null
-        }
-    )
-    // @IsInt()
-    currentUserId?: number;
-
-    @Column(
-        {
-            default: null
-        }
-    )
-    logoutTime?: string;
-
-    @Column(
-        {
-            default: null
-        }
-    )
-    compName?: number;
-
-    @Column(
-        {
-            default: null
-        }
-    )
-    // @IsDate()
-    browserFingerprint?: Date;
-
-    @Column(
-        {
-            default: null
-        }
-    )
-    logInfo?: string;
-
-    @Column(
-        {
+            name: 'cd_token',
             default: null
         }
     )
@@ -125,25 +60,21 @@ export class Session {
 
     @Column(
         {
+            name: 'start_time',
             default: null
         }
     )
-    active?: string;
+    // @IsJSON()
+    startTime?: string;
 
     @Column(
         {
-            default: null
-        }
-    )
-    cookie: string;
-
-    @Column(
-        {
+            name: 'acc_time',
             default: null
         }
     )
     // @IsInt()
-    pSid?: number;
+    accTime?: string;
 
     @Column(
         {
@@ -158,83 +89,17 @@ export class Session {
             default: null
         }
     )
-    accTime_int?: boolean;
+    active?: boolean;
 
     @Column(
-        'char',
+        'json',
         {
-            length: 5,
-            default: null
-        }
-    )
-    accTime_h?: string;
-
-    // exp_time_int, exp_time_h, valid, start_time_int, start_h, consumer_guid
-    @Column(
-        {
-            length: 36,
-            default: uuidv4()
-        }
-    )
-    expTimeInt?: string;
-
-    @Column(
-        {
+            name: 'device_net_id',
             default: null
         }
     )
     // @IsInt()
-    valid?: number;
-
-    @Column(
-        'text',
-        {
-            default: null
-        }
-    )
-    // @IsJSON()
-    startTimeInt?: JSON;
-
-    @Column(
-        {
-            default: null
-        }
-    )
-    // @IsInt()
-    startH?: string;
-
-    @Column(
-        {
-            default: null
-        }
-    )
-    // @IsInt()
-    consumerGuid?: string;
-
-    @UpdateDateColumn()
-    updatedAt?: Date;
-
-    @Column(
-        'datetime',
-        {
-            default: null
-        }
-    )
-    createdAt?: string;
-
-    @Column(
-        {
-            default: null
-        }
-    )
-    temp?: boolean;
-
-    @Column(
-        {
-            default: null
-        }
-    )
-    doneAvatar?: boolean;
+    deviceNetId?: JSON;
 
     // @BeforeInsert()
     // async setPassword() {
@@ -248,7 +113,7 @@ export class Session {
             now,
             'ddd MMM DD YYYY HH:mm:ss'
         );
-        this.createdAt = await date.format('YYYY-MM-DD HH:mm:ss'); // convert to mysql date
+        this.startTime = await date.format('YYYY-MM-DD HH:mm:ss'); // convert to mysql date
     }
 
     // HOOKS
