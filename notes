@@ -177,12 +177,102 @@ further refinement are required in the booting sequence.
             - https://tsed.io/tutorials/session.html
             - https://dev.to/qoobes/express-session-failing-with-typescript-types-express-session-1ehk
 
+
+Implement Streams for ACL
+- acl_user_view
+- consumer_resource_view
+- acl_module_view
+- module_member_view
+
+
 - return login together with GetUserData()
 
 //////////////////////////////////////////
 - implemented async getDeviceNetId(): Promise<JSON> 
     - https://www.npmjs.com/package/device-detector-js
 - implemented getIP()
+
+- test validation of consumer_guid
+
+- new tables
+    - group
+    - group_member
+    - consumer
+    - cdobj
+    - cdobj_type 
+    - acl
+    - scheduler
+    - module
+    - company
+    - company_type
+    - company_sub_type
+    - sys_config
+    - sys_config_type
+    - consumer_resource
+    - consumer_resource_type
+    - doc_type_approval
+    - menu
+    - menu_config
+
+- new models
+
+
+//////////////////////////
+- due to some challenges in iteration for menu, consider rxjs
+    - rxjs 7: https://javascript.plainenglish.io/rxjs-7-in-depth-32cc7bf3e5c
+    - node.js emitters
+    - promises examples
+    -  Design Patterns: Elements of Reusable ObjectOriented Software, known casually as the Gang of Four book.
+    - Functional Programming in JavaScript (Manning, 2016) by Luis Atencio
+    - Reactive Programming
+    - generators: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*
+    - iterators: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#iterator
+    - propagation of change
+    - mysql & rxjs: https://www.advenage.com/topics/node-mysql-rxjs
+    - fluent node.js: https://stackoverflow.com/questions/63288162/fluent-api-with-typescript
+    - flat to nested: https://www.npmjs.com/package/flat-to-nested
+    - rxjs recursive: https://dev.to/krumpet/getting-a-recursive-data-structure-asynchronously-with-rxjs-46b9
+    - axios nodejs sample: https://www.section.io/engineering-education/how-to-create-a-simple-rest-api-using-typescript-and-nodejs/
+    - forkjoin: https://www.learnrxjs.io/learn-rxjs/operators/combination/forkjoin
+    - mergeMap(): streams (one depends on the other) are combined using mergeMap() or switchMap(), 
+    - combineLatest(): independent streams are combined using combineLatest() 
+    - websockets: 
+        - https://www.npmjs.com/package/rxjs-websockets
+        - https://javascript-conference.com/blog/real-time-in-angular-a-journey-into-websocket-and-rxjs/
+        - https://rxjs.dev/api/webSocket/webSocket
+    - rxjs socket.io:
+        - https://steveholgado.com/rxjs-chat-app/
+        - https://www.npmjs.com/package/rxjs-socket.io
+        - https://stackoverflow.com/questions/29813503/how-to-use-rxjs-with-socket-io-on-event
+    - Share observables:
+        - share()
+        - publish()
+
+    Enrico Piccinin:
+    - https://betterprogramming.pub/rxjs-patterns-emerging-from-stackoverflow-asynchronous-api-calls-as-streams-in-the-real-world-ef636c9af19a
+    - https://medium.com/free-code-camp/rxjs-and-node-8f4e0acebc7c
+
+    FUNCTIONAL PROGRAMMING:
+    - code samples: https://github.com/luijar/functional-programming-js
+    - listing 3.11 page(80/103) of 243: Node/Tree
+    - what is Lodash.js framework?
+    - what is Ramda.js, composition? and how to integrate it in cd
+    - linqts: https://www.npmjs.com/package/linqts
+    - Log4js
+    - Mixins:
+        - https://javascriptweblog.wordpress.com/2011/05/31/a-fresh-look-at-javascript-mixins/
+        - https://www.oreilly.com/library/view/beautiful-javascript/9781449371142/ch01.html
+    - Terminologies:
+        - propagation of change, immutability, scalar values, Unicode values, monads, factors, mixins
+          Tuples,
+    - is there book on decorators?
+    - examples of decorators in typescripts
+    - designing system with decorators
+
+- upon company registration, insert user to relevant groups
+    - Comm, InteRact,  Memo, scheduler, pub, 
+- upon user registration, insert user to relevant groups
+    - Comm, InteRact,  Memo, scheduler, pub, 
 
 - table naming
 - update user data
@@ -194,14 +284,48 @@ further refinement are required in the booting sequence.
 - develop a way for initializing cd-api modules dev environment
 - develop cli and gui for designing and initializing modules
 
+//$username = "root";
+//$password = "p@ssword";
+$username = "karl";
+$password = "secret";
+//$username = "zog";
+//$password = "siri01";
+//$username = "jondoo";
+//$password = "iiii";
+//$username = "coolist";
+//$password = "xxcc";
+//$username = "goremo";
+//$password = "siri";
+//$username = "loice.adhiambo";
+//$password = "muziki";
+//$username = "widi.oremo";
+//$password = "arsenali";
+//$myvars = user_auth($username, $password);
 
+- Integrating promises and rxjs 
+    - https://benlesh.medium.com/rxjs-observable-interop-with-promises-and-async-await-bebb05306875
 - Login:
     - docprocessing
     - Login/authenticate
     - session
     - GetUserData()
-        - ACL
-        - cdobjects
+        - cover rxjs with the view of replacing most asyc/awit
+        - Implement ACL using rxjs
+
+ONLINE DEPLOYMENT:
+Cheap hosting:
+- https://dev.to/ramko9999/host-and-use-redis-for-free-51if
+- https://www.fastcomet.com/nodejs-hosting
+
+
+06/09/2021
+- Login:
+    - docprocessing
+    - Login/authenticate
+    - session
+    - GetUserData()
+        - cover rxjs with the view of replacing most asyc/awit
+        - Implement ACL using rxjs
 
 02/08/2021
 - implemented async getDeviceNetId(): Promise<JSON> 

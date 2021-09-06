@@ -26,10 +26,24 @@ import {
     IsJSON,
 } from 'class-validator';
 
-/**
- * SELECT session_id, current_user_id, cd_token, active, ttl, acc_time, start_time, consumer_guid, device_net_id
- * FROM cd1213.`session`;
- */
+// /**
+//  * {
+//     startTime: '2021-09-05 20:06:22',
+//     cdToken: '9b7064ac-7b61-4e21-8ab3-18b4bc33a1f7',
+//     currentUserId: 1003,
+//     accTime: '2021-09-05 20:06:22',
+//     ttl: 600,
+//     active: true,
+//     deviceNetId: {
+//       client: [Object],
+//       os: [Object],
+//       device: [Object],
+//       bot: null,
+//       net: [Object]
+//     },
+//     consumerGuid: 'B0B3DA99-1859-A499-90F6-1E3F69575DCD'
+//   }
+//  */
 
 @Entity({ name: 'session', synchronize: false })
 export class SessionModel {
@@ -53,7 +67,6 @@ export class SessionModel {
     @Column(
         {
             name: 'cd_token',
-            default: null
         }
     )
     cdToken: string;
@@ -101,26 +114,31 @@ export class SessionModel {
     // @IsInt()
     deviceNetId?: JSON;
 
+    // consumer_guid:
+    @Column(
+        {
+            name: 'consumer_guid',
+            length: 36,
+            // default: uuidv4()
+        }
+    )
+    consumerGuid?: string;
+
     // @BeforeInsert()
-    // async setPassword() {
-    //     this.password = await bcrypt.hash(this.password, 10);
+    // async Now() {
+    //     const now = new Date();
+    //     const date = await moment(
+    //         now,
+    //         'ddd MMM DD YYYY HH:mm:ss'
+    //     );
+    //     this.startTime = await date.format('YYYY-MM-DD HH:mm:ss'); // convert to mysql date
     // }
 
-    @BeforeInsert()
-    async Now() {
-        const now = new Date();
-        const date = await moment(
-            now,
-            'ddd MMM DD YYYY HH:mm:ss'
-        );
-        this.startTime = await date.format('YYYY-MM-DD HH:mm:ss'); // convert to mysql date
-    }
-
-    // HOOKS
-    @BeforeInsert()
-    @BeforeUpdate()
-    async validate() {
-        await validateOrReject(this);
-    }
+    // // HOOKS
+    // @BeforeInsert()
+    // @BeforeUpdate()
+    // async validate() {
+    //     await validateOrReject(this);
+    // }
 
 }

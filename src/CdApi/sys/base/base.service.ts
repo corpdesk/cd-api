@@ -1,8 +1,9 @@
 
 import { v4 as uuidv4 } from 'uuid';
+import * as Lá from 'lodash';
 import { ICdRequest, ICdResponse, IControllerContext, IDoc, IRespInfo, IServiceInput, ISessResp } from './IBase';
 import { EntityMetadata, getConnection, } from 'typeorm';
-import { Observable, of, from, defer } from 'rxjs';
+import { Observable, of, from, defer, bindCallback } from 'rxjs';
 import { map } from 'rxjs/operators';
 import moment from 'moment';
 import { Database } from './connect';
@@ -66,13 +67,13 @@ export class BaseService {
         };
         await this.setAppState(false, i, null);
         this.cdResp.data = [];
-        return await this.respond(null, res, this.cdResp.data);
+        return await this.respond(res);
     }
 
     async returnErr(req, res, i: IRespInfo) {
         const sess = this.getSess(req, res);
         await this.setAppState(false, i, sess);
-        return await this.respond(req, res, []);
+        return await this.respond(res);
     }
 
     entryPath(pl: ICdRequest) {
@@ -149,7 +150,10 @@ export class BaseService {
      * @param Sess
      */
     async setAppState(succ: boolean, i: IRespInfo | null, ss: ISessResp | null) {
-        this.cdResp.app_state = await {
+        if(succ === false){
+            this.cdResp.data = [];
+        }
+        this.cdResp.app_state = {
             success: succ,
             info: i,
             sess: ss,
@@ -197,8 +201,7 @@ export class BaseService {
         }
     }
 
-    async respond(req, res, data) {
-        console.log('----response:----------------\n', JSON.stringify(this.cdResp));
+    async respond(res) {
         res.status(200).json(this.cdResp);
     }
 
@@ -212,7 +215,6 @@ export class BaseService {
         const colsFiltd = await cols.map(async (col) => {
             return { propertyAliasName: col.propertyAliasName, databaseNameWithoutPrefixes: col.databaseNameWithoutPrefixes };
         });
-        // console.log('BaseService::colsFiltd:', colsFiltd);
         return colsFiltd;
     }
 
@@ -282,17 +284,24 @@ export class BaseService {
     }
 
     async create(req, res, serviceInput: IServiceInput) {
+        // console.log('starting BaseService::create(req, res, guest)');
+        // console.log('BaseService::create(req, res, guest)/001');
+        // console.log('BaseService::create()/serviceInput:', serviceInput)
         await this.init();
         let newDocData;
         try{
+            // console.log('BaseService::create(req, res, guest)/002');
             newDocData = await this.saveDoc(req, res, serviceInput);
         } catch(e){
+            // console.log('BaseService::create(req, res, guest)/003');
             this.serviceErr(res,e,'BaseService:create/savDoc')
         }
+        // console.log('BaseService::create(req, res, guest)/004');
         let serviceRepository = null;
         try {
             serviceRepository = await getConnection().getRepository(serviceInput.serviceModel);
         } catch (e) {
+            // console.log('BaseService::create(req, res, guest)/006');
             this.err.push(e.toString());
             const i = {
                 messages: this.err,
@@ -310,9 +319,9 @@ export class BaseService {
                     req.post.dat.f_vals[0].data.doc_id = await newDocData.docId;
                     const serviceData = await this.getServiceData(req, serviceInput);
                     modelInstance = await this.setEntity(serviceInput, serviceData);
+                    return await serviceRepository.save(await modelInstance);
                 }
             }
-            return await serviceRepository.save(await modelInstance);
         } catch (e) {
             this.err.push(e.toString());
             const i = {
@@ -325,8 +334,8 @@ export class BaseService {
         }
     }
 
-    async saveDoc(req, res, serviceInput) {
-        const docRepository: any = await getConnection().getRepository(serviceInput.docModel);
+    async saveDoc(req, res, serviceInput: IServiceInput) {
+        const docRepository: any = await getConnection().getRepository(DocModel);
         const doc = await this.setDoc(req, res, serviceInput);
         return await docRepository.save(doc);
     }
@@ -347,10 +356,6 @@ export class BaseService {
         dm.docDate = await this.mysqlNow();
         return await dm;
     }
-
-    // async setModels(m: any[]) {
-    //     this.init();
-    // }
 
     async getServiceData(req, serviceInput: IServiceInput) {
         if (serviceInput.data) {
@@ -376,7 +381,7 @@ export class BaseService {
         const propMapArr = await this.setPropertyMapArr(serviceInput);
         const serviceInstance = serviceInput.serviceModelInstance;
         propMapArr.forEach(async (field: any, i) => {
-            serviceInstance[field.alias] = serviceData[field.fieldName];
+            serviceInstance[field.alias] = serviceData[field.alias];
         });
         return await serviceInstance;
     }
@@ -392,6 +397,10 @@ export class BaseService {
 
     getGuid(){
         return uuidv4();
+    }
+
+    getCuid(){
+        return this.cuid;
     }
 
     // req, res, serviceInput: IServiceInput
@@ -410,6 +419,13 @@ export class BaseService {
         return await results;
     }
 
+    read$(req, res, serviceInput): Observable<any> {
+        // return defer(() => {
+        //     return this.read(req, res, serviceInput)
+        // });
+        return from(this.read(req, res, serviceInput));
+    }
+
     controllerCreate(req, res) {
         return 1;
     }
@@ -421,6 +437,32 @@ export class BaseService {
     controllerDelete(req, res) {
         return 1;
     }
+
+    intersect(arrA,arrB, intersectionField){
+        return Lá.intersectionBy(arrA, arrB, intersectionField);
+    }
+
+    intersectionLegacy = (arr1, arr2) => {
+        const res = [];
+        // for(let i = 0; i < arr1.length; i++){
+        for(const i of arr1){
+           if(!arr2.includes(i)){
+              continue;
+           };
+           res.push(i);
+        };
+        return res;
+     };
+
+     intersectMany = (...arrs) => {
+        let res = arrs[0].slice();
+        for(let i = 1; i < arrs.length; i++){
+           res = this.intersectionLegacy(res, arrs[i]);
+        };
+        return res;
+     };
+
+
 
     /**
      *

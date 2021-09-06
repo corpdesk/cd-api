@@ -18,6 +18,7 @@ export class CdExec {
                 }
                 await this.b.resolveCls(req, res, clsCtx);
             } catch (e) {
+                console.log('CdExec::exec/error:', e);
                 const i: IRespInfo = {
                     messages: e,
                     code: 'CdExec:exec:01',

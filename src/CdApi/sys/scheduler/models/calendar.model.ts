@@ -26,7 +26,7 @@ import {
 } from 'class-validator';
 
 @Entity()
-export class Comm {
+export class Calendar {
 
     @PrimaryGeneratedColumn()
     comm_id?: number;

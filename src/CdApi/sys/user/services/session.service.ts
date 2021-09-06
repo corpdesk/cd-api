@@ -10,18 +10,30 @@ import { UserModel } from '../models/user.model';
 export class SessionService {
     b: BaseService;
     sessModel: SessionModel;
+    sessIsSet = false;
+    sessData = {
+        cuid: 1000,
+        cdToken:'',
+        consumerGuid: '',
+        deviceNetId: null,
+        userData: null,
+    };
     constructor() {
         this.b = new BaseService();
         this.sessModel = new SessionModel();
     }
 
-    async create(req, res) {
+    async create(req, res, guest) {
+        // console.log('starting SessionService::create(req, res, guest)');
         try {
+            // const session = new SessionModel();
+            await this.setSession(req, guest);
             const serviceInput: IServiceInput = {
                 serviceModel: SessionModel,
                 serviceModelInstance: this.sessModel,
-                docModel: DocModel,
-                docName: 'Create Session'
+                dSource: 1,
+                docName: 'Create Session',
+                data: this.sessModel
             }
             return await this.b.create(req, res, serviceInput);
         } catch (e) {
@@ -42,20 +54,28 @@ export class SessionService {
     }
 
     async setSession(req, guest: UserModel) {
+        this.sessData.cuid = guest.userId;
+        this.sessData.cdToken = this.b.getGuid();
+        this.sessData.consumerGuid = req.post.dat.f_vals[0].data.consumer_guid;
+        this.sessData.deviceNetId = await this.getDeviceNetId(req);
+        this.sessData.userData = guest;
         this.sessModel.startTime = await this.b.mysqlNow();
-        this.sessModel.cdToken = this.b.getGuid();
+        this.sessModel.cdToken = this.sessData.cdToken;
         this.sessModel.currentUserId = guest.userId;
         this.sessModel.accTime = await this.b.mysqlNow();
         this.sessModel.ttl = this.getTtl();
         this.sessModel.active = true;
-        this.sessModel.deviceNetId = await this.getDeviceNetId(req);
+        this.sessModel.deviceNetId = this.sessData.deviceNetId;
+        this.sessModel.consumerGuid = this.sessData.consumerGuid;
+        req.post.sessData = this.sessData;
+        this.sessIsSet = true;
     }
 
     getTtl() {
         return 600;
     }
 
-    // https://www.npmjs.com/package/device-detector-js
+    // Based on: https://www.npmjs.com/package/device-detector-js
     async getDeviceNetId(req): Promise<JSON> {
         const deviceDetector = new DeviceDetector();
         const userAgent = `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.81 Safari/537.36`;
@@ -70,5 +90,17 @@ export class SessionService {
 
     getIP(req){
         return req.ip;
+    }
+
+    async getConsumerGuid(req){
+        return await req.post.sessData.consumerGuid;
+    }
+
+    async getCuid(req){
+        return req.post.sessData.cuid;
+    }
+
+    async getCurrentUser(req) {
+        return req.post.sessData.userData;
     }
 }

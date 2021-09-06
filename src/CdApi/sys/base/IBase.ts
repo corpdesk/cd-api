@@ -1,3 +1,6 @@
+import { Observable } from 'rxjs';
+import { AclModuleViewModel } from '../moduleman/models/aclmoduleview.model';
+import { MenuViewModel } from '../moduleman/models/menu-view.model';
 
 /**
  * @path // the path of the controller relative to the BaseService file
@@ -60,7 +63,6 @@ export interface ICdPushEnvelop {
 export interface IServiceInput {
     serviceModel: any;
     serviceModelInstance?:any;
-    docModel: any;
     docName?: string;
     cmd?:any;
     data?:any;
@@ -81,6 +83,7 @@ export interface IDoc {
 }
 
 export type ClassRef = new (...args: any[]) => any;
+export type Fn = () => void;
 
 export interface IUser {
     userID: number;
@@ -102,6 +105,33 @@ export interface ICommConversationSub {
     commconversationsub_invited?: boolean;
     commconversationsub_accepted?: boolean;
 }
+
+export interface IAclCtx{
+    memberGuid: string;
+    moduleGroupGuid: any;
+    consumerId: number;
+    moduleName: string;
+    currentUser: any,
+    module: any,
+}
+
+export interface ISelectedMenu {
+    moduleMenuData?: MenuViewModel[],
+    selectedItem: MenuViewModel,
+    selectedId?: number,
+}
+
+export interface IAllowedModules{
+    modules$: Observable<AclModuleViewModel[]>;
+    modulesCount: number;
+}
+
+export interface IMenuRelations{
+    menuParent: MenuViewModel;
+    menuChildren: MenuViewModel[];
+}
+
+
 
 
 

@@ -8,7 +8,7 @@ import { ViewEntity, ViewColumn } from 'typeorm';
         LEFT JOIN 'category' 'category' ON 'post'.'categoryId' = 'category'.'id'
     `
     })
-export class PostCategory {
+export class UserViewModel {
 
     @ViewColumn()
     id: number;

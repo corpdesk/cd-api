@@ -60,7 +60,7 @@ export class UserModel {
         {
             name: 'user_name',
             length: 50,
-            nullable: false
+            nullable: true
         }
     )
     userName: string;
@@ -79,7 +79,7 @@ export class UserModel {
         {
             length: 60,
             unique: true,
-            nullable: false
+            nullable: true
         }
     )
 
@@ -184,7 +184,7 @@ export class UserModel {
             default: null
         }
     )
-    trusted?: boolean;
+    enabled?: boolean;
 
     @Column(
         'char',
