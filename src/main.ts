@@ -10,8 +10,9 @@ export class Main {
         const port = config.apiPort;
         const options: cors.CorsOptions = config.Cors.options;
 
-        app.use(cors(options));
-        app.options('*', cors(options)); // enable pre-flight
+        app.use(cors());
+        // app.use(cors(options));
+        // app.options('*:*', cors(options)); // enable pre-flight
 
         app.post('/', async (req: any, res: any) => {
             res.setHeader('Content-Type', 'application/json');

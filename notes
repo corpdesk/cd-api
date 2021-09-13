@@ -304,6 +304,7 @@ $password = "secret";
 
 - Integrating promises and rxjs 
     - https://benlesh.medium.com/rxjs-observable-interop-with-promises-and-async-await-bebb05306875
+
 - Login:
     - docprocessing
     - Login/authenticate
@@ -312,11 +313,91 @@ $password = "secret";
         - cover rxjs with the view of replacing most asyc/awit
         - Implement ACL using rxjs
 
+- review backend as a cloud:
+    - node.js cluster
+        - https://blog.appsignal.com/2021/02/03/improving-node-application-performance-with-clustering.html
+        - https://nodejs.org/api/cluster.html
+    - mysql cluster
+    - kubernates
+        - https://www.digitalocean.com/community/tech_talks/how-to-deploy-a-resilient-node-js-application-on-kubernetes-from-scratch
+    - redis as chache system
+    - backup as a cloud
+    - visualization
+
+
+
+- Admin Console
+    - users
+        - view/search
+        - join/remove from group
+        - join/remove consumer
+    - groups
+    - consumer
+        - consumer resources
+    - modules
+    - app-market
+
 ONLINE DEPLOYMENT:
 Cheap hosting:
 - https://dev.to/ramko9999/host-and-use-redis-for-free-51if
 - https://www.fastcomet.com/nodejs-hosting
 
+Website:
+- general info
+- documentation
+- corpdesk demo
+- business partnerships
+    - students mentorship platform
+    - certification
+
+Front End Demo:
+- register user
+- login as public user
+    - interact with public modules
+    - user profile
+    - calendar
+    - pubs
+    
+- adopt a user and consumer member
+- login as consumer user
+    - inteRact
+    - chat
+    - memo
+    - pms
+- login to different consumers and view different applications
+    - booking
+    - mpesa
+
+- install an application from app-market
+    - free application
+        - public health software
+    - paid for app
+        - ardwino based app
+    - free app with ads
+        - accts
+    - upgrade free app to non-advert
+        - accts
+- scalability demos
+    - multi-server expansion
+    - load balance demos with visualization
+    
+- ease of management:
+    - setup on existing server
+    - buckup
+    - migration
+    - visualization for backend performance
+
+- Areas for application devs
+    - block-chain apps
+    - ardwino apps
+    - ai-api
+
+Back End Demo:
+    - technical documentation
+    - automation in module development
+    - app markets
+        - earning from module development
+    - training and certifications
 
 06/09/2021
 - Login:
@@ -326,12 +407,22 @@ Cheap hosting:
     - GetUserData()
         - cover rxjs with the view of replacing most asyc/awit
         - Implement ACL using rxjs
+        - refined isConsumer to return publicModules + userModules
+        - refined isGuest to return only publicModules
+        - clean up codes
 
 02/08/2021
 - implemented async getDeviceNetId(): Promise<JSON> 
     - https://www.npmjs.com/package/device-detector-js
 - implemented getIP()
-    
+
+13/09/2021
+- remote app security:
+        - develop reusable guard at the library
+        - could not get indexedDB/dexie to work
+        - share session data via localStorage
+        - implement queryParams for privilaged routes
+
 02/08/2021
 - views
 - do docProcessing

@@ -28,6 +28,10 @@ import { ViewEntity, ViewColumn } from 'typeorm';
         'menu'.'menu_action_id' AS 'menu_action_id',
         'menu'.'doc_id' AS 'doc_id',
         'menu'.'menu_parent_id' AS 'menu_parent_id',
+        'menu'.'path' AS 'path',
+        'menu'.'is_title' AS 'is_title',
+        'menu'.'badge' AS 'badge',
+        'menu'.'is_layout' AS 'is_layout',
         'module'.'module_id' AS 'module_id',
         'module'.'module_guid' AS 'module_guid',
         'module'.'module_name' AS 'module_name',
@@ -105,6 +109,34 @@ export class MenuViewModel {
         }
     )
     menuParentId?: number;
+
+    @ViewColumn(
+        {
+            name: 'path'
+        }
+    )
+    path?: string;
+
+    @ViewColumn(
+        {
+            name: 'is_title'
+        }
+    )
+    isTitle?: boolean | number | null;
+
+    @ViewColumn(
+        {
+            name: 'badge'
+        }
+    )
+    badge?: string;
+
+    @ViewColumn(
+        {
+            name: 'is_layout'
+        }
+    )
+    isLayout?: boolean | number | null;
 
     @ViewColumn(
         {
