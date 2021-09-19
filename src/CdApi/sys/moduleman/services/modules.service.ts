@@ -15,6 +15,7 @@ import { GroupService } from '../../user/services/group.service';
 import { ModuleModel } from '../models/module.model';
 import { IAclCtx } from '../../base/IBase';
 import { UserModel } from '../../user/models/user.model';
+import { delay } from 'lodash';
 
 export class ModuleService {
 
@@ -114,5 +115,4 @@ export class ModuleService {
                 })
             );
     }
-
 }

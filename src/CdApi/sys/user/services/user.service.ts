@@ -20,11 +20,13 @@ import userConfig from '../userConfig';
 import { Database } from '../../base/connect';
 import * as bcrypt from 'bcrypt';
 import { DocModel } from '../../moduleman/models/doc.model';
-import { IServiceInput, Fn } from '../../base/IBase';
+import { IServiceInput, Fn, IRespInfo } from '../../base/IBase';
 import { SessionService } from './session.service';
 import { SessionModel } from '../models/session.model';
 import { ISessResp } from '../../base/IBase';
 import { ModuleService } from '../../moduleman/services/modules.service';
+
+
 
 export class UserService extends CdService {
     cdToken: string;
@@ -34,6 +36,14 @@ export class UserService extends CdService {
     db;
     srvSess: SessionService;
     srvModules: ModuleService;
+
+    i: IRespInfo = {
+        messages: null,
+        code: 'UserController:Login',
+        app_msg: 'Login success'
+    };
+
+    loginState = false;
 
     /*
      * create rules
@@ -75,7 +85,6 @@ export class UserService extends CdService {
             const serviceInput = {
                 serviceModel: UserModel,
                 serviceModelInstance: user,
-                docModel: DocModel,
                 docName: 'Register User',
                 dSource: 1,
             }
@@ -222,140 +231,93 @@ export class UserService extends CdService {
             docName: 'UserService::Login',
             cmd: {
                 action: 'find',
-                filter: { where: { userName: req.post.dat.f_vals[0].data.user_name } }
+                filter: {
+                    where: [
+                        { userName: req.post.dat.f_vals[0].data.user_name },
+                        { userName: 'anon' }
+                    ]
+                }
             },
             dSource: 1,
         }
         const result: UserModel[] = await this.read(req, res, serviceInput);
-        if (result.length > 0 && this.validateLogin(req)) {
-            this.onLoginSuccess(req, res, result);
-        } else {
-            this.b.serviceErr(res, 'Login failed', 'UserController:Login')
-        }
+        const guest = await this.resolveGuest(req, res,result);
+        console.log('auth2(req, res)/guest:', guest);
+        await this.authResponse(req, res, guest);
     }
 
-    onLoginSuccess(req, res, result) {
-        let loginSuccess = null;
-        let i = null;
-        const guest: UserModel = result[0];
-        loginSuccess = bcrypt.compare(req.post.dat.f_vals[0].data.password, guest.password); // users registered with laravel have isssues...to sort
-        loginSuccess = true; // debuging using laravel encrypted passwords;
-        this.b.err.push('login success');
-        if (loginSuccess) {
-            delete guest.password;
-            const sessResult$: Rx.Observable<SessionModel> = Rx.from(this.srvSess.create(req, res, guest));
-            // sessResult: SessionModel {
-            //     startTime: 2021-09-05T05:19:29.000Z,
-            //     cdToken: null,
-            //     currentUserId: null,
-            //     accTime: null,
-            //     ttl: null,
-            //     active: null,
-            //     deviceNetId: null,
-            //     consumerGuid: 'B0B3DA99-1859-A499-90F6-1E3F69575DCD',
-            //     sessionId: 270
-            //   }
-            // console.log('sessResult:', sessResult);
-            // console.log('UserService::onLoginSuccess(req, res, result)/001');
-            const modulesUserData$ = this.srvModules.getModulesUserData$(req, res, guest);
-            // console.log('UserService::onLoginSuccess(req, res, result)/002');
-            // await Promise.all([sessResult, modulesUserData]);
-            // const sessData: ISessResp = {
-            //     cd_token: sessResult.cdToken,
-            //     jwt: null,
-            //     ttl: sessResult.ttl
-            // };
-            // i = {
-            //     messages: this.b.err,
-            //     code: 'UserController:Login',
-            //     app_msg: ''
-            // };
-            // console.log('UserService::onLoginSuccess(req, res, result)/003');
-
-            const sessFlat = r => { return r };
-
-            const result$ = Rx.forkJoin({
-                sessResult: sessResult$,
-                modulesUserData: modulesUserData$
-            })
-                .pipe(
-                    Rx.defaultIfEmpty({
-                        sessResult: sessResult$.pipe(Rx.mergeMap(r => sessFlat(r))),
-                        modulesUserData: {
-                            consumer: [],
-                            menuData: [],
-                            userData: {}
-                        }
-                    })
-                )
-            // console.log('result$:', result$);
-
-            result$
-                // .pipe(
-                //     Rx.mergeMap((m) => {
-                //         return m.modulesUserData.menuData.filter(menu => menu !== null)
-                //     })
-                // )
-                .subscribe(
-                    (ret: any) => {
-                        // console.log('final ret:', ret);
-                        const sessData: ISessResp = {
-                            cd_token: ret.sessResult.cdToken,
-                            jwt: null,
-                            ttl: ret.sessResult.ttl
-                        };
-                        i = {
-                            messages: this.b.err,
-                            code: 'UserController:Login',
-                            app_msg: 'Login success'
-                        };
-                        console.log('UserService::onLoginSuccess()/ret:', ret)
-                        if (ret.modulesUserData.menuData.length > 0) {
-                            ret.modulesUserData.menuData = ret.modulesUserData.menuData.filter(menu => menu !== null);
-                        } else {
-                            i.app_msg = `Sorry, you must be a member of this company to access any resources`
-                            ret.modulesUserData.menuData = [];
-                        }
-
-                        // console.log('UserService::onLoginSuccess(req, res, result)/004');
-                        this.b.setAppState(true, i, sessData);
-                        this.b.cdResp.data = ret.modulesUserData;
-                        this.b.respond(res)
-                    },
-                    err => {
-                        console.log('Error', err)
-                        this.b.err = err.toString();
-                        i = {
-                            messages: this.b.err,
-                            code: 'UserController:Login',
-                            app_msg: ''
-                        };
-                        this.b.setAppState(false, i, null);
-                        this.b.cdResp.data = [];
-                        this.b.respond(res)
-                    },
-                    // () => {
-                    //     console.log('request completed.')
-                    //     i = {
-                    //         messages: this.b.err,
-                    //         code: 'UserController:Login',
-                    //         app_msg: 'request completed successfully'
-                    //     };
-                    //     this.b.setAppState(true, i, null);
-                    //     this.b.cdResp.data = [];
-                    //     this.b.respond(res)
-                    // }
-                );
-        } else {
-            // this.b.err.push('login failed');
-            i = {
-                messages: this.b.err,
-                code: 'UserController:Login',
-                app_msg: 'Login failed'
-            };
-            this.b.setAppState(true, i, null);
-            this.b.respond(res);
+    async resolveGuest(req, res, guestArr: UserModel[]): Promise<UserModel>{
+        if(guestArr.length > 0){
+            // search if given username exists
+            let user = guestArr.filter((u) => u.userName === req.post.dat.f_vals[0].data.user_name)
+            if(user.length > 0){
+                // if exists, check password
+                // ...check password
+                // if password is ok, return user data
+                this.loginState = true;
+                this.i.app_msg = `Welcome ${user[0].userName}!`;
+                return user[0];
+            }
+            else{
+                console.log('resolveGuest(req, res, guestArr: UserModel[])/004')
+                // else if user name does not exists, seach for anon user and return
+                this.i.app_msg = 'Login failed!';
+                user = guestArr.filter((u) => u.userName === 'anon')
+                return user[0];
+            }
         }
+
+    }
+
+    async authResponse(req, res, guest) {
+        console.log('starting authResponse2(req, res, guest)');
+        this.processResponse$(req, res, guest)
+            .subscribe(
+                (ret: any) => {
+                    // const i = null;
+                    const sessData: ISessResp = {
+                        cd_token: ret.sessResult.cdToken,
+                        jwt: null,
+                        ttl: ret.sessResult.ttl
+                    };
+                    if (ret.modulesUserData.menuData.length > 0) {
+                        ret.modulesUserData.menuData = ret.modulesUserData.menuData.filter(menu => menu !== null);
+                    } else {
+                        this.i.app_msg = `Sorry, you must be a member of this company to access any resources`;
+                        this.loginState = false;
+                        ret.modulesUserData.menuData = [];
+                    }
+                    this.i.messages = this.b.err;
+                    this.b.setAppState(this.loginState, this.i, sessData);
+                    this.b.cdResp.data = ret.modulesUserData;
+                    console.log('ret:', ret);
+                    this.b.respond(res)
+                }
+            );
+    }
+
+    processResponse$(req, res, guest) {
+        console.log('starting processResponse$(req, res, guest)');
+        console.log('processResponse(req, res, result)/guest:', guest);
+        console.log('UserService::auth(req, res)/start processing response:')
+        delete guest.password;
+        const sessResult$: Rx.Observable<SessionModel> = Rx.from(this.srvSess.create(req, res, guest));
+        const modulesUserData$ = this.srvModules.getModulesUserData$(req, res, guest);
+        const sessFlat = r => { return r };
+        return Rx.forkJoin({
+            sessResult: sessResult$,
+            modulesUserData: modulesUserData$
+        })
+            .pipe(
+                Rx.defaultIfEmpty({
+                    sessResult: sessResult$.pipe(Rx.mergeMap(r => sessFlat(r))),
+                    modulesUserData: {
+                        consumer: [],
+                        menuData: [],
+                        userData: {}
+                    }
+                })
+            )
     }
 
     async getUserByID(req, res, uid): Promise<UserModel[]> {

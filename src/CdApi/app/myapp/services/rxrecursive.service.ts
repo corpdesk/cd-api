@@ -239,7 +239,7 @@ export class RxRecursiveService {
     //     return this.getMenuItem(menuId).pipe(
     //         map((data: MenuViewModel) => {
     //             const ret = {
-    //                 parent: { name: data.menuLable, guid: data.menuId, children: [] },
+    //                 parent: { name: data.menuLabel, guid: data.menuId, children: [] },
     //                 childIds: this.getChildren(menuId)
     //             };
     //             return ret;
@@ -264,7 +264,7 @@ export class RxRecursiveService {
                 const data = sm.selectedItem;
                 // console.log('buildNestedMenu2/data:', data)
                 const ret: IMenuRelations = {
-                    menuParent: { menuLable: data.menuLable, menuId: data.menuId, children: [] },
+                    menuParent: { menuLabel: data.menuLabel, menuId: data.menuId, children: [] },
                     // childIds: this.getChildren2(data.menuId, sm)
                     menuChildren: this.getChildren2(data.menuId, sm)
                 };

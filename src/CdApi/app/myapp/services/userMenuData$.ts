@@ -4,7 +4,7 @@ import { MenuViewModel } from '../../../sys/moduleman/models/menu-view.model';
 export const userMenuData$: Observable<MenuViewModel[]> = of([
     {
         'menuId': 1,
-        'menuLable': 'MyDesk',
+        'menuLabel': 'MyDesk',
         'menuGuid': 'c9c15362-528e-11e7-b64c-1fe82d2b500e',
         'closetFile': 'cd_guig/widget_closet/user.js',
         'menuActionId': 43212,
@@ -35,7 +35,7 @@ export const userMenuData$: Observable<MenuViewModel[]> = of([
         },
     {
         'menuId': 2,
-        'menuLable': 'Users',
+        'menuLabel': 'Users',
         'menuGuid': '6c4590ed-5324-11e7-8464-c04a002428aa',
         'closetFile': 'cd_guig/widget_closet/user.js',
         'menuActionId': 43211,
@@ -66,7 +66,7 @@ export const userMenuData$: Observable<MenuViewModel[]> = of([
         },
     {
         'menuId': 3,
-        'menuLable': 'Comm',
+        'menuLabel': 'Comm',
         'menuGuid': '9e245c2b-5324-11e7-8464-c04a002428aa',
         'closetFile': 'cd_guig/widget_closet/comm.js',
         'menuActionId': 43214,
@@ -97,7 +97,7 @@ export const userMenuData$: Observable<MenuViewModel[]> = of([
         },
     {
         'menuId': 4,
-        'menuLable': 'notifications',
+        'menuLabel': 'notifications',
         'menuGuid': 'b46a23ff-5324-11e7-8464-c04a002428aa',
         'closetFile': 'cd_guig/widget_closet/comm.js',
         'menuActionId': 43207,
@@ -128,7 +128,7 @@ export const userMenuData$: Observable<MenuViewModel[]> = of([
         },
     {
         'menuId': 5,
-        'menuLable': 'logs',
+        'menuLabel': 'logs',
         'menuGuid': 'c3fe6277-5324-11e7-8464-c04a002428aa',
         'closetFile': 'cd_guig/widget_closet/user.js',
         'menuActionId': 43220,
@@ -159,7 +159,7 @@ export const userMenuData$: Observable<MenuViewModel[]> = of([
         },
     {
         'menuId': 6,
-        'menuLable': 'Settings',
+        'menuLabel': 'Settings',
         'menuGuid': 'd7866be1-5324-11e7-8464-c04a002428aa',
         'closetFile': 'cd_guig/widget_closet/user.js',
         'menuActionId': 43213,
@@ -190,7 +190,7 @@ export const userMenuData$: Observable<MenuViewModel[]> = of([
         },
     {
         'menuId': 7,
-        'menuLable': 'Moduleman',
+        'menuLabel': 'Moduleman',
         'menuGuid': 'e420d6c6-5324-11e7-8464-c04a002428aa',
         'closetFile': 'cd_guig/widget_closet/moduleman_v15.js',
         'menuActionId': 43152,
@@ -221,7 +221,7 @@ export const userMenuData$: Observable<MenuViewModel[]> = of([
         },
     {
         'menuId': 8,
-        'menuLable': 'SyncGuig',
+        'menuLabel': 'SyncGuig',
         'menuGuid': 'ef75eeee-5324-11e7-8464-c04a002428aa',
         'closetFile': 'cd_guig/widget_closet/moduleman_v15.js',
         'menuActionId': 43150,
@@ -252,7 +252,7 @@ export const userMenuData$: Observable<MenuViewModel[]> = of([
         },
     {
         'menuId': 9,
-        'menuLable': 'CD-Scheduler',
+        'menuLabel': 'CD-Scheduler',
         'menuGuid': '038bf011-5325-11e7-8464-c04a002428aa',
         'closetFile': 'cd_guig/widget_closet/cd_scheduler.js',
         'menuActionId': 43216,
@@ -283,7 +283,7 @@ export const userMenuData$: Observable<MenuViewModel[]> = of([
         },
     {
         'menuId': 10,
-        'menuLable': 'Subscribe',
+        'menuLabel': 'Subscribe',
         'menuGuid': '0ff293d0-5325-11e7-8464-c04a002428aa',
         'closetFile': 'cd_guig/widget_closet/services_subscribe_01.js',
         'menuActionId': 43173,
@@ -314,7 +314,7 @@ export const userMenuData$: Observable<MenuViewModel[]> = of([
         },
     {
         'menuId': 11,
-        'menuLable': 'MyCalendar',
+        'menuLabel': 'MyCalendar',
         'menuGuid': '1c8dfa59-5325-11e7-8464-c04a002428aa',
         'closetFile': 'cd_guig/widget_closet/cd_calendar.js',
         'menuActionId': 43173,
@@ -345,7 +345,7 @@ export const userMenuData$: Observable<MenuViewModel[]> = of([
         },
     {
         'menuId': 12,
-        'menuLable': 'MyProgress',
+        'menuLabel': 'MyProgress',
         'menuGuid': '28177294-5325-11e7-8464-c04a002428aa',
         'closetFile': 'cd_guig/widget_closet/cd_scheduler.js',
         'menuActionId': 43216,
@@ -376,7 +376,7 @@ export const userMenuData$: Observable<MenuViewModel[]> = of([
         },
     {
         'menuId': 13,
-        'menuLable': 'SchedulerBlogs',
+        'menuLabel': 'SchedulerBlogs',
         'menuGuid': '3dea11d6-5325-11e7-8464-c04a002428aa',
         'closetFile': 'cd_guig/widget_closet/cd_scheduler.js',
         'menuActionId': 43217,
@@ -407,7 +407,7 @@ export const userMenuData$: Observable<MenuViewModel[]> = of([
         },
     {
         'menuId': 14,
-        'menuLable': 'Admin',
+        'menuLabel': 'Admin',
         'menuGuid': '481a880a-5325-11e7-8464-c04a002428aa',
         'closetFile': 'cd_guig/widget_closet/admin.js',
         'menuActionId': 43222,
@@ -438,7 +438,7 @@ export const userMenuData$: Observable<MenuViewModel[]> = of([
         },
     {
         'menuId': 16,
-        'menuLable': 'Emails',
+        'menuLabel': 'Emails',
         'menuGuid': '72f37049-5325-11e7-8464-c04a002428aa',
         'closetFile': 'cd_guig/widget_closet/comm.js',
         'menuActionId': 43221,
@@ -469,7 +469,7 @@ export const userMenuData$: Observable<MenuViewModel[]> = of([
         },
     {
         'menuId': 17,
-        'menuLable': 'Users&Groups',
+        'menuLabel': 'Users&Groups',
         'menuGuid': '8c083d78-5325-11e7-8464-c04a002428aa',
         'closetFile': 'cd_guig/widget_closet/cd_users_groups.js',
         'menuActionId': 43219,
@@ -500,7 +500,7 @@ export const userMenuData$: Observable<MenuViewModel[]> = of([
         },
     {
         'menuId': 18,
-        'menuLable': 'controller_mgr',
+        'menuLabel': 'controller_mgr',
         'menuGuid': '26ecaa83-5589-11e7-87ff-644f60f2a048',
         'closetFile': 'cd_guig/widget_closet/controller_01_v12.js',
         'menuActionId': 43154,
@@ -531,7 +531,7 @@ export const userMenuData$: Observable<MenuViewModel[]> = of([
         },
     {
         'menuId': 19,
-        'menuLable': 'Generic',
+        'menuLabel': 'Generic',
         'menuGuid': 'c6dc9201-58c3-11e7-a6b5-eac621544351',
         'closetFile': 'cd_guig/widget_closet/mod_generic/generic.js',
         'menuActionId': 43224,
@@ -562,7 +562,7 @@ export const userMenuData$: Observable<MenuViewModel[]> = of([
         },
     {
         'menuId': 20,
-        'menuLable': 'Generic Form',
+        'menuLabel': 'Generic Form',
         'menuGuid': '9313CC85-C897-2A83-C03B-DDAB05E6379F',
         'closetFile': 'cd_guig/widget_closet/mod_generic/generic_form.js',
         'menuActionId': 43225,
@@ -593,7 +593,7 @@ export const userMenuData$: Observable<MenuViewModel[]> = of([
         },
     {
         'menuId': 21,
-        'menuLable': 'Generic Foo Table',
+        'menuLabel': 'Generic Foo Table',
         'menuGuid': '2C071A1D-773E-58AD-2004-B05B89B584F7',
         'closetFile': 'cd_guig/widget_closet/mod_generic/generic_foo_table.js',
         'menuActionId': 43226,
@@ -624,7 +624,7 @@ export const userMenuData$: Observable<MenuViewModel[]> = of([
         },
     {
         'menuId': 22,
-        'menuLable': 'Generic Tree',
+        'menuLabel': 'Generic Tree',
         'menuGuid': '7E5046F0-BC17-8203-14CE-50BCF5163F4D',
         'closetFile': 'cd_guig/widget_closet/mod_generic/generic_tree.js',
         'menuActionId': 43227,
@@ -655,7 +655,7 @@ export const userMenuData$: Observable<MenuViewModel[]> = of([
         },
     {
         'menuId': 23,
-        'menuLable': 'ProgressBar',
+        'menuLabel': 'ProgressBar',
         'menuGuid': 'E2160F29-7ED6-C461-9481-2E8E302E2FD6',
         'closetFile': 'cd_guig/widget_closet/mod_generic/generic_progress_bar.js',
         'menuActionId': 43230,
@@ -686,7 +686,7 @@ export const userMenuData$: Observable<MenuViewModel[]> = of([
         },
     {
         'menuId': 217,
-        'menuLable': 'controller-view',
+        'menuLabel': 'controller-view',
         'menuGuid': '1A5ED30B-5BC2-046B-5872-AB1148EAA326',
         'closetFile': 'cd_guig/widget_closet/mod_generic/generic_controller.js',
         'menuActionId': 49168,
@@ -717,7 +717,7 @@ export const userMenuData$: Observable<MenuViewModel[]> = of([
         },
     {
         'menuId': 218,
-        'menuLable': 'controller-view2',
+        'menuLabel': 'controller-view2',
         'menuGuid': '91EC7D03-AB65-1567-9193-BD396A8D73BB',
         'closetFile': 'cd_guig/widget_closet/mod_generic/generic_controller_view.js',
         'menuActionId': 49169,
@@ -748,7 +748,7 @@ export const userMenuData$: Observable<MenuViewModel[]> = of([
         },
     {
         'menuId': 220,
-        'menuLable': 'cd-memo',
+        'menuLabel': 'cd-memo',
         'menuGuid': 'C38A49B3-20D4-FF72-029D-D648E8503618',
         'closetFile': 'cd_guig/widget_closet/cd_memo.js',
         'menuActionId': 220,
@@ -779,7 +779,7 @@ export const userMenuData$: Observable<MenuViewModel[]> = of([
         },
     {
         'menuId': 221,
-        'menuLable': 'memo',
+        'menuLabel': 'memo',
         'menuGuid': 'CF37803C-8179-757B-814A-5985394BC3C0',
         'closetFile': 'cd_guig/widget_closet/mod_comm/cd_memo.js',
         'menuActionId': 49171,

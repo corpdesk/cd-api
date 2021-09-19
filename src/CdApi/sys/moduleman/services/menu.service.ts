@@ -100,7 +100,7 @@ export class MenuService {
                     const data = sm.selectedItem;
                     ret = {
                         menuParent: {
-                            menuLable: data.menuLable,
+                            menuLabel: data.menuLabel,
                             menuId: data.menuId,
                             icon: data.icon,
                             path: data.path,

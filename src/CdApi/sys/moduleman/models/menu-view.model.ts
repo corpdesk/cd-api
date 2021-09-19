@@ -22,7 +22,7 @@ import { ViewEntity, ViewColumn } from 'typeorm';
     expression: `
      SELECT
         'menu'.'menu_id' AS 'menu_id',
-        'menu'.'menu_name' AS 'menu_lable',
+        'menu'.'menu_name' AS 'menu_label',
         'menu'.'menu_guid' AS 'menu_guid',
         'menu'.'menu_closet_file' AS 'closet_file',
         'menu'.'menu_action_id' AS 'menu_action_id',
@@ -70,10 +70,10 @@ export class MenuViewModel {
 
     @ViewColumn(
         {
-            name: 'menu_lable'
+            name: 'menu_label'
         }
     )
-    menuLable?: string;
+    menuLabel?: string;
 
     @ViewColumn(
         {

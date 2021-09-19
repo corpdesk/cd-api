@@ -4,26 +4,36 @@ import { ViewEntity, ViewColumn } from 'typeorm';
     {
         name: 'acl_user_view',
         expression: `
-                        SELECT
-                            'user'.'user_id' AS 'user_id',
-                            'user'.'user_guid' AS 'user_guid',
-                            'user'.'user_name' AS 'user_name',
-                            'user'.'email' AS 'email',
-                            'user'.'enabled' AS 'enabled',
-                            'user'.'company_id' AS 'company_id',
-                            'user'.'user_type_id' AS 'user_type_id',
-                            'consumer_resource_view'.'consumer_id' AS 'consumer_id',
-                            'consumer_resource_view'.'cd_obj_type_id' AS 'cd_obj_type_id',
-                            'consumer_resource_view'.'cd_obj_id' AS 'cd_obj_id',
-                            'consumer_resource_view'.'obj_guid' AS 'obj_guid',
-                            'consumer_resource_view'.'consumer_guid' AS 'consumer_guid',
-                            'consumer_resource_view'.'consumer_resource_type_id' AS 'consumer_resource_type_id'
-                        FROM
-                            (
-                                'user'
-                                JOIN 'consumer_resource_view' ON ((
-                                        'user'.'user_guid' = 'consumer_resource_view'.'obj_guid'
-                                    )))
+            SELECT
+                user.user_id,
+                user.user_guid,
+                user.user_name,
+                user.password,
+                user.email,
+                user.doc_id,
+                user.mobile,
+                user.gender,
+                user.birth_date,
+                user.postal_addr,
+                user.f_name,
+                user.m_name,
+                user.l_name,
+                user.national_id,
+                user.passport_id,
+                user.user_enabled,
+                user.zip_code,
+                user.activation_key,
+                user.company_id,
+                user.user_type_id,
+                consumer_resource_view.consumer_id,
+                consumer_resource_view.cd_obj_type_id,
+                consumer_resource_view.cd_obj_id,
+                consumer_resource_view.obj_guid,
+                consumer_resource_view.consumer_guid,
+            consumer_resource_view.consumer_resource_type_id
+            FROM
+                user
+                INNER JOIN consumer_resource_view ON user.user_guid = consumer_resource_view.obj_guid;
     `
     })
 
@@ -52,10 +62,10 @@ export class AclUserViewModel {
 
     @ViewColumn(
         {
-            name: 'enabled'
+            name: 'user_enabled'
         }
     )
-    enabled: boolean;
+    userEnabled: boolean;
 
     @ViewColumn(
         {

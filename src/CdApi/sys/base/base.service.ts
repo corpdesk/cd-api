@@ -10,6 +10,7 @@ import { Database } from './connect';
 import { DocModel } from '../moduleman/models/doc.model';
 import { UserModel } from '../user/models/user.model';
 import { umask } from 'process';
+import { verify } from 'crypto';
 // import { UserModel } from '../user/models/user.model';
 
 const USER_ANON = 1000;
@@ -55,10 +56,16 @@ export class BaseService {
         const eImport = await import(clsCtx.path);
         const eCls = eImport[clsCtx.clsName];
         const cls = new eCls();
-        return await cls[clsCtx.action](req, res);
+        console.log('resolveCls(req, res)/001');
+        // return await cls[clsCtx.action](req, res);
+        cls[clsCtx.action](req, res).then((ret) => {
+            console.log('resolveCls(req, res)/002');
+            return ret;
+        })
     }
 
     async serviceErr(res, e, eCode) {
+        console.log('starting serviceErr(res, e, eCode)')
         this.err.push(e.toString());
         const i = {
             messages: await this.err,
@@ -71,6 +78,7 @@ export class BaseService {
     }
 
     async returnErr(req, res, i: IRespInfo) {
+        console.log('starting returnErr(req, res, i: IRespInfo)')
         const sess = this.getSess(req, res);
         await this.setAppState(false, i, sess);
         return await this.respond(res);
@@ -86,6 +94,9 @@ export class BaseService {
             return true;
         } else {
             if (!this.instanceOfCdResponse(pl)) {
+                return false;
+            }
+            if(!this.validFields(req,res)){
                 return false;
             }
         }
@@ -136,6 +147,21 @@ export class BaseService {
         if ('MSISDN' in pl) {
             return true;
         }
+        return true;
+    }
+
+    /**
+     * implement validation of fields
+     * @param req
+     * @param res
+     * @returns
+     */
+    validFields(req,res){
+        /**
+         * 1. deduce model directory from the req.post
+         * 2. import model
+         * 3. verify if fields exists
+         */
         return true;
     }
 
@@ -202,6 +228,7 @@ export class BaseService {
     }
 
     async respond(res) {
+        console.log('**********starting respond(res)*********');
         res.status(200).json(this.cdResp);
     }
 

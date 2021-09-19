@@ -16,7 +16,13 @@ export class CdExec {
                     clsName: `${pl.c}Controller`,
                     action: pl.a
                 }
-                await this.b.resolveCls(req, res, clsCtx);
+                console.log('exec(req, res)/001')
+                // await this.b.resolveCls(req, res, clsCtx);
+                this.b.resolveCls(req, res, clsCtx).then((r) => {
+                    console.log('exec(req, res)/002')
+                    console.log('exec(req, res)/r:', r);
+                })
+                console.log('exec(req, res)/003')
             } catch (e) {
                 console.log('CdExec::exec/error:', e);
                 const i: IRespInfo = {

@@ -181,10 +181,11 @@ export class UserModel {
 
     @Column(
         {
+            name: 'user_enabled',
             default: null
         }
     )
-    enabled?: boolean;
+    userEnabled?: boolean;
 
     @Column(
         'char',

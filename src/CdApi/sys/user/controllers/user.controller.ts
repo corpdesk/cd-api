@@ -35,7 +35,7 @@ export class UserController extends CdController {
      */
     async Login(req, res) {
         try {
-            this.svUser.auth(req,res);
+            await this.svUser.auth(req,res);
         } catch (e) {
             this.b.serviceErr(res, e,'UserService:Login');
         }
