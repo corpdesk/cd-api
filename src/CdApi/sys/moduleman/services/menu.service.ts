@@ -108,6 +108,8 @@ export class MenuService {
                             badge: data.badge,
                             menuParentId: data.menuParentId,
                             isLayout: data.isLayout,
+                            moduleIsPublic: data.moduleIsPublic,
+                            moduleGuid: data.moduleGuid,
                             children: [],
                         },
                         menuChildren: this.getChildren(data.menuId, sm)

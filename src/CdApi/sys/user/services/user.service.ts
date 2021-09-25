@@ -232,6 +232,7 @@ export class UserService extends CdService {
             cmd: {
                 action: 'find',
                 filter: {
+                    // get requested user and 'anon' data/ anon data is used in case of failure
                     where: [
                         { userName: req.post.dat.f_vals[0].data.user_name },
                         { userName: 'anon' }
@@ -242,7 +243,6 @@ export class UserService extends CdService {
         }
         const result: UserModel[] = await this.read(req, res, serviceInput);
         const guest = await this.resolveGuest(req, res,result);
-        console.log('auth2(req, res)/guest:', guest);
         await this.authResponse(req, res, guest);
     }
 
@@ -259,18 +259,15 @@ export class UserService extends CdService {
                 return user[0];
             }
             else{
-                console.log('resolveGuest(req, res, guestArr: UserModel[])/004')
                 // else if user name does not exists, seach for anon user and return
                 this.i.app_msg = 'Login failed!';
                 user = guestArr.filter((u) => u.userName === 'anon')
                 return user[0];
             }
         }
-
     }
 
     async authResponse(req, res, guest) {
-        console.log('starting authResponse2(req, res, guest)');
         this.processResponse$(req, res, guest)
             .subscribe(
                 (ret: any) => {
@@ -290,16 +287,12 @@ export class UserService extends CdService {
                     this.i.messages = this.b.err;
                     this.b.setAppState(this.loginState, this.i, sessData);
                     this.b.cdResp.data = ret.modulesUserData;
-                    console.log('ret:', ret);
                     this.b.respond(res)
                 }
             );
     }
 
     processResponse$(req, res, guest) {
-        console.log('starting processResponse$(req, res, guest)');
-        console.log('processResponse(req, res, result)/guest:', guest);
-        console.log('UserService::auth(req, res)/start processing response:')
         delete guest.password;
         const sessResult$: Rx.Observable<SessionModel> = Rx.from(this.srvSess.create(req, res, guest));
         const modulesUserData$ = this.srvModules.getModulesUserData$(req, res, guest);

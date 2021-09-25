@@ -56,16 +56,10 @@ export class BaseService {
         const eImport = await import(clsCtx.path);
         const eCls = eImport[clsCtx.clsName];
         const cls = new eCls();
-        console.log('resolveCls(req, res)/001');
-        // return await cls[clsCtx.action](req, res);
-        cls[clsCtx.action](req, res).then((ret) => {
-            console.log('resolveCls(req, res)/002');
-            return ret;
-        })
+        return await cls[clsCtx.action](req, res);
     }
 
     async serviceErr(res, e, eCode) {
-        console.log('starting serviceErr(res, e, eCode)')
         this.err.push(e.toString());
         const i = {
             messages: await this.err,
@@ -78,7 +72,6 @@ export class BaseService {
     }
 
     async returnErr(req, res, i: IRespInfo) {
-        console.log('starting returnErr(req, res, i: IRespInfo)')
         const sess = this.getSess(req, res);
         await this.setAppState(false, i, sess);
         return await this.respond(res);
@@ -229,6 +222,7 @@ export class BaseService {
 
     async respond(res) {
         console.log('**********starting respond(res)*********');
+        console.log('BaseService::respond(res)/this.cdResp:', this.cdResp);
         res.status(200).json(this.cdResp);
     }
 
