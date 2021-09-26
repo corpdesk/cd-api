@@ -12,7 +12,7 @@ import { AclModuleMemberViewModel } from '../../../sys/moduleman/models/aclmodul
 import { AclModuleViewModel } from '../../../sys/moduleman/models/aclmoduleview.model';
 import { AclUserViewModel } from '../../../sys/moduleman/models/acluserview.model';
 import { ModuleModel } from '../../../sys/moduleman/models/module.model';
-import { ModuleService } from '../../../sys/moduleman/services/modules.service';
+import { ModuleService } from '../../../sys/moduleman/services/module.service';
 import { GroupService } from '../../../sys/user/services/group.service';
 import { SessionService } from '../../../sys/user/services/session.service';
 import { UserService } from '../../../sys/user/services/user.service';

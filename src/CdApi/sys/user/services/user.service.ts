@@ -24,7 +24,7 @@ import { IServiceInput, Fn, IRespInfo } from '../../base/IBase';
 import { SessionService } from './session.service';
 import { SessionModel } from '../models/session.model';
 import { ISessResp } from '../../base/IBase';
-import { ModuleService } from '../../moduleman/services/modules.service';
+import { ModuleService } from '../../moduleman/services/module.service';
 
 
 

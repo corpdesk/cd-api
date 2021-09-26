@@ -22,7 +22,7 @@ export class ModulesService {
 
     async menuCollection(req, res) {
         try {
-            await this.srvMenu.testMenu(req, res, userMenuData$);
+            // await this.srvMenu.testMenu(req, res, userMenuData$);
         } catch (e) {
             this.b.serviceErr(res, e, 'RxTestController:menuCollection');
         }

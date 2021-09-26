@@ -2,7 +2,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import * as Lá from 'lodash';
 import { ICdRequest, ICdResponse, IControllerContext, IDoc, IRespInfo, IServiceInput, ISessResp } from './IBase';
-import { EntityMetadata, getConnection, } from 'typeorm';
+import { EntityMetadata, getConnection, Like, } from 'typeorm';
 import { Observable, of, from, defer, bindCallback } from 'rxjs';
 import { map } from 'rxjs/operators';
 import moment from 'moment';
@@ -89,7 +89,7 @@ export class BaseService {
             if (!this.instanceOfCdResponse(pl)) {
                 return false;
             }
-            if(!this.validFields(req,res)){
+            if (!this.validFields(req, res)) {
                 return false;
             }
         }
@@ -149,7 +149,7 @@ export class BaseService {
      * @param res
      * @returns
      */
-    validFields(req,res){
+    validFields(req, res) {
         /**
          * 1. deduce model directory from the req.post
          * 2. import model
@@ -169,7 +169,7 @@ export class BaseService {
      * @param Sess
      */
     async setAppState(succ: boolean, i: IRespInfo | null, ss: ISessResp | null) {
-        if(succ === false){
+        if (succ === false) {
             this.cdResp.data = [];
         }
         this.cdResp.app_state = {
@@ -228,6 +228,15 @@ export class BaseService {
 
     getPlData(req): any {
         return req.post.dat.f_vals[0].data;
+    }
+
+    getFilter(req) {
+        const f = req.post.dat.f_vals[0].filter;
+        if (f) {
+            return f;
+        } else {
+            return {};
+        }
     }
 
     async getEntityPropertyMap(model) {
@@ -310,12 +319,12 @@ export class BaseService {
         // console.log('BaseService::create()/serviceInput:', serviceInput)
         await this.init();
         let newDocData;
-        try{
+        try {
             // console.log('BaseService::create(req, res, guest)/002');
             newDocData = await this.saveDoc(req, res, serviceInput);
-        } catch(e){
+        } catch (e) {
             // console.log('BaseService::create(req, res, guest)/003');
-            this.serviceErr(res,e,'BaseService:create/savDoc')
+            this.serviceErr(res, e, 'BaseService:create/savDoc')
         }
         // console.log('BaseService::create(req, res, guest)/004');
         let serviceRepository = null;
@@ -335,8 +344,8 @@ export class BaseService {
 
         try {
             let modelInstance = serviceInput.serviceModelInstance;
-            if('dSource' in serviceInput){
-                if(serviceInput.dSource === 1){ // data source is provided by the req...data.
+            if ('dSource' in serviceInput) {
+                if (serviceInput.dSource === 1) { // data source is provided by the req...data.
                     req.post.dat.f_vals[0].data.doc_id = await newDocData.docId;
                     const serviceData = await this.getServiceData(req, serviceInput);
                     modelInstance = await this.setEntity(serviceInput, serviceData);
@@ -416,35 +425,88 @@ export class BaseService {
         return await date.format('YYYY-MM-DD HH:mm:ss'); // convert to mysql date
     }
 
-    getGuid(){
+    getGuid() {
         return uuidv4();
     }
 
-    getCuid(){
+    getCuid() {
         return this.cuid;
     }
 
-    // req, res, serviceInput: IServiceInput
+    // /**
+    //   Options for filter setting: synoimous to sql query
+    //  * {
+    //         select: ["firstName", "lastName"],
+    //         relations: ["profile", "photos", "videos"],
+    //         where: {
+    //             firstName: "Timber",
+    //             lastName: "Saw",
+    //             profile: {
+    //                 userName: "tshaw",
+    //             },
+    //         },
+    //         order: {
+    //             name: "ASC",
+    //             id: "DESC",
+    //         },
+    //         skip: 5,
+    //         take: 10,
+    //         cache: true,
+    //     }
+    //  * @param req
+    //  * @param res
+    //  * @param serviceInput
+    //  * @returns
+    //  */
     async read(req, res, serviceInput: IServiceInput): Promise<any> {
         await this.init();
-        const userRepository = getConnection().getRepository(serviceInput.serviceModel);
-        let results: any = null;
+        const repo = getConnection().getRepository(serviceInput.serviceModel);
+        let r: any = null;
         switch (serviceInput.cmd.action) {
             case 'find':
-                results = await userRepository.find(serviceInput.cmd.filter);
+                r = await repo.find(serviceInput.cmd.filter);
                 break;
             case 'count':
-                results = await userRepository.count(serviceInput.cmd.filter);
+                r = await repo.count(serviceInput.cmd.filter);
                 break;
         }
-        return await results;
+
+        if (serviceInput.extraInfo) {
+            return {
+                result: r,
+                fieldMap: await this.feildMap(serviceInput)
+            }
+        } else {
+            return await r;
+        }
     }
 
     read$(req, res, serviceInput): Observable<any> {
-        // return defer(() => {
-        //     return this.read(req, res, serviceInput)
-        // });
         return from(this.read(req, res, serviceInput));
+    }
+
+    async readCount(req, res, serviceInput): Promise<any> {
+        await this.init();
+        const repo = getConnection().getRepository(serviceInput.serviceModel);
+        const [result, total] = await repo.findAndCount(
+            this.getFilter(req)
+        );
+
+        return {
+            items: result,
+            count: total
+        }
+    }
+
+    readCount$(req, res, serviceInput): Observable<any> {
+        return from(this.readCount(req, res, serviceInput));
+    }
+
+    async feildMap(serviceInput) {
+        const meta = getConnection().getMetadata(serviceInput.serviceModel).columns;
+        return await meta.map((c) => {
+            return { propertyPath: c.propertyPath, givenDatabaseName: c.givenDatabaseName };
+        });
     }
 
     controllerCreate(req, res) {
@@ -459,29 +521,29 @@ export class BaseService {
         return 1;
     }
 
-    intersect(arrA,arrB, intersectionField){
+    intersect(arrA, arrB, intersectionField) {
         return Lá.intersectionBy(arrA, arrB, intersectionField);
     }
 
     intersectionLegacy = (arr1, arr2) => {
         const res = [];
         // for(let i = 0; i < arr1.length; i++){
-        for(const i of arr1){
-           if(!arr2.includes(i)){
-              continue;
-           };
-           res.push(i);
+        for (const i of arr1) {
+            if (!arr2.includes(i)) {
+                continue;
+            };
+            res.push(i);
         };
         return res;
-     };
+    };
 
-     intersectMany = (...arrs) => {
+    intersectMany = (...arrs) => {
         let res = arrs[0].slice();
-        for(let i = 1; i < arrs.length; i++){
-           res = this.intersectionLegacy(res, arrs[i]);
+        for (let i = 1; i < arrs.length; i++) {
+            res = this.intersectionLegacy(res, arrs[i]);
         };
         return res;
-     };
+    };
 
 
 

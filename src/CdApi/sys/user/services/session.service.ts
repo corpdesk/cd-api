@@ -1,7 +1,7 @@
 // https://www.npmjs.com/package/device-detector-js
 import DeviceDetector from 'device-detector-js';
 import { BaseService } from '../../base/base.service';
-import { IServiceInput } from '../../base/IBase';
+import { IServiceInput, ISessResp } from '../../base/IBase';
 import { DocModel } from '../../moduleman/models/doc.model';
 import { SessionModel } from '../models/session.model';
 import { UserModel } from '../models/user.model';
@@ -13,10 +13,16 @@ export class SessionService {
     sessIsSet = false;
     sessData = {
         cuid: 1000,
-        cdToken:'',
+        cdToken: '',
         consumerGuid: '',
         deviceNetId: null,
         userData: null,
+    };
+
+    sessResp: ISessResp = {
+        cd_token: '',
+        jwt: '',
+        ttl: 0
     };
     constructor() {
         this.b = new BaseService();
@@ -88,15 +94,15 @@ export class SessionService {
         return resultJ;
     }
 
-    getIP(req){
+    getIP(req) {
         return req.ip;
     }
 
-    async getConsumerGuid(req){
+    async getConsumerGuid(req) {
         return await req.post.sessData.consumerGuid;
     }
 
-    async getCuid(req){
+    async getCuid(req) {
         return req.post.sessData.cuid;
     }
 

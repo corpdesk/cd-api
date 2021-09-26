@@ -8,14 +8,15 @@ import { NotificationService } from '../../comm/services/notification.service';
 import { MemoService } from '../../comm/services/memo.service';
 import { CalendarService } from '../../scheduler/services/calendar.services';
 import { GroupMemberService } from '../../user/services/group-member.service';
-import { ConsumerService } from '../../moduleman/services/consumer.service';
+import { ConsumerService } from './consumer.service';
 import { MenuService } from './menu.service';
 import { AclService } from './acl.service';
 import { GroupService } from '../../user/services/group.service';
 import { ModuleModel } from '../models/module.model';
-import { IAclCtx } from '../../base/IBase';
+import { IAclCtx, IRespInfo } from '../../base/IBase';
 import { UserModel } from '../../user/models/user.model';
 import { delay } from 'lodash';
+import { ModuleViewModel } from '../models/module-view.model';
 
 export class ModuleService {
 
@@ -31,6 +32,11 @@ export class ModuleService {
     srvConsumer: ConsumerService;
     srvAcl: AclService;
     consumerGuid: string;
+    i: IRespInfo = {
+        messages: null,
+        code: '',
+        app_msg: ''
+    };
     constructor() {
         this.b = new BaseService();
     }
@@ -114,5 +120,75 @@ export class ModuleService {
                     }
                 })
             );
+    }
+
+    // /**
+    //  * {
+    //         "ctx": "Sys",
+    //         "m": "Moduleman",
+    //         "c": "Module",
+    //         "a": "Get",
+    //         "dat": {
+    //             "f_vals": [
+    //                 {
+    //                     "filter": {
+    //                         "select":["moduleId","moduleGuid"],
+    //                         "where": { "moduleId":98}
+    //                         }
+    //                 }
+    //             ],
+    //             "token": "29947F3F-FF52-9659-F24C-90D716BC77B2"
+    //         },
+    //         "args": null
+    //     }
+    //  * @param req
+    //  * @param res
+    //  */
+    getModule(req, res) {
+        const f = this.b.getFilter(req);
+        console.log('ModuleService::getModule/f:', f);
+        const serviceInput = {
+            serviceModel: ModuleViewModel,
+            docName: 'MenuService::getModuleMenu$',
+            cmd: {
+                action: 'find',
+                filter: f
+            },
+            dSource: 1
+        }
+        this.b.read$(req, res, serviceInput)
+            .subscribe((r) => {
+                this.i.code = 'ModulesController::Get';
+                const svSess = new SessionService();
+                svSess.sessResp.cd_token = req.post.dat.token;
+                svSess.sessResp.ttl = svSess.getTtl();
+                this.b.setAppState(true, this.i, svSess.sessResp);
+                this.b.cdResp.data = r;
+                this.b.respond(res)
+            })
+    }
+
+    getModuleCount(req, res) {
+        const f = this.b.getFilter(req);
+        console.log('ModuleService::getModule/f:', f);
+        const serviceInput = {
+            serviceModel: ModuleViewModel,
+            docName: 'MenuService::getModuleMenu$',
+            cmd: {
+                action: 'find',
+                filter: f
+            },
+            dSource: 1
+        }
+        this.b.readCount$(req, res, serviceInput)
+            .subscribe((r) => {
+                this.i.code = 'ModulesController::Get';
+                const svSess = new SessionService();
+                svSess.sessResp.cd_token = req.post.dat.token;
+                svSess.sessResp.ttl = svSess.getTtl();
+                this.b.setAppState(true, this.i, svSess.sessResp);
+                this.b.cdResp.data = r;
+                this.b.respond(res)
+            })
     }
 }

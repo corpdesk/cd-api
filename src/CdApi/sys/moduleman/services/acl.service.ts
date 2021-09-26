@@ -6,7 +6,7 @@ import { BaseService } from '../../base/base.service';
 import { AclModel } from '../models/acl.model';
 import { DocModel } from '../models/doc.model';
 import { IAclCtx, ICdRequest } from '../../base/IBase';
-import { ModuleService } from './modules.service';
+import { ModuleService } from './module.service';
 import { SessionService } from '../../user/services/session.service';
 import { ConsumerService } from './consumer.service';
 import { AclUserViewModel } from '../models/acluserview.model';

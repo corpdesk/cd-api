@@ -67,6 +67,7 @@ export interface IServiceInput {
     cmd?:any;
     data?:any;
     dSource?:number;
+    extraInfo?: boolean;
 }
 
 export interface IDoc {

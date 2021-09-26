@@ -340,6 +340,21 @@ dynamic menu:
     - modules
     - app-market
 
+- prepare data for module table
+    - dataset components:
+        - data
+        - fields
+        - pagination info
+        - aggregation
+    - typeorm:get fields:
+        - connection.getMetadata("User").columns
+    - typeorm: paginate:
+    - https://stackoverflow.com/questions/53922503/how-to-implement-pagination-in-nestjs-with-typeorm
+
+- Table data:
+    - select fields
+    - paginate results
+
 ONLINE DEPLOYMENT:
 Cheap hosting:
 - https://dev.to/ramko9999/host-and-use-redis-for-free-51if
@@ -405,7 +420,10 @@ Back End Demo:
 implement Base::validFields(req, res):
     - 
 
-
+26/09/2021
+- Table data:
+    - select fields
+    - paginate results
 
 19/09/2021
 dynamic menu:

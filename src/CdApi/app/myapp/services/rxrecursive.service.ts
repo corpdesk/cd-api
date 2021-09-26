@@ -8,7 +8,7 @@ import {
 } from 'rxjs';
 import * as Lá from 'lodash';
 import { BaseService } from '../../../sys/base/base.service';
-import { ModuleService } from '../../../sys/moduleman/services/modules.service';
+import { ModuleService } from '../../../sys/moduleman/services/module.service';
 import { GroupService } from '../../../sys/user/services/group.service';
 import { SessionService } from '../../../sys/user/services/session.service';
 import { MenuViewModel } from '../../../sys/moduleman/models/menu-view.model';
