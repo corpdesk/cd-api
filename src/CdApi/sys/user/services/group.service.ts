@@ -19,7 +19,7 @@ export class GroupService {
             docName: 'GroupService::getGroupByName',
             cmd: {
                 action: 'find',
-                filter: { where: { groupName: moduleName} }
+                query: { where: { groupName: moduleName} }
             },
             dSource: 1,
         }
@@ -32,7 +32,7 @@ export class GroupService {
             docName: 'GroupService::getGroupByName',
             cmd: {
                 action: 'find',
-                filter: { where: { groupName: moduleName} }
+                query: { where: { groupName: moduleName} }
             },
             dSource: 1,
         }
@@ -48,7 +48,7 @@ export class GroupService {
                 docName: 'GroupService::getGroupByName',
                 cmd: {
                     action: 'find',
-                    filter: { where: { groupName: groupParams.groupName, groupTypeId: groupParams.groupTypeId } }
+                    query: { where: { groupName: groupParams.groupName, groupTypeId: groupParams.groupTypeId } }
                 },
                 dSource: 1,
             }

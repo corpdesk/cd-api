@@ -48,179 +48,6 @@ export class AclService {
         this.srvConsumer = new ConsumerService();
     }
 
-    // async init(req, res, aclCtx) {
-    //     this.aclCtx = aclCtx;
-    //     this.consumerGuid = await this.srvSess.getConsumerGuid(req);
-    //     this.consumer = await this.srvConsumer.getConsumerByGuid(req, res, this.consumerGuid);
-    // }
-
-    // async getAclModuleOld(moduleGroupGuid) {
-    //     /*
-    //      * get_group_children(check if child is current user)
-    //      * for each child, get children(check if child is current user)
-    //      */
-    //     const srvGroupMember = new GroupMemberService();
-    //     const rModuleMembers = srvGroupMember.getGroupMembers(moduleGroupGuid);
-    //     this.nestedMembers = this.nestedMembers.concat(rModuleMembers);
-    //     rModuleMembers.forEach((rMember: any) => {
-    //         if (this.aclRet) { // prevent continuation of nested cycles after postive acl is found
-    //             return;
-    //         }
-    //         if (this.memberIsGroup(rMember)) {
-    //             this.getAclModuleOld(rMember.memberGuid);
-    //         }
-    //         if (this.memberIsUser(rMember)) {
-    //             if (this.memberIsCurrentUser(rMember)) {
-    //                 this.aclRet = true;
-    //             }
-    //         }
-    //     });
-    //     return this.aclRet;
-    // }
-
-    // async memberIsGroup(rMember) {
-    //     let memberIsGroup = false;
-    //     if (rMember.cdObjTypeId === 10) {
-    //         memberIsGroup = true;
-    //     } else {
-    //         memberIsGroup = false;
-    //     }
-    //     return memberIsGroup;
-    // }
-
-    // memberIsUser(rMember) {
-    //     let memberIsGroup = false;
-    //     if (rMember.cdObjTypeId === 9) {
-    //         memberIsGroup = true;
-    //     } else {
-    //         memberIsGroup = false;
-    //     }
-    //     return memberIsGroup;
-    // }
-
-    // async memberIsCurrentUser(r_member) {
-    //     let memberIsCurrentUser = false;
-    //     if (r_member.userIdMember === this.cuid) {
-    //         memberIsCurrentUser = true;
-    //     } else {
-    //         memberIsCurrentUser = false;
-    //     }
-    //     return memberIsCurrentUser;
-    // }
-
-    // async assignACL(req, res, aclView) {
-    //     this.arrDoc.docName = 'Assign ACL';
-    //     this.arrDoc.docTypeId = 104; // This should be queried from doc::getDocTypeByName
-    //     if (this.validateAssignACL(req, res, aclView)) {
-    //         /*
-    //          * NB:
-    //          * 1. arrDoc is assigned from this.request_args
-    //          * 2. this.moduleIndexName : The primary key for the table for this controller (this.moduleIndexName)
-    //          */
-    //         this.moduleIndexName = 'acl_id';
-    //         this.staticModel.transactDoc(this.arrDoc, this.moduleIndexName);
-    //     } else {
-    //         //
-    //     }
-    // }
-
-    // async validateAssignACL(req, res, aclView) {
-    //     this.validated = true;
-    //     if (this.cuid === 1000) {
-    //         this.b.err.push('guest is anonimous');
-    //         this.validated = false;
-    //     }
-    //     /*
-    //      * 1. Confirm acl is valid
-    //      *      - check that the given group exists
-    //      *      - acl mechanism should be the one to stop anon user
-    //      */
-
-    //     /*
-    //      * 2. Avoid double entry
-    //      */
-
-    //     if (this.isMultiEntry(req, res, aclView)) {
-    //         this.b.err.push('this group_guid is already associated with the object this.cd_obj_guid');
-    //         this.validated = false;
-    //     }
-
-    //     return this.validated;
-    // }
-
-    // async isMultiEntry(req, res, aclView: any) {
-    //     let ret = false;
-    //     // const result = this.static_model.select('acl', 'group_guid = 'this.group_guid' and cd_obj_guid = 'this.cd_obj_guid'', '', 'count(acl_id) as count');
-    //     const serviceInput = {
-    //         serviceModel: AclModel,
-    //         docModel: DocModel,
-    //         docName: 'AclService: Assign Acl',
-    //         cmd: {
-    //             action: 'count',
-    //             filter: { where: { cd_obj_guid: aclView.cdObjGuid, group_guid: aclView.groupGuid } }
-    //         },
-    //         dSource: 1,
-    //     }
-    //     const count = await this.b.read(req, res, serviceInput);
-
-    //     if (count > 0) {
-    //         ret = true;
-    //     }
-    //     return ret;
-    // }
-
-    // /*
-    //  * 1. Get groups that have acl access to a given 'action'
-    //  * 2. Get groups where current user belongs
-    //  * 3. Intersect between 1&2
-    //  * 4. If the intersection count is greater than 1, then user has ACL privileges.
-    //  *
-    //  *  select group_guid from acl_view where cd_obj_guid = '765ECE32-5DF7-0378-2E90-35D1C61681FB'
-    // INTERSECT
-    // select group_guid_parent as group_guid  from membership_view where member_guid = 'fe5b1a9d-df45-4fce-a181-65289c48ea00';
-    //  */
-
-    // async validateUserACL(cuid) {
-    //     const srvGroupMember = new GroupMemberService();
-    //     const userMembership = await srvGroupMember.getMembershipGroups(cuid);
-    // }
-
-    // /*
-    //  * get groups that have acl right over a given action,controller or module
-    //  * sql statement: 'select distinct group_guid,group_name from acl_view where cd_obj_guid = '765ECE32-5DF7-0378-2E90-35D1C61681FB''
-    //  * input: action_guid //counld be action, controller or any cd_obj
-    //  * output: array of groups that can execute the action
-    //  */
-
-    // async getCdObjACL(req, res, cdObjGuid) {
-    //     // stmt = 'select distinct group_guid,group_name from acl_view where cd_obj_guid = 'cd_obj_guid'';
-    //     const serviceInput = {
-    //         serviceModel: AclModel,
-    //         docModel: DocModel,
-    //         docName: 'AclService: getCdObjACL',
-    //         cmd: {
-    //             action: 'count',
-    //             filter: { where: { cd_obj_guid: cdObjGuid } }
-    //         },
-    //         dSource: 1,
-    //     }
-    //     return await this.b.read(req, res, serviceInput);
-    // }
-
-    // // setValidationState() {
-    // //     if (this.validated) {
-    // //         this.success = true;
-    // //     } else {
-    // //         this.success = false;
-    // //     }
-    // // }
-
-    // async syncAclData(req, res) {
-    //     const pl: ICdRequest = this.b.getPlData(req);
-    //     this.arrDoc = pl.args;
-    //     this.arrDoc.doc_from = this.cuid;
-    // }
-
     async getAclModule(req, res, params) {
         console.log('AclService::getAclModule(req, res,params)/params:', params)
         const result$ = of(
@@ -269,7 +96,7 @@ export class AclService {
             docName: 'rxTestService::aclUser$',
             cmd: {
                 action: 'find',
-                filter: { where: {} } // do not filter here. all filters are managed by acl
+                query: { where: {} } // do not filter here. all filters are managed by acl
             },
             dSource: 1,
         }
@@ -345,7 +172,7 @@ export class AclService {
             docName: 'rxTestService::aclModule$',
             cmd: {
                 action: 'find',
-                filter: { where: {} }
+                query: { where: {} }
             },
             dSource: 1,
         }
@@ -395,7 +222,7 @@ export class AclService {
             docName: 'rxTestService::aclUser$',
             cmd: {
                 action: 'find',
-                filter: { where: {} }
+                query: { where: {} }
             },
             dSource: 1,
         }

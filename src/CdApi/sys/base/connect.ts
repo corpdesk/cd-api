@@ -40,7 +40,7 @@ export class Database {
     }
 
     handleError(e){
-        // handle error
+        console.log('Db::handleError()/e:', e)
     }
 }
 

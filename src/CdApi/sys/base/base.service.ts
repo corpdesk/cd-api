@@ -230,10 +230,10 @@ export class BaseService {
         return req.post.dat.f_vals[0].data;
     }
 
-    getFilter(req) {
-        const f = req.post.dat.f_vals[0].filter;
-        if (f) {
-            return f;
+    getQuery(req) {
+        const q = req.post.dat.f_vals[0].query;
+        if (q) {
+            return q;
         } else {
             return {};
         }
@@ -314,24 +314,17 @@ export class BaseService {
     }
 
     async create(req, res, serviceInput: IServiceInput) {
-        // console.log('starting BaseService::create(req, res, guest)');
-        // console.log('BaseService::create(req, res, guest)/001');
-        // console.log('BaseService::create()/serviceInput:', serviceInput)
         await this.init();
         let newDocData;
         try {
-            // console.log('BaseService::create(req, res, guest)/002');
             newDocData = await this.saveDoc(req, res, serviceInput);
         } catch (e) {
-            // console.log('BaseService::create(req, res, guest)/003');
             this.serviceErr(res, e, 'BaseService:create/savDoc')
         }
-        // console.log('BaseService::create(req, res, guest)/004');
         let serviceRepository = null;
         try {
             serviceRepository = await getConnection().getRepository(serviceInput.serviceModel);
         } catch (e) {
-            // console.log('BaseService::create(req, res, guest)/006');
             this.err.push(e.toString());
             const i = {
                 messages: this.err,
@@ -464,21 +457,33 @@ export class BaseService {
         let r: any = null;
         switch (serviceInput.cmd.action) {
             case 'find':
-                r = await repo.find(serviceInput.cmd.filter);
+                try {
+                    r = await repo.find(serviceInput.cmd.query);
+                    if (serviceInput.extraInfo) {
+                        return {
+                            result: r,
+                            fieldMap: await this.feildMap(serviceInput)
+                        }
+                    } else {
+                        return await r;
+                    }
+                }
+                catch (err) {
+                    return await this.serviceErr(res, err, 'BaseService:read');
+                }
                 break;
             case 'count':
-                r = await repo.count(serviceInput.cmd.filter);
+                try {
+                    r = await repo.count(serviceInput.cmd.query);
+                }
+                catch (err) {
+                    return await this.serviceErr(res, err, 'BaseService:read');
+                }
                 break;
         }
 
-        if (serviceInput.extraInfo) {
-            return {
-                result: r,
-                fieldMap: await this.feildMap(serviceInput)
-            }
-        } else {
-            return await r;
-        }
+
+        // this.serviceErr(res, err, 'BaseService:read');
     }
 
     read$(req, res, serviceInput): Observable<any> {
@@ -488,13 +493,17 @@ export class BaseService {
     async readCount(req, res, serviceInput): Promise<any> {
         await this.init();
         const repo = getConnection().getRepository(serviceInput.serviceModel);
-        const [result, total] = await repo.findAndCount(
-            this.getFilter(req)
-        );
-
-        return {
-            items: result,
-            count: total
+        try {
+            const [result, total] = await repo.findAndCount(
+                this.getQuery(req)
+            );
+            return {
+                items: result,
+                count: total
+            }
+        }
+        catch (err) {
+            return await this.serviceErr(res, err, 'BaseService:readCount');
         }
     }
 
@@ -507,6 +516,20 @@ export class BaseService {
         return await meta.map((c) => {
             return { propertyPath: c.propertyPath, givenDatabaseName: c.givenDatabaseName };
         });
+    }
+
+
+    async update(req, res, serviceInput) {
+        await this.init();
+        const serviceRepository = await getConnection().getRepository(serviceInput.serviceModel);
+        return await serviceRepository.update(
+            serviceInput.cmd.query.where,
+            serviceInput.cmd.query.update
+        )
+    }
+
+    update$(req, res, serviceInput) {
+        return from(this.update(req, res, serviceInput))
     }
 
     controllerCreate(req, res) {

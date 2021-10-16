@@ -11,7 +11,8 @@ import { GroupMemberService } from '../../user/services/group-member.service';
 import { BaseService } from '../../base/base.service';
 import { GroupService } from '../../user/services/group.service';
 import { MenuViewModel } from '../models/menu-view.model';
-import { IAllowedModules, IMenuRelations, ISelectedMenu } from '../../base/IBase';
+import { IAllowedModules, IMenuRelations, IRespInfo, ISelectedMenu, IServiceInput } from '../../base/IBase';
+import { MenuModel } from '../models/menu.model';
 
 const menuCache = new CacheContainer(new MemoryStorage())
 
@@ -24,6 +25,11 @@ export class MenuService {
     userGroupsArr = [];
     moduleName;
     menuArrDb = [];
+    i: IRespInfo = {
+        messages: null,
+        code: '',
+        app_msg: ''
+    };
 
     constructor() {
         this.b = new BaseService();
@@ -59,12 +65,12 @@ export class MenuService {
     }
 
     getModuleMenu$(req, res, moduleData): Observable<MenuViewModel[]> {
-        const serviceInput = {
+        const serviceInput: IServiceInput = {
             serviceModel: MenuViewModel,
             docName: 'MenuService::getModuleMenu$',
             cmd: {
                 action: 'find',
-                filter: { where: { moduleGuid: moduleData.moduleGuid } }
+                query: { where: { moduleGuid: moduleData.moduleGuid } }
             },
             dSource: 1,
         }
@@ -223,6 +229,49 @@ export class MenuService {
             }
         });
         return data;
+    }
+
+    getMenuCount(req, res) {
+        console.log('MenuService::getMenuCount()/reached 1')
+        const q = this.b.getQuery(req);
+        console.log('MenuService::getModuleCount/q:', q);
+        const serviceInput = {
+            serviceModel: MenuViewModel,
+            docName: 'MenuService::getMenu$',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        this.b.readCount$(req, res, serviceInput)
+            .subscribe((r) => {
+                this.i.code = 'ModulesController::Get';
+                const svSess = new SessionService();
+                svSess.sessResp.cd_token = req.post.dat.token;
+                svSess.sessResp.ttl = svSess.getTtl();
+                this.b.setAppState(true, this.i, svSess.sessResp);
+                this.b.cdResp.data = r;
+                this.b.respond(res)
+            })
+    }
+
+    update(req, res) {
+        const serviceInput = {
+            serviceModel: MenuModel,
+            docName: 'MenuService::update',
+            cmd: {
+                action: 'update',
+                query: req.post.dat.f_vals[0].query
+            },
+            dSource: 1
+        }
+
+        this.b.update$(req, res, serviceInput)
+            .subscribe((ret) => {
+                this.b.cdResp.data = ret;
+                this.b.respond(res)
+            })
     }
 
 }

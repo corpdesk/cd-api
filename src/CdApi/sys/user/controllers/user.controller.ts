@@ -7,6 +7,7 @@ export class UserController extends CdController {
     svUser: UserService;
     constructor() {
         super();
+        this.b = new BaseService();
         this.svUser = new UserService();
     }
 
@@ -34,6 +35,7 @@ export class UserController extends CdController {
      * @param res
      */
     async Login(req, res) {
+        console.log('starting Login()')
         try {
             await this.svUser.auth(req,res);
         } catch (e) {

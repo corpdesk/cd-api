@@ -47,7 +47,7 @@ export class ModuleController {
     //         "dat": {
     //             "f_vals": [
     //                 {
-    //                     "filter": {
+    //                     "query": {
     //                         "select":["moduleId","moduleGuid"],
     //                         "where": {},
     //                         "take": 5,
@@ -67,6 +67,39 @@ export class ModuleController {
             await this.svModule.getModuleCount(req,res);
         } catch (e) {
             this.b.serviceErr(res, e,'ModuleController:Get');
+        }
+    }
+
+    // /**
+    //  *
+    //  * {
+    //         "ctx": "Sys",
+    //         "m": "Moduleman",
+    //         "c": "Module",
+    //         "a": "Update",
+    //         "dat": {
+    //             "f_vals": [
+    //                 {
+    //                     "query": {
+    //                         "update": {
+    //                             "moduleName": "TesterModule"
+    //                         },
+    //                         "where": {"moduleId":93}
+    //                     }
+    //                 }
+    //             ],
+    //             "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+    //         },
+    //         "args": {}
+    //     }
+    //  * @param req
+    //  * @param res
+    //  */
+    async Update(req, res) {
+        try {
+            await this.svModule.update(req,res);
+        } catch (e) {
+            this.b.serviceErr(res, e,'ModuleController:Update');
         }
     }
 

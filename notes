@@ -420,6 +420,13 @@ Back End Demo:
 implement Base::validFields(req, res):
     - 
 
+- Harmonise all cmd to have query instead of data
+- implemented naz-table
+
+16/10/2021
+- Harmonise all cmd to have query instead of data
+- implemented naz-table
+
 26/09/2021
 - Table data:
     - select fields

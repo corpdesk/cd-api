@@ -106,7 +106,7 @@ export class RxTestService {
             docName: 'ModuleService::getAll',
             cmd: {
                 action: 'find',
-                filter: { where: {} }
+                query: { where: {} }
             },
             dSource: 1,
         }
@@ -119,7 +119,7 @@ export class RxTestService {
             docName: 'ModuleService::getAll',
             cmd: {
                 action: 'find',
-                filter: { where: {} }
+                query: { where: {} }
             },
             dSource: 1,
         }
@@ -202,7 +202,7 @@ export class RxTestService {
             docName: 'rxTestService::aclUser$',
             cmd: {
                 action: 'find',
-                filter: { where: {} }
+                query: { where: {} }
             },
             dSource: 1,
         }
@@ -269,7 +269,7 @@ export class RxTestService {
             docName: 'rxTestService::aclModule$',
             cmd: {
                 action: 'find',
-                filter: { where: {} }
+                query: { where: {} }
             },
             dSource: 1,
         }
@@ -319,7 +319,7 @@ export class RxTestService {
             docName: 'rxTestService::aclUser$',
             cmd: {
                 action: 'find',
-                filter: { where: {} }
+                query: { where: {} }
             },
             dSource: 1,
         }
@@ -404,19 +404,19 @@ export class RxTestService {
         return this.getConsumerModules$(req, res);
     }
 
-    switchFromPromise(req, res) {
-        const promiseModule = (aclUser) => {
-            const f = { where: {} };
-            return this.srvModule.getModules(req, res, f);
-        }
-        const source$ = this.aclUser$(req, res);
-        source$
-            .pipe(
-                switchMap(
-                    aclUser => promiseModule(aclUser)
-                )
-            )
-    }
+    // switchFromPromise(req, res) {
+    //     const promiseModule = (aclUser) => {
+    //         const f = { where: {} };
+    //         return this.srvModule.getModule(req, res);
+    //     }
+    //     const source$ = this.aclUser$(req, res);
+    //     source$
+    //         .pipe(
+    //             switchMap(
+    //                 aclUser => promiseModule(aclUser)
+    //             )
+    //         )
+    // }
 
     mergePromises(req, res): Observable<any> {
         return of(
@@ -445,7 +445,7 @@ export class RxTestService {
             docName: 'GroupService::getGroupByName',
             cmd: {
                 action: 'find',
-                filter: { where: { userName: 'goremo' } }
+                query: { where: { userName: 'goremo' } }
             },
             dSource: 1,
         }

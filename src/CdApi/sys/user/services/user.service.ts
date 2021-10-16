@@ -227,11 +227,10 @@ export class UserService extends CdService {
     async auth(req, res) {
         const serviceInput = {
             serviceModel: UserModel,
-            docModel: DocModel,
             docName: 'UserService::Login',
             cmd: {
                 action: 'find',
-                filter: {
+                query: {
                     // get requested user and 'anon' data/ anon data is used in case of failure
                     where: [
                         { userName: req.post.dat.f_vals[0].data.user_name },
@@ -241,6 +240,8 @@ export class UserService extends CdService {
             },
             dSource: 1,
         }
+        console.log('auth()/req.post:', JSON.stringify(req.post.dat));
+        console.log('auth()/serviceInput:', JSON.stringify(serviceInput));
         const result: UserModel[] = await this.read(req, res, serviceInput);
         const guest = await this.resolveGuest(req, res,result);
         await this.authResponse(req, res, guest);
@@ -320,7 +321,7 @@ export class UserService extends CdService {
             docName: 'UserService::getUserByID',
             cmd: {
                 action: 'find',
-                filter: { where: { userId: uid } }
+                query: { where: { userId: uid } }
             },
             dSource: 1,
         }

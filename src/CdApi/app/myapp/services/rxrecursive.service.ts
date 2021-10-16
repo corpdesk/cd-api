@@ -511,7 +511,7 @@ export class RxRecursiveService {
             docName: 'MenuService::getModuleMenu$',
             cmd: {
                 action: 'find',
-                filter: { where: { moduleGuid: moduleData.moduleGuid } }
+                query: { where: { moduleGuid: moduleData.moduleGuid } }
             },
             dSource: 1,
         }

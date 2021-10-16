@@ -1,5 +1,5 @@
-import { defer, Observable, of, switchMap, from, forkJoin, iif } from 'rxjs';
-import { pipe, map, filter, tap, mergeMap } from 'rxjs';
+import { Observable, of, forkJoin, iif } from 'rxjs';
+import { map, mergeMap } from 'rxjs';
 import * as Lá from 'lodash';
 import { BaseService } from '../../base/base.service';
 import { SessionService } from '../../user/services/session.service';
@@ -15,7 +15,6 @@ import { GroupService } from '../../user/services/group.service';
 import { ModuleModel } from '../models/module.model';
 import { IAclCtx, IRespInfo } from '../../base/IBase';
 import { UserModel } from '../../user/models/user.model';
-import { delay } from 'lodash';
 import { ModuleViewModel } from '../models/module-view.model';
 
 export class ModuleService {
@@ -145,14 +144,14 @@ export class ModuleService {
     //  * @param res
     //  */
     getModule(req, res) {
-        const f = this.b.getFilter(req);
+        const f = this.b.getQuery(req);
         console.log('ModuleService::getModule/f:', f);
         const serviceInput = {
             serviceModel: ModuleViewModel,
             docName: 'MenuService::getModuleMenu$',
             cmd: {
                 action: 'find',
-                filter: f
+                query: f
             },
             dSource: 1
         }
@@ -169,14 +168,14 @@ export class ModuleService {
     }
 
     getModuleCount(req, res) {
-        const f = this.b.getFilter(req);
-        console.log('ModuleService::getModule/f:', f);
+        const q = this.b.getQuery(req);
+        console.log('ModuleService::getModuleCount/q:', q);
         const serviceInput = {
             serviceModel: ModuleViewModel,
-            docName: 'MenuService::getModuleMenu$',
+            docName: 'MenuService::getModuleCount$',
             cmd: {
                 action: 'find',
-                filter: f
+                query: q
             },
             dSource: 1
         }
@@ -188,6 +187,24 @@ export class ModuleService {
                 svSess.sessResp.ttl = svSess.getTtl();
                 this.b.setAppState(true, this.i, svSess.sessResp);
                 this.b.cdResp.data = r;
+                this.b.respond(res)
+            })
+    }
+
+    update(req, res) {
+        const serviceInput = {
+            serviceModel: ModuleModel,
+            docName: 'MenuService::update',
+            cmd: {
+                action: 'update',
+                query: req.post.dat.f_vals[0].query
+            },
+            dSource: 1
+        }
+
+        this.b.update$(req, res, serviceInput)
+            .subscribe((ret) => {
+                this.b.cdResp.data = ret;
                 this.b.respond(res)
             })
     }

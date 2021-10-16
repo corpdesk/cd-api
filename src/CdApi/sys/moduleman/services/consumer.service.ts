@@ -19,7 +19,7 @@ export class ConsumerService{
             docName: 'ConsumerService::getConsumerByGuid',
             cmd: {
                 action: 'find',
-                filter: { where: { consumerGuid: consmGuid } }
+                query: { where: { consumerGuid: consmGuid } }
             },
             dSource: 1,
         }
@@ -36,7 +36,7 @@ export class ConsumerService{
             docName: 'ConsumerService::isConsumerResource',
             cmd: {
                 action: 'count',
-                filter: { where: params }
+                query: { where: params }
             },
             dSource: 1,
         }

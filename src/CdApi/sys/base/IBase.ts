@@ -64,10 +64,15 @@ export interface IServiceInput {
     serviceModel: any;
     serviceModelInstance?:any;
     docName?: string;
-    cmd?:any;
+    cmd?:Cmd;
     data?:any;
     dSource?:number;
     extraInfo?: boolean;
+}
+
+export interface Cmd{
+    action: string;
+    query: IQuery;
 }
 
 export interface IDoc {
@@ -130,6 +135,13 @@ export interface IAllowedModules{
 export interface IMenuRelations{
     menuParent: MenuViewModel;
     menuChildren: MenuViewModel[];
+}
+
+export interface IQuery{
+    select?: string [];
+    where: object;
+    take?: number;
+    skip?: number;
 }
 
 
