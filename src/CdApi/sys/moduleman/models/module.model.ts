@@ -61,11 +61,11 @@ export class ModuleModel {
 
     @Column(
         {
-            name: 'is_public',
+            name: 'module_is_public',
             nullable: true
         }
     )
-    isPublic: boolean;
+    moduleIsPublic: boolean;
 
     @Column(
         {
@@ -77,11 +77,11 @@ export class ModuleModel {
 
     @Column(
         {
-            name: 'enabled',
+            name: 'module_enabled',
             nullable: true
         }
     )
-    enabled: boolean;
+    moduleEnabled: boolean;
 
     @Column(
         'datetime',

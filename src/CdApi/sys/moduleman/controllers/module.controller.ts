@@ -103,4 +103,20 @@ export class ModuleController {
         }
     }
 
+    async Delete(req, res) {
+        try {
+            await this.svModule.delete(req,res);
+        } catch (e) {
+            this.b.serviceErr(res, e,'ModuleController:Update');
+        }
+    }
+
+    async Create(req, res) {
+        try {
+            await this.svModule.create(req, res);
+        } catch (e) {
+            this.b.serviceErr(res, e,'ModuleController:Create');
+        }
+    }
+
 }

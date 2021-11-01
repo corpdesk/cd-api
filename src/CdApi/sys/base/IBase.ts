@@ -41,6 +41,7 @@ export interface ICdResponse {
 
 export interface ISessResp {
     cd_token?: string;
+    userId?: number | null;
     jwt?: string;
     ttl: number;
 }
@@ -142,6 +143,11 @@ export interface IQuery{
     where: object;
     take?: number;
     skip?: number;
+}
+
+export interface ObjectItem{
+    key: string,
+    value: any
 }
 
 

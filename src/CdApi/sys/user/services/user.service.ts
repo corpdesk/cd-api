@@ -25,6 +25,7 @@ import { SessionService } from './session.service';
 import { SessionModel } from '../models/session.model';
 import { ISessResp } from '../../base/IBase';
 import { ModuleService } from '../../moduleman/services/module.service';
+import { ConsumerService } from '../../moduleman/services/consumer.service';
 
 
 
@@ -36,6 +37,7 @@ export class UserService extends CdService {
     db;
     srvSess: SessionService;
     srvModules: ModuleService;
+    svConsumer: ConsumerService;
 
     i: IRespInfo = {
         messages: null,
@@ -50,13 +52,13 @@ export class UserService extends CdService {
      */
     cRules = {
         required: [
-            'user_name',
-            'email',
-            'password',
+            'userName',
+            'Email',
+            'Password',
         ],
         noDuplicate: [
-            'user_name',
-            'email'
+            'userName',
+            'Email'
         ],
     };
 
@@ -67,6 +69,7 @@ export class UserService extends CdService {
         this.userModel = new UserModel();
         this.srvSess = new SessionService();
         this.srvModules = new ModuleService();
+        this.svConsumer = new ConsumerService();
     }
 
     // async init() {
@@ -103,6 +106,10 @@ export class UserService extends CdService {
         }
     }
 
+    async beforeCreate(req, res) {
+        //
+    }
+
     async validateCreate(req, res) {
         // await this.init();
         const params = {
@@ -115,7 +122,7 @@ export class UserService extends CdService {
                     this.b.err.push('consumer guid is missing in the auth request');
                     return false;
                 } else {
-                    if (!this.consumerGuidIsValid()) {
+                    if (!this.svConsumer.consumerGuidIsValid()) {
                         this.b.err.push('consumer guid is not valid');
                         return false;
                     }
@@ -172,10 +179,6 @@ export class UserService extends CdService {
             // return error;
             await this.b.respond(res);
         });
-    }
-
-    consumerGuidIsValid() {
-        return true;
     }
 
     async createDoc(req, res, savedUser) {
@@ -275,6 +278,7 @@ export class UserService extends CdService {
                     // const i = null;
                     const sessData: ISessResp = {
                         cd_token: ret.sessResult.cdToken,
+                        userId: ret.modulesUserData.userData.userId,
                         jwt: null,
                         ttl: ret.sessResult.ttl
                     };

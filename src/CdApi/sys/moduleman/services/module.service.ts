@@ -13,12 +13,13 @@ import { MenuService } from './menu.service';
 import { AclService } from './acl.service';
 import { GroupService } from '../../user/services/group.service';
 import { ModuleModel } from '../models/module.model';
-import { IAclCtx, IRespInfo } from '../../base/IBase';
-import { UserModel } from '../../user/models/user.model';
+import { IAclCtx, IRespInfo, IServiceInput, ObjectItem } from '../../base/IBase';
 import { ModuleViewModel } from '../models/module-view.model';
+import { CdService } from '../../base/cd.service';
 
-export class ModuleService {
-
+export class ModuleService extends CdService {
+    cdToken;
+    moduleModel;
     b: BaseService;
     srvSess: SessionService;
     srvUser: UserService;
@@ -36,11 +37,77 @@ export class ModuleService {
         code: '',
         app_msg: ''
     };
+
+    /*
+     * create rules
+     */
+    cRules = {
+        required: [
+            'moduleName',
+            'isSysModule',
+            // 'moduleIsPublic',
+            // 'moduleEnabled',
+        ],
+        noDuplicate: [
+            'moduleName',
+        ],
+    };
+
     constructor() {
+        super();
         this.b = new BaseService();
+        this.moduleModel = new ModuleModel();
     }
 
-    getModulesUserData$(req, res, cUser: UserModel): Observable<any> {
+    async create(req, res): Promise<void> {
+        if (await this.validateCreate(req, res)) {
+            this.moduleModel = new ModuleModel();
+            await this.beforeCreate(req);
+            const serviceInput = {
+                serviceModel: ModuleModel,
+                serviceModelInstance: this.moduleModel,
+                docName: 'Create Module',
+                dSource: 1,
+            }
+            const regResp: any = await this.b.create(req, res, serviceInput);
+            this.b.cdResp = await regResp;
+            const r = await this.b.respond(res);
+        } else {
+            const i = {
+                messages: this.b.err,
+                code: 'ModuleService:create',
+                app_msg: ''
+            };
+            await this.b.setAppState(false, i, null);
+            const r = await this.b.respond(res);
+        }
+    }
+
+    async validateCreate(req, res) {
+        const params = {
+            controllerInstance: this,
+            model: ModuleModel,
+        }
+        if (await this.b.validateUnique(req, res, params)) {
+            if (await this.b.validateRequired(req, res, this.cRules)) {
+                return true;
+            } else {
+                // this.cRules.required.join(", ")
+                this.b.err.push(`you must provide ${this.cRules.required.join(', ')}`);
+                return false;
+            }
+        } else {
+            this.b.err.push(`duplication of ${this.cRules.noDuplicate.join(', ')} not allowed`);
+            return false;
+        }
+    }
+
+    async beforeCreate(req) {
+        this.b.setPlData(req, { key: 'moduleGuid', value: this.b.getGuid() });
+        this.b.setPlData(req, { key: 'moduleEnabled', value: true });
+    }
+
+    getModulesUserData$(req, res, cUser: ModuleModel): Observable<any> {
         this.srvSess = new SessionService();
         this.srvUser = new UserService();
         this.srvMemo = new MemoService();
@@ -84,6 +151,8 @@ export class ModuleService {
             consumer: clientConsumer$,
             menuData: menuData$,
             userData: of(cUser),
+            /////////////////////
+            // OPTIONAL ADDITIVES:
             // notifData: notifdata,
             // notifSumm: notifsumm,
             // memoSumm: memosumm,
@@ -191,6 +260,34 @@ export class ModuleService {
             })
     }
 
+    getModuleByName(req, res, moduleName): Promise<ModuleModel[]> {
+        const f = {where:{moduleName: `${moduleName}`}};
+        const serviceInput = {
+            serviceModel: ModuleViewModel,
+            docName: 'ModuleService::getModuleByName',
+            cmd: {
+                action: 'find',
+                query: f
+            },
+            dSource: 1
+        }
+        return this.b.read(req, res, serviceInput)
+    }
+
+    /**
+     * Use BaseService for simple search
+     * @param req
+     * @param res
+     */
+    async read(req, res, serviceInput: IServiceInput): Promise<any> {
+        return await this.b.read(req, res, serviceInput);
+    }
+
+    remove(req, res): Promise<void> {
+        console.log(`starting SessionService::remove()`);
+        return null;
+    }
+
     update(req, res) {
         const serviceInput = {
             serviceModel: ModuleModel,
@@ -203,6 +300,24 @@ export class ModuleService {
         }
 
         this.b.update$(req, res, serviceInput)
+            .subscribe((ret) => {
+                this.b.cdResp.data = ret;
+                this.b.respond(res)
+            })
+    }
+
+    delete(req, res) {
+        const serviceInput = {
+            serviceModel: ModuleModel,
+            docName: 'ModuleService::delete',
+            cmd: {
+                action: 'delete',
+                query: req.post.dat.f_vals[0].query
+            },
+            dSource: 1
+        }
+
+        this.b.delete$(req, res, serviceInput)
             .subscribe((ret) => {
                 this.b.cdResp.data = ret;
                 this.b.respond(res)

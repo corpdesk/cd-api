@@ -54,4 +54,8 @@ export class ConsumerService{
         // return req.post.sessData.consumerGuid;
         return req.post.dat.f_vals[0].data.consumer_guid;
     }
+
+    consumerGuidIsValid() {
+        return true;
+    }
 }

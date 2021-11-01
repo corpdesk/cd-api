@@ -423,6 +423,21 @@ implement Base::validFields(req, res):
 - Harmonise all cmd to have query instead of data
 - implemented naz-table
 
+save module:
+- set guid
+- set docid
+- set cuid for doc
+- check if docType is being set properly
+- validate duplicate
+
+01/11/2021
+save module:
+- set guid
+- set docid
+- set cuid for doc
+- check if docType is being set properly
+- validate duplicate
+
 16/10/2021
 - Harmonise all cmd to have query instead of data
 - implemented naz-table

@@ -274,4 +274,22 @@ export class MenuService {
             })
     }
 
+    delete(req, res) {
+        const serviceInput = {
+            serviceModel: MenuModel,
+            docName: 'MenuService::delete',
+            cmd: {
+                action: 'delete',
+                query: req.post.dat.f_vals[0].query
+            },
+            dSource: 1
+        }
+
+        this.b.delete$(req, res, serviceInput)
+            .subscribe((ret) => {
+                this.b.cdResp.data = ret;
+                this.b.respond(res)
+            })
+    }
+
 }

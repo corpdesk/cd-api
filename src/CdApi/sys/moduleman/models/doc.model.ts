@@ -81,10 +81,10 @@ export class DocModel {
 
     @Column(
         {
-            name: 'active'
+            name: 'doc_enabled'
         }
     )
-    active: boolean;
+    docEnabled: boolean;
 
     @ManyToOne(type => UserModel, user => user.docs)
     @JoinColumn({ name: 'doc_from' })

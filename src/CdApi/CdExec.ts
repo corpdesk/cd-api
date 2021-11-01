@@ -7,7 +7,7 @@ export class CdExec {
         this.b = new BaseService();
     }
     async exec(req, res) {
-        if (this.b.valid(req, res)) {
+        if (await this.b.valid(req, res)) {
             try {
                 const pl = req.post; // payload;
                 const ePath = this.b.entryPath(pl);

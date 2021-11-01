@@ -95,4 +95,12 @@ export class MenuController {
         }
     }
 
+    async Delete(req, res) {
+        try {
+            await this.svMenu.delete(req,res);
+        } catch (e) {
+            this.b.serviceErr(res, e,'MenuController:Update');
+        }
+    }
+
 }

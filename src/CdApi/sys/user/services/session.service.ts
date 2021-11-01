@@ -77,6 +77,26 @@ export class SessionService {
         this.sessIsSet = true;
     }
 
+    async getSession(req, res): Promise<SessionModel>{
+        console.log('starting SessionService::getSession()')
+        console.log('SessionService::getSession()/req.post.dat.token:', req.post.dat.token)
+        const serviceInput = {
+            serviceModel: SessionModel,
+            docName: 'SessionService::getSession',
+            cmd: {
+                action: 'find',
+                query: {
+                    // get requested user and 'anon' data/ anon data is used in case of failure
+                    where: [
+                        { cdToken: req.post.dat.token },
+                    ]
+                }
+            },
+            dSource: 1,
+        }
+        return await this.b.read(req, res, serviceInput);
+    }
+
     getTtl() {
         return 600;
     }
