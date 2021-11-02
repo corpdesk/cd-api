@@ -33,12 +33,17 @@ export class BaseService {
     pl;
     iSess: SessionService;
     sess: SessionModel;
+    i: IRespInfo = {
+        messages: null,
+        code: '',
+        app_msg: ''
+    };
     constructor() {
         this.cdResp = this.initCdResp();
     }
     models = [];
 
-    async init() {
+    async init(req, res) {
         if (!this.db) {
             const db = await new Database();
             // client expected to input the required models
@@ -46,6 +51,9 @@ export class BaseService {
                 await db.setConnEntity(model);
             });
             await db.getConnection();
+            // if(!this.cdToken){
+            //     await this.setSess(req, res);
+            // }
         }
     }
 
@@ -87,14 +95,14 @@ export class BaseService {
     }
 
     async valid(req, res): Promise<boolean> {
-        console.log('starting BaseService::valid()')
         const pl = req.post;
         this.pl = pl;
         if (await this.noToken(req, res)) {
-            console.log('BaseService::valid()/01')
             return true;
         } else {
-            await this.setSess(req, res);
+            if(!this.cdToken){
+                await this.setSess(req, res);
+            }
             if (!this.instanceOfCdResponse(pl)) {
                 return false;
             }
@@ -239,7 +247,6 @@ export class BaseService {
         const entityMetadata: EntityMetadata = await getConnection().getMetadata(model);
         const cols = await entityMetadata.columns;
         const colsFiltd = await cols.map(async (col) => {
-            // console.log('BaseService::getEntityPropertyMap()/col:', col)
             return {
                 propertyAliasName: col.propertyAliasName,
                 databaseNameWithoutPrefixes: col.databaseNameWithoutPrefixes,
@@ -250,7 +257,7 @@ export class BaseService {
     }
 
     async validateUnique(req, res, params) {
-        await this.init();
+        await this.init(req, res);
         // assign payload data to this.userModel
         params.controllerInstance.userModel = this.getPlData(req);
         // set connection
@@ -310,6 +317,7 @@ export class BaseService {
     }
 
     async validateRequired(req, res, cRules) {
+        await this.init(req, res);
         const rqFieldNames = cRules.required as string[];
         const isInvalid = await rqFieldNames.filter((fieldName) => {
             if (!(fieldName in this.getPlData(req))) { // required field is missing
@@ -324,7 +332,7 @@ export class BaseService {
     }
 
     async create(req, res, serviceInput: IServiceInput) {
-        await this.init();
+        await this.init(req, res);
         let newDocData;
         try {
             newDocData = await this.saveDoc(req, res, serviceInput);
@@ -399,8 +407,9 @@ export class BaseService {
     // }
 
     async setDoc(req, res, serviceInput) {
-        console.log('starting BaseService::setDoc()')
-        await this.setSess(req, res);
+        if(!this.cdToken){
+            await this.setSess(req, res);
+        }
         const dm: DocModel = new DocModel();
         const iDoc = new DocService();
         dm.docFrom = this.cuid;
@@ -411,10 +420,12 @@ export class BaseService {
     }
 
     async setSess(req, res) {
-        this.iSess = new SessionService();
-        this.sess = await this.iSess.getSession(req, res);
-        this.setCuid(this.sess[0].currentUserId);
-        this.cdToken = this.sess[0].cdToken;
+        if(await !this.cdToken){
+            this.iSess = new SessionService();
+            this.sess = await this.iSess.getSession(req, res);
+            this.setCuid(this.sess[0].currentUserId);
+            this.cdToken = await this.sess[0].cdToken;
+        }
     }
 
     async getServiceData(req, serviceInput: IServiceInput) {
@@ -493,7 +504,7 @@ export class BaseService {
     //  * @returns
     //  */
     async read(req, res, serviceInput: IServiceInput): Promise<any> {
-        await this.init();
+        await this.init(req, res);
         const repo = getConnection().getRepository(serviceInput.serviceModel);
         let r: any = null;
         switch (serviceInput.cmd.action) {
@@ -532,7 +543,7 @@ export class BaseService {
     }
 
     async readCount(req, res, serviceInput): Promise<any> {
-        await this.init();
+        await this.init(req, res);
         const repo = getConnection().getRepository(serviceInput.serviceModel);
         try {
             const [result, total] = await repo.findAndCount(
@@ -562,7 +573,7 @@ export class BaseService {
 
     async update(req, res, serviceInput) {
         let ret: any = [];
-        await this.init();
+        await this.init(req, res);
         const serviceRepository = await getConnection().getRepository(serviceInput.serviceModel);
         const result = await serviceRepository.update(
             serviceInput.cmd.query.where,
@@ -599,7 +610,6 @@ export class BaseService {
         const propMap = await this.feildMap(serviceInput);
         for (const fieldName in fieldsData) {
             if (fieldName) {
-                console.log('key:', fieldName);
                 const fieldMapData: any = propMap.filter(f => f.propertyPath === fieldName);
 
                 /**
@@ -607,7 +617,6 @@ export class BaseService {
                  * in the current case, typeorm rejects 1, "1" as boolean so
                  * we convert them as desired;
                  */
-                // console.log('BaseService::fieldsAdaptor/fieldMapData[0]', fieldMapData[0])
                 if (fieldMapData[0]) {
                     if (this.fieldIsBoolean(fieldMapData[0].dType)) {
                         if (this.isTrueish(fieldsData[fieldName])) {
@@ -619,7 +628,6 @@ export class BaseService {
                 }
             }
         }
-        console.log('fieldsData:', fieldsData)
         return fieldsData;
     }
 
@@ -648,7 +656,7 @@ export class BaseService {
 
     async delete(req, res, serviceInput) {
         let ret: any = [];
-        await this.init();
+        await this.init(req, res);
         const serviceRepository = await getConnection().getRepository(serviceInput.serviceModel);
         const result = await serviceRepository.delete(
             serviceInput.cmd.query.where

@@ -35,6 +35,7 @@ export class GroupMemberService{
         if (await this.validateCreate(req, res)) {
             const groupMember = new GroupMemberModel();
             const serviceInput = {
+                serviceInstance: this,
                 serviceModel: GroupMemberModel,
                 serviceModelInstance: groupMember,
                 docName: 'Register GroupMember',

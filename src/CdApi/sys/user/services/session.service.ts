@@ -22,7 +22,7 @@ export class SessionService {
     sessResp: ISessResp = {
         cd_token: '',
         jwt: '',
-        ttl: 0
+        ttl: 600
     };
     constructor() {
         this.b = new BaseService();
@@ -35,6 +35,7 @@ export class SessionService {
             // const session = new SessionModel();
             await this.setSession(req, guest);
             const serviceInput: IServiceInput = {
+                serviceInstance: this,
                 serviceModel: SessionModel,
                 serviceModelInstance: this.sessModel,
                 dSource: 1,
@@ -81,6 +82,7 @@ export class SessionService {
         console.log('starting SessionService::getSession()')
         console.log('SessionService::getSession()/req.post.dat.token:', req.post.dat.token)
         const serviceInput = {
+            serviceInstance: this,
             serviceModel: SessionModel,
             docName: 'SessionService::getSession',
             cmd: {

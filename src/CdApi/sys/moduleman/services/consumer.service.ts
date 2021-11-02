@@ -15,6 +15,7 @@ export class ConsumerService{
     getConsumerByGuid$(req, res, consmGuid): Observable<ConsumerModel[]>{
         // console.log('starting getConsumerByGuid(req, res, consmGuid)');
         const serviceInput: IServiceInput = {
+            serviceInstance: this,
             serviceModel: ConsumerModel,
             docName: 'ConsumerService::getConsumerByGuid',
             cmd: {
@@ -32,6 +33,7 @@ export class ConsumerService{
 
     async isConsumerResource(req, res, params){
         const serviceInput: IServiceInput = {
+            serviceInstance: this,
             serviceModel: ConsumerResourceViewModel,
             docName: 'ConsumerService::isConsumerResource',
             cmd: {

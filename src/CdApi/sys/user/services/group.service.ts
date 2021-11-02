@@ -15,6 +15,7 @@ export class GroupService {
 
     async getModuleGroup(req, res, moduleName): Promise<GroupModel[]> {
         const serviceInput = {
+            serviceInstance: this,
             serviceModel: GroupModel,
             docName: 'GroupService::getGroupByName',
             cmd: {
@@ -44,6 +45,7 @@ export class GroupService {
         // console.log('GroupService::getGroupByName/groupParams:', groupParams);
         if (groupParams.groupName) {
             const serviceInput = {
+                serviceInstance: this,
                 serviceModel: GroupModel,
                 docName: 'GroupService::getGroupByName',
                 cmd: {

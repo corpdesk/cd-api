@@ -86,6 +86,7 @@ export class UserService extends CdService {
             const user = new UserModel();
             await this.beforCreate(req);
             const serviceInput = {
+                serviceInstance: this,
                 serviceModel: UserModel,
                 serviceModelInstance: user,
                 docName: 'Register User',
@@ -229,6 +230,7 @@ export class UserService extends CdService {
 
     async auth(req, res) {
         const serviceInput = {
+            serviceInstance: this,
             serviceModel: UserModel,
             docName: 'UserService::Login',
             cmd: {
@@ -320,6 +322,7 @@ export class UserService extends CdService {
 
     async getUserByID(req, res, uid): Promise<UserModel[]> {
         const serviceInput = {
+            serviceInstance: this,
             serviceModel: UserModel,
             docModel: DocModel,
             docName: 'UserService::getUserByID',

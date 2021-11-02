@@ -60,6 +60,7 @@ export class DocService extends CdService {
             this.docModel = new DocModel();
             await this.beforeCreate(req, res);
             const serviceInput = {
+                serviceInstance: this,
                 serviceModel: DocModel,
                 docName: 'Create Doc',
                 dSource: 1,
@@ -142,6 +143,7 @@ export class DocService extends CdService {
 
     async getDocTypeByName(req, res, docTypeName: string): Promise<DocTypeModel[]> {
         const serviceInput = {
+            serviceInstance: this,
             serviceModel: DocTypeModel,
             docName: 'DocService::getDocTypeByName',
             cmd: {

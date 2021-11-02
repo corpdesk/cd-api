@@ -62,6 +62,7 @@ export interface ICdPushEnvelop {
 }
 
 export interface IServiceInput {
+    serviceInstance: any;
     serviceModel: any;
     serviceModelInstance?:any;
     docName?: string;

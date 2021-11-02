@@ -32,11 +32,6 @@ export class ModuleService extends CdService {
     srvConsumer: ConsumerService;
     srvAcl: AclService;
     consumerGuid: string;
-    i: IRespInfo = {
-        messages: null,
-        code: '',
-        app_msg: ''
-    };
 
     /*
      * create rules
@@ -60,25 +55,25 @@ export class ModuleService extends CdService {
     }
 
     async create(req, res): Promise<void> {
+        const svSess = new SessionService();
         if (await this.validateCreate(req, res)) {
             this.moduleModel = new ModuleModel();
             await this.beforeCreate(req);
             const serviceInput = {
+                serviceInstance: this,
                 serviceModel: ModuleModel,
                 serviceModelInstance: this.moduleModel,
                 docName: 'Create Module',
                 dSource: 1,
             }
-            const regResp: any = await this.b.create(req, res, serviceInput);
-            this.b.cdResp = await regResp;
+            const respData = await this.b.create(req, res, serviceInput);
+            this.b.i.app_msg = 'new module created';
+            this.b.setAppState(true, this.b.i, svSess.sessResp);
+            this.b.cdResp.data = await respData;
             const r = await this.b.respond(res);
         } else {
-            const i = {
-                messages: this.b.err,
-                code: 'ModuleService:create',
-                app_msg: ''
-            };
-            await this.b.setAppState(false, i, null);
+            svSess.sessResp.cd_token = req.post.dat.token;
+            await this.b.setAppState(false, this.b.i, svSess.sessResp);
             const r = await this.b.respond(res);
         }
     }
@@ -88,16 +83,18 @@ export class ModuleService extends CdService {
             controllerInstance: this,
             model: ModuleModel,
         }
+        this.b.i.code = 'ModuleService::validateCreate';
         if (await this.b.validateUnique(req, res, params)) {
             if (await this.b.validateRequired(req, res, this.cRules)) {
                 return true;
             } else {
-                // this.cRules.required.join(", ")
-                this.b.err.push(`you must provide ${this.cRules.required.join(', ')}`);
+                this.b.i.app_msg = `you must provide ${this.cRules.required.join(', ')}`
+                this.b.err.push(this.b.i.app_msg);
                 return false;
             }
         } else {
-            this.b.err.push(`duplication of ${this.cRules.noDuplicate.join(', ')} not allowed`);
+            this.b.i.app_msg = `duplication of ${this.cRules.noDuplicate.join(', ')} not allowed`
+            this.b.err.push(this.b.i.app_msg);
             return false;
         }
     }
@@ -226,11 +223,11 @@ export class ModuleService extends CdService {
         }
         this.b.read$(req, res, serviceInput)
             .subscribe((r) => {
-                this.i.code = 'ModulesController::Get';
+                this.b.i.code = 'ModulesController::Get';
                 const svSess = new SessionService();
                 svSess.sessResp.cd_token = req.post.dat.token;
                 svSess.sessResp.ttl = svSess.getTtl();
-                this.b.setAppState(true, this.i, svSess.sessResp);
+                this.b.setAppState(true, this.b.i, svSess.sessResp);
                 this.b.cdResp.data = r;
                 this.b.respond(res)
             })
@@ -250,11 +247,11 @@ export class ModuleService extends CdService {
         }
         this.b.readCount$(req, res, serviceInput)
             .subscribe((r) => {
-                this.i.code = 'ModulesController::Get';
+                this.b.i.code = 'ModulesController::Get';
                 const svSess = new SessionService();
                 svSess.sessResp.cd_token = req.post.dat.token;
                 svSess.sessResp.ttl = svSess.getTtl();
-                this.b.setAppState(true, this.i, svSess.sessResp);
+                this.b.setAppState(true, this.b.i, svSess.sessResp);
                 this.b.cdResp.data = r;
                 this.b.respond(res)
             })
@@ -263,6 +260,7 @@ export class ModuleService extends CdService {
     getModuleByName(req, res, moduleName): Promise<ModuleModel[]> {
         const f = {where:{moduleName: `${moduleName}`}};
         const serviceInput = {
+            serviceInstance: this,
             serviceModel: ModuleViewModel,
             docName: 'ModuleService::getModuleByName',
             cmd: {

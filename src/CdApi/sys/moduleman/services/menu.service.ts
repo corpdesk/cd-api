@@ -25,11 +25,6 @@ export class MenuService {
     userGroupsArr = [];
     moduleName;
     menuArrDb = [];
-    i: IRespInfo = {
-        messages: null,
-        code: '',
-        app_msg: ''
-    };
 
     constructor() {
         this.b = new BaseService();
@@ -66,6 +61,7 @@ export class MenuService {
 
     getModuleMenu$(req, res, moduleData): Observable<MenuViewModel[]> {
         const serviceInput: IServiceInput = {
+            serviceInstance: this,
             serviceModel: MenuViewModel,
             docName: 'MenuService::getModuleMenu$',
             cmd: {
@@ -246,11 +242,11 @@ export class MenuService {
         }
         this.b.readCount$(req, res, serviceInput)
             .subscribe((r) => {
-                this.i.code = 'ModulesController::Get';
+                this.b.i.code = 'ModulesController::Get';
                 const svSess = new SessionService();
                 svSess.sessResp.cd_token = req.post.dat.token;
                 svSess.sessResp.ttl = svSess.getTtl();
-                this.b.setAppState(true, this.i, svSess.sessResp);
+                this.b.setAppState(true, this.b.i, svSess.sessResp);
                 this.b.cdResp.data = r;
                 this.b.respond(res)
             })
