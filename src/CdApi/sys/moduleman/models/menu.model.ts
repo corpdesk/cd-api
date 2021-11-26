@@ -61,6 +61,14 @@ export class MenuModel {
 
     @Column(
         {
+            name: 'menu_enabled',
+            nullable: true
+        }
+    )
+    menuEnabled: boolean;
+
+    @Column(
+        {
             name: 'menu_parent_id',
             nullable: true
         }
@@ -129,14 +137,6 @@ export class MenuModel {
         }
     )
     menuIcon: string;
-
-    @Column(
-        {
-            name: 'active',
-            nullable: true
-        }
-    )
-    active: boolean;
 
     @Column(
         {

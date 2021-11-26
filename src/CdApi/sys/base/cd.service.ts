@@ -1,21 +1,31 @@
 
+import { BaseService } from './base.service';
 import {
+    CreateIParams,
     ICdResponse,
     IModelRules,
+    IRespInfo,
     IServiceInput,
     IUser,
 } from './IBase'
 
 export abstract class CdService {
-    abstract b: any; // instance of BaseService
+    abstract b: BaseService; // instance of BaseService
     abstract cdToken: string;
     user: IUser;
+    cRules: any[];
+    uRules: any[];
+    dRules: any[];
+    serviceModel: any;
 
-    public abstract create(req, res): Promise<void>;
-    public abstract beforeCreate(req, res):Promise<void>;
+    public abstract create(req, res): Promise<any>;
+    public abstract beforeCreate(req, res):Promise<boolean>;
     public abstract read(req, res, serviceInput: IServiceInput): Promise<any>;
     public abstract update(req, res): void;
     public abstract remove(req, res): void;
+
+    // internal create interface
+    public abstract createI(req, res, createIParams: CreateIParams);
 
     /**
      * methods for transaction rollback

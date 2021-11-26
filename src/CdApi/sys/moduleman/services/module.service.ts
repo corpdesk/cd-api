@@ -13,13 +13,13 @@ import { MenuService } from './menu.service';
 import { AclService } from './acl.service';
 import { GroupService } from '../../user/services/group.service';
 import { ModuleModel } from '../models/module.model';
-import { IAclCtx, IRespInfo, IServiceInput, ObjectItem } from '../../base/IBase';
+import { CreateIParams, IAclCtx, IRespInfo, IServiceInput, ObjectItem } from '../../base/IBase';
 import { ModuleViewModel } from '../models/module-view.model';
 import { CdService } from '../../base/cd.service';
 
 export class ModuleService extends CdService {
     cdToken;
-    moduleModel;
+    serviceModel;
     b: BaseService;
     srvSess: SessionService;
     srvUser: UserService;
@@ -36,12 +36,10 @@ export class ModuleService extends CdService {
     /*
      * create rules
      */
-    cRules = {
+    cRules: any = {
         required: [
             'moduleName',
             'isSysModule',
-            // 'moduleIsPublic',
-            // 'moduleEnabled',
         ],
         noDuplicate: [
             'moduleName',
@@ -51,18 +49,17 @@ export class ModuleService extends CdService {
     constructor() {
         super();
         this.b = new BaseService();
-        this.moduleModel = new ModuleModel();
+        this.serviceModel = new ModuleModel();
     }
 
     async create(req, res): Promise<void> {
         const svSess = new SessionService();
         if (await this.validateCreate(req, res)) {
-            this.moduleModel = new ModuleModel();
-            await this.beforeCreate(req);
+            await this.beforeCreate(req, res);
             const serviceInput = {
                 serviceInstance: this,
                 serviceModel: ModuleModel,
-                serviceModelInstance: this.moduleModel,
+                serviceModelInstance: this.serviceModel,
                 docName: 'Create Module',
                 dSource: 1,
             }
@@ -73,9 +70,14 @@ export class ModuleService extends CdService {
             const r = await this.b.respond(res);
         } else {
             svSess.sessResp.cd_token = req.post.dat.token;
+            this.b.i.app_msg = 'validation failed'
             await this.b.setAppState(false, this.b.i, svSess.sessResp);
             const r = await this.b.respond(res);
         }
+    }
+
+    createI(req, res, createIParams: CreateIParams) {
+        //
     }
 
     async validateCreate(req, res) {
@@ -99,9 +101,10 @@ export class ModuleService extends CdService {
         }
     }
 
-    async beforeCreate(req) {
+    async beforeCreate(req, res): Promise<boolean> {
         this.b.setPlData(req, { key: 'moduleGuid', value: this.b.getGuid() });
         this.b.setPlData(req, { key: 'moduleEnabled', value: true });
+        return true;
     }
 
     getModulesUserData$(req, res, cUser: ModuleModel): Observable<any> {
@@ -258,7 +261,7 @@ export class ModuleService extends CdService {
     }
 
     getModuleByName(req, res, moduleName): Promise<ModuleModel[]> {
-        const f = {where:{moduleName: `${moduleName}`}};
+        const f = { where: { moduleName: `${moduleName}` } };
         const serviceInput = {
             serviceInstance: this,
             serviceModel: ModuleViewModel,
@@ -296,7 +299,6 @@ export class ModuleService extends CdService {
             },
             dSource: 1
         }
-
         this.b.update$(req, res, serviceInput)
             .subscribe((ret) => {
                 this.b.cdResp.data = ret;

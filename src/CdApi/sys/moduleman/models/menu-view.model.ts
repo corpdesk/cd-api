@@ -23,9 +23,14 @@ import { ViewEntity, ViewColumn } from 'typeorm';
      SELECT
         'menu'.'menu_id' AS 'menu_id',
         'menu'.'menu_name' AS 'menu_label',
+        'menu'.'menu_name' AS 'menu_name',
         'menu'.'menu_guid' AS 'menu_guid',
         'menu'.'menu_closet_file' AS 'closet_file',
         'menu'.'menu_action_id' AS 'menu_action_id',
+        'menu'.'menu_enabled' AS 'menu_enabled',
+        'menu'.'menu_description' AS 'menu_description',
+        'menu'.'menu_icon' AS 'menu_icon',
+        'menu'.'icon_type' AS 'icon_type',
         'menu'.'doc_id' AS 'doc_id',
         'menu'.'menu_parent_id' AS 'menu_parent_id',
         'menu'.'path' AS 'path',
@@ -70,6 +75,13 @@ export class MenuViewModel {
 
     @ViewColumn(
         {
+            name: 'menu_name'
+        }
+    )
+    menuName?: string;
+
+    @ViewColumn(
+        {
             name: 'menu_label'
         }
     )
@@ -95,6 +107,34 @@ export class MenuViewModel {
         }
     )
     menuActionId?: number;
+
+    @ViewColumn(
+        {
+            name: 'menu_enabled'
+        }
+    )
+    menuEnabled?: boolean;
+
+    @ViewColumn(
+        {
+            name: 'menu_description'
+        }
+    )
+    menuDescription?: string;
+
+    @ViewColumn(
+        {
+            name: 'menu_icon'
+        }
+    )
+    menuIcon?: string;
+
+    @ViewColumn(
+        {
+            name: 'icon_type'
+        }
+    )
+    iconType?: string;
 
     @ViewColumn(
         {

@@ -11,6 +11,14 @@ export class ModuleController {
         this.svModule = new ModuleService();
     }
 
+    async Create(req, res) {
+        try {
+            await this.svModule.create(req, res);
+        } catch (e) {
+            this.b.serviceErr(req, res, e, 'ModuleController:Create');
+        }
+    }
+
     // /**
     //  * {
     //         "ctx": "Sys",
@@ -32,9 +40,9 @@ export class ModuleController {
     //  */
     async Get(req, res) {
         try {
-            await this.svModule.getModule(req,res);
+            await this.svModule.getModule(req, res);
         } catch (e) {
-            this.b.serviceErr(res, e,'ModuleController:Get');
+            this.b.serviceErr(req, res, e, 'ModuleController:Get');
         }
     }
 
@@ -64,9 +72,9 @@ export class ModuleController {
     //  */
     async GetCount(req, res) {
         try {
-            await this.svModule.getModuleCount(req,res);
+            await this.svModule.getModuleCount(req, res);
         } catch (e) {
-            this.b.serviceErr(res, e,'ModuleController:Get');
+            this.b.serviceErr(req, res, e, 'ModuleController:Get');
         }
     }
 
@@ -97,25 +105,17 @@ export class ModuleController {
     //  */
     async Update(req, res) {
         try {
-            await this.svModule.update(req,res);
+            await this.svModule.update(req, res);
         } catch (e) {
-            this.b.serviceErr(res, e,'ModuleController:Update');
+            this.b.serviceErr(req, res, e, 'ModuleController:Update');
         }
     }
 
     async Delete(req, res) {
         try {
-            await this.svModule.delete(req,res);
+            await this.svModule.delete(req, res);
         } catch (e) {
-            this.b.serviceErr(res, e,'ModuleController:Update');
-        }
-    }
-
-    async Create(req, res) {
-        try {
-            await this.svModule.create(req, res);
-        } catch (e) {
-            this.b.serviceErr(res, e,'ModuleController:Create');
+            this.b.serviceErr(req, res, e, 'ModuleController:Update');
         }
     }
 

@@ -20,7 +20,7 @@ import userConfig from '../userConfig';
 import { Database } from '../../base/connect';
 import * as bcrypt from 'bcrypt';
 import { DocModel } from '../../moduleman/models/doc.model';
-import { IServiceInput, Fn, IRespInfo } from '../../base/IBase';
+import { IServiceInput, Fn, IRespInfo, CreateIParams } from '../../base/IBase';
 import { SessionService } from './session.service';
 import { SessionModel } from '../models/session.model';
 import { ISessResp } from '../../base/IBase';
@@ -39,18 +39,18 @@ export class UserService extends CdService {
     srvModules: ModuleService;
     svConsumer: ConsumerService;
 
-    i: IRespInfo = {
-        messages: null,
-        code: 'UserController:Login',
-        app_msg: 'Login success'
-    };
+    // i: IRespInfo = {
+    //     messages: null,
+    //     code: '',
+    //     app_msg: ''
+    // };
 
     loginState = false;
 
     /*
      * create rules
      */
-    cRules = {
+    cRules: any = {
         required: [
             'userName',
             'Email',
@@ -107,12 +107,16 @@ export class UserService extends CdService {
         }
     }
 
-    async beforeCreate(req, res) {
+    createI(req, res, createIParams: CreateIParams) {
         //
     }
 
+    async beforeCreate(req, res) {
+        //
+        return true;
+    }
+
     async validateCreate(req, res) {
-        // await this.init();
         const params = {
             controllerInstance: this,
             model: UserModel,
@@ -261,12 +265,12 @@ export class UserService extends CdService {
                 // ...check password
                 // if password is ok, return user data
                 this.loginState = true;
-                this.i.app_msg = `Welcome ${user[0].userName}!`;
+                this.b.i.app_msg = `Welcome ${user[0].userName}!`;
                 return user[0];
             }
             else{
                 // else if user name does not exists, seach for anon user and return
-                this.i.app_msg = 'Login failed!';
+                this.b.i.app_msg = 'Login failed!';
                 user = guestArr.filter((u) => u.userName === 'anon')
                 return user[0];
             }
@@ -287,12 +291,12 @@ export class UserService extends CdService {
                     if (ret.modulesUserData.menuData.length > 0) {
                         ret.modulesUserData.menuData = ret.modulesUserData.menuData.filter(menu => menu !== null);
                     } else {
-                        this.i.app_msg = `Sorry, you must be a member of this company to access any resources`;
+                        this.b.i.app_msg = `Sorry, you must be a member of this company to access any resources`;
                         this.loginState = false;
                         ret.modulesUserData.menuData = [];
                     }
-                    this.i.messages = this.b.err;
-                    this.b.setAppState(this.loginState, this.i, sessData);
+                    this.b.i.messages = this.b.err;
+                    this.b.setAppState(this.loginState, this.b.i, sessData);
                     this.b.cdResp.data = ret.modulesUserData;
                     this.b.respond(res)
                 }

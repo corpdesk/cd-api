@@ -1,7 +1,7 @@
 
 import { v4 as uuidv4 } from 'uuid';
 import * as Lá from 'lodash';
-import { ICdRequest, ICdResponse, IControllerContext, IDoc, IRespInfo, IServiceInput, ISessResp, ObjectItem } from './IBase';
+import { CreateIParams, ICdRequest, ICdResponse, IControllerContext, IDoc, IRespInfo, IServiceInput, ISessResp, ObjectItem } from './IBase';
 import { EntityMetadata, getConnection, Like, } from 'typeorm';
 import { Observable, of, from, defer, bindCallback } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -14,6 +14,7 @@ import { verify } from 'crypto';
 import { SessionService } from '../user/services/session.service';
 import { SessionModel } from '../user/models/session.model';
 import { DocService } from '../moduleman/services/doc.service';
+import { Console } from 'console';
 // import { UserModel } from '../user/models/user.model';
 
 const USER_ANON = 1000;
@@ -34,7 +35,7 @@ export class BaseService {
     iSess: SessionService;
     sess: SessionModel;
     i: IRespInfo = {
-        messages: null,
+        messages: [],
         code: '',
         app_msg: ''
     };
@@ -72,14 +73,18 @@ export class BaseService {
         return await cls[clsCtx.action](req, res);
     }
 
-    async serviceErr(res, e, eCode) {
+    async serviceErr(req, res, e, eCode) {
+        const svSess = new SessionService();
+        svSess.sessResp.cd_token = req.post.dat.token;
+        svSess.sessResp.ttl = svSess.getTtl();
+        this.setAppState(true, this.i, svSess.sessResp);
         this.err.push(e.toString());
         const i = {
             messages: await this.err,
             code: eCode,
-            app_msg: ''
+            app_msg: `Error at ${eCode}: ${e.toString()}`
         };
-        await this.setAppState(false, i, null);
+        await this.setAppState(false, i, svSess.sessResp);
         this.cdResp.data = [];
         return await this.respond(res);
     }
@@ -100,7 +105,7 @@ export class BaseService {
         if (await this.noToken(req, res)) {
             return true;
         } else {
-            if(!this.cdToken){
+            if (!this.cdToken) {
                 await this.setSess(req, res);
             }
             if (!this.instanceOfCdResponse(pl)) {
@@ -233,6 +238,14 @@ export class BaseService {
         req.post.dat.f_vals[0].data[item.key] = item.value;
     }
 
+    async setCreateIData(req, controllerData: ICdRequest, item: ObjectItem): Promise<ICdRequest> {
+        console.log('BaseService::setCreateIData()/item:', item);
+        console.log('BaseService::setCreateIData()/controllerData(1):', controllerData);
+        controllerData[item.key] = item.value;
+        console.log('BaseService::setCreateIData()/controllerData(2):', controllerData);
+        return await controllerData;
+    }
+
     getQuery(req) {
         const q = req.post.dat.f_vals[0].query;
         this.pl = req.post;
@@ -247,7 +260,7 @@ export class BaseService {
         const entityMetadata: EntityMetadata = await getConnection().getMetadata(model);
         const cols = await entityMetadata.columns;
         const colsFiltd = await cols.map(async (col) => {
-            return {
+            return await {
                 propertyAliasName: col.propertyAliasName,
                 databaseNameWithoutPrefixes: col.databaseNameWithoutPrefixes,
                 type: col.type
@@ -263,16 +276,26 @@ export class BaseService {
         // set connection
         const baseRepository = getConnection().getRepository(params.model);
         // get model properties
-        const propMap = await this.getEntityPropertyMap(params.model);
-        const strQueryItems = await this.getQueryItems(req, propMap, params)
-        // convert the string items into JSON objects
-        const arrQueryItems = await strQueryItems.map(async (item) => {
-            return await JSON.parse(item);
+        const propMap = await this.getEntityPropertyMap(params.model).then((result) => {
+            // console.log('validateUnique()/result:', result)
+            return result;
         });
-        const filterItems = await arrQueryItems
+        // console.log('validateUnique()/propMap:', await propMap)
+        const strQueryItems = await this.getQueryItems(req, propMap, params)
+        console.log('validateUnique()/strQueryItems:', await strQueryItems)
+        // convert the string items into JSON objects
+        // const arrQueryItems = await strQueryItems.map(async (item) => {
+        //     console.log('validateUnique()/item:', await item)
+        //     return await JSON.parse(item);
+        // });
+
+        // console.log('validateUnique()/arrQueryItems:', await arrQueryItems)
+        // const filterItems = await JSON.parse(strQueryItems)
+        const filterItems = await strQueryItems
+        console.log('validateUnique()/filterItems:', await filterItems)
         // execute the query
         const results = await baseRepository.count({
-            where: await filterItems[0]
+            where: await filterItems
         });
         // return boolean result
         let ret = false;
@@ -282,19 +305,47 @@ export class BaseService {
         return await ret;
     }
 
-    async getQueryItems(req, propMap: any, params: any) {
-        const strQueryItems = [];
-        await propMap.forEach(async (field: any) => {
-            const f = await field;
-            const alias = f.propertyAliasName;
-            const fieldName = f.databaseNameWithoutPrefixes;
-            const isDuplicate = await this.isNoDuplicateField(fieldName, alias, params.controllerInstance.cRules);
-            if (await isDuplicate) {
-                const item = `{ "${alias}": "${this.getPlData(req)[alias]}" }`;
-                strQueryItems.push(item);
-            }
-        });
-        return await strQueryItems;
+    async getQueryItems(req, propMap: any[], params: any) {
+        ////////////////////////////////////////////////
+        const fields = req.post.dat.f_vals[0].data
+        const entries = Object.entries(fields);
+        // console.log('getQueryItems()/entries:', entries)
+        const entryObjArr = entries.map((e) => {
+            // console.log('getQueryItems()/e:', e)
+            const k = e[0];
+            const v = e[1];
+            const ret = JSON.parse(`[{"key":"${k}","val":"${v}","obj":{"${k}":"${v}"}}]`)
+            // console.log('getQueryItems()/ret:', ret)
+            return ret;
+        })
+        // console.log('getQueryItems()/entryObjArr:', entryObjArr)
+        const cRules: string[] = params.controllerInstance.cRules.noDuplicate;
+        const qItems = entryObjArr.filter(f => this.isNoDuplicate(f, cRules))
+        // console.log('getQueryItems()/qItems:', qItems)
+        const result: any = {};
+        qItems.forEach(async (f: any) => {
+            result[f[0].key] = f[0].val;
+        })
+        // ////////////////////////////////////////////////
+        // const strQueryItems = [];
+        // let strItems = '{';
+        // await propMap.forEach(async (field: any) => {
+        //     const f = await field;
+        //     const alias = f.propertyAliasName;
+        //     const fieldName = f.databaseNameWithoutPrefixes;
+        //     const isDuplicate = await this.isNoDuplicateField(fieldName, alias, params.controllerInstance.cRules);
+        //     if (await isDuplicate) {
+        //         console.log('isDuplicate:', isDuplicate)
+        //         const item = `"${alias}": "${this.getPlData(req)[alias]}," `;
+        //         console.log('getQueryItems()/item:', item)
+        //         strItems += item;
+        //         // strQueryItems.push(item);
+        //     }
+        // });
+
+        // console.log('getQueryItems()/strQueryItems:', await strQueryItems)
+        // return await strQueryItems;
+        return await result;
     }
 
     /**
@@ -308,12 +359,28 @@ export class BaseService {
      */
     async isNoDuplicateField(name, alias, cRules) {
         const ndFieldNames = cRules.noDuplicate as object[];
-        const noDuplicateField = ndFieldNames.filter((fieldName) => alias === fieldName);
+        const noDuplicateField = ndFieldNames.filter(fieldName => alias === fieldName);
+        let ret = false;
         if (noDuplicateField.length > 0) {
-            return true;
+            ret = true;
         } else {
-            return false;
+            ret = false;
         }
+        return ret;
+    }
+
+    isNoDuplicate(fData, cRules = []) {
+        // console.log('isNoDuplicate()/cRules:', cRules)
+        // console.log('isNoDuplicate()/fData:', fData)
+        return cRules.filter((fieldName => fieldName === fData[0].key)).length > 0;
+        // console.log('isNoDuplicate()/field:', dupFields)
+        // let ret = false;
+        // if (dupFields.length > 0) {
+        //     ret = true;
+        // } else {
+        //     ret = false;
+        // }
+        // return ret;
     }
 
     async validateRequired(req, res, cRules) {
@@ -331,13 +398,24 @@ export class BaseService {
         }
     }
 
+    /**
+     *
+     * used where create is called remotely
+     * Note that both create() and createI(), are trailed with
+     * doc data, with dates, user and other application information
+     * used in document tracking
+     * @param req
+     * @param res
+     * @param serviceInput
+     * @returns
+     */
     async create(req, res, serviceInput: IServiceInput) {
         await this.init(req, res);
         let newDocData;
         try {
             newDocData = await this.saveDoc(req, res, serviceInput);
         } catch (e) {
-            this.serviceErr(res, e, 'BaseService:create/savDoc')
+            this.serviceErr(req, res, e, 'BaseService:create/savDoc')
         }
         let serviceRepository = null;
         try {
@@ -349,7 +427,8 @@ export class BaseService {
                 code: 'BaseService:create/getConnection',
                 app_msg: ''
             };
-            await this.setAppState(false, i, null);
+            // await this.setAppState(false, i, null);
+            await this.serviceErr(req, res, e, 'BaseService:create')
             return this.cdResp;
         }
 
@@ -358,6 +437,7 @@ export class BaseService {
             if ('dSource' in serviceInput) {
                 if (serviceInput.dSource === 1) { // data source is provided by the req...data.
                     // req.post.dat.f_vals[0].data.doc_id = await newDocData.docId;
+                    console.log('BaseService::create()/newDocData:', newDocData)
                     await this.setPlData(req, { key: 'docId', value: await newDocData.docId }) // set docId
                     const serviceData = await this.getServiceData(req, serviceInput);
                     modelInstance = await this.setEntity(serviceInput, serviceData);
@@ -371,9 +451,89 @@ export class BaseService {
                 code: 'BaseService:create',
                 app_msg: ''
             };
-            await this.setAppState(false, i, null);
+            // await this.setAppState(false, i, null);
+            await this.serviceErr(req, res, e, 'BaseService:create')
             return this.cdResp;
         }
+    }
+
+    /**
+     * similar to create() but
+     * used where create is called internally
+     * Note that both create and createI, are trailed with
+     * doc data, with dates, user and other application information
+     * used in document tracking
+     * @param req
+     * @param res
+     * @param createIParams
+     */
+    async createI(req, res, createIParams: CreateIParams): Promise<any> {
+        await this.init(req, res);
+        let newDocData;
+        let ret: any;
+        try {
+            newDocData = await this.saveDoc(req, res, createIParams.serviceInput);
+            // console.log('BaseService::createI()/newDocData:', newDocData);
+        } catch (e) {
+            this.serviceErr(req, res, e, 'BaseService:create!/savDoc')
+        }
+        let serviceRepository = null;
+        try {
+            serviceRepository = await getConnection().getRepository(createIParams.serviceInput.serviceModel);
+        } catch (e) {
+            this.err.push(e.toString());
+            const i = {
+                messages: this.err,
+                code: 'BaseService:create/getConnection',
+                app_msg: 'problem creating connection'
+            };
+            // await this.setAppState(false, i, null);
+            await this.serviceErr(req, res, e, 'BaseService:create/getConnection')
+            return this.cdResp;
+        }
+
+        try {
+            let modelInstance = createIParams.serviceInput.serviceModelInstance;
+            // console.log('BaseService::createI()/createIParams:', createIParams);
+            // console.log('BaseService::createI()/01');
+            if ('dSource' in createIParams.serviceInput) {
+                // console.log('BaseService::createI()/createIParams.serviceInput.dSource:', createIParams.serviceInput.dSource);
+                // console.log('BaseService::createI()/02');
+                if (createIParams.serviceInput.dSource === 1) {
+                    // await this.setPlData(req, { key: 'docId', value: await newDocData.docId }) // set docId
+                    // console.log('BaseService::createI()/03');
+                    createIParams.controllerData = await this.setCreateIData(req, createIParams.controllerData, { key: 'docId', value: await newDocData.docId })
+                    // console.log('BaseService::createI()/04');
+                    // console.log('BaseService::createI()/createIParams.controllerData:', createIParams.controllerData.dat);
+                    const serviceData = await createIParams.controllerData;
+                    // console.log('BaseService::createI()/05');
+                    // console.log('BaseService::createI()/serviceData(1):', await serviceData);
+                    // console.log('BaseService::createI()/createIParams(2):', await createIParams);
+                    // console.log('BaseService::createI()/06');
+                    modelInstance = await this.setEntity(createIParams.serviceInput, await serviceData);
+                    // console.log('BaseService::createI()/07');
+                    // console.log('BaseService::createI()/modelInstance(3):', modelInstance);
+                    // console.log('BaseService::createI()/08');
+                    ret = await serviceRepository.save(await modelInstance);
+                    // console.log('BaseService::createI()/09');
+                    // console.log('BaseService::createI()/ret(4):', ret);
+                }
+                // console.log('BaseService::createI()/10');
+            }
+        } catch (e) {
+            // console.log('BaseService::createI()/11');
+            this.err.push(e.toString());
+            const i = {
+                messages: this.err,
+                code: 'BaseService:createI',
+                app_msg: 'problem saving data'
+            };
+            // await this.setAppState(false, i, null);
+            await this.serviceErr(req, res, e, 'BaseService:createI')
+            ret = false;
+        }
+        // console.log('BaseService::createI()/12');
+        return await ret;
     }
 
     // async bCreate(req, res, params) {
@@ -407,20 +567,21 @@ export class BaseService {
     // }
 
     async setDoc(req, res, serviceInput) {
-        if(!this.cdToken){
+        if (!this.cdToken) {
             await this.setSess(req, res);
         }
         const dm: DocModel = new DocModel();
         const iDoc = new DocService();
         dm.docFrom = this.cuid;
         dm.docName = serviceInput.docName;
+        console.log('BaseService::setDoc()/dm.docName:', dm.docName)
         dm.docTypeId = await iDoc.getDocTypeId(req, res);
         dm.docDate = await this.mysqlNow();
         return await dm;
     }
 
     async setSess(req, res) {
-        if(await !this.cdToken){
+        if (await !this.cdToken) {
             this.iSess = new SessionService();
             this.sess = await this.iSess.getSession(req, res);
             this.setCuid(this.sess[0].currentUserId);
@@ -521,7 +682,7 @@ export class BaseService {
                     }
                 }
                 catch (err) {
-                    return await this.serviceErr(res, err, 'BaseService:read');
+                    return await this.serviceErr(req, res, err, 'BaseService:read');
                 }
                 break;
             case 'count':
@@ -529,7 +690,7 @@ export class BaseService {
                     r = await repo.count(serviceInput.cmd.query);
                 }
                 catch (err) {
-                    return await this.serviceErr(res, err, 'BaseService:read');
+                    return await this.serviceErr(req, res, err, 'BaseService:read');
                 }
                 break;
         }
@@ -555,7 +716,7 @@ export class BaseService {
             }
         }
         catch (err) {
-            return await this.serviceErr(res, err, 'BaseService:readCount');
+            return await this.serviceErr(req, res, err, 'BaseService:readCount');
         }
     }
 
@@ -573,25 +734,38 @@ export class BaseService {
 
     async update(req, res, serviceInput) {
         let ret: any = [];
-        await this.init(req, res);
-        const serviceRepository = await getConnection().getRepository(serviceInput.serviceModel);
-        const result = await serviceRepository.update(
-            serviceInput.cmd.query.where,
-            await this.fieldsAdaptor(serviceInput.cmd.query.update, serviceInput)
-        )
 
-        if ('affected' in result) {
-            this.cdResp.app_state.success = true;
-            this.cdResp.app_state.info.app_msg = `${result.affected} record/s updated`;
-            ret = result;
-        } else {
-            this.cdResp.app_state.success = false;
-            this.cdResp.app_state.info.app_msg = `some error occorred`;
-            if (this.debug) {
+        try {
+            await this.init(req, res);
+            const serviceRepository = await getConnection().getRepository(serviceInput.serviceModel);
+            const result = await serviceRepository.update(
+                serviceInput.cmd.query.where,
+                await this.fieldsAdaptor(serviceInput.cmd.query.update, serviceInput)
+            )
+
+            if ('affected' in result) {
+                this.cdResp.app_state.success = true;
+                this.cdResp.app_state.info.app_msg = `${result.affected} record/s updated`;
                 ret = result;
+            } else {
+                this.cdResp.app_state.success = false;
+                this.cdResp.app_state.info.app_msg = `some error occorred`;
+                if (this.debug) {
+                    ret = result;
+                }
             }
+            return ret;
+        } catch (e) {
+            this.err.push(e.toString());
+            const i = {
+                messages: this.err,
+                code: 'BaseService:update',
+                app_msg: ''
+            };
+            // await this.setAppState(false, i, null);
+            await this.serviceErr(req, res, e, i.code)
+            return this.cdResp;
         }
-        return ret;
     }
 
     update$(req, res, serviceInput) {

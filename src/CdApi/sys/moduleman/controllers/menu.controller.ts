@@ -20,11 +20,27 @@ export class MenuController {
 
     }
 
+    async Create(req, res) {
+        try {
+            await this.svMenu.create(req, res);
+        } catch (e) {
+            this.b.serviceErr(req, res, e, 'ModuleController:Create');
+        }
+    }
+
     async menuCollection(req, res) {
         try {
             // await this.svMenu.testMenu(req, res, userMenuData$);
         } catch (e) {
-            this.b.serviceErr(res, e, 'RxTestController:menuCollection');
+            this.b.serviceErr(req, res, e, 'RxTestController:menuCollection');
+        }
+    }
+
+    async Get(req, res) {
+        try {
+            await this.svMenu.getMenu(req, res);
+        } catch (e) {
+            this.b.serviceErr(req, res, e, 'ModuleController:Get');
         }
     }
 
@@ -56,9 +72,9 @@ export class MenuController {
         console.log('starting GetCounter()')
         try {
             console.log('MenuController::GetCount()/reached 1')
-            await this.svMenu.getMenuCount(req,res);
+            await this.svMenu.getMenuCount(req, res);
         } catch (e) {
-            this.b.serviceErr(res, e,'ModuleController:Get');
+            this.b.serviceErr(req, res, e, 'ModuleController:Get');
         }
     }
 
@@ -89,17 +105,17 @@ export class MenuController {
     //  */
     async Update(req, res) {
         try {
-            await this.svMenu.update(req,res);
+            await this.svMenu.update(req, res);
         } catch (e) {
-            this.b.serviceErr(res, e,'MenuController:Update');
+            this.b.serviceErr(req, res, e, 'MenuController:Update');
         }
     }
 
     async Delete(req, res) {
         try {
-            await this.svMenu.delete(req,res);
+            await this.svMenu.delete(req, res);
         } catch (e) {
-            this.b.serviceErr(res, e,'MenuController:Update');
+            this.b.serviceErr(req, res, e, 'MenuController:Update');
         }
     }
 

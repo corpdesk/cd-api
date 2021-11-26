@@ -39,7 +39,7 @@ export class UserController extends CdController {
         try {
             await this.svUser.auth(req,res);
         } catch (e) {
-            this.b.serviceErr(res, e,'UserService:Login');
+            this.b.serviceErr(req, res, e,'UserService:Login');
         }
     }
 
@@ -73,7 +73,7 @@ export class UserController extends CdController {
         try {
             await this.svUser.create(req, res);
         } catch (e) {
-            this.b.serviceErr(res, e,'UserService:Register');
+            this.b.serviceErr(req, res, e,'UserService:Register');
         }
     }
 }

@@ -151,6 +151,11 @@ export interface ObjectItem{
     value: any
 }
 
+export interface CreateIParams{
+    serviceInput: IServiceInput;
+    controllerData: any;
+}
+
 
 
 

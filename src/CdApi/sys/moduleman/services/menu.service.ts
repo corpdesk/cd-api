@@ -11,8 +11,11 @@ import { GroupMemberService } from '../../user/services/group-member.service';
 import { BaseService } from '../../base/base.service';
 import { GroupService } from '../../user/services/group.service';
 import { MenuViewModel } from '../models/menu-view.model';
-import { IAllowedModules, IMenuRelations, IRespInfo, ISelectedMenu, IServiceInput } from '../../base/IBase';
+import { CreateIParams, IAllowedModules, IMenuRelations, IRespInfo, ISelectedMenu, IServiceInput } from '../../base/IBase';
 import { MenuModel } from '../models/menu.model';
+import { CdObjService } from './cd-obj.service';
+import { size } from 'lodash';
+import { CdObjModel } from '../models/cd-obj.model';
 
 const menuCache = new CacheContainer(new MemoryStorage())
 
@@ -23,13 +26,182 @@ export class MenuService {
     srvAcl: AclService;
     cuid;
     userGroupsArr = [];
-    moduleName;
     menuArrDb = [];
+    serviceModel: MenuModel;
+
+    /*
+     * create rules
+     */
+    cRules = {
+        required: [
+            'menuName',
+            'menuParentId'
+        ],
+        noDuplicate: [
+            'menuName',
+            'menuParentId'
+        ],
+    };
 
     constructor() {
         this.b = new BaseService();
         this.srvGroupMember = new GroupMemberService();
         this.srvAcl = new AclService();
+        this.serviceModel = new MenuModel();
+    }
+
+    // /**
+    //  * {
+    //         "ctx": "Sys",
+    //         "m": "Moduleman",
+    //         "c": "MenuController",
+    //         "a": "actionCreate",
+    //         "dat": {
+    //             "f_vals": [{
+    //                 "cd_obj": {
+    //                     "cd_obj_name": "moduleName-controllerName-menuName",
+    //                     "cd_obj_type_guid": "574c73a6-7e5b-40fe-aa89-e52ce1640f42",
+    //                     "parent_module_guid": "a06f881e-41f1-45b9-87f4-8475fef7fcba"
+    //                 },
+    //                 "data": {
+    //                     "menu_name": "reservation",
+    //                     "menu_closet_file": "",
+    //                     "menu_parent_id": "982",
+    //                     "module_id": "258",
+    //                     "menu_order": "11",
+    //                     "path": "reservation",
+    //                     "menu_description": "reservation",
+    //                     "menu_lable": "reservation",
+    //                     "menu_icon": "cog",
+    //                     "active": true
+    //                 }
+    //             }],
+    //             "token": "mT6blaIfqWhzNXQLG8ksVbc1VodSxRZ8lu5cMgda"
+    //         },
+    //         "args": null
+    //     }
+    //  */
+    async create(req, res): Promise<void> {
+        const svSess = new SessionService();
+        if (await this.validateCreate(req, res)) {
+            if (await this.beforeCreate(req, res)) {
+                const serviceInput = {
+                    serviceInstance: this,
+                    serviceModel: MenuModel,
+                    serviceModelInstance: this.serviceModel,
+                    docName: 'Create Menu',
+                    dSource: 1,
+                }
+                console.log('MenuService::create()/')
+                const respData = await this.b.create(req, res, serviceInput);
+                this.b.i.app_msg = 'new menu created';
+                this.b.setAppState(true, this.b.i, svSess.sessResp);
+                this.b.cdResp.data = await respData;
+                const r = await this.b.respond(res);
+            } else {
+                svSess.sessResp.cd_token = req.post.dat.token;
+                this.b.i.app_msg = 'pre-create process failed'
+                await this.b.setAppState(false, this.b.i, svSess.sessResp);
+                const r = await this.b.respond(res);
+            }
+
+        } else {
+            svSess.sessResp.cd_token = req.post.dat.token;
+            this.b.i.app_msg = 'validation failed';
+            console.log('this.b.i:', this.b.i);
+            await this.b.setAppState(false, this.b.i, svSess.sessResp);
+            const r = await this.b.respond(res);
+        }
+    }
+
+    createI(req, res, createIParams: CreateIParams) {
+        //
+    }
+
+    async validateCreate(req, res) {
+        console.log('starting validateCreate()')
+        console.log('validateCreate()/01')
+        let ret = false;
+        const params = {
+            controllerInstance: this,
+            model: MenuModel,
+        }
+        this.b.i.code = 'MenuService::validateCreate';
+        if (await this.b.validateUnique(req, res, params)) {
+            // console.log('validateCreate()/02')
+            if (await this.b.validateRequired(req, res, this.cRules)) {
+                // console.log('validateCreate()/03')
+                ret = true;
+            } else {
+                console.log('validateCreate()/04')
+                this.b.i.app_msg = `you must provide ${this.cRules.required.join(', ')}`
+                this.b.err.push(this.b.i.app_msg);
+                ret = false;
+            }
+            // console.log('validateCreate()/05')
+        } else {
+            // console.log('validateCreate()/06')
+            const msg = `duplication of ${this.cRules.noDuplicate.join(', ')} not allowed`
+            this.b.i.app_msg = msg
+            this.b.i.messages.push(msg);
+            ret = false;
+        }
+        // console.log('validateCreate()/07')
+        return await ret;
+    }
+
+    async beforeCreate(req, res) {
+        const menuData = req.post.dat.f_vals[0].data;
+        const cdObjData = req.post.dat.f_vals[0].cdObj;
+        const svCdObj = new CdObjService();
+        const si = {
+            serviceInstance: svCdObj,
+            serviceModel: CdObjModel,
+            serviceModelInstance: svCdObj.serviceModel,
+            docName: 'Create Menu/beforeCreate',
+            dSource: 1,
+        }
+        const createIParams: CreateIParams = {
+            serviceInput: si,
+            controllerData: cdObjData
+        }
+        let ret = false;
+        const result: any = await svCdObj.createI(req, res, createIParams)
+        console.log('MenuService::beforeCreate()/result:', result)
+        if (result) {
+            this.b.setPlData(req, { key: 'menuActionId', value: result.cdObjId });
+            this.b.setPlData(req, { key: 'menuEnabled', value: true });
+            ret = true;
+        } else {
+            this.b.i.app_msg = `duplication of ${this.cRules.noDuplicate.join(', ')} not allowed`
+            this.b.err.push(this.b.i.app_msg);
+            ret = false;
+        }
+        return ret;
+    }
+
+    getMenu(req, res) {
+        const f = this.b.getQuery(req);
+        console.log('MenuService::getMenu/f:', f);
+        const serviceInput = {
+            serviceModel: MenuViewModel,
+            docName: 'MenuService::getMenu',
+            cmd: {
+                action: 'find',
+                query: f
+            },
+            dSource: 1
+        }
+        this.b.read$(req, res, serviceInput)
+            .subscribe((r) => {
+                this.b.i.code = 'MenuController::Get';
+                const svSess = new SessionService();
+                svSess.sessResp.cd_token = req.post.dat.token;
+                svSess.sessResp.ttl = svSess.getTtl();
+                this.b.setAppState(true, this.b.i, svSess.sessResp);
+                this.b.cdResp.data = r;
+                this.b.respond(res)
+            })
     }
 
     getAclMenu$(req, res, params: IAllowedModules): Observable<any> {

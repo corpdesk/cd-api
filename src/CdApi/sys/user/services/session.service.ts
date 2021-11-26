@@ -44,7 +44,7 @@ export class SessionService {
             }
             return await this.b.create(req, res, serviceInput);
         } catch (e) {
-            this.b.serviceErr(res, e, 'SessionService:create');
+            this.b.serviceErr(req, res, e, 'SessionService:create');
         }
     }
 
@@ -78,7 +78,7 @@ export class SessionService {
         this.sessIsSet = true;
     }
 
-    async getSession(req, res): Promise<SessionModel>{
+    async getSession(req, res): Promise<SessionModel> {
         console.log('starting SessionService::getSession()')
         console.log('SessionService::getSession()/req.post.dat.token:', req.post.dat.token)
         const serviceInput = {

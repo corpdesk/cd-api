@@ -9,7 +9,7 @@ import { ConsumerService } from './consumer.service';
 import { AclService } from './acl.service';
 import { GroupService } from '../../user/services/group.service';
 import { ModuleModel } from '../models/module.model';
-import { IRespInfo, IServiceInput } from '../../base/IBase';
+import { CreateIParams, IRespInfo, IServiceInput } from '../../base/IBase';
 import { ModuleViewModel } from '../models/module-view.model';
 import { CdService } from '../../base/cd.service';
 import { DocModel } from '../models/doc.model';
@@ -39,7 +39,7 @@ export class DocService extends CdService {
     /*
      * create rules
      */
-    cRules = {
+    cRules: any = {
         required: [
             'docName',
             'docFrom',
@@ -79,6 +79,10 @@ export class DocService extends CdService {
         }
     }
 
+    createI(req, res, createIParams: CreateIParams){
+        //
+    }
+
     async validateCreate(req, res) {
         const params = {
             controllerInstance: this,
@@ -103,6 +107,7 @@ export class DocService extends CdService {
         this.b.setPlData(req, { key: 'docEnabled', value: true });
         this.b.setPlData(req, { key: 'docTypeId', value: await this.getDocTypeId(req, res) });
         this.b.setPlData(req, { key: 'companyId', value: await this.getCompanyId(req) });
+        return true;
     }
 
     async getDocTypeId(req, res): Promise<number> {
@@ -112,12 +117,15 @@ export class DocService extends CdService {
         const a = req.post.a;
         const result: DocTypeModel[] = await this.getDocTypeByName(req, res, `${c}_${a}`)
         if (result.length > 0) {
+            // console.log('DocService::getDocTypeId()/result:', result)
             ret = result[0].docTypeId;
         } else {
+            // console.log('DocService::getDocTypeId()/result:', result)
             const r = await this.createDocType(req, res);
             ret = r[0].docTypeId;
         }
-        return ret;
+        console.log('DocService::getDocTypeId()/ret:', ret)
+        return await ret;
     }
 
     async createDocType(req, res): Promise<DocTypeModel[]> {
