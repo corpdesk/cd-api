@@ -331,7 +331,7 @@ export class RxRecursiveService {
     //         .subscribe((menu) => {
     //             console.log('modules:', menu);
     //             this.b.cdResp.data = menu;
-    //             this.b.respond(res);
+    //             this.b.respond(req, res);
     //         })
     // }
 
@@ -342,7 +342,7 @@ export class RxRecursiveService {
             .subscribe((menu) => {
                 console.log('modules:', menu);
                 this.b.cdResp.data = menu;
-                this.b.respond(res);
+                this.b.respond(req, res);
             })
     }
 
@@ -488,7 +488,7 @@ export class RxRecursiveService {
     //         .subscribe((menu: any) => {
     //             console.log('menu:', menu);
     //             this.b.cdResp.data = menu;
-    //             this.b.respond(res);
+    //             this.b.respond(req, res);
     //         })
     // }
 
@@ -519,7 +519,7 @@ export class RxRecursiveService {
         // .subscribe((menu: any) => {
         //     console.log('menu:', menu);
         //     this.b.cdResp.data = menu;
-        //     this.b.respond(res);
+        //     this.b.respond(req, res);
         // });
     }
 
@@ -579,7 +579,7 @@ export class RxRecursiveService {
         const nested = flat2Nested.convert(flat);
         console.log('nested:', nested);
         this.b.cdResp.data = nested;
-        this.b.respond(res);
+        this.b.respond(req, res);
     }
 
     flat2Nested2(req, res) {
@@ -594,7 +594,7 @@ export class RxRecursiveService {
         const nested = flat2Nested.convert(flat);
         console.log('nested:', nested);
         this.b.cdResp.data = nested;
-        this.b.respond(res);
+        this.b.respond(req, res);
     }
 
     // menu(req, res) {
@@ -624,7 +624,7 @@ export class RxRecursiveService {
     //         .subscribe((m: any) => {
     //             console.log('subscribe/m:', m);
     //             this.b.cdResp.data = m;
-    //             this.b.respond(res);
+    //             this.b.respond(req, res);
     //         });
     // }
 
@@ -655,7 +655,7 @@ export class RxRecursiveService {
     //         .subscribe((m: any) => {
     //             console.log('subscribe/m:', m);
     //             this.b.cdResp.data = m;
-    //             this.b.respond(res);
+    //             this.b.respond(req, res);
     //         });
     // }
 
@@ -681,7 +681,7 @@ export class RxRecursiveService {
     //         .subscribe((m: any) => {
     //             console.log('subscribe/m:', m);
     //             this.b.cdResp.data = m;
-    //             this.b.respond(res);
+    //             this.b.respond(req, res);
     //         });
 
     // }
@@ -704,7 +704,7 @@ export class RxRecursiveService {
     //         .subscribe((m: any) => {
     //             console.log('subscribe/modules:', m);
     //             this.b.cdResp.data = m;
-    //             this.b.respond(res);
+    //             this.b.respond(req, res);
     //         });
     // }
 
@@ -745,7 +745,7 @@ export class RxRecursiveService {
             .subscribe((m: any) => {
                 console.log('subscribe/m:', m);
                 this.b.cdResp.data = m;
-                this.b.respond(res);
+                this.b.respond(req, res);
             });
 
     }
@@ -768,7 +768,7 @@ export class RxRecursiveService {
     //         .subscribe((p: any) => {
     //             console.log('subscribe/parents:', p);
     //             this.b.cdResp.data = p;
-    //             this.b.respond(res);
+    //             this.b.respond(req, res);
     //         });
 
     // }

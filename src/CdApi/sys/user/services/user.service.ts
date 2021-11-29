@@ -95,7 +95,7 @@ export class UserService extends CdService {
             const regResp: any = await this.b.create(req, res, serviceInput);
             this.sendEmailNotification(req, res);
             this.b.cdResp = await regResp;
-            const r = await this.b.respond(res);
+            const r = await this.b.respond(req,res);
         } else {
             const i = {
                 messages: this.b.err,
@@ -103,7 +103,7 @@ export class UserService extends CdService {
                 app_msg: ''
             };
             await this.b.setAppState(false, i, null);
-            const r = await this.b.respond(res);
+            const r = await this.b.respond(req,res);
         }
     }
 
@@ -177,12 +177,12 @@ export class UserService extends CdService {
                 )
                 .execute();
             getConnection().close();
-            const r = await this.b.respond(res);
+            const r = await this.b.respond(req, res);
         }).catch(async (error) => {
             getConnection().close();
             console.log(`Error: ${error}`);
             // return error;
-            await this.b.respond(res);
+            await this.b.respond(req, res);
         });
     }
 
@@ -298,7 +298,7 @@ export class UserService extends CdService {
                     this.b.i.messages = this.b.err;
                     this.b.setAppState(this.loginState, this.b.i, sessData);
                     this.b.cdResp.data = ret.modulesUserData;
-                    this.b.respond(res)
+                    this.b.respond(req,res)
                 }
             );
     }

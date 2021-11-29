@@ -26,7 +26,7 @@ import { ViewEntity, ViewColumn } from 'typeorm';
         'menu'.'menu_name' AS 'menu_name',
         'menu'.'menu_guid' AS 'menu_guid',
         'menu'.'menu_closet_file' AS 'closet_file',
-        'menu'.'menu_action_id' AS 'menu_action_id',
+        'menu'.'cd_obj_id' AS 'cd_obj_id',
         'menu'.'menu_enabled' AS 'menu_enabled',
         'menu'.'menu_description' AS 'menu_description',
         'menu'.'menu_icon' AS 'menu_icon',
@@ -44,7 +44,6 @@ import { ViewEntity, ViewColumn } from 'typeorm';
         'module'.'is_sys_module' AS 'is_sys_module',
         (SELECT NULL) AS 'children',
         (SELECT NULL) AS 'menu_action',
-        'cd_obj'.'cd_obj_id' AS 'cd_obj_id',
         'cd_obj'.'cd_obj_name' AS 'cd_obj_name',
         'cd_obj'.'last_sync_date' AS 'last_sync_date',
         'cd_obj'.'cd_obj_disp_name' AS 'cd_obj_disp_name',
@@ -62,7 +61,7 @@ import { ViewEntity, ViewColumn } from 'typeorm';
         FROM
         (('menu'
         JOIN 'module' ON (('menu'.'module_id' = 'module'.'module_id')))
-        JOIN 'cd_obj' ON (('cd_obj'.'cd_obj_id' = 'menu'.'menu_action_id')))
+        JOIN 'cd_obj' ON (('cd_obj'.'cd_obj_id' = 'menu'.'cd_obj_id')))
     `
 })
 export class MenuViewModel {
@@ -103,10 +102,10 @@ export class MenuViewModel {
 
     @ViewColumn(
         {
-            name: 'menu_action_id'
+            name: 'cd_obj_id'
         }
     )
-    menuActionId?: number;
+    cdObjId?: number;
 
     @ViewColumn(
         {
@@ -224,13 +223,6 @@ export class MenuViewModel {
         name: 'menu_action'
     })
     menuAction?: string;
-
-    @ViewColumn(
-        {
-            name: 'cd_obj_id'
-        }
-    )
-    cdObjId?: number;
 
     @ViewColumn(
         {

@@ -43,7 +43,7 @@ export class GroupMemberService{
             }
             const regResp: any = await this.b.create(req, res, serviceInput);
             this.b.cdResp = await regResp;
-            const r = await this.b.respond(res);
+            const r = await this.b.respond(req, res);
         } else {
             const i = {
                 messages: this.b.err,
@@ -51,7 +51,7 @@ export class GroupMemberService{
                 app_msg: ''
             };
             await this.b.setAppState(false, i, null);
-            const r = await this.b.respond(res);
+            const r = await this.b.respond(req, res);
         }
     }
 

@@ -44,6 +44,16 @@ export class MenuModel {
     @Column(
         'varchar',
         {
+            name: 'menu_description',
+            length: 500,
+            nullable: true
+        }
+    )
+    menuDescription: string;
+
+    @Column(
+        'varchar',
+        {
             name: 'menu_closet_file',
             length: 300,
             nullable: true
@@ -53,11 +63,11 @@ export class MenuModel {
 
     @Column(
         {
-            name: 'menu_action_id',
+            name: 'cd_obj_id',
             nullable: true
         }
     )
-    menuActionId: number;
+    cdObjId: number;
 
     @Column(
         {

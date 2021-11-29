@@ -76,7 +76,7 @@ export class RxCombinedResult {
             .subscribe((menu) => {
                 console.log('modules:', menu);
                 this.b.cdResp.data = menu;
-                this.b.respond(res);
+                this.b.respond(req, res);
                 // Expected Results from the sample data:
                 // "data": [
                 //     {

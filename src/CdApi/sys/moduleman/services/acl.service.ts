@@ -84,7 +84,7 @@ export class AclService {
                     })
                 })
                 this.b.cdResp = intersect;
-                this.b.respond(res);
+                this.b.respond(req, res);
             });
     }
 

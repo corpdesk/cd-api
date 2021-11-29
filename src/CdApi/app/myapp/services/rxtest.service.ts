@@ -71,7 +71,7 @@ export class RxTestService {
         //         console.log('result:', result);
 
         //         // this.b.cdResp = result;
-        //         // this.b.respond(res);
+        //         // this.b.respond(req, res);
         //         // modules.push(result);
         //     }
         //     ,(err) => {
@@ -83,7 +83,7 @@ export class RxTestService {
         //             app_msg: ''
         //         };
         //         this.b.setAppState(false, i, null);
-        //         // this.b.respond(res);
+        //         // this.b.respond(req, res);
         //     },
         //     () => {
         //         console.log('request completed.');
@@ -95,7 +95,7 @@ export class RxTestService {
         //             app_msg: 'request completed.'
         //         };
         //         this.b.setAppState(false, i, null);
-        //         this.b.respond(res);
+        //         this.b.respond(req, res);
         //     }
         // );
     }
@@ -158,7 +158,7 @@ export class RxTestService {
             .subscribe((modules: any) => {
                 console.log('modules:', modules);
                 this.b.cdResp.data = modules;
-                this.b.respond(res);
+                this.b.respond(req, res);
             })
     }
 
@@ -191,7 +191,7 @@ export class RxTestService {
     //             console.log('Lá/result:', result);
 
     //             this.b.cdResp = result;
-    //             this.b.respond(res);
+    //             this.b.respond(req, res);
     //         });
 
     // }

@@ -67,7 +67,7 @@ export class DocService extends CdService {
             }
             const regResp: any = await this.b.create(req, res, serviceInput);
             this.b.cdResp = await regResp;
-            const r = await this.b.respond(res);
+            const r = await this.b.respond(req,res);
         } else {
             const i = {
                 messages: this.b.err,
@@ -75,7 +75,7 @@ export class DocService extends CdService {
                 app_msg: ''
             };
             await this.b.setAppState(false, i, null);
-            const r = await this.b.respond(res);
+            const r = await this.b.respond(req,res);
         }
     }
 
@@ -217,7 +217,7 @@ export class DocService extends CdService {
                 svSess.sessResp.ttl = svSess.getTtl();
                 this.b.setAppState(true, this.i, svSess.sessResp);
                 this.b.cdResp.data = r;
-                this.b.respond(res)
+                this.b.respond(req,res)
             })
     }
 
@@ -240,7 +240,7 @@ export class DocService extends CdService {
                 svSess.sessResp.ttl = svSess.getTtl();
                 this.b.setAppState(true, this.i, svSess.sessResp);
                 this.b.cdResp.data = r;
-                this.b.respond(res)
+                this.b.respond(req,res)
             })
     }
 
@@ -271,7 +271,7 @@ export class DocService extends CdService {
         this.b.update$(req, res, serviceInput)
             .subscribe((ret) => {
                 this.b.cdResp.data = ret;
-                this.b.respond(res)
+                this.b.respond(req,res)
             })
     }
 
@@ -289,7 +289,7 @@ export class DocService extends CdService {
         this.b.delete$(req, res, serviceInput)
             .subscribe((ret) => {
                 this.b.cdResp.data = ret;
-                this.b.respond(res)
+                this.b.respond(req,res)
             })
     }
 

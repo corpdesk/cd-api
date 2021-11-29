@@ -67,12 +67,12 @@ export class ModuleService extends CdService {
             this.b.i.app_msg = 'new module created';
             this.b.setAppState(true, this.b.i, svSess.sessResp);
             this.b.cdResp.data = await respData;
-            const r = await this.b.respond(res);
+            const r = await this.b.respond(req,res);
         } else {
             svSess.sessResp.cd_token = req.post.dat.token;
             this.b.i.app_msg = 'validation failed'
             await this.b.setAppState(false, this.b.i, svSess.sessResp);
-            const r = await this.b.respond(res);
+            const r = await this.b.respond(req,res);
         }
     }
 
@@ -232,7 +232,7 @@ export class ModuleService extends CdService {
                 svSess.sessResp.ttl = svSess.getTtl();
                 this.b.setAppState(true, this.b.i, svSess.sessResp);
                 this.b.cdResp.data = r;
-                this.b.respond(res)
+                this.b.respond(req,res)
             })
     }
 
@@ -256,7 +256,7 @@ export class ModuleService extends CdService {
                 svSess.sessResp.ttl = svSess.getTtl();
                 this.b.setAppState(true, this.b.i, svSess.sessResp);
                 this.b.cdResp.data = r;
-                this.b.respond(res)
+                this.b.respond(req,res)
             })
     }
 
@@ -302,7 +302,7 @@ export class ModuleService extends CdService {
         this.b.update$(req, res, serviceInput)
             .subscribe((ret) => {
                 this.b.cdResp.data = ret;
-                this.b.respond(res)
+                this.b.respond(req,res)
             })
     }
 
@@ -320,7 +320,7 @@ export class ModuleService extends CdService {
         this.b.delete$(req, res, serviceInput)
             .subscribe((ret) => {
                 this.b.cdResp.data = ret;
-                this.b.respond(res)
+                this.b.respond(req,res)
             })
     }
 }

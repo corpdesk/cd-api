@@ -15,6 +15,7 @@ import { SessionService } from '../user/services/session.service';
 import { SessionModel } from '../user/models/session.model';
 import { DocService } from '../moduleman/services/doc.service';
 import { Console } from 'console';
+import { parse, stringify, toJSON, fromJSON } from 'flatted';
 // import { UserModel } from '../user/models/user.model';
 
 const USER_ANON = 1000;
@@ -86,13 +87,13 @@ export class BaseService {
         };
         await this.setAppState(false, i, svSess.sessResp);
         this.cdResp.data = [];
-        return await this.respond(res);
+        return await this.respond(req, res);
     }
 
     async returnErr(req, res, i: IRespInfo) {
         const sess = this.getSess(req, res);
         await this.setAppState(false, i, sess);
-        return await this.respond(res);
+        return await this.respond(req, res);
     }
 
     entryPath(pl: ICdRequest) {
@@ -223,11 +224,18 @@ export class BaseService {
         }
     }
 
-    async respond(res) {
+    async respond(req, res) {
         console.log('**********starting respond(res)*********');
-        console.log('BaseService::respond(res)/this.pl:', JSON.stringify(this.pl));
-        console.log('BaseService::respond(res)/this.cdResp:', JSON.stringify(this.cdResp));
-        res.status(200).json(this.cdResp);
+        // res.status(200).json(this.cdResp);
+        let ret;
+        try {
+            console.log('BaseService::respond(res)/this.pl:', JSON.stringify(req.post));
+            console.log('BaseService::respond(res)/this.cdResp:', JSON.stringify(this.cdResp));
+            ret = res.status(200).json(this.cdResp);
+        } catch (e) {
+            this.err.push(e.toString())
+        }
+        return ret;
     }
 
     getPlData(req): any {

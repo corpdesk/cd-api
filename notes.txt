@@ -430,6 +430,39 @@ save module:
 - check if docType is being set properly
 - validate duplicate
 
+
+
+CREATE PROCEDURE  migrateToCdObjId() BEGIN
+	DECLARE
+		Counter INT DEFAULT 0;
+	DECLARE
+		MaxId INT DEFAULT 0;
+	DECLARE
+		menuActionId INT DEFAULT 0;
+	
+	SET Counter = ( SELECT min( menu_id ) FROM menu );
+	
+	SET MaxId = ( SELECT max( menu_id ) FROM menu );
+	loop_label :
+	LOOP
+		IF
+			Counter > MaxId THEN
+				LEAVE loop_label;
+			
+		END IF;
+		
+		SET menuActionId = (SELECT menu_action_id FROM menu WHERE menu_id = Counter);
+		UPDATE menu SET cd_obj_id = menuActionId WHERE menu_id = Counter;
+		
+		SET Counter = Counter + 1;
+		
+	END LOOP;
+	
+END
+
+CALL migrateToCdObjId();
+select menu_id, menu_name, menu_action_id, cd_obj_id from menu;
+
 02/11/2021
 - set create push notifications
 - clean up
