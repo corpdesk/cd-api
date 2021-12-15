@@ -99,9 +99,18 @@ export class MenuService {
                 this.b.cdResp.data = await respData;
                 const r = await this.b.respond(req,res);
             } else {
-                svSess.sessResp.cd_token = req.post.dat.token;
-                this.b.i.app_msg = 'pre-create process failed'
-                await this.b.setAppState(false, this.b.i, svSess.sessResp);
+                // svSess.sessResp.cd_token = req.post.dat.token;
+                // this.b.i.app_msg = 'pre-create process failed'
+                // await this.b.setAppState(false, this.b.i, svSess.sessResp);
+
+
+                // this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'MenuService:create',
+                app_msg: 'validation failed'
+            };
+            await this.b.serviceErr(req, res, i.app_msg, i.code)
                 const r = await this.b.respond(req,res);
             }
 

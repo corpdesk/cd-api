@@ -78,7 +78,7 @@ export class SessionService {
         this.sessIsSet = true;
     }
 
-    async getSession(req, res): Promise<SessionModel> {
+    async getSession(req, res): Promise<SessionModel[]> {
         console.log('starting SessionService::getSession()')
         console.log('SessionService::getSession()/req.post.dat.token:', req.post.dat.token)
         const serviceInput = {

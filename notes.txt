@@ -463,6 +463,9 @@ END
 CALL migrateToCdObjId();
 select menu_id, menu_name, menu_action_id, cd_obj_id from menu;
 
+15/12/2021
+- refine module CRUD
+
 02/11/2021
 - set create push notifications
 - clean up

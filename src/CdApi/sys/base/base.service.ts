@@ -1,21 +1,21 @@
 
 import { v4 as uuidv4 } from 'uuid';
 import * as Lá from 'lodash';
-import { CreateIParams, ICdRequest, ICdResponse, IControllerContext, IDoc, IRespInfo, IServiceInput, ISessResp, ObjectItem } from './IBase';
-import { EntityMetadata, getConnection, Like, } from 'typeorm';
-import { Observable, of, from, defer, bindCallback } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { CreateIParams, ICdRequest, ICdResponse, IControllerContext, IRespInfo, IServiceInput, ISessResp, ObjectItem } from './IBase';
+import { EntityMetadata, getConnection } from 'typeorm';
+import { Observable, from } from 'rxjs';
+// import { map } from 'rxjs/operators';
 import moment from 'moment';
 import { Database } from './connect';
 import { DocModel } from '../moduleman/models/doc.model';
-import { UserModel } from '../user/models/user.model';
-import { umask } from 'process';
-import { verify } from 'crypto';
+// import { UserModel } from '../user/models/user.model';
+// import { umask } from 'process';
+// import { verify } from 'crypto';
 import { SessionService } from '../user/services/session.service';
 import { SessionModel } from '../user/models/session.model';
 import { DocService } from '../moduleman/services/doc.service';
-import { Console } from 'console';
-import { parse, stringify, toJSON, fromJSON } from 'flatted';
+// import { Console } from 'console';
+// import { parse, stringify, toJSON, fromJSON } from 'flatted';
 // import { UserModel } from '../user/models/user.model';
 
 const USER_ANON = 1000;
@@ -30,11 +30,11 @@ export class BaseService {
     cdResp: ICdResponse; // cd response
     err: string[] = []; // error messages
     db;
-    cuid = 1000;
+    cuid = USER_ANON;
     debug = false;
     pl;
     iSess: SessionService;
-    sess: SessionModel;
+    sess: SessionModel[];
     i: IRespInfo = {
         messages: [],
         code: '',
@@ -97,7 +97,15 @@ export class BaseService {
     }
 
     entryPath(pl: ICdRequest) {
-        return `../../${pl.ctx.toLowerCase()}/${pl.m.toLowerCase()}/controllers/${pl.c.toLowerCase()}.controller`;
+        const ret = `../../${pl.ctx.toLowerCase()}/${this.toCdName(pl.m)}/controllers/${this.toCdName(pl.c)}.controller`;
+        // console.log('BaseService::entryPath()/ret:', ret);
+        return ret;
+    }
+
+    // from camel to hyphen seperated then to lower case
+    toCdName(camel) {
+        const ret = camel.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+        return ret;
     }
 
     async valid(req, res): Promise<boolean> {
@@ -435,7 +443,6 @@ export class BaseService {
                 code: 'BaseService:create/getConnection',
                 app_msg: ''
             };
-            // await this.setAppState(false, i, null);
             await this.serviceErr(req, res, e, 'BaseService:create')
             return this.cdResp;
         }
@@ -481,7 +488,6 @@ export class BaseService {
         let ret: any;
         try {
             newDocData = await this.saveDoc(req, res, createIParams.serviceInput);
-            // console.log('BaseService::createI()/newDocData:', newDocData);
         } catch (e) {
             this.serviceErr(req, res, e, 'BaseService:create!/savDoc')
         }
@@ -495,70 +501,33 @@ export class BaseService {
                 code: 'BaseService:create/getConnection',
                 app_msg: 'problem creating connection'
             };
-            // await this.setAppState(false, i, null);
             await this.serviceErr(req, res, e, 'BaseService:create/getConnection')
             return this.cdResp;
         }
 
         try {
             let modelInstance = createIParams.serviceInput.serviceModelInstance;
-            // console.log('BaseService::createI()/createIParams:', createIParams);
-            // console.log('BaseService::createI()/01');
             if ('dSource' in createIParams.serviceInput) {
-                // console.log('BaseService::createI()/createIParams.serviceInput.dSource:', createIParams.serviceInput.dSource);
-                // console.log('BaseService::createI()/02');
                 if (createIParams.serviceInput.dSource === 1) {
-                    // await this.setPlData(req, { key: 'docId', value: await newDocData.docId }) // set docId
-                    // console.log('BaseService::createI()/03');
                     createIParams.controllerData = await this.setCreateIData(req, createIParams.controllerData, { key: 'docId', value: await newDocData.docId })
-                    // console.log('BaseService::createI()/04');
-                    // console.log('BaseService::createI()/createIParams.controllerData:', createIParams.controllerData.dat);
                     const serviceData = await createIParams.controllerData;
-                    // console.log('BaseService::createI()/05');
-                    // console.log('BaseService::createI()/serviceData(1):', await serviceData);
-                    // console.log('BaseService::createI()/createIParams(2):', await createIParams);
-                    // console.log('BaseService::createI()/06');
                     modelInstance = await this.setEntity(createIParams.serviceInput, await serviceData);
-                    // console.log('BaseService::createI()/07');
-                    // console.log('BaseService::createI()/modelInstance(3):', modelInstance);
-                    // console.log('BaseService::createI()/08');
                     ret = await serviceRepository.save(await modelInstance);
-                    // console.log('BaseService::createI()/09');
-                    // console.log('BaseService::createI()/ret(4):', ret);
                 }
-                // console.log('BaseService::createI()/10');
             }
         } catch (e) {
-            // console.log('BaseService::createI()/11');
             this.err.push(e.toString());
             const i = {
                 messages: this.err,
                 code: 'BaseService:createI',
                 app_msg: 'problem saving data'
             };
-            // await this.setAppState(false, i, null);
             await this.serviceErr(req, res, e, 'BaseService:createI')
             ret = false;
         }
-        // console.log('BaseService::createI()/12');
         return await ret;
     }
 
-    // async bCreate(req, res, params) {
-    //     // params = {
-    //     //     controllerInstance: iController,
-    //     //     model: Model,
-    //     //     docName: dName
-    //     // }
-    //     params.controllerInstance.docModel = new params.model();
-    //     await params.controllerInstance.beforeCreateDocType(req, res);
-    //     const serviceInput = {
-    //         serviceModel: params.model,
-    //         docName: params.docName,
-    //         dSource: 1,
-    //     }
-    //     return await this.create(req, res, serviceInput);
-    // }
 
     async saveDoc(req, res, serviceInput: IServiceInput) {
         const docRepository: any = await getConnection().getRepository(DocModel);
@@ -570,10 +539,6 @@ export class BaseService {
         return { ...req.post.dat.f_vals[0].data, ...param }; // merge objects
     }
 
-    // async getDocTypeId(req, res, serviceInput: IServiceInput): Promise<number> {
-    //     return 22;
-    // }
-
     async setDoc(req, res, serviceInput) {
         if (!this.cdToken) {
             await this.setSess(req, res);
@@ -582,7 +547,6 @@ export class BaseService {
         const iDoc = new DocService();
         dm.docFrom = this.cuid;
         dm.docName = serviceInput.docName;
-        console.log('BaseService::setDoc()/dm.docName:', dm.docName)
         dm.docTypeId = await iDoc.getDocTypeId(req, res);
         dm.docDate = await this.mysqlNow();
         return await dm;
@@ -592,8 +556,19 @@ export class BaseService {
         if (await !this.cdToken) {
             this.iSess = new SessionService();
             this.sess = await this.iSess.getSession(req, res);
-            this.setCuid(this.sess[0].currentUserId);
-            this.cdToken = await this.sess[0].cdToken;
+            if (this.sess.length > 0) {
+                console.log('this.sess:', this.sess);
+                this.setCuid(this.sess[0].currentUserId);
+                this.cdToken = await this.sess[0].cdToken;
+            } else {
+                this.i = {
+                    messages: this.err,
+                    code: 'BaseService:setSess',
+                    app_msg: 'invalid session'
+                };
+                await this.serviceErr(req, res, this.i.app_msg, this.i.code)
+                this.respond(req, res);
+            }
         }
     }
 
@@ -647,31 +622,6 @@ export class BaseService {
         this.cuid = cuid;
     }
 
-    // /**
-    //   Options for filter setting: synoimous to sql query
-    //  * {
-    //         select: ["firstName", "lastName"],
-    //         relations: ["profile", "photos", "videos"],
-    //         where: {
-    //             firstName: "Timber",
-    //             lastName: "Saw",
-    //             profile: {
-    //                 userName: "tshaw",
-    //             },
-    //         },
-    //         order: {
-    //             name: "ASC",
-    //             id: "DESC",
-    //         },
-    //         skip: 5,
-    //         take: 10,
-    //         cache: true,
-    //     }
-    //  * @param req
-    //  * @param res
-    //  * @param serviceInput
-    //  * @returns
-    //  */
     async read(req, res, serviceInput: IServiceInput): Promise<any> {
         await this.init(req, res);
         const repo = getConnection().getRepository(serviceInput.serviceModel);
@@ -696,6 +646,8 @@ export class BaseService {
             case 'count':
                 try {
                     r = await repo.count(serviceInput.cmd.query);
+                    console.log('BaseService::read()/r:', r)
+                    return r;
                 }
                 catch (err) {
                     return await this.serviceErr(req, res, err, 'BaseService:read');
@@ -742,7 +694,6 @@ export class BaseService {
 
     async update(req, res, serviceInput) {
         let ret: any = [];
-
         try {
             await this.init(req, res);
             const serviceRepository = await getConnection().getRepository(serviceInput.serviceModel);
@@ -750,7 +701,6 @@ export class BaseService {
                 serviceInput.cmd.query.where,
                 await this.fieldsAdaptor(serviceInput.cmd.query.update, serviceInput)
             )
-
             if ('affected' in result) {
                 this.cdResp.app_state.success = true;
                 this.cdResp.app_state.info.app_msg = `${result.affected} record/s updated`;
@@ -837,6 +787,7 @@ export class BaseService {
     }
 
     async delete(req, res, serviceInput) {
+        console.log('BaseService::delete()/01')
         let ret: any = [];
         await this.init(req, res);
         const serviceRepository = await getConnection().getRepository(serviceInput.serviceModel);

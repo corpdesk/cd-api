@@ -179,7 +179,7 @@ export class CdObjModel {
         }
     )
     // @IsInt()
-    cd_objEnabled?: boolean;
+    cdObjEnabled?: boolean;
 
     // @OneToMany(type => DocModel, doc => doc.user) // note: we will create user property in the Docs class
     // docs: DocModel[];
