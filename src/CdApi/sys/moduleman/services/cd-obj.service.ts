@@ -76,12 +76,6 @@ export class CdObjService extends CdService {
             this.b.cdResp.data = await respData;
             const r = await this.b.respond(req, res);
         } else {
-            const i = {
-                messages: this.b.err,
-                code: 'CdObjService:create',
-                app_msg: 'validation failed'
-            };
-            await this.b.serviceErr(req, res, i.app_msg, i.code)
             const r = await this.b.respond(req, res);
         }
     }

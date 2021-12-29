@@ -463,6 +463,9 @@ END
 CALL migrateToCdObjId();
 select menu_id, menu_name, menu_action_id, cd_obj_id from menu;
 
+29/12/2021
+- refined crud from module, menu and cd-obj
+
 15/12/2021
 - refine module CRUD
 
