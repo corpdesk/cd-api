@@ -8,6 +8,7 @@ import { CdObjModel } from '../models/cd-obj.model';
 import { ModuleViewModel } from '../models/module-view.model';
 import { CdObjViewModel } from '../models/cd-obj-view.model';
 import { CdObjTypeModel } from '../models/cd-obj-type.model';
+import { UserModel } from '../../user/models/user.model';
 
 export class CdObjService extends CdService {
     b: any; // instance of BaseService
@@ -60,8 +61,10 @@ export class CdObjService extends CdService {
     //  * @param res
     //  */
     async create(req, res) {
+        console.log('CdObjService::create()/01')
         const svSess = new SessionService();
         if (await this.validateCreate(req, res)) {
+            console.log('CdObjService::create()/02')
             await this.beforeCreate(req, res);
             const serviceInput = {
                 serviceInstance: this,
@@ -70,12 +73,15 @@ export class CdObjService extends CdService {
                 docName: 'Create cdObj',
                 dSource: 1,
             }
+            console.log('CdObjService::create()/req.post:', req.post);
             const respData = await this.b.create(req, res, serviceInput);
             this.b.i.app_msg = 'new cdObj created';
             this.b.setAppState(true, this.b.i, svSess.sessResp);
             this.b.cdResp.data = await respData;
             const r = await this.b.respond(req, res);
         } else {
+            console.log('CdObjService::create()/03');
+            this.b.setAppState(false, this.b.i, svSess.sessResp);
             const r = await this.b.respond(req, res);
         }
     }
@@ -135,9 +141,12 @@ export class CdObjService extends CdService {
      * @param q
      * @returns
      */
-    beforeUpdate(q:any){
-        if(q.update.cdObjEnabled === ''){
+    beforeUpdate(q: any) {
+        if (q.update.cdObjEnabled === '') {
             q.update.cdObjEnabled = null;
+        }
+        if (q.update.showIcon === '') {
+            q.update.showIcon = null;
         }
         return q;
     }
@@ -162,14 +171,106 @@ export class CdObjService extends CdService {
     }
 
     async validateCreate(req, res) {
+        const svSess = new SessionService();
         ///////////////////////////////////////////////////////////////////
         // 1. Validate against duplication
         const params = {
             controllerInstance: this,
             model: CdObjModel,
         }
-        this.b.i.code = 'ModuleService::validateCreate';
+        this.b.i.code = 'CdObjService::validateCreate';
         let ret = false;
+
+        ///////////////////////////////////////////////////////////////////
+        // 2. confirm the cd_obj referenced exists
+        let pl: CdObjModel = this.b.getPlData(req);
+
+        // if ('cdObjTypeGuid' in pl) {
+        //     const serviceInput = {
+        //         serviceModel: CdObjTypeModel,
+        //         docName: 'CdObjService::validateCreate',
+        //         cmd: {
+        //             action: 'find',
+        //             query: { where: { cdObjTypeGuid: pl.cdObjTypeGuid } }
+        //         },
+        //         dSource: 1
+        //     }
+        //     const r: any = await this.b.read(req, res, serviceInput)
+        //     if (r.length > 0) {
+        //         ret = true;
+        //     } else {
+        //         ret = false;
+        //         this.b.i.app_msg = `cdObj type reference is invalid`;
+        //         this.b.err.push(this.b.i.app_msg);
+        //     }
+        // } else {
+        //     this.b.i.app_msg = `parentModuleGuid is missing in payload`;
+        //     this.b.err.push(this.b.i.app_msg);
+        // }
+        if ('cdObjTypeGuid' in pl) {
+            console.log('CdObjService::validateCreate()/01')
+            const cdObjTypeData: CdObjTypeModel[] = await this.b.get(req, res, CdObjTypeModel, { where: { cdObjTypeGuid: pl.cdObjTypeGuid } });
+            if (await this.b.validateInputRefernce(`cdObj type reference is invalid`, cdObjTypeData, svSess)) {
+                console.log('CdObjService::validateCreate()/02')
+                console.log('CdObjService::validateCreate()/cdObjTypeData:', cdObjTypeData);
+                if (cdObjTypeData[0].cdObjTypeName === 'user') {
+                    console.log('CdObjService::validateCreate()/03')
+                    if ('objGuid' in pl) {
+                        console.log('CdObjService::validateCreate()/04')
+                        ret = true;
+                        await this.b.setPlData(req, { key: 'cdObjName', value: pl.objGuid });
+                        const userData: UserModel[] = await this.b.get(req, res, UserModel, { where: { userGuid: pl.objGuid } });
+                        await this.b.setPlData(req, { key: 'objId', value: userData[0].userId });
+                    } else {
+                        console.log('CdObjService::validateCreate()/05')
+                        this.b.setAlertMessage(`if registering user type, objGuid must be provided`, svSess);
+                    }
+                }
+            } else {
+                console.log('CdObjService::validateCreate()/06')
+                ret = false;
+                this.b.setAlertMessage(`cdObj type reference is invalid`, svSess);
+            }
+        } else {
+            console.log('CdObjService::validateCreate()/07')
+            this.b.setAlertMessage(`parentModuleGuid is missing in payload`, svSess);
+        }
+
+        ///////////////////////////////////////////////////////////////////
+        // 3. confirm the parent referenced exists
+        if ('parentModuleGuid' in pl) {
+            console.log('CdObjService::validateCreate()/08')
+            const serviceInput = {
+                serviceModel: ModuleModel,
+                docName: 'CdObjService::getModuleMenu$',
+                cmd: {
+                    action: 'find',
+                    query: { where: { moduleGuid: pl.parentModuleGuid } }
+                },
+                dSource: 1
+            }
+            const moduleData: ModuleModel[] = await this.b.read(req, res, serviceInput)
+            await this.b.setPlData(req, { key: 'parentModuleId', value: moduleData[0].moduleId });
+            console.log('CdObjService::validateCreate()/moduleData:', moduleData);
+            if (moduleData.length > 0) {
+                console.log('CdObjService::validateCreate()/09')
+                ret = true;
+            } else {
+                console.log('CdObjService::validateCreate()/10')
+                ret = false;
+                this.b.i.app_msg = `parent reference is invalid`;
+                this.b.err.push(this.b.i.app_msg);
+            }
+        } else {
+            console.log('CdObjService::getCdObj/11');
+            this.b.i.app_msg = `parentModuleGuid is missing in payload`;
+            this.b.err.push(this.b.i.app_msg);
+        }
+
+        console.log('CdObjService::getCdObj/111');
+        console.log('CdObjService::validateCreate()/req.post', JSON.stringify(req.post));
+        pl = this.b.getPlData(req);
+        console.log('CdObjService::validateCreate()/pl', JSON.stringify(pl));
         if (await this.b.validateUnique(req, res, params)) {
             if (await this.b.validateRequired(req, res, this.cRules)) {
                 ret = true;
@@ -183,61 +284,16 @@ export class CdObjService extends CdService {
             this.b.i.app_msg = `duplicate for ${this.cRules.noDuplicate.join(', ')} is not allowed`;
             this.b.err.push(this.b.i.app_msg);
         }
-        ///////////////////////////////////////////////////////////////////
-        // 2. confirm the cd_obj referenced exists
-        let pl: CdObjModel = this.b.getPlData(req);
-        if ('cdObjTypeGuid' in pl) {
-            const serviceInput = {
-                serviceModel: CdObjTypeModel,
-                docName: 'CdObjService::validateCreate',
-                cmd: {
-                    action: 'find',
-                    query: { where: { cdObjTypeGuid: pl.cdObjTypeGuid } }
-                },
-                dSource: 1
-            }
-            const r: any = await this.b.read(req, res, serviceInput)
-            if (r.length > 0) {
-                ret = true;
-            } else {
-                ret = false;
-                this.b.i.app_msg = `cdObj type reference is invalid`;
-                this.b.err.push(this.b.i.app_msg);
-            }
-        } else {
-            this.b.i.app_msg = `parentModuleGuid is missing in payload`;
-            this.b.err.push(this.b.i.app_msg);
-        }
-        ///////////////////////////////////////////////////////////////////
-        // 3. confirm the parent referenced exists
-        pl = this.b.getPlData(req);
-        if ('parentModuleGuid' in pl) {
-            const serviceInput = {
-                serviceModel: ModuleViewModel,
-                docName: 'CdObjService::getModuleMenu$',
-                cmd: {
-                    action: 'find',
-                    query: { where: { moduleGuid: pl.parentModuleGuid } }
-                },
-                dSource: 1
-            }
-            const r: any = await this.b.read(req, res, serviceInput)
-            if (r.length > 0) {
-                ret = true;
-            } else {
-                ret = false;
-                this.b.i.app_msg = `parent reference is invalid`;
-                this.b.err.push(this.b.i.app_msg);
-            }
-        } else {
-            console.log('CdObjService::getCdObj/12');
-            this.b.i.app_msg = `parentModuleGuid is missing in payload`;
-            this.b.err.push(this.b.i.app_msg);
-        }
+        /////////////////////////////////////////////
+
         console.log('CdObjService::getCdObj/13');
         if (this.b.err.length > 0) {
+            console.log('CdObjService::validateCreate()/14')
+            console.log('CdObjService::validateCreate()/this.b.err:', this.b.err)
             ret = false;
         }
+        console.log('CdObjService::getCdObj/15');
+        console.log('CdObjService::getCdObj/ret:', ret);
         return ret;
     }
 
@@ -280,7 +336,7 @@ export class CdObjService extends CdService {
 
     getCdObjType(req, res) {
         const q = this.b.getQuery(req);
-        console.log('CdObjService::getCdObj/f:', q);
+        console.log('CdObjService::getCdObj/q:', q);
         const serviceInput = {
             serviceModel: CdObjTypeModel,
             docName: 'CdObjService::getCdObjType$',

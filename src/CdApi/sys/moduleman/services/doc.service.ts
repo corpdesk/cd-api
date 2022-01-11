@@ -115,16 +115,21 @@ export class DocService extends CdService {
         const m = req.post.m;
         const c = req.post.c;
         const a = req.post.a;
+        // console.log('DocService::getDocTypeId()/01')
         const result: DocTypeModel[] = await this.getDocTypeByName(req, res, `${c}_${a}`)
+        // console.log('DocService::getDocTypeId()/02')
+        // console.log('DocService::getDocTypeId()/result:', result);
         if (result.length > 0) {
-            // console.log('DocService::getDocTypeId()/result:', result)
+            // console.log('DocService::getDocTypeId()/03')
             ret = result[0].docTypeId;
         } else {
-            // console.log('DocService::getDocTypeId()/result:', result)
+            // console.log('DocService::getDocTypeId()/04')
             const r = await this.createDocType(req, res);
+            // console.log('DocService::getDocTypeId()/05')
             ret = r[0].docTypeId;
         }
-        console.log('DocService::getDocTypeId()/ret:', ret)
+        // console.log('DocService::getDocTypeId()/06')
+        // console.log('DocService::getDocTypeId()/ret:', ret)
         return await ret;
     }
 

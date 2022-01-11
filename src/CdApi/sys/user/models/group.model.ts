@@ -90,20 +90,27 @@ export class GroupModel {
     )
     companyId: number;
 
-    @Column(
-        {
-            name: 'is_public',
-            nullable: true
-        }
-    )
-    isPublic: boolean;
+    @Column({
+        name: 'consumer_guid',
+        length: 36,
+        default: uuidv4()
+    })
+    consumerGuid?: string;
 
     @Column(
         {
-            name: 'enabled',
+            name: 'group_is_public',
             nullable: true
         }
     )
-    enabled: boolean;
+    groupIsPublic: boolean;
+
+    @Column(
+        {
+            name: 'group_enabled',
+            nullable: true
+        }
+    )
+    groupEnabled: boolean;
 
 }

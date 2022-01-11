@@ -1,31 +1,30 @@
 import { BaseService } from '../../base/base.service';
 import { CdController } from '../../base/cd.controller';
-import { GroupMemberModel } from '../models/group-member.model';
-import { GroupMemberService } from '../services/group-member.service';
+import { GroupService } from '../services/group.service';
 
-export class GroupMemberController extends CdController {
+export class GroupController extends CdController {
     b: BaseService;
-    svGroupMember: GroupMemberService;
+    svGroup: GroupService;
 
     constructor() {
         super();
         this.b = new BaseService();
-        this.svGroupMember = new GroupMemberService();
+        this.svGroup = new GroupService();
     }
 
     // /**
     //  * {
     //         "ctx": "Sys",
-    //         "m": "Moduleman",
-    //         "c": "GroupMember",
+    //         "m": "User",
+    //         "c": "Group",
     //         "a": "Create",
     //         "dat": {
     //             "f_vals": [
     //                 {
     //                     "data": {
-    //                         "companyName": "/src/CdApi/sys/moduleman",
-    //                         "companyTypeGuid": "7ae902cd-5bc5-493b-a739-125f10ca0268",
-    //                         "parentModuleGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b"
+    //                         "groupName": "/src/CdApi/sys/moduleman",
+    //                         "groupTypeGuid": "7ae902cd-5bc5-493b-a739-125f10ca0268",
+    //                         "parentGroupGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b"
     //                     }
     //                 }
     //             ],
@@ -38,23 +37,23 @@ export class GroupMemberController extends CdController {
     //  */
     async Create(req, res) {
         try {
-            await this.svGroupMember.create(req, res);
+            await this.svGroup.create(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'GroupMemberController:Create');
+            this.b.serviceErr(req, res, e, 'GroupController:Create');
         }
     }
 
     // /**
     //  * {
     //         "ctx": "Sys",
-    //         "m": "Moduleman",
-    //         "c": "GroupMember",
+    //         "m": "User",
+    //         "c": "Group",
     //         "a": "Get",
     //         "dat": {
     //             "f_vals": [
     //                 {
     //                     "query": {
-    //                         "where": {"companyId": 45763}
+    //                         "where": {"groupId": 45763}
     //                     }
     //                 }
     //             ],
@@ -67,25 +66,25 @@ export class GroupMemberController extends CdController {
     //  */
     async Get(req, res) {
         try {
-            await this.svGroupMember.getGroupMember(req, res);
+            await this.svGroup.getGroup(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'GroupMemberController:Get');
+            this.b.serviceErr(req, res, e, 'GroupController:Get');
         }
     }
 
-    // async GetType(req, res) {
-    //     try {
-    //         await this.svGroupMember.getGroupMemberTypeCount(req, res);
-    //     } catch (e) {
-    //         this.b.serviceErr(req, res, e, 'GroupMemberController:Get');
-    //     }
-    // }
+    async GetType(req, res) {
+        try {
+            await this.svGroup.getGroupTypeCount(req, res);
+        } catch (e) {
+            this.b.serviceErr(req, res, e, 'GroupController:Get');
+        }
+    }
 
     // /** Pageable request:
     //  * {
     //         "ctx": "Sys",
-    //         "m": "Moduleman",
-    //         "c": "Module",
+    //         "m": "User",
+    //         "c": "Group",
     //         "a": "GetCount",
     //         "dat": {
     //             "f_vals": [
@@ -107,27 +106,27 @@ export class GroupMemberController extends CdController {
     //  */
     async GetCount(req, res) {
         try {
-            await this.svGroupMember.getGroupMemberCount(req, res);
+            await this.svGroup.getGroupCount(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ModuleController:Get');
+            this.b.serviceErr(req, res, e, 'GroupController:Get');
         }
     }
 
     // /**
     //  * {
     //         "ctx": "Sys",
-    //         "m": "Moduleman",
-    //         "c": "GroupMember",
+    //         "m": "User",
+    //         "c": "Group",
     //         "a": "Update",
     //         "dat": {
     //             "f_vals": [
     //                 {
     //                     "query": {
     //                         "update": {
-    //                             "companyName": "/corp-deskv1.2.1.2/system/modules/comm/controllers"
+    //                             "groupName": "/corp-deskv1.2.1.2/system/modules/comm/controllers"
     //                         },
     //                         "where": {
-    //                             "companyId": 45762
+    //                             "groupId": 45762
     //                         }
     //                     }
     //                 }
@@ -140,26 +139,26 @@ export class GroupMemberController extends CdController {
     //  * @param res
     //  */
     async Update(req, res) {
-        console.log('GroupMemberController::Update()/01');
+        console.log('GroupController::Update()/01');
         try {
-            console.log('GroupMemberController::Update()/02');
-            await this.svGroupMember.update(req, res);
+            console.log('GroupController::Update()/02');
+            await this.svGroup.update(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ModuleController:Update');
+            this.b.serviceErr(req, res, e, 'GroupController:Update');
         }
     }
 
     // /**
     //  * {
     //         "ctx": "Sys",
-    //         "m": "Moduleman",
-    //         "c": "GroupMember",
+    //         "m": "User",
+    //         "c": "Group",
     //         "a": "GetCount",
     //         "dat": {
     //             "f_vals": [
     //                 {
     //                     "query": {
-    //                         "where": {"companyId": 45763}
+    //                         "where": {"groupId": 45763}
     //                     }
     //                 }
     //             ],
@@ -172,10 +171,9 @@ export class GroupMemberController extends CdController {
     //  */
     async Delete(req, res) {
         try {
-            await this.svGroupMember.delete(req, res);
+            await this.svGroup.delete(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ModuleController:Update');
+            this.b.serviceErr(req, res, e, 'GroupController:Update');
         }
     }
-
 }

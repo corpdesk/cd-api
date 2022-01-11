@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { AclModuleViewModel } from '../moduleman/models/aclmoduleview.model';
+import { AclModuleViewModel } from '../moduleman/models/acl-module-view.model';
 import { MenuViewModel } from '../moduleman/models/menu-view.model';
 
 /**
@@ -52,6 +52,40 @@ export interface IRespInfo {
     app_msg: any;
 }
 
+export const DEFAULT_CD_REQUEST: ICdRequest = {
+    ctx: 'Sys',
+    m: '',
+    c: '',
+    a: '',
+    dat: {
+        f_vals: [
+            {
+                data: {}
+            }
+        ],
+        token: ''
+    },
+    args: {}
+};
+
+export const DEFAULT_CD_RESPONSE: ICdResponse = {
+    app_state: {
+      success: false,
+      info: {
+        messages: [],
+        code: '',
+        app_msg: ''
+      },
+      sess: {
+        cd_token: '',
+        jwt: '',
+        ttl: 600
+      },
+      cache: {}
+    },
+    data: []
+  };
+
 export interface ICdPushEnvelop {
     pushRecepients: any;
     triggerEvent: string;
@@ -62,7 +96,7 @@ export interface ICdPushEnvelop {
 }
 
 export interface IServiceInput {
-    serviceInstance: any;
+    serviceInstance?: any;
     serviceModel: any;
     serviceModelInstance?:any;
     docName?: string;
@@ -155,6 +189,7 @@ export interface CreateIParams{
     serviceInput: IServiceInput;
     controllerData: any;
 }
+
 
 
 

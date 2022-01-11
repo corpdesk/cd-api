@@ -463,6 +463,86 @@ END
 CALL migrateToCdObjId();
 select menu_id, menu_name, menu_action_id, cd_obj_id from menu;
 
+- implement crud for remaining moduleman modules
+        - company
+        - consumer
+        - consumer-resources
+        - doc
+        - grus
+- link consumer_resource to cd_obj
+    - deprecate columns that can be served with cd_obj
+    - some depricated cols in consumer_resource: 
+        obj_id, obj_guid, cd_obj_type
+speed issues:
+- shift from db guid links to id
+- adjust acl calls based on id instead of guid
+
+    - no data showing in acl_module_view 
+- on each:
+    - main model
+    - view model
+    - service
+    - controller
+    - testing crud from postman 
+
+- company:
+    - mordernize addressing
+    - link addressing to cd-geo
+    - addressing should be sharable with any entity eg company, user
+
+- consumer resource table:
+    - set all guids...DONE
+    - use consumer_guid in place of consumer_id
+    - use obj_guid in place of obj_id
+
+- geo_location
+    - name
+
+- geo_political_type
+    - town
+    - city
+    - sub-location
+    - location
+    - county
+    - district
+    - sub-district
+    - province
+    - state
+    - country
+
+- geo_physical_type
+    - river
+    - lake
+    - mountain
+    - hill
+    - desert
+UPDATE company_type SET company_type_guid=(SELECT uuid()) WHERE company_type_id = 11;
+-- ///////////////////
+CREATE DEFINER=`goremo`@`localhost` PROCEDURE `InitCompanyTypeGuid`(i1 INT, i2 INT)
+BEGIN
+DECLARE i INT;
+SET i = i1;
+WHILE i <= i2 DO
+SET @guid = (SELECT uuid());
+UPDATE company_type SET company_type_guid=@guid WHERE company_type_id = i;
+commit;
+SET i=i+1;
+END WHILE;
+END
+-- ///////////////////
+Call InitCompanyTypeGuid(11,96);
+-- ///////////////////
+DROP PROCEDURE IF EXISTS InitCompanyTypeGuid;
+///////////////////////////
+
+correct earlier codes for failed required fields with:
+this.b.i.app_msg = `the required fields ${this.b.isInvalidFields.join(', ')} is missing`;
+
+- on delete of cd_obj data remove the same from consumer_resource
+issues:
+- consumer_guid MUST be available for consumer_reource
+
+
 29/12/2021
 - refined crud from module, menu and cd-obj
 

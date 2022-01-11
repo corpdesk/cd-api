@@ -67,10 +67,10 @@ export class ModuleService extends CdService {
             this.b.i.app_msg = 'new module created';
             this.b.setAppState(true, this.b.i, svSess.sessResp);
             this.b.cdResp.data = await respData;
-            const r = await this.b.respond(req,res);
+            const r = await this.b.respond(req, res);
         } else {
             svSess.sessResp.cd_token = req.post.dat.token;
-            const r = await this.b.respond(req,res);
+            const r = await this.b.respond(req, res);
         }
     }
 
@@ -106,6 +106,7 @@ export class ModuleService extends CdService {
     }
 
     getModulesUserData$(req, res, cUser: ModuleModel): Observable<any> {
+        this.b.logTimeStamp('ModuleService::getModulesUserData$/01')
         this.srvSess = new SessionService();
         this.srvUser = new UserService();
         this.srvMemo = new MemoService();
@@ -124,6 +125,7 @@ export class ModuleService extends CdService {
                 mergeMap(
                     (am: any[]) => iif(
                         () => {
+                            console.log('ModuleService::getModulesUserData$/am:', am)
                             return am.length > 0
                         },
                         this.srvMenu.getAclMenu$(req, res, { modules$: allowedModules$, modulesCount: am.length }),
@@ -163,7 +165,10 @@ export class ModuleService extends CdService {
     }
 
     getAclModule$(req, res, params): Observable<any> {
+        this.b.logTimeStamp('ModuleService::getAclModule$/01')
         this.consumerGuid = params.consumerGuid;
+        // console.log('ModuleService::getAclModule$()/params:', params)
+        // console.log('ModuleService::getAclModule$()/01:');
         return forkJoin({
             // unfilteredModules: this.getAll$(req, res).pipe(map((m) => { return m })), // for isRoot
             userRoles: this.srvAcl.aclUser$(req, res, params).pipe(map((m) => { return m })),
@@ -172,16 +177,25 @@ export class ModuleService extends CdService {
         })
             .pipe(
                 map((acl: any) => {
+                    this.b.logTimeStamp('ModuleService::getModulesUserData$/02')
+                    console.log('ModuleService::getAclModule$()/acl:', acl)
                     // Based on acl result, return appropirate modules
                     const publicModules = acl.consumerModules.filter(m => m.moduleIsPublic);
                     if (acl.userRoles.isConsumerRoot.length > 0) { // if userIsConsumerRoot then return all consumerModules
+                        this.b.logTimeStamp('ModuleService::getModulesUserData$/03')
                         return acl.consumerModules;
                     }
                     else if (acl.userRoles.isConsumerUser.length > 0) { // if user is registered as consumer user then filter consumer modules
+                        this.b.logTimeStamp('ModuleService::getModulesUserData$/04')
+                        // console.log('ModuleService::getModulesUserData$/acl.userRoles.isConsumerUser:', acl.userRoles.isConsumerUser);
+                        // console.log('ModuleService::getModulesUserData$/acl.moduleParents:', acl.moduleParents);
+                        // console.log('ModuleService::getModulesUserData$/acl.consumerModules:', acl.consumerModules);
                         const userModules = this.b.intersect(acl.consumerModules, acl.moduleParents, 'moduleGuid');
+                        console.log('ModuleService::getModulesUserData$/userModules:', userModules);
                         return userModules.concat(publicModules); // return user modules and public modules
                     }
-                    else {  // if is neither of the abobe, return zero modules
+                    else {  // if is neither of the above, return zero modules
+                        // console.log('ModuleService::getAclModule$()/publicModules:', publicModules)
                         return publicModules; // return only public modules
                     }
                 })
@@ -212,7 +226,7 @@ export class ModuleService extends CdService {
     //  */
     getModule(req, res) {
         const f = this.b.getQuery(req);
-        console.log('ModuleService::getModule/f:', f);
+        // console.log('ModuleService::getModule/f:', f);
         const serviceInput = {
             serviceModel: ModuleViewModel,
             docName: 'MenuService::getModuleMenu$',
@@ -230,13 +244,13 @@ export class ModuleService extends CdService {
                 svSess.sessResp.ttl = svSess.getTtl();
                 this.b.setAppState(true, this.b.i, svSess.sessResp);
                 this.b.cdResp.data = r;
-                this.b.respond(req,res)
+                this.b.respond(req, res)
             })
     }
 
     getModuleCount(req, res) {
         const q = this.b.getQuery(req);
-        console.log('ModuleService::getModuleCount/q:', q);
+        // console.log('ModuleService::getModuleCount/q:', q);
         const serviceInput = {
             serviceModel: ModuleViewModel,
             docName: 'MenuService::getModuleCount$',
@@ -254,7 +268,7 @@ export class ModuleService extends CdService {
                 svSess.sessResp.ttl = svSess.getTtl();
                 this.b.setAppState(true, this.b.i, svSess.sessResp);
                 this.b.cdResp.data = r;
-                this.b.respond(req,res)
+                this.b.respond(req, res)
             })
     }
 
@@ -283,7 +297,7 @@ export class ModuleService extends CdService {
     }
 
     remove(req, res): Promise<void> {
-        console.log(`starting SessionService::remove()`);
+        // console.log(`starting SessionService::remove()`);
         return null;
     }
 
@@ -300,7 +314,7 @@ export class ModuleService extends CdService {
         this.b.update$(req, res, serviceInput)
             .subscribe((ret) => {
                 this.b.cdResp.data = ret;
-                this.b.respond(req,res)
+                this.b.respond(req, res)
             })
     }
 
@@ -318,7 +332,7 @@ export class ModuleService extends CdService {
         this.b.delete$(req, res, serviceInput)
             .subscribe((ret) => {
                 this.b.cdResp.data = ret;
-                this.b.respond(req,res)
+                this.b.respond(req, res)
             })
     }
 }

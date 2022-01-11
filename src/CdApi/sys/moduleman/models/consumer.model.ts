@@ -41,14 +41,13 @@ export class ConsumerModel {
     )
     consumerName: string;
 
-    // @Column(
-    //     'char',
-    //     {
-    //         name: 'consumer_type_guid',
-    //         length: 60,
-    //         default: null
-    //     })
-    // cdObjTypeGuid: string;
+    @Column(
+        'tinyint',
+        {
+        name: 'consumer_enabled',
+        default: null
+    })
+    consumerEnabled: boolean|number|null;
 
     @Column({
         name: 'doc_id',
@@ -61,5 +60,11 @@ export class ConsumerModel {
         default: null
     })
     companyId?: number;
+
+    @Column({
+        name: 'company_guid',
+        default: null
+    })
+    companyGuid?: string;
 
 }

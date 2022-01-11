@@ -168,7 +168,7 @@ export class MenuService {
         }
         let ret = false;
         const result: any = await svCdObj.createI(req, res, createIParams)
-        console.log('MenuService::beforeCreate()/result:', result)
+        // console.log('MenuService::beforeCreate()/result:', result)
         if (result) {
             this.b.setPlData(req, { key: 'menuActionId', value: result.cdObjId });
             this.b.setPlData(req, { key: 'menuEnabled', value: true });
@@ -183,8 +183,8 @@ export class MenuService {
 
     getMenu(req, res) {
         const f = this.b.getQuery(req);
-        console.log('MenuService::getMenu/f:', f);
-        const serviceInput = {
+        // console.log('MenuService::getMenu/f:', f);
+        const serviceInput: IServiceInput = {
             serviceModel: MenuViewModel,
             docName: 'MenuService::getMenu',
             cmd: {
@@ -265,6 +265,8 @@ export class MenuService {
     //     isLayout?: boolean; // isLayout
     // }
     buildNestedMenu(menuId$: Observable<number>, moduleMenuData$: Observable<MenuViewModel[]>): Observable<any> {
+        // this.b.logTimeStamp('MenuService::buildNestedMenu$/01')
+        // console.log('MenuService::buildNestedMenu$/01:');
         return this.getMenuItem(menuId$, moduleMenuData$).pipe(
             map((sm: ISelectedMenu) => {
                 let ret: IMenuRelations = {
@@ -273,6 +275,7 @@ export class MenuService {
                 };
                 if (sm.selectedItem) {
                     const data = sm.selectedItem;
+                    this.b.logTimeStamp('MenuService::buildNestedMenu$/02')
                     ret = {
                         menuParent: {
                             menuLabel: data.menuLabel,
@@ -298,7 +301,7 @@ export class MenuService {
                 return ret;
             })
             , tap((m) => {
-                // console.log('buildNestedMenu2()/tap1/m.length:', m);
+                // this.b.logTimeStamp('MenuService::buildNestedMenu$/03')
             }),
             mergeMap(
                 (parentWithChildIds) => forkJoin(
@@ -309,17 +312,17 @@ export class MenuService {
                 )
             )
             , tap((m) => {
-                // console.log('buildNestedMenu2()/tap2/m.length:', m);
+                // this.b.logTimeStamp('MenuService::buildNestedMenu$/04')
             }),
             tap(([parent, ...children]) => {
-                // console.log('parent:', parent);
+                // this.b.logTimeStamp('MenuService::buildNestedMenu$/05')
                 if (parent) {
                     parent.children = children;
                 }
             }),
             map(([parent,]) => parent)
             , tap((m) => {
-                // console.log('buildNestedMenu2()/tap3/m.length:', m);
+                // this.b.logTimeStamp('MenuService::buildNestedMenu$/06')
             }),
         );
     }
@@ -344,9 +347,9 @@ export class MenuService {
         return moduleMenuData$
             .pipe(
                 tap((m) => {
-                    // console.log('getMenuItem()/tap3/m:', m);
+                    this.b.logTimeStamp('MenuService::getMenuItem$/01')
                     menuId$.pipe(map((mId) => {
-                        console.log('mId:', mId);
+                        this.b.logTimeStamp('MenuService::getMenuItem$/02')
                         return mId;
                     }))
                 }),
@@ -374,7 +377,7 @@ export class MenuService {
                     }
                 )
                 , tap((m) => {
-                    // console.log('getMenuItem2()/tap1/m.length:', m.length);
+                    this.b.logTimeStamp('MenuService::getMenuItem$/03')
                 })
                 , mergeMap(
                     (menuItem: MenuViewModel[]) => forkJoin(
@@ -385,12 +388,13 @@ export class MenuService {
                     )
                 )
                 , tap((m) => {
-                    // console.log('getMenuItem2()/tap2/m.length:', m.length);
+                    this.b.logTimeStamp('MenuService::getMenuItem$/04')
                 }),
             )
     }
 
     getChildren(menuParentId: number, selectedMenu: ISelectedMenu): MenuViewModel[] {
+        console.log('MenuService::getChildren/01:');
         const moduleMenuData = selectedMenu.moduleMenuData;
         const data = moduleMenuData.filter((m) => {
             if (m.menuParentId === menuParentId) {

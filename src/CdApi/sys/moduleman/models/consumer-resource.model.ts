@@ -14,7 +14,7 @@ import {
         synchronize: false
     }
 )
-// @CdModel
+
 export class ConsumerResourceModel {
 
     @PrimaryGeneratedColumn(
@@ -26,10 +26,16 @@ export class ConsumerResourceModel {
 
     @Column({
         name: 'consumer_resource_guid',
-        length: 36,
+        length: 40,
         default: uuidv4()
     })
     consumerResourceGuid?: string;
+
+    @Column({
+        name: 'consumer_resource_name',
+        default: null
+    })
+    consumerResourceName?: string;
 
     @Column({
         name: 'doc_id',
@@ -44,10 +50,10 @@ export class ConsumerResourceModel {
     cdObjTypeId?: number;
 
     @Column({
-        name: 'enabled',
+        name: 'consumer_resource_enabled',
         default: null
     })
-    enabled?: boolean;
+    consumerResourceEnabled: boolean;
 
     @Column({
         name: 'consumer_id',
@@ -56,9 +62,57 @@ export class ConsumerResourceModel {
     consumerId?: number;
 
     @Column({
+        name: 'obj_id',
+        default: null
+    })
+    objId?: number;
+
+    @Column({
         name: 'cd_obj_id',
         default: null
     })
     cdObjId?: number;
+
+    @Column({
+        name: 'consumer_resource_type_id',
+        length: 40,
+        default: uuidv4()
+    })
+    consumerResourceTypeId?: string;
+
+    @Column({
+        name: 'consumer_guid',
+        length: 40,
+        default: uuidv4()
+    })
+    consumerGuid?: string;
+
+    @Column({
+        name: 'obj_guid',
+        length: 40,
+        default: uuidv4()
+    })
+    objGuid?: string;
+
+    @Column({
+        name: 'cd_obj_type_guid',
+        length: 40,
+        default: uuidv4()
+    })
+    cdObjTypeGuid?: string;
+
+    @Column({
+        name: 'consumer_resource_type_guid',
+        length: 40,
+        default: uuidv4()
+    })
+    consumerResourceTypeGuid?: string;
+
+    @Column({
+        name: 'cd_obj_guid',
+        length: 40,
+        default: uuidv4()
+    })
+    cdObjGuid?: string;
 
 }

@@ -1,18 +1,418 @@
-import { Observable } from 'rxjs';
+/**
+ * Entity that consumes corpdesk services is refered to as consumer
+ * Resources that the consumer has subscribed to are consumerResources
+ * An entity can consume resources are root, developer, user etc. These are managed by consumerTypes
+ */
 import { BaseService } from '../../base/base.service';
-import { IServiceInput } from '../../base/IBase';
-import { ConsumerResourceViewModel } from '../models/consumer-resource-view.model';
-import { ConsumerResourceModel } from '../models/consumer-resource.model';
+import { CdService } from '../../base/cd.service';
+import { SessionService } from '../../user/services/session.service';
+import { UserService } from '../../user/services/user.service';
+// import { ModuleModel } from '../models/module.model';
+import { CreateIParams, IRespInfo, IServiceInput, IUser } from '../../base/IBase';
 import { ConsumerModel } from '../models/consumer.model';
+// import { ModuleViewModel } from '../models/module-view.model';
+import { ConsumerViewModel } from '../models/consumer-view.model';
+import { ConsumerTypeModel } from '../models/consumer-type.model';
+import { Observable } from 'rxjs';
+import { ConsumerResourceViewModel } from '../models/consumer-resource-view.model';
+import { CompanyViewModel } from '../models/company-view.model';
+import { CompanyModel } from '../models/company.model';
+// import { ConsumerViewModel } from '../models/consumer-view.model';
 
-export class ConsumerService{
-    b: BaseService;
+export class ConsumerService extends CdService {
+    b: any; // instance of BaseService
+    cdToken: string;
+    srvSess: SessionService;
+    srvUser: UserService;
+    user: IUser;
+    serviceModel: ConsumerModel;
+    sessModel;
+    // moduleModel: ModuleModel;
+    company:CompanyModel;
 
-    constructor(){
+    /*
+     * create rules
+     */
+    cRules: any = {
+        required: ['companyGuid'],
+        noDuplicate: ['companyGuid']
+    };
+    uRules: any[];
+    dRules: any[];
+
+    constructor() {
+        super()
         this.b = new BaseService();
+        this.serviceModel = new ConsumerModel();
+        // this.moduleModel = new ModuleModel();
     }
 
-    getConsumerByGuid$(req, res, consmGuid): Observable<ConsumerModel[]>{
+    // /**
+    //  * {
+    //         "ctx": "Sys",
+    //         "m": "Moduleman",
+    //         "c": "Consumer",
+    //         "a": "Create",
+    //         "dat": {
+    //             "f_vals": [
+    //                 {
+    //                     "data": {
+    //                         "consumerGuid": "7ae902cd-5bc5-493b-a739-125f10ca0268",
+    //                     }
+    //                 }
+    //             ],
+    //             "token": "3ffd785f-e885-4d37-addf-0e24379af338"
+    //         },
+    //         "args": {}
+    //     }
+    //  * @param req
+    //  * @param res
+    //  */
+    async create(req, res) {
+        console.log('moduleman/create::validateCreate()/01')
+        const svSess = new SessionService();
+        if (await this.validateCreate(req, res)) {
+            await this.beforeCreate(req, res);
+            const serviceInput = {
+                serviceModel: ConsumerModel,
+                serviceModelInstance: this.serviceModel,
+                docName: 'Create consumer',
+                dSource: 1,
+            }
+            console.log('ConsumerService::create()/serviceInput:', serviceInput)
+            const respData = await this.b.create(req, res, serviceInput);
+            this.b.i.app_msg = 'new consumer created';
+            this.b.setAppState(true, this.b.i, svSess.sessResp);
+            this.b.cdResp.data = await respData;
+            const r = await this.b.respond(req, res);
+        } else {
+            console.log('moduleman/create::validateCreate()/02')
+            const r = await this.b.respond(req, res);
+        }
+    }
+
+    async createI(req, res, createIParams: CreateIParams): Promise<ConsumerModel | boolean> {
+        return await this.b.createI(req, res, createIParams)
+    }
+
+    async consumerExists(req, res, params): Promise<boolean> {
+        const serviceInput: IServiceInput = {
+            serviceInstance: this,
+            serviceModel: ConsumerModel,
+            docName: 'ConsumerService::consumerExists',
+            cmd: {
+                action: 'find',
+                query: { where: params.filter }
+            },
+            dSource: 1,
+        }
+        return this.b.read(req, res, serviceInput)
+    }
+
+    async beforeCreate(req, res): Promise<any> {
+        const pl: ConsumerModel = this.b.getPlData(req, res);
+        console.log('moduleman/create::beforeCreate()/this.company:', this.company);
+        this.b.setPlData(req, { key: 'consumerName', value: this.company.companyName });
+        this.b.setPlData(req, { key: 'companyId', value: this.company.companyId });
+        this.b.setPlData(req, { key: 'companyGuid', value: pl.companyGuid });
+        this.b.setPlData(req, { key: 'consumerGuid', value: this.b.getGuid()});
+        this.b.setPlData(req, { key: 'consumerEnabled', value: true });
+        return true;
+    }
+
+    getCompanyData(req, res, coGuid: string): Promise<CompanyModel[]> {
+        console.log('moduleman/create::getCompanyData()/coGuid:', coGuid);
+        const serviceInput: IServiceInput = {
+            serviceInstance: this,
+            serviceModel: ConsumerModel,
+            docName: 'CompanyService::getCompany$',
+            cmd: {
+                action: 'find',
+                query: { where: { companyGuid: coGuid } }
+            },
+            dSource: 1
+        }
+        return this.b.read(req, res, serviceInput)
+    }
+
+    async read(req, res, serviceInput: IServiceInput): Promise<any> {
+        //
+    }
+
+    update(req, res) {
+        // console.log('ConsumerService::update()/01');
+        let q = this.b.getQuery(req);
+        q = this.beforeUpdate(q);
+        const serviceInput = {
+            serviceModel: ConsumerModel,
+            docName: 'ConsumerService::update',
+            cmd: {
+                action: 'update',
+                query: q
+            },
+            dSource: 1
+        }
+        // console.log('ConsumerService::update()/02')
+        this.b.update$(req, res, serviceInput)
+            .subscribe((ret) => {
+                this.b.cdResp.data = ret;
+                this.b.respond(req, res)
+            })
+    }
+
+    /**
+     * harmonise any data that can
+     * result in type error;
+     * @param q
+     * @returns
+     */
+    beforeUpdate(q: any) {
+        if (q.update.consumerEnabled === '') {
+            q.update.consumerEnabled = null;
+        }
+        return q;
+    }
+
+    async remove(req, res) {
+        //
+    }
+
+    /**
+     * methods for transaction rollback
+     */
+    rbCreate(): number {
+        return 1;
+    }
+
+    rbUpdate(): number {
+        return 1;
+    }
+
+    rbDelete(): number {
+        return 1;
+    }
+
+    async validateCreate(req, res) {
+        console.log('moduleman/ConsumerService::validateCreate()/01')
+        const svSess = new SessionService();
+        ///////////////////////////////////////////////////////////////////
+        // 1. Validate against duplication
+        const params = {
+            controllerInstance: this,
+            model: ConsumerModel,
+        }
+        this.b.i.code = 'ConsumerService::validateCreate';
+        let ret = false;
+        if (await this.b.validateUnique(req, res, params)) {
+            console.log('moduleman/ConsumerService::validateCreate()/02')
+            if (await this.b.validateRequired(req, res, this.cRules)) {
+                console.log('moduleman/ConsumerService::validateCreate()/03')
+                ret = true;
+            } else {
+                console.log('moduleman/ConsumerService::validateCreate()/04')
+                ret = false;
+                this.b.i.app_msg = `the required fields ${this.b.isInvalidFields.join(', ')} is missing`;
+                this.b.err.push(this.b.i.app_msg);
+                this.b.setAppState(false, this.b.i, svSess.sessResp);
+            }
+        } else {
+            console.log('moduleman/ConsumerService::validateCreate()/05')
+            ret = false;
+            this.b.i.app_msg = `duplicate for ${this.cRules.noDuplicate.join(', ')} is not allowed`;
+            this.b.err.push(this.b.i.app_msg);
+            this.b.setAppState(false, this.b.i, svSess.sessResp);
+        }
+        console.log('moduleman/ConsumerService::validateCreate()/06')
+        ///////////////////////////////////////////////////////////////////
+        // // 2. confirm the consumerTypeGuid referenced exists
+        const pl: ConsumerModel = this.b.getPlData(req);
+        console.log('moduleman/ConsumerService::validateCreate()/pl:', pl)
+        if ('companyGuid' in pl) {
+            console.log('moduleman/ConsumerService::validateCreate()/07')
+            console.log('moduleman/ConsumerService::validateCreate()/pl:', pl)
+            const serviceInput = {
+                serviceModel: CompanyModel,
+                docName: 'ConsumerService::validateCreate',
+                cmd: {
+                    action: 'find',
+                    query: { where: { companyGuid: pl.companyGuid } }
+                },
+                dSource: 1
+            }
+            console.log('moduleman/ConsumerService::validateCreate()/serviceInput:', JSON.stringify(serviceInput))
+            const r: any = await this.b.read(req, res, serviceInput)
+            this.company = r[0];
+            console.log('moduleman/ConsumerService::validateCreate()/r:', r)
+            if (r.length > 0) {
+                console.log('moduleman/ConsumerService::validateCreate()/08')
+                ret = true;
+            } else {
+                console.log('moduleman/ConsumerService::validateCreate()/10')
+                ret = false;
+                this.b.i.app_msg = `company reference is invalid`;
+                this.b.err.push(this.b.i.app_msg);
+                this.b.setAppState(false, this.b.i, svSess.sessResp);
+            }
+        } else {
+            console.log('moduleman/ConsumerService::validateCreate()/11')
+            // this.b.i.app_msg = `parentModuleGuid is missing in payload`;
+            // this.b.err.push(this.b.i.app_msg);
+            //////////////////
+            this.b.i.app_msg = `companyGuid is missing in payload`;
+            this.b.err.push(this.b.i.app_msg);
+            this.b.setAppState(false, this.b.i, svSess.sessResp);
+        }
+        console.log('ConsumerService::getConsumer/12');
+        if (this.b.err.length > 0) {
+            console.log('moduleman/ConsumerService::validateCreate()/13')
+            ret = false;
+        }
+        return ret;
+    }
+
+    getConsumer(req, res) {
+        const q = this.b.getQuery(req);
+        console.log('ConsumerService::getConsumer/f:', q);
+        const serviceInput = {
+            serviceModel: ConsumerViewModel,
+            docName: 'ConsumerService::getConsumer$',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        try {
+            this.b.read$(req, res, serviceInput)
+                .subscribe((r) => {
+                    console.log('ConsumerService::read$()/r:', r)
+                    this.b.i.code = 'ConsumerController::Get';
+                    const svSess = new SessionService();
+                    svSess.sessResp.cd_token = req.post.dat.token;
+                    svSess.sessResp.ttl = svSess.getTtl();
+                    this.b.setAppState(true, this.b.i, svSess.sessResp);
+                    this.b.cdResp.data = r;
+                    this.b.respond(req, res)
+                })
+        } catch (e) {
+            console.log('ConsumerService::read$()/e:', e)
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'BaseService:update',
+                app_msg: ''
+            };
+            this.b.serviceErr(req, res, e, i.code)
+            this.b.respond(req, res)
+        }
+    }
+
+    getConsumerType(req, res) {
+        const q = this.b.getQuery(req);
+        console.log('ConsumerService::getConsumer/f:', q);
+        const serviceInput = {
+            serviceModel: ConsumerTypeModel,
+            docName: 'ConsumerService::getConsumerType$',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        try {
+            this.b.read$(req, res, serviceInput)
+                .subscribe((r) => {
+                    console.log('ConsumerService::read$()/r:', r)
+                    this.b.i.code = 'ConsumerController::Get';
+                    const svSess = new SessionService();
+                    svSess.sessResp.cd_token = req.post.dat.token;
+                    svSess.sessResp.ttl = svSess.getTtl();
+                    this.b.setAppState(true, this.b.i, svSess.sessResp);
+                    this.b.cdResp.data = r;
+                    this.b.respond(req, res)
+                })
+        } catch (e) {
+            console.log('ConsumerService::read$()/e:', e)
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'BaseService:update',
+                app_msg: ''
+            };
+            this.b.serviceErr(req, res, e, i.code)
+            this.b.respond(req, res)
+        }
+    }
+
+    getConsumerCount(req, res) {
+        const q = this.b.getQuery(req);
+        console.log('ConsumerService::getConsumerCount/q:', q);
+        const serviceInput = {
+            serviceModel: ConsumerViewModel,
+            docName: 'ConsumerService::getConsumerCount$',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        this.b.readCount$(req, res, serviceInput)
+            .subscribe((r) => {
+                this.b.i.code = 'ConsumerController::Get';
+                const svSess = new SessionService();
+                svSess.sessResp.cd_token = req.post.dat.token;
+                svSess.sessResp.ttl = svSess.getTtl();
+                this.b.setAppState(true, this.b.i, svSess.sessResp);
+                this.b.cdResp.data = r;
+                this.b.respond(req, res)
+            })
+    }
+
+    getConsumerTypeCount(req, res) {
+        const q = this.b.getQuery(req);
+        console.log('ConsumerService::getConsumerCount/q:', q);
+        const serviceInput = {
+            serviceModel: ConsumerTypeModel,
+            docName: 'ConsumerService::getConsumerCount$',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        this.b.readCount$(req, res, serviceInput)
+            .subscribe((r) => {
+                this.b.i.code = 'ConsumerController::Get';
+                const svSess = new SessionService();
+                svSess.sessResp.cd_token = req.post.dat.token;
+                svSess.sessResp.ttl = svSess.getTtl();
+                this.b.setAppState(true, this.b.i, svSess.sessResp);
+                this.b.cdResp.data = r;
+                this.b.respond(req, res)
+            })
+    }
+
+    delete(req, res) {
+        const q = this.b.getQuery(req);
+        console.log('ConsumerService::delete()/q:', q)
+        const serviceInput = {
+            serviceModel: ConsumerModel,
+            docName: 'ConsumerService::delete',
+            cmd: {
+                action: 'delete',
+                query: q
+            },
+            dSource: 1
+        }
+
+        this.b.delete$(req, res, serviceInput)
+            .subscribe((ret) => {
+                this.b.cdResp.data = ret;
+                this.b.respond(req, res)
+            })
+    }
+
+    getConsumerByGuid$(req, res, consmGuid): Observable<ConsumerModel[]> {
         // console.log('starting getConsumerByGuid(req, res, consmGuid)');
         const serviceInput: IServiceInput = {
             serviceInstance: this,
@@ -27,11 +427,11 @@ export class ConsumerService{
         return this.b.read$(req, res, serviceInput);
     }
 
-    async getIDByGuid(consumerGuid){
+    async getIDByGuid(consumerGuid) {
         return [{}];
     }
 
-    async isConsumerResource(req, res, params){
+    async isConsumerResource(req, res, params) {
         const serviceInput: IServiceInput = {
             serviceInstance: this,
             serviceModel: ConsumerResourceViewModel,
@@ -43,18 +443,16 @@ export class ConsumerService{
             dSource: 1,
         }
         const result = await this.b.read(req, res, serviceInput);
-        if(result > 0){
+        if (result > 0) {
             return true;
         } else {
             return false;
         }
     }
 
-    getConsumerGuid(req){
-        // console.log('starting getConsumerGuid(req)');
-        // console.log('req.post:', JSON.stringify(req.post));
-        // return req.post.sessData.consumerGuid;
-        return req.post.dat.f_vals[0].data.consumer_guid;
+    getConsumerGuid(req) {
+        console.log('ConsumerService::getConsumerGuid()/req.post', JSON.stringify(req.post))
+        return req.post.dat.f_vals[0].data.consumerGuid;
     }
 
     consumerGuidIsValid() {

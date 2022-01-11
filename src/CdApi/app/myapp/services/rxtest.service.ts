@@ -8,8 +8,8 @@ import {
 } from 'rxjs';
 import { serialize } from 'v8';
 import { BaseService } from '../../../sys/base/base.service';
-import { AclModuleMemberViewModel } from '../../../sys/moduleman/models/aclmodulememberview.model';
-import { AclModuleViewModel } from '../../../sys/moduleman/models/aclmoduleview.model';
+import { AclModuleMemberViewModel } from '../../../sys/moduleman/models/acl-module-member-view.model';
+import { AclModuleViewModel } from '../../../sys/moduleman/models/acl-module-view.model';
 import { AclUserViewModel } from '../../../sys/moduleman/models/acluserview.model';
 import { ModuleModel } from '../../../sys/moduleman/models/module.model';
 import { ModuleService } from '../../../sys/moduleman/services/module.service';

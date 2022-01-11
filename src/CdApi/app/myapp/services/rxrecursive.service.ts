@@ -16,7 +16,7 @@ import { userMenuData } from './userMenuData';
 import { userMenuData$ } from './userMenuData$';
 import { allowedModules$ } from './allowedModules$';
 import { flatMap, merge, zip } from 'lodash';
-import { AclModuleViewModel } from '../../../sys/moduleman/models/aclmoduleview.model';
+import { AclModuleViewModel } from '../../../sys/moduleman/models/acl-module-view.model';
 import { IAllowedModules, IMenuRelations, ISelectedMenu } from '../../../sys/base/IBase';
 
 interface Folder {

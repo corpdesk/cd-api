@@ -91,8 +91,15 @@ export class CdObjModel {
             default: null
         }
     )
-    // @IsInt()
     parentModuleGuid?: string;
+
+    @Column(
+        {
+            name: 'parent_module_id',
+            default: null
+        }
+    )
+    parentModuleId?: string;
 
     @Column(
         {
@@ -124,11 +131,26 @@ export class CdObjModel {
 
     @Column(
         {
+            name: 'obj_id',
+            default: null
+        }
+    )
+    objId?: number;
+
+    @Column(
+        {
+            name: 'obj_guid',
+            default: null
+        }
+    )
+    objGuid: string;
+
+    @Column(
+        {
             name: 'doc_id',
             default: null
         }
     )
-    // @IsInt()
     docId?: number;
 
     @Column(
@@ -148,7 +170,7 @@ export class CdObjModel {
             default: null
         }
     )
-    // @IsInt()
+
     icon?: string;
 
     @Column(
@@ -158,7 +180,7 @@ export class CdObjModel {
             default: null
         }
     )
-    // @IsInt()
+
     showIcon?: boolean;
 
     @Column(
@@ -168,7 +190,6 @@ export class CdObjModel {
             default: null
         }
     )
-    // @IsInt()
     currVal?: string;
 
     @Column(

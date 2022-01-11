@@ -87,11 +87,11 @@ export class GroupMemberModel {
 
     @Column(
         {
-            name: 'enabled',
+            name: 'group_member_enabled',
             nullable: true
         }
     )
-    enabled: boolean;
+    groupMemberEnabled: boolean;
 
     @Column(
         {

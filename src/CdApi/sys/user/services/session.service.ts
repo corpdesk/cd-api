@@ -63,7 +63,7 @@ export class SessionService {
     async setSession(req, guest: UserModel) {
         this.sessData.cuid = guest.userId;
         this.sessData.cdToken = this.b.getGuid();
-        this.sessData.consumerGuid = req.post.dat.f_vals[0].data.consumer_guid;
+        this.sessData.consumerGuid = req.post.dat.f_vals[0].data.consumerGuid;
         this.sessData.deviceNetId = await this.getDeviceNetId(req);
         this.sessData.userData = guest;
         this.sessModel.startTime = await this.b.mysqlNow();
@@ -80,7 +80,8 @@ export class SessionService {
 
     async getSession(req, res): Promise<SessionModel[]> {
         console.log('starting SessionService::getSession()')
-        console.log('SessionService::getSession()/req.post.dat.token:', req.post.dat.token)
+        // console.log('SessionService::getSession()/req.post:', req.post)
+        // console.log('SessionService::getSession()/req.post.dat.token:', req.post.dat.token)
         const serviceInput = {
             serviceInstance: this,
             serviceModel: SessionModel,

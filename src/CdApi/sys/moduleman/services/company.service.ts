@@ -1,102 +1,55 @@
-import { Observable } from 'rxjs';
 import { BaseService } from '../../base/base.service';
 import { CdService } from '../../base/cd.service';
-import { CreateIParams, IServiceInput } from '../../base/IBase';
-import { CdObjTypeModel } from '../../moduleman/models/cd-obj-type.model';
-import { GroupTypeModel } from '../models/group-type.model';
-import { GroupModel } from '../models/group.model';
-import { SessionModel } from '../models/session.model';
-import { UserModel } from '../models/user.model';
-import { SessionService } from './session.service';
-import { UserService } from './user.service';
+import { SessionService } from '../../user/services/session.service';
+import { UserService } from '../../user/services/user.service';
+// import { ModuleModel } from '../models/module.model';
+import { CreateIParams, IRespInfo, IServiceInput, IUser } from '../../base/IBase';
+import { CompanyModel } from '../models/company.model';
+// import { ModuleViewModel } from '../models/module-view.model';
+import { CompanyViewModel } from '../models/company-view.model';
+import { CompanyTypeModel } from '../models/company-type.model';
+// import { CompanyViewModel } from '../models/company-view.model';
 
-export class GroupService extends CdService {
+export class CompanyService extends CdService {
+    b: any; // instance of BaseService
     cdToken: string;
     srvSess: SessionService;
-    b: BaseService;
-    serviceModel: GroupModel;
+    srvUser: UserService;
+    user: IUser;
+    serviceModel: CompanyModel;
+    sessModel;
+    // moduleModel: ModuleModel;
 
     /*
      * create rules
      */
-    cRules = {
-        required: ['groupName', 'groupTypeId',],
-        noDuplicate: ['groupName', 'groupOwnerId',]
+    cRules: any = {
+        required: ['companyName', 'email', 'mobile', 'searchTags', 'companyTypeGuid'],
+        noDuplicate: ['companyName', 'email']
     };
     uRules: any[];
     dRules: any[];
+
     constructor() {
         super()
         this.b = new BaseService();
-        this.serviceModel = new GroupModel();
-    }
-
-    getMemoSummary(cuid) {
-        return [{}];
-    }
-
-    async getModuleGroup(req, res, moduleName): Promise<GroupModel[]> {
-        const serviceInput = {
-            serviceInstance: this,
-            serviceModel: GroupModel,
-            docName: 'GroupService::getGroupByName',
-            cmd: {
-                action: 'find',
-                query: { where: { groupName: moduleName } }
-            },
-            dSource: 1,
-        }
-        return await this.b.read(req, res, serviceInput);
-    }
-
-    getModuleGroup$(req, res, moduleName): Observable<GroupModel[]> {
-        const serviceInput = {
-            serviceModel: GroupModel,
-            docName: 'GroupService::getGroupByName',
-            cmd: {
-                action: 'find',
-                query: { where: { groupName: moduleName } }
-            },
-            dSource: 1,
-        }
-        return this.b.read$(req, res, serviceInput);
-    }
-
-    async getGroupByName(req, res, groupParams) {
-        // console.log('starting GroupService::getGroupByName(req, res, groupParams)');
-        // console.log('GroupService::getGroupByName/groupParams:', groupParams);
-        if (groupParams.groupName) {
-            const serviceInput = {
-                serviceInstance: this,
-                serviceModel: GroupModel,
-                docName: 'GroupService::getGroupByName',
-                cmd: {
-                    action: 'find',
-                    query: { where: { groupName: groupParams.groupName, groupTypeId: groupParams.groupTypeId } }
-                },
-                dSource: 1,
-            }
-            return await this.b.read(req, res, serviceInput);
-        } else {
-            console.log('groupParams.groupName is invalid');
-        }
+        this.serviceModel = new CompanyModel();
+        // this.moduleModel = new ModuleModel();
     }
 
     // /**
-    //  * In the example below we are registering booking module as a resource to emp services
-    //  * This allows users registered under empservices to access booking module when appropriate privileges are given
     //  * {
     //         "ctx": "Sys",
     //         "m": "Moduleman",
-    //         "c": "Group",
+    //         "c": "Company",
     //         "a": "Create",
     //         "dat": {
     //             "f_vals": [
     //                 {
     //                     "data": {
-    //                          "cd_obj_type_id": "8b4cf8de-1ffc-4575-9e73-4ccf45a7756b", // module
-    //                          "group_id": "B0B3DA99-1859-A499-90F6-1E3F69575DCD", // emp services
-    //                          "obj_id": "8D4ED6A9-398D-32FE-7503-740C097E4F1F" // recource (module) id...in this case: booking module
+    //                         "companyName": "/src/CdApi/sys/moduleman",
+    //                         "companyTypeGuid": "7ae902cd-5bc5-493b-a739-125f10ca0268",
+    //                         "parentModuleGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b"
     //                     }
     //                 }
     //             ],
@@ -108,20 +61,19 @@ export class GroupService extends CdService {
     //  * @param res
     //  */
     async create(req, res) {
-        console.log('GroupService::create::validateCreate()/01')
+        console.log('moduleman/create::validateCreate()/01')
         const svSess = new SessionService();
         if (await this.validateCreate(req, res)) {
             await this.beforeCreate(req, res);
             const serviceInput = {
-                serviceModel: GroupModel,
+                serviceModel: CompanyModel,
                 serviceModelInstance: this.serviceModel,
-                docName: 'Create group',
+                docName: 'Create company',
                 dSource: 1,
             }
-            console.log('GroupService::create()/serviceInput:', serviceInput)
-            console.log('GroupService::create()/req.post:', JSON.stringify(req.post))
+            console.log('CompanyService::create()/serviceInput:', serviceInput)
             const respData = await this.b.create(req, res, serviceInput);
-            this.b.i.app_msg = 'new group created';
+            this.b.i.app_msg = 'new company created';
             this.b.setAppState(true, this.b.i, svSess.sessResp);
             this.b.cdResp.data = await respData;
             const r = await this.b.respond(req, res);
@@ -131,15 +83,15 @@ export class GroupService extends CdService {
         }
     }
 
-    async createI(req, res, createIParams: CreateIParams): Promise<GroupModel | boolean> {
+    async createI(req, res, createIParams: CreateIParams): Promise<CompanyModel | boolean> {
         return await this.b.createI(req, res, createIParams)
     }
 
-    async groupExists(req, res, params): Promise<boolean> {
+    async companyExists(req, res, params): Promise<boolean> {
         const serviceInput: IServiceInput = {
             serviceInstance: this,
-            serviceModel: GroupModel,
-            docName: 'GroupService::groupExists',
+            serviceModel: CompanyModel,
+            docName: 'CompanyService::companyExists',
             cmd: {
                 action: 'find',
                 query: { where: params.filter }
@@ -150,13 +102,8 @@ export class GroupService extends CdService {
     }
 
     async beforeCreate(req, res): Promise<any> {
-        this.b.sess = await this.b.get(req,res,SessionModel,{where:{cdToken:req.post.dat.token}})
-        if(this.b.sess.length > 0){
-            this.b.setPlData(req, { key: 'groupOwnerId', value: this.b.sess[0].currentUserId });
-        }
-        this.b.setPlData(req, { key: 'consumerGuid', value: this.b.sess[0].consumerGuid });
-        this.b.setPlData(req, { key: 'groupGuid', value: this.b.getGuid() });
-        this.b.setPlData(req, { key: 'groupEnabled', value: true });
+        this.b.setPlData(req, { key: 'companyGuid', value: this.b.getGuid() });
+        this.b.setPlData(req, { key: 'companyEnabled', value: true });
         return true;
     }
 
@@ -165,19 +112,19 @@ export class GroupService extends CdService {
     }
 
     update(req, res) {
-        // console.log('GroupService::update()/01');
+        // console.log('CompanyService::update()/01');
         let q = this.b.getQuery(req);
         q = this.beforeUpdate(q);
         const serviceInput = {
-            serviceModel: GroupModel,
-            docName: 'GroupService::update',
+            serviceModel: CompanyModel,
+            docName: 'CompanyService::update',
             cmd: {
                 action: 'update',
                 query: q
             },
             dSource: 1
         }
-        // console.log('GroupService::update()/02')
+        // console.log('CompanyService::update()/02')
         this.b.update$(req, res, serviceInput)
             .subscribe((ret) => {
                 this.b.cdResp.data = ret;
@@ -192,8 +139,8 @@ export class GroupService extends CdService {
      * @returns
      */
     beforeUpdate(q: any) {
-        if (q.update.groupResourceEnabled === '') {
-            q.update.groupResourceEnabled = null;
+        if (q.update.companyEnabled === '') {
+            q.update.companyEnabled = null;
         }
         return q;
     }
@@ -218,87 +165,87 @@ export class GroupService extends CdService {
     }
 
     async validateCreate(req, res) {
-        console.log('moduleman/GroupService::validateCreate()/01')
+        console.log('moduleman/CompanyService::validateCreate()/01')
         const svSess = new SessionService();
         ///////////////////////////////////////////////////////////////////
         // 1. Validate against duplication
         const params = {
             controllerInstance: this,
-            model: GroupModel,
+            model: CompanyModel,
         }
-        this.b.i.code = 'GroupService::validateCreate';
+        this.b.i.code = 'CompanyService::validateCreate';
         let ret = false;
         if (await this.b.validateUnique(req, res, params)) {
-            console.log('moduleman/GroupService::validateCreate()/02')
+            console.log('moduleman/CompanyService::validateCreate()/02')
             if (await this.b.validateRequired(req, res, this.cRules)) {
-                console.log('moduleman/GroupService::validateCreate()/03')
+                console.log('moduleman/CompanyService::validateCreate()/03')
                 ret = true;
             } else {
-                console.log('moduleman/GroupService::validateCreate()/04')
+                console.log('moduleman/CompanyService::validateCreate()/04')
                 ret = false;
                 this.b.i.app_msg = `the required fields ${this.b.isInvalidFields.join(', ')} is missing`;
                 this.b.err.push(this.b.i.app_msg);
                 this.b.setAppState(false, this.b.i, svSess.sessResp);
             }
         } else {
-            console.log('moduleman/GroupService::validateCreate()/05')
+            console.log('moduleman/CompanyService::validateCreate()/05')
             ret = false;
             this.b.i.app_msg = `duplicate for ${this.cRules.noDuplicate.join(', ')} is not allowed`;
             this.b.err.push(this.b.i.app_msg);
             this.b.setAppState(false, this.b.i, svSess.sessResp);
         }
-        console.log('moduleman/GroupService::validateCreate()/06')
-        const pl: GroupModel = await this.b.getPlData(req);
-        //////////////////////////////////////////////////////////////////////////
-        // 3. confirm the groupId referenced exists
-        if ('groupTypeId' in pl) {
-            console.log('moduleman/GroupService::validateCreate()/12')
-            console.log('moduleman/GroupService::validateCreate()/pl:', pl)
+        console.log('moduleman/CompanyService::validateCreate()/06')
+        ///////////////////////////////////////////////////////////////////
+        // 2. confirm the companyTypeGuid referenced exists
+        const pl: CompanyModel = this.b.getPlData(req);
+        if ('companyTypeGuid' in pl) {
+            console.log('moduleman/CompanyService::validateCreate()/07')
+            console.log('moduleman/CompanyService::validateCreate()/pl:', pl)
             const serviceInput = {
-                serviceModel: GroupTypeModel,
-                docName: 'GroupService::validateCreate',
+                serviceModel: CompanyTypeModel,
+                docName: 'CompanyService::validateCreate',
                 cmd: {
                     action: 'find',
-                    query: { where: { groupTypeId: pl.groupTypeId } }
+                    query: { where: { companyTypeGuid: pl.companyTypeGuid } }
                 },
                 dSource: 1
             }
-            console.log('moduleman/GroupService::validateCreate()/serviceInput:', JSON.stringify(serviceInput))
+            console.log('moduleman/CompanyService::validateCreate()/serviceInput:', JSON.stringify(serviceInput))
             const r: any = await this.b.read(req, res, serviceInput)
-            console.log('moduleman/GroupService::validateCreate()/r:', r)
+            console.log('moduleman/CompanyService::validateCreate()/r:', r)
             if (r.length > 0) {
-                console.log('moduleman/GroupService::validateCreate()/13')
+                console.log('moduleman/CompanyService::validateCreate()/08')
                 ret = true;
             } else {
-                console.log('moduleman/GroupService::validateCreate()/14')
+                console.log('moduleman/CompanyService::validateCreate()/10')
                 ret = false;
-                this.b.i.app_msg = `group type reference is invalid`;
+                this.b.i.app_msg = `company type reference is invalid`;
                 this.b.err.push(this.b.i.app_msg);
                 this.b.setAppState(false, this.b.i, svSess.sessResp);
             }
         } else {
-            console.log('moduleman/GroupService::validateCreate()/15')
+            console.log('moduleman/CompanyService::validateCreate()/11')
             // this.b.i.app_msg = `parentModuleGuid is missing in payload`;
             // this.b.err.push(this.b.i.app_msg);
             //////////////////
-            this.b.i.app_msg = `groupTypeId is missing in payload`;
+            this.b.i.app_msg = `companyTypeGuid is missing in payload`;
             this.b.err.push(this.b.i.app_msg);
             this.b.setAppState(false, this.b.i, svSess.sessResp);
         }
-        console.log('GroupService::getGroup/20');
+        console.log('CompanyService::getCompany/12');
         if (this.b.err.length > 0) {
-            console.log('moduleman/GroupService::validateCreate()/21')
+            console.log('moduleman/CompanyService::validateCreate()/13')
             ret = false;
         }
         return ret;
     }
 
-    getGroup(req, res) {
+    getCompany(req, res) {
         const q = this.b.getQuery(req);
-        console.log('GroupService::getGroup/f:', q);
+        console.log('CompanyService::getCompany/f:', q);
         const serviceInput = {
-            serviceModel: GroupModel,
-            docName: 'GroupService::getGroup$',
+            serviceModel: CompanyViewModel,
+            docName: 'CompanyService::getCompany$',
             cmd: {
                 action: 'find',
                 query: q
@@ -308,8 +255,8 @@ export class GroupService extends CdService {
         try {
             this.b.read$(req, res, serviceInput)
                 .subscribe((r) => {
-                    console.log('GroupService::read$()/r:', r)
-                    this.b.i.code = 'GroupController::Get';
+                    console.log('CompanyService::read$()/r:', r)
+                    this.b.i.code = 'CompanyController::Get';
                     const svSess = new SessionService();
                     svSess.sessResp.cd_token = req.post.dat.token;
                     svSess.sessResp.ttl = svSess.getTtl();
@@ -318,7 +265,7 @@ export class GroupService extends CdService {
                     this.b.respond(req, res)
                 })
         } catch (e) {
-            console.log('GroupService::read$()/e:', e)
+            console.log('CompanyService::read$()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
@@ -330,12 +277,12 @@ export class GroupService extends CdService {
         }
     }
 
-    getGroupType(req, res) {
+    getCompanyType(req, res) {
         const q = this.b.getQuery(req);
-        console.log('GroupService::getGroup/f:', q);
+        console.log('CompanyService::getCompany/f:', q);
         const serviceInput = {
-            serviceModel: GroupTypeModel,
-            docName: 'GroupService::getGroupType$',
+            serviceModel: CompanyTypeModel,
+            docName: 'CompanyService::getCompanyType$',
             cmd: {
                 action: 'find',
                 query: q
@@ -345,8 +292,8 @@ export class GroupService extends CdService {
         try {
             this.b.read$(req, res, serviceInput)
                 .subscribe((r) => {
-                    console.log('GroupService::read$()/r:', r)
-                    this.b.i.code = 'GroupController::Get';
+                    console.log('CompanyService::read$()/r:', r)
+                    this.b.i.code = 'CompanyController::Get';
                     const svSess = new SessionService();
                     svSess.sessResp.cd_token = req.post.dat.token;
                     svSess.sessResp.ttl = svSess.getTtl();
@@ -355,7 +302,7 @@ export class GroupService extends CdService {
                     this.b.respond(req, res)
                 })
         } catch (e) {
-            console.log('GroupService::read$()/e:', e)
+            console.log('CompanyService::read$()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
@@ -367,12 +314,12 @@ export class GroupService extends CdService {
         }
     }
 
-    getGroupCount(req, res) {
+    getCompanyCount(req, res) {
         const q = this.b.getQuery(req);
-        console.log('GroupService::getGroupCount/q:', q);
+        console.log('CompanyService::getCompanyCount/q:', q);
         const serviceInput = {
-            serviceModel: GroupModel,
-            docName: 'GroupService::getGroupCount$',
+            serviceModel: CompanyViewModel,
+            docName: 'CompanyService::getCompanyCount$',
             cmd: {
                 action: 'find',
                 query: q
@@ -381,7 +328,7 @@ export class GroupService extends CdService {
         }
         this.b.readCount$(req, res, serviceInput)
             .subscribe((r) => {
-                this.b.i.code = 'GroupController::Get';
+                this.b.i.code = 'CompanyController::Get';
                 const svSess = new SessionService();
                 svSess.sessResp.cd_token = req.post.dat.token;
                 svSess.sessResp.ttl = svSess.getTtl();
@@ -391,12 +338,12 @@ export class GroupService extends CdService {
             })
     }
 
-    getGroupTypeCount(req, res) {
+    getCompanyTypeCount(req, res) {
         const q = this.b.getQuery(req);
-        console.log('GroupService::getGroupCount/q:', q);
+        console.log('CompanyService::getCompanyCount/q:', q);
         const serviceInput = {
-            serviceModel: GroupTypeModel,
-            docName: 'GroupService::getGroupCount$',
+            serviceModel: CompanyTypeModel,
+            docName: 'CompanyService::getCompanyCount$',
             cmd: {
                 action: 'find',
                 query: q
@@ -405,7 +352,7 @@ export class GroupService extends CdService {
         }
         this.b.readCount$(req, res, serviceInput)
             .subscribe((r) => {
-                this.b.i.code = 'GroupController::Get';
+                this.b.i.code = 'CompanyController::Get';
                 const svSess = new SessionService();
                 svSess.sessResp.cd_token = req.post.dat.token;
                 svSess.sessResp.ttl = svSess.getTtl();
@@ -417,10 +364,10 @@ export class GroupService extends CdService {
 
     delete(req, res) {
         const q = this.b.getQuery(req);
-        console.log('GroupService::delete()/q:', q)
+        console.log('CompanyService::delete()/q:', q)
         const serviceInput = {
-            serviceModel: GroupModel,
-            docName: 'GroupService::delete',
+            serviceModel: CompanyModel,
+            docName: 'CompanyService::delete',
             cmd: {
                 action: 'delete',
                 query: q

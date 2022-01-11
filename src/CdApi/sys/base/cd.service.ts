@@ -13,9 +13,9 @@ export abstract class CdService {
     abstract b: BaseService; // instance of BaseService
     abstract cdToken: string;
     user: IUser;
-    cRules: any[];
-    uRules: any[];
-    dRules: any[];
+    cRules: any;
+    uRules: any;
+    dRules: any;
     serviceModel: any;
 
     public abstract create(req, res): Promise<any>;

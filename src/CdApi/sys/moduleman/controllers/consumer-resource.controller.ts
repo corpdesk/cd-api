@@ -1,113 +1,82 @@
 import { BaseService } from '../../base/base.service';
-import { CdController } from '../../base/cd.controller';
-import { UserService } from '../services/user.service';
+import { ConsumerResourceService } from '../services/consumer-resource.service';
 
-export class UserController extends CdController {
+export class ConsumerResourceController {
+
     b: BaseService;
-    svUser: UserService;
+    svConsumerResource: ConsumerResourceService;
+
     constructor() {
-        super();
         this.b = new BaseService();
-        this.svUser = new UserService();
+        this.svConsumerResource = new ConsumerResourceService();
     }
 
-    /**
-     * {
-     *   "ctx": "Sys",
-     *   "m": "User",
-     *   "c": "User",
-     *   "a": "Login",
-     *   "dat": {
-     *       "f_vals": [
-     *           {
-     *               "data": {
-     *                   "user_name": "goremo2",
-     *                   "password": "ekzo3lxm",
-     *                   "consumer_guid": "B0B3DA99-1859-A499-90F6-1E3F69575DCD"
-     *               }
-     *           }
-     *       ],
-     *       "token": "29947F3F-FF52-9659-F24C-90D716BC77B2"
-     *   },
-     *   "args": null
-     * }
-     * @param req
-     * @param res
-     */
-    async Login(req, res) {
-        console.log('starting Login()')
+    // // /**
+    // //  * {
+    //         "ctx": "Sys",
+    //         "m": "Moduleman",
+    //         "c": "ConsumerResource",
+    //         "a": "Create",
+    //         "dat": {
+    //             "f_vals": [
+    //                 {
+    //                     "data": {
+    //                         "cdObjTypeGuid": "8b4cf8de-1ffc-4575-9e73-4ccf45a7756b",
+    //                         "consumerGuid": "B0B3DA99-1859-A499-90F6-1E3F69575DCD",
+    //                         "objGuid": "8D4ED6A9-398D-32FE-7503-740C097E4F1F"
+    //                     }
+    //                 }
+    //             ],
+    //             "token": "3ffd785f-e885-4d37-addf-0e24379af338"
+    //         },
+    //         "args": {}
+    //     }
+    // //  * @param req
+    // //  * @param res
+    // //  */
+    async Create(req, res) {
         try {
-            await this.svUser.auth(req,res);
+            await this.svConsumerResource.create(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e,'UserService:Login');
+            this.b.serviceErr(req, res, e, 'ConsumerResourceController:Create');
         }
     }
 
-    /**
-     * {
-     *   "ctx": "Sys",
-     *   "m": "User",
-     *   "c": "User",
-     *   "a": "Login",
-     *   "dat": {
-     *       "f_vals": [
-     *           {
-     *               "data": {
-     *                   "f_name": "George",
-     *                   "l_name": "Oremo",
-     *                   "email": "george.oremo@corpdesk.io",
-     *                   "user_name": "goremo2",
-     *                   "password": "ekzo3lxm",
-     *                   "consumer_guid": "B0B3DA99-1859-A499-90F6-1E3F69575DCD"
-     *               }
-     *           }
-     *       ],
-     *       "token": "29947F3F-FF52-9659-F24C-90D716BC77B2"
-     *   },
-     *   "args": null
-     * }
-     * @param req
-     * @param res
-     */
-    async Register(req, res) {
-        try {
-            await this.svUser.create(req, res);
-        } catch (e) {
-            this.b.serviceErr(req, res, e,'UserService:Register');
-        }
-    }
-
-    // {
+    // // /**
+    // //  * {
     //     "ctx": "Sys",
-    //     "m": "User",
-    //     "c": "User",
+    //     "m": "Moduleman",
+    //     "c": "ConsumerResource",
     //     "a": "Get",
     //     "dat": {
     //         "f_vals": [
     //             {
     //                 "query": {
     //                     "where": {
-    //                         "userGuid": "86faa6df-358b-4e32-8a66-d133921da9fe"
+    //                         "consumer-resourceGuid": "45E28C72-3C6D-940E-B738-DF3415589906"
     //                     }
     //                 }
     //             }
     //         ],
     //         "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
     //     },
-    //     "args": {}
+    //     "args": null
     // }
+    // //  * @param req
+    // //  * @param res
+    // //  */
     async Get(req, res) {
         try {
-            await this.svUser.getUser(req, res);
+            await this.svConsumerResource.getConsumerResource(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'UserController:Get');
+            this.b.serviceErr(req, res, e, 'ConsumerResourceController:Get');
         }
     }
 
     // {
     //     "ctx": "Sys",
     //     "m": "Moduleman",
-    //     "c": "User",
+    //     "c": "ConsumerResource",
     //     "a": "GetType",
     //     "dat": {
     //         "f_vals": [
@@ -121,26 +90,27 @@ export class UserController extends CdController {
     //     },
     //     "args": null
     // }
-    // async GetType(req, res) {
-    //     try {
-    //         await this.svUser.getUserTypeCount(req, res);
-    //     } catch (e) {
-    //         this.b.serviceErr(req, res, e, 'UserController:Get');
-    //     }
-    // }
+    async GetType(req, res) {
+        try {
+            await this.svConsumerResource.getConsumerResourceTypeCount(req, res);
+        } catch (e) {
+            this.b.serviceErr(req, res, e, 'ConsumerResourceController:Get');
+        }
+    }
 
+    // // /** Pageable request:
     // {
     //     "ctx": "Sys",
-    //     "m": "User",
-    //     "c": "User",
+    //     "m": "Moduleman",
+    //     "c": "ConsumerResource",
     //     "a": "GetCount",
     //     "dat": {
     //         "f_vals": [
     //             {
     //                 "query": {
     //                     "select": [
-    //                         "userName",
-    //                         "userGuid"
+    //                         "consumerResourceName",
+    //                         "consumerResourceGuid"
     //                     ],
     //                     "where": {},
     //                     "take": 5,
@@ -152,11 +122,12 @@ export class UserController extends CdController {
     //     },
     //     "args": null
     // }
+    // //  */
     async GetCount(req, res) {
         try {
-            await this.svUser.getUserCount(req, res);
+            await this.svConsumerResource.getConsumerResourceCount(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'UserController:Get');
+            this.b.serviceErr(req, res, e, 'ConsumerResourceController:Get');
         }
     }
 
@@ -164,7 +135,7 @@ export class UserController extends CdController {
     //  * {
     //         "ctx": "Sys",
     //         "m": "Moduleman",
-    //         "c": "User",
+    //         "c": "ConsumerResource",
     //         "a": "Update",
     //         "dat": {
     //             "f_vals": [
@@ -187,12 +158,12 @@ export class UserController extends CdController {
     //  * @param res
     //  */
     async Update(req, res) {
-        console.log('UserController::Update()/01');
+        console.log('ConsumerResourceController::Update()/01');
         try {
-            console.log('UserController::Update()/02');
-            await this.svUser.update(req, res);
+            console.log('ConsumerResourceController::Update()/02');
+            await this.svConsumerResource.update(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'UserController:Update');
+            this.b.serviceErr(req, res, e, 'ConsumerResourceController:Update');
         }
     }
 
@@ -200,7 +171,7 @@ export class UserController extends CdController {
     //  * {
     //         "ctx": "Sys",
     //         "m": "Moduleman",
-    //         "c": "User",
+    //         "c": "ConsumerResource",
     //         "a": "GetCount",
     //         "dat": {
     //             "f_vals": [
@@ -219,9 +190,10 @@ export class UserController extends CdController {
     //  */
     async Delete(req, res) {
         try {
-            await this.svUser.delete(req, res);
+            await this.svConsumerResource.delete(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'UserController:Update');
+            this.b.serviceErr(req, res, e, 'ConsumerResourceController:Update');
         }
     }
+
 }

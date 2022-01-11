@@ -1,6 +1,6 @@
 import { Observable, of } from 'rxjs';
-import { AclModuleMemberViewModel } from '../../../sys/moduleman/models/aclmodulememberview.model';
-import { AclModuleViewModel } from '../../../sys/moduleman/models/aclmoduleview.model';
+import { AclModuleMemberViewModel } from '../../../sys/moduleman/models/acl-module-member-view.model';
+import { AclModuleViewModel } from '../../../sys/moduleman/models/acl-module-view.model';
 import { ModuleModel } from '../../../sys/moduleman/models/module.model';
 
 export const allowedModules$: Observable<AclModuleViewModel[]> = of([
