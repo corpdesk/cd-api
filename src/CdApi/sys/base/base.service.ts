@@ -1,7 +1,7 @@
 
 import { v4 as uuidv4 } from 'uuid';
 import * as Lá from 'lodash';
-import { CreateIParams, ICdRequest, ICdResponse, IControllerContext, IRespInfo, IServiceInput, ISessResp, ObjectItem } from './IBase';
+import { CreateIParams, ICdRequest, ICdResponse, IControllerContext, IQuery, IRespInfo, IServiceInput, ISessResp, ObjectItem } from './IBase';
 import { EntityMetadata, getConnection } from 'typeorm';
 import { Observable, from } from 'rxjs';
 // import { map } from 'rxjs/operators';
@@ -40,6 +40,7 @@ export class BaseService {
         code: '',
         app_msg: ''
     };
+    isInvalidFields = [];
     constructor() {
         this.cdResp = this.initCdResp();
     }
@@ -246,19 +247,19 @@ export class BaseService {
         return ret;
     }
 
-    getPlData(req): any {
+    getPlData(req): Promise<any> {
         return req.post.dat.f_vals[0].data;
     }
 
-    setPlData(req, item: ObjectItem): void {
+    async setPlData(req, item: ObjectItem): Promise<void> {
         req.post.dat.f_vals[0].data[item.key] = item.value;
     }
 
     async setCreateIData(req, controllerData: ICdRequest, item: ObjectItem): Promise<ICdRequest> {
-        console.log('BaseService::setCreateIData()/item:', item);
-        console.log('BaseService::setCreateIData()/controllerData(1):', controllerData);
+        // console.log('BaseService::setCreateIData()/item:', item);
+        // console.log('BaseService::setCreateIData()/controllerData(1):', controllerData);
         controllerData[item.key] = item.value;
-        console.log('BaseService::setCreateIData()/controllerData(2):', controllerData);
+        // console.log('BaseService::setCreateIData()/controllerData(2):', controllerData);
         return await controllerData;
     }
 
@@ -298,7 +299,7 @@ export class BaseService {
         });
         // console.log('validateUnique()/propMap:', await propMap)
         const strQueryItems = await this.getQueryItems(req, propMap, params)
-        console.log('validateUnique()/strQueryItems:', await strQueryItems)
+        // console.log('validateUnique()/strQueryItems:', await strQueryItems)
         // convert the string items into JSON objects
         // const arrQueryItems = await strQueryItems.map(async (item) => {
         //     console.log('validateUnique()/item:', await item)
@@ -308,7 +309,7 @@ export class BaseService {
         // console.log('validateUnique()/arrQueryItems:', await arrQueryItems)
         // const filterItems = await JSON.parse(strQueryItems)
         const filterItems = await strQueryItems
-        console.log('validateUnique()/filterItems:', await filterItems)
+        // console.log('validateUnique()/filterItems:', await filterItems)
         // execute the query
         const results = await baseRepository.count({
             where: await filterItems
@@ -400,14 +401,20 @@ export class BaseService {
     }
 
     async validateRequired(req, res, cRules) {
+        const svSess = new SessionService();
         await this.init(req, res);
         const rqFieldNames = cRules.required as string[];
-        const isInvalid = await rqFieldNames.filter((fieldName) => {
+        this.isInvalidFields = await rqFieldNames.filter((fieldName) => {
             if (!(fieldName in this.getPlData(req))) { // required field is missing
                 return fieldName;
             }
         });
-        if (isInvalid.length > 0) {
+        if (this.isInvalidFields.length > 0) {
+            // console.log('BaseService::validateRequired()/cRules:', JSON.stringify(cRules))
+            // console.log('BaseService::validateRequired()/isInvalid:', JSON.stringify(this.isInvalidFields))
+            this.i.app_msg = `the required fields ${this.isInvalidFields.join(', ')} is missing`;
+            this.i.messages.push(this.i.app_msg)
+            this.setAppState(false, this.i, svSess.sessResp);
             return false;
         } else {
             return true;
@@ -426,17 +433,25 @@ export class BaseService {
      * @returns
      */
     async create(req, res, serviceInput: IServiceInput) {
+        // console.log('BaseService::create()/01')
         await this.init(req, res);
         let newDocData;
         try {
+            // console.log('BaseService::create()/02')
             newDocData = await this.saveDoc(req, res, serviceInput);
+            // console.log('BaseService::create()/newDocData:', newDocData)
         } catch (e) {
+            // console.log('BaseService::create()/03')
             this.serviceErr(req, res, e, 'BaseService:create/savDoc')
         }
         let serviceRepository = null;
         try {
+            // console.log('BaseService::create()/04')
+            // console.log('BaseService::create()/serviceInput1:', serviceInput)
             serviceRepository = await getConnection().getRepository(serviceInput.serviceModel);
         } catch (e) {
+            // console.log('BaseService::create()/serviceInput2:', serviceInput)
+            // console.log('BaseService::create()/05')
             this.err.push(e.toString());
             const i = {
                 messages: this.err,
@@ -448,18 +463,26 @@ export class BaseService {
         }
 
         try {
+            // console.log('BaseService::create()/06')
             let modelInstance = serviceInput.serviceModelInstance;
             if ('dSource' in serviceInput) {
+                // console.log('BaseService::create()/07')
                 if (serviceInput.dSource === 1) { // data source is provided by the req...data.
                     // req.post.dat.f_vals[0].data.doc_id = await newDocData.docId;
-                    console.log('BaseService::create()/newDocData:', newDocData)
+                    // console.log('BaseService::create()/08')
+                    // console.log('BaseService::create()/newDocData:', newDocData)
                     await this.setPlData(req, { key: 'docId', value: await newDocData.docId }) // set docId
+                    // console.log('BaseService::create()/09')
                     const serviceData = await this.getServiceData(req, serviceInput);
+                    // console.log('BaseService::create()/10')
                     modelInstance = await this.setEntity(serviceInput, serviceData);
+                    // console.log('BaseService::create()/11')
                     return await serviceRepository.save(await modelInstance);
                 }
+                console.log('BaseService::create()/12')
             }
         } catch (e) {
+            // console.log('BaseService::create()/13')
             this.err.push(e.toString());
             const i = {
                 messages: this.err,
@@ -488,6 +511,7 @@ export class BaseService {
         let ret: any;
         try {
             newDocData = await this.saveDoc(req, res, createIParams.serviceInput);
+            // console.log('BaseService::createI()/newDocData:', newDocData)
         } catch (e) {
             this.serviceErr(req, res, e, 'BaseService:create!/savDoc')
         }
@@ -530,8 +554,12 @@ export class BaseService {
 
 
     async saveDoc(req, res, serviceInput: IServiceInput) {
+        console.log('BaseService::saveDoc()/01')
         const docRepository: any = await getConnection().getRepository(DocModel);
+        console.log('BaseService::saveDoc()/02')
         const doc = await this.setDoc(req, res, serviceInput);
+        console.log('BaseService::saveDoc()/03')
+        console.log('BaseService::saveDoc()/doc:', JSON.stringify(doc))
         return await docRepository.save(doc);
     }
 
@@ -540,15 +568,21 @@ export class BaseService {
     }
 
     async setDoc(req, res, serviceInput) {
+        console.log('BaseService::setDoc()/01')
         if (!this.cdToken) {
+            console.log('BaseService::setDoc()/02')
             await this.setSess(req, res);
         }
+        console.log('BaseService::setDoc()/03')
         const dm: DocModel = new DocModel();
         const iDoc = new DocService();
         dm.docFrom = this.cuid;
         dm.docName = serviceInput.docName;
+        console.log('BaseService::setDoc()/04')
         dm.docTypeId = await iDoc.getDocTypeId(req, res);
+        console.log('BaseService::setDoc()/05')
         dm.docDate = await this.mysqlNow();
+        console.log('BaseService::setDoc()/06')
         return await dm;
     }
 
@@ -557,7 +591,7 @@ export class BaseService {
             this.iSess = new SessionService();
             this.sess = await this.iSess.getSession(req, res);
             if (this.sess.length > 0) {
-                console.log('this.sess:', this.sess);
+                // console.log('this.sess:', this.sess);
                 this.setCuid(this.sess[0].currentUserId);
                 this.cdToken = await this.sess[0].cdToken;
             } else {
@@ -691,6 +725,59 @@ export class BaseService {
         });
     }
 
+    async get(req, res, model: any, q: IQuery): Promise<any> {
+        console.log('BaseService::get/q:', q);
+        const serviceInput: IServiceInput = {
+            serviceModel: model,
+            docName: 'BaseService::get',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        try {
+            return await this.read(req, res, serviceInput)
+        } catch (e) {
+            console.log('CdObjService::read$()/e:', e)
+            this.err.push(e.toString());
+            const i = {
+                messages: this.err,
+                code: 'BaseService:update',
+                app_msg: ''
+            };
+            this.serviceErr(req, res, e, i.code)
+            return await new Promise(
+                (resolve, reject) => resolve(null)
+            );
+        }
+    }
+
+    get$(req, res, model: any, q: IQuery): Observable<any> {
+        console.log('BaseService::get/q:', q);
+        const serviceInput: IServiceInput = {
+            serviceModel: model,
+            docName: 'BaseService::get',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        try {
+            return this.read$(req, res, serviceInput)
+        } catch (e) {
+            console.log('BaseService::read$()/e:', e)
+            this.err.push(e.toString());
+            const i = {
+                messages: this.err,
+                code: 'BaseService:get$',
+                app_msg: ''
+            };
+            this.serviceErr(req, res, e, i.code)
+            return from(null);
+        }
+    }
 
     async update(req, res, serviceInput) {
         let ret: any = [];
@@ -812,6 +899,50 @@ export class BaseService {
     delete$(req, res, serviceInput) {
         return from(this.delete(req, res, serviceInput))
     }
+
+    async validateInputRefernce(msg: string, validationResponse: any[], svSess: SessionService): Promise<boolean> {
+        if (validationResponse.length > 0) {
+            console.log('BaseService::validateCreate()/1')
+            return true;
+        } else {
+            // console.log('BaseService::validateCreate()/2')
+            // this.i.app_msg = `${validationItem} reference is invalid`;
+            // this.err.push(this.i.app_msg);
+            // this.setAppState(false, this.i, svSess.sessResp);
+            this.setAlertMessage(msg, svSess,false)
+            return false;
+        }
+    }
+
+    async setAlertMessage(msg: string, svSess: SessionService, success: boolean) {
+        this.i.app_msg = msg;
+        this.err.push(this.i.app_msg);
+        this.setAppState(success, this.i, svSess.sessResp);
+    }
+
+    logTimeStamp(msg: string = null) {
+        const first_parameter = arguments[0];
+        const other_parameters = Array.prototype.slice.call(arguments, 1);
+
+        function formatConsoleDate(date) {
+            const hour = date.getHours();
+            const minutes = date.getMinutes();
+            const seconds = date.getSeconds();
+            const milliseconds = date.getMilliseconds();
+
+            return '[' +
+                ((hour < 10) ? '0' + hour : hour) +
+                ':' +
+                ((minutes < 10) ? '0' + minutes : minutes) +
+                ':' +
+                ((seconds < 10) ? '0' + seconds : seconds) +
+                '.' +
+                ('00' + milliseconds).slice(-3) +
+                '] : ' + msg;
+        }
+
+        console.log.apply(console, [formatConsoleDate(new Date()) + first_parameter].concat(other_parameters));
+    };
 
     controllerCreate(req, res) {
         return 1;
