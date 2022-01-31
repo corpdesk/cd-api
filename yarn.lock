@@ -38,6 +38,36 @@
     "semver" "^7.3.4"
     "tar" "^6.1.0"
 
+"@node-redis/bloom@^1.0.0":
+  "integrity" "sha512-mXEBvEIgF4tUzdIN89LiYsbi6//EdpFA7L8M+DHCvePXg+bfHWi+ct5VI6nHUFQE5+ohm/9wmgihCH3HSkeKsw=="
+  "resolved" "https://registry.npmjs.org/@node-redis/bloom/-/bloom-1.0.1.tgz"
+  "version" "1.0.1"
+
+"@node-redis/client@^1.0.0", "@node-redis/client@^1.0.2":
+  "integrity" "sha512-C+gkx68pmTnxfV+y4pzasvCH3s4UGHNOAUNhdJxGI27aMdnXNDZct7ffDHBL7bAZSGv9FSwCP5PeYvEIEKGbiA=="
+  "resolved" "https://registry.npmjs.org/@node-redis/client/-/client-1.0.2.tgz"
+  "version" "1.0.2"
+  dependencies:
+    "cluster-key-slot" "1.1.0"
+    "generic-pool" "3.8.2"
+    "redis-parser" "3.0.0"
+    "yallist" "4.0.0"
+
+"@node-redis/json@^1.0.2":
+  "integrity" "sha512-qVRgn8WfG46QQ08CghSbY4VhHFgaTY71WjpwRBGEuqGPfWwfRcIf3OqSpR7Q/45X+v3xd8mvYjywqh0wqJ8T+g=="
+  "resolved" "https://registry.npmjs.org/@node-redis/json/-/json-1.0.2.tgz"
+  "version" "1.0.2"
+
+"@node-redis/search@^1.0.2":
+  "integrity" "sha512-gWhEeji+kTAvzZeguUNJdMSZNH2c5dv3Bci8Nn2f7VGuf6IvvwuZDSBOuOlirLVgayVuWzAG7EhwaZWK1VDnWQ=="
+  "resolved" "https://registry.npmjs.org/@node-redis/search/-/search-1.0.2.tgz"
+  "version" "1.0.2"
+
+"@node-redis/time-series@^1.0.1":
+  "integrity" "sha512-+nTn6EewVj3GlUXPuD3dgheWqo219jTxlo6R+pg24OeVvFHx9aFGGiyOgj3vBPhWUdRZ0xMcujXV5ki4fbLyMw=="
+  "resolved" "https://registry.npmjs.org/@node-redis/time-series/-/time-series-1.0.1.tgz"
+  "version" "1.0.1"
+
 "@sindresorhus/is@^0.14.0":
   "integrity" "sha512-9NET910DNaIPngYnLLPeg+Ogzqsi9uM4mSboU5y6p8S5DzMTVEsJZrawi+BoDNUVBa2DhJqQYUFvMDfgU062LQ=="
   "resolved" "https://registry.npmjs.org/@sindresorhus/is/-/is-0.14.0.tgz"
@@ -600,6 +630,11 @@
   dependencies:
     "axios" "^0.21.1"
 
+"cluster-key-slot@1.1.0":
+  "integrity" "sha512-2Nii8p3RwAPiFwsnZvukotvow2rIHM+yQ6ZcBXGHdniadkYGZYiGmkHJIbZPIV9nfv7m/U1IPMVVcAhoWFeklw=="
+  "resolved" "https://registry.npmjs.org/cluster-key-slot/-/cluster-key-slot-1.1.0.tgz"
+  "version" "1.1.0"
+
 "code-point-at@^1.0.0":
   "integrity" "sha1-DQcLTQQ6W+ozovGkDi7bPZpMz3c="
   "resolved" "https://registry.npmjs.org/code-point-at/-/code-point-at-1.1.0.tgz"
@@ -1065,6 +1100,11 @@
   "version" "2.3.1"
   dependencies:
     "is-property" "^1.0.2"
+
+"generic-pool@3.8.2":
+  "integrity" "sha512-nGToKy6p3PAbYQ7p1UlWl6vSPwfwU6TMSWK7TTu+WUY4ZjyZQGniGGt2oNVvyNSpyZYSB43zMXVLcBm08MTMkg=="
+  "resolved" "https://registry.npmjs.org/generic-pool/-/generic-pool-3.8.2.tgz"
+  "version" "3.8.2"
 
 "get-caller-file@^2.0.5":
   "integrity" "sha512-DyFP3BM/3YHTQOCUL/w0OZHR0lpKeGrxotcHWcqNEdnltqFwXVfhEBQ94eIo34AfQpo0rGki4cyIiftY06h2Fg=="
@@ -1970,14 +2010,25 @@
   "resolved" "https://registry.npmjs.org/redis-errors/-/redis-errors-1.2.0.tgz"
   "version" "1.2.0"
 
-"redis-parser@^3.0.0":
+"redis-parser@^3.0.0", "redis-parser@3.0.0":
   "integrity" "sha1-tm2CjNyv5rS4pCin3vTGvKwxyLQ="
   "resolved" "https://registry.npmjs.org/redis-parser/-/redis-parser-3.0.0.tgz"
   "version" "3.0.0"
   dependencies:
     "redis-errors" "^1.0.0"
 
-"redis@*", "redis@^3.0.2":
+"redis@*", "redis@^4.0.2":
+  "integrity" "sha512-Ip1DJ/lwuvtJz9AZ6pl1Bv33fWzk5d3iQpGzsXpi04ErkT4fq0pfGOm4k/p9DHmPGieEIOWvJ9xmIeQMooLybg=="
+  "resolved" "https://registry.npmjs.org/redis/-/redis-4.0.2.tgz"
+  "version" "4.0.2"
+  dependencies:
+    "@node-redis/bloom" "^1.0.0"
+    "@node-redis/client" "^1.0.2"
+    "@node-redis/json" "^1.0.2"
+    "@node-redis/search" "^1.0.2"
+    "@node-redis/time-series" "^1.0.1"
+
+"redis@^3.0.2":
   "integrity" "sha512-grn5KoZLr/qrRQVwoSkmzdbw6pwF+/rwODtrOr6vuBRiR/f3rjSTGupbF90Zpqm2oenix8Do6RV7pYEkGwlKkw=="
   "resolved" "https://registry.npmjs.org/redis/-/redis-3.1.2.tgz"
   "version" "3.1.2"
@@ -2641,7 +2692,7 @@
   "resolved" "https://registry.npmjs.org/yallist/-/yallist-2.1.2.tgz"
   "version" "2.1.2"
 
-"yallist@^4.0.0":
+"yallist@^4.0.0", "yallist@4.0.0":
   "integrity" "sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A=="
   "resolved" "https://registry.npmjs.org/yallist/-/yallist-4.0.0.tgz"
   "version" "4.0.0"

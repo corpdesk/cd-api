@@ -63,6 +63,14 @@ export class MenuModel {
 
     @Column(
         {
+            name: 'menu_action_id',
+            nullable: true
+        }
+    )
+    menuActionId: number;
+
+    @Column(
+        {
             name: 'cd_obj_id',
             nullable: true
         }

@@ -16,6 +16,7 @@ import { MenuModel } from '../models/menu.model';
 import { CdObjService } from './cd-obj.service';
 import { size } from 'lodash';
 import { CdObjModel } from '../models/cd-obj.model';
+import { ModuleModel } from '../models/module.model';
 
 const menuCache = new CacheContainer(new MemoryStorage())
 
@@ -152,8 +153,8 @@ export class MenuService {
     }
 
     async beforeCreate(req, res) {
-        const menuData = req.post.dat.f_vals[0].data;
-        const cdObjData = req.post.dat.f_vals[0].cdObj;
+        // const menuQuery: MenuModel = req.post.dat.f_vals[0].data;
+        const cdObjQuery = req.post.dat.f_vals[0].cdObj;
         const svCdObj = new CdObjService();
         const si = {
             serviceInstance: svCdObj,
@@ -164,13 +165,17 @@ export class MenuService {
         }
         const createIParams: CreateIParams = {
             serviceInput: si,
-            controllerData: cdObjData
+            controllerData: cdObjQuery
         }
         let ret = false;
-        const result: any = await svCdObj.createI(req, res, createIParams)
+        const cdObjData: any = await svCdObj.createI(req, res, createIParams)
+        // const menuData: MenuModel[] = await this.b.get(req, res, MenuModel, { where: { menuId: menuQuery.menuParentId } });
+        // const moduleData: ModuleModel[] = await this.b.get(req, res, ModuleModel, { where: { moduleId: menuQuery.moduleParentId } });
         // console.log('MenuService::beforeCreate()/result:', result)
-        if (result) {
-            this.b.setPlData(req, { key: 'menuActionId', value: result.cdObjId });
+        if (cdObjData) {
+            console.log('MenuService::beforeCreate()/cdObjData:', cdObjData)
+            this.b.setPlData(req, { key: 'menuGuid', value: this.b.getGuid() });
+            this.b.setPlData(req, { key: 'cdObjId', value: cdObjData.cdObjId });
             this.b.setPlData(req, { key: 'menuEnabled', value: true });
             ret = true;
         } else {
@@ -275,7 +280,7 @@ export class MenuService {
                 };
                 if (sm.selectedItem) {
                     const data = sm.selectedItem;
-                    this.b.logTimeStamp('MenuService::buildNestedMenu$/02')
+                    // this.b.logTimeStamp('MenuService::buildNestedMenu$/02')
                     ret = {
                         menuParent: {
                             menuLabel: data.menuLabel,
@@ -347,9 +352,9 @@ export class MenuService {
         return moduleMenuData$
             .pipe(
                 tap((m) => {
-                    this.b.logTimeStamp('MenuService::getMenuItem$/01')
+                    // this.b.logTimeStamp('MenuService::getMenuItem$/01')
                     menuId$.pipe(map((mId) => {
-                        this.b.logTimeStamp('MenuService::getMenuItem$/02')
+                        // this.b.logTimeStamp('MenuService::getMenuItem$/02')
                         return mId;
                     }))
                 }),
@@ -377,7 +382,7 @@ export class MenuService {
                     }
                 )
                 , tap((m) => {
-                    this.b.logTimeStamp('MenuService::getMenuItem$/03')
+                    // this.b.logTimeStamp('MenuService::getMenuItem$/03')
                 })
                 , mergeMap(
                     (menuItem: MenuViewModel[]) => forkJoin(
@@ -388,13 +393,13 @@ export class MenuService {
                     )
                 )
                 , tap((m) => {
-                    this.b.logTimeStamp('MenuService::getMenuItem$/04')
+                    // this.b.logTimeStamp('MenuService::getMenuItem$/04')
                 }),
             )
     }
 
     getChildren(menuParentId: number, selectedMenu: ISelectedMenu): MenuViewModel[] {
-        console.log('MenuService::getChildren/01:');
+        // console.log('MenuService::getChildren/01:');
         const moduleMenuData = selectedMenu.moduleMenuData;
         const data = moduleMenuData.filter((m) => {
             if (m.menuParentId === menuParentId) {
@@ -407,7 +412,7 @@ export class MenuService {
     getMenuCount(req, res) {
         console.log('MenuService::getMenuCount()/reached 1')
         const q = this.b.getQuery(req);
-        console.log('MenuService::getModuleCount/q:', q);
+        // console.log('MenuService::getModuleCount/q:', q);
         const serviceInput = {
             serviceModel: MenuViewModel,
             docName: 'MenuService::getMenu$',

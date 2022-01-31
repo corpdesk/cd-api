@@ -21,7 +21,7 @@ export class SessionService {
 
     sessResp: ISessResp = {
         cd_token: '',
-        jwt: '',
+        jwt: null,
         ttl: 600
     };
     constructor() {

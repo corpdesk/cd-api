@@ -21,8 +21,8 @@ export class Main {
         app.listen(port, () => {
             console.log(`server is listening on ${port}`);
         })
-            .on('error', () => {
-                console.log(`Error!`);
+            .on('error', (e) => {
+                console.log(`Error:${e}`);
             });
     }
 

@@ -54,31 +54,24 @@ export class CompanyViewModel {
 
     @ViewColumn(
         {
-            name: 'company_guid'
-        }
-    )
-    companyGuidcompany: string;
-
-    @ViewColumn(
-        {
             name: 'company_name'
         }
     )
-    companyNamecompany: string;
+    companyName: string;
 
     @ViewColumn(
         {
             name: 'company_type_guid'
         }
     )
-    companyTypeGuidcompany: string;
+    companyTypeGuid: string;
 
     @ViewColumn(
         {
             name: 'directory_category_guid'
         }
     )
-    directoryCategoryGuidcompany: number;
+    directoryCategoryGuid: number;
 
     @ViewColumn(
         {
@@ -92,7 +85,7 @@ export class CompanyViewModel {
             name: 'postal_address'
         }
     )
-    postalAddresscompany: string;
+    postalAddress: string;
 
     @ViewColumn(
         {

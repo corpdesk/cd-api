@@ -1,22 +1,19 @@
 
 import { v4 as uuidv4 } from 'uuid';
 import * as Lá from 'lodash';
-import { CreateIParams, ICdRequest, ICdResponse, IControllerContext, IQuery, IRespInfo, IServiceInput, ISessResp, ObjectItem } from './IBase';
+import { CreateIParams, ICdRequest, ICdResponse, IControllerContext, IQuery, IRespInfo, IServiceInput, ISessResp, ObjectItem, CacheData } from './IBase';
 import { EntityMetadata, getConnection } from 'typeorm';
 import { Observable, from } from 'rxjs';
-// import { map } from 'rxjs/operators';
 import moment from 'moment';
 import { Database } from './connect';
+import { Response, Request, NextFunction } from 'express';
+// import * as redis from 'redis';
+import { createClient } from 'redis';
 import { DocModel } from '../moduleman/models/doc.model';
-// import { UserModel } from '../user/models/user.model';
-// import { umask } from 'process';
-// import { verify } from 'crypto';
 import { SessionService } from '../user/services/session.service';
 import { SessionModel } from '../user/models/session.model';
 import { DocService } from '../moduleman/services/doc.service';
-// import { Console } from 'console';
-// import { parse, stringify, toJSON, fromJSON } from 'flatted';
-// import { UserModel } from '../user/models/user.model';
+import config from '../../../config';
 
 const USER_ANON = 1000;
 const INVALID_REQUEST = 'invalid request';
@@ -41,7 +38,9 @@ export class BaseService {
         app_msg: ''
     };
     isInvalidFields = [];
+    redisClient;
     constructor() {
+        // this.redisInit();
         this.cdResp = this.initCdResp();
     }
     models = [];
@@ -189,7 +188,12 @@ export class BaseService {
             success: succ,
             info: i,
             sess: ss,
-            cache: {}
+            cache: {},
+            sConfig: {
+                usePush: config.usePolling,
+                usePolling: config.usePush,
+                useCacheStore: config.useCacheStore,
+            }
         };
     }
 
@@ -213,7 +217,7 @@ export class BaseService {
         // const sess = new SessionService()
     }
 
-    initCdResp() {
+    initCdResp(): ICdResponse {
         return {
             app_state: {
                 success: false,
@@ -224,10 +228,15 @@ export class BaseService {
                 },
                 sess: {
                     cd_token: this.getGuid(),
-                    jwt: '',
+                    jwt: null,
                     ttl: 0,
                 },
-                cache: {}
+                cache: {},
+                sConfig: {
+                    usePush: config.usePolling,
+                    usePolling: config.usePush,
+                    useCacheStore: config.useCacheStore,
+                }
             },
             data: null
         }
@@ -475,6 +484,7 @@ export class BaseService {
                     // console.log('BaseService::create()/09')
                     const serviceData = await this.getServiceData(req, serviceInput);
                     // console.log('BaseService::create()/10')
+                    console.log('BaseService::create()/serviceData:', serviceData);
                     modelInstance = await this.setEntity(serviceInput, serviceData);
                     // console.log('BaseService::create()/11')
                     return await serviceRepository.save(await modelInstance);
@@ -900,6 +910,94 @@ export class BaseService {
         return from(this.delete(req, res, serviceInput))
     }
 
+    /////////////////////////
+    // Redis stuff
+
+    async redisInit(req, res) {
+        this.redisClient = createClient();
+        this.redisClient.on('error', async (err) => {
+            console.log('BaseService::redisCreate()/02')
+            this.err.push(err.toString());
+            const i = {
+                messages: this.err,
+                code: 'BaseService:redisCreate',
+                app_msg: ''
+            };
+            await this.serviceErr(req, res, this.err, 'BaseService:redisCreate')
+            return this.cdResp;
+        });
+
+        await this.redisClient.connect();
+    }
+
+    async redisCreate(req, res) {
+        await this.redisInit(req, res);
+        console.log('BaseService::redisCreate()/01')
+        const pl: CacheData = await this.getPlData(req);
+        console.log('BaseService::redisCreate()/pl:', pl)
+        try {
+            const setRet = await this.redisClient.set(pl.key, pl.value);
+            console.log('BaseService::redisCreate()/setRet:', setRet)
+            const readBack = await this.redisClient.get(pl.key);
+            console.log('BaseService::redisCreate()/readBack:', readBack)
+            return {
+                status: setRet,
+                saved: readBack,
+            };
+        } catch (e) {
+            console.log('BaseService::redisCreate()/04')
+            this.err.push(e.toString());
+            const i = {
+                messages: this.err,
+                code: 'BaseService:redisCreate',
+                app_msg: ''
+            };
+            await this.serviceErr(req, res, this.err, 'BaseService:redisCreate')
+            return this.cdResp;
+        }
+
+    }
+
+    async redisRead(req, res, serviceInput: IServiceInput) {
+        await this.redisInit(req, res);
+        console.log('BaseService::redisRead()/01')
+        const pl: CacheData = await this.getPlData(req);
+        console.log('BaseService::redisRead()/pl:', pl)
+        try {
+            const getRet = await this.redisClient.get(pl.key);
+            console.log('BaseService::redisRead()/getRet:', getRet)
+            return getRet
+        } catch (e) {
+            console.log('BaseService::redisRead()/04')
+            this.err.push(e.toString());
+            const i = {
+                messages: this.err,
+                code: 'BaseService:redisRead',
+                app_msg: ''
+            };
+            await this.serviceErr(req, res, this.err, 'BaseService:redisRead')
+            return this.cdResp;
+        }
+    }
+
+    redisDelete(req, res, serviceInput: IServiceInput) {
+        this.redisClient.del('foo', (err, reply) => {
+            if (err) throw err;
+            console.log(reply);
+        });
+    }
+
+    async redisAsyncRead(req, res, serviceInput: IServiceInput) {
+        return new Promise((resolve, reject) => {
+            this.redisClient.get('myhash', (err, data) => {
+                if (err) {
+                    reject(err);
+                }
+                resolve(data);
+            });
+        });
+    }
+
     async validateInputRefernce(msg: string, validationResponse: any[], svSess: SessionService): Promise<boolean> {
         if (validationResponse.length > 0) {
             console.log('BaseService::validateCreate()/1')
@@ -909,7 +1007,7 @@ export class BaseService {
             // this.i.app_msg = `${validationItem} reference is invalid`;
             // this.err.push(this.i.app_msg);
             // this.setAppState(false, this.i, svSess.sessResp);
-            this.setAlertMessage(msg, svSess,false)
+            this.setAlertMessage(msg, svSess, false)
             return false;
         }
     }

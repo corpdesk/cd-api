@@ -35,21 +35,37 @@ export interface ICdResponse {
         info: IRespInfo;
         sess: ISessResp;
         cache: object;
+        sConfig?:IServerConfig;
     };
     data: object;
 }
 
+// export interface ISessResp {
+//     cd_token?: string;
+//     userId?: number | null;
+//     jwt?: string;
+//     ttl: number;
+// }
+
 export interface ISessResp {
     cd_token?: string;
     userId?: number | null;
-    jwt?: string;
+    jwt: { jwtToken: string, checked: boolean, checkTime:number, authorized: boolean, } | null
     ttl: number;
+    initUuid?:string;
+    initTime?: string;
 }
 
 export interface IRespInfo {
     messages: string[];
     code: string;
     app_msg: any;
+}
+
+export interface IServerConfig{
+    usePush: boolean;
+    usePolling: boolean;
+    useCacheStore:boolean;
 }
 
 export const DEFAULT_CD_REQUEST: ICdRequest = {
@@ -78,7 +94,7 @@ export const DEFAULT_CD_RESPONSE: ICdResponse = {
       },
       sess: {
         cd_token: '',
-        jwt: '',
+        jwt: null,
         ttl: 600
       },
       cache: {}
@@ -188,6 +204,13 @@ export interface ObjectItem{
 export interface CreateIParams{
     serviceInput: IServiceInput;
     controllerData: any;
+}
+
+export interface CacheData{
+    key: string;
+    value: string;
+    initUuid?:string;
+    initTime?: string;
 }
 
 

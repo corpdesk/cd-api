@@ -542,6 +542,9 @@ this.b.i.app_msg = `the required fields ${this.b.isInvalidFields.join(', ')} is 
 issues:
 - consumer_guid MUST be available for consumer_reource
 
+31/01/2022
+- initial work on cd-cache...IN PROGRESS
+- harmonise interface for socket.io and websocket...IN PROGRESS
 
 29/12/2021
 - refined crud from module, menu and cd-obj

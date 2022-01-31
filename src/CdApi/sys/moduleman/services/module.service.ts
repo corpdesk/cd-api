@@ -177,21 +177,21 @@ export class ModuleService extends CdService {
         })
             .pipe(
                 map((acl: any) => {
-                    this.b.logTimeStamp('ModuleService::getModulesUserData$/02')
-                    console.log('ModuleService::getAclModule$()/acl:', acl)
+                    // this.b.logTimeStamp('ModuleService::getModulesUserData$/02')
+                    // console.log('ModuleService::getAclModule$()/acl:', acl)
                     // Based on acl result, return appropirate modules
                     const publicModules = acl.consumerModules.filter(m => m.moduleIsPublic);
                     if (acl.userRoles.isConsumerRoot.length > 0) { // if userIsConsumerRoot then return all consumerModules
-                        this.b.logTimeStamp('ModuleService::getModulesUserData$/03')
+                        // this.b.logTimeStamp('ModuleService::getModulesUserData$/03')
                         return acl.consumerModules;
                     }
                     else if (acl.userRoles.isConsumerUser.length > 0) { // if user is registered as consumer user then filter consumer modules
-                        this.b.logTimeStamp('ModuleService::getModulesUserData$/04')
+                        // this.b.logTimeStamp('ModuleService::getModulesUserData$/04')
                         // console.log('ModuleService::getModulesUserData$/acl.userRoles.isConsumerUser:', acl.userRoles.isConsumerUser);
                         // console.log('ModuleService::getModulesUserData$/acl.moduleParents:', acl.moduleParents);
                         // console.log('ModuleService::getModulesUserData$/acl.consumerModules:', acl.consumerModules);
                         const userModules = this.b.intersect(acl.consumerModules, acl.moduleParents, 'moduleGuid');
-                        console.log('ModuleService::getModulesUserData$/userModules:', userModules);
+                        // console.log('ModuleService::getModulesUserData$/userModules:', userModules);
                         return userModules.concat(publicModules); // return user modules and public modules
                     }
                     else {  // if is neither of the above, return zero modules
