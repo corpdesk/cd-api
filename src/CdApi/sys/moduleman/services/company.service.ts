@@ -2,13 +2,10 @@ import { BaseService } from '../../base/base.service';
 import { CdService } from '../../base/cd.service';
 import { SessionService } from '../../user/services/session.service';
 import { UserService } from '../../user/services/user.service';
-// import { ModuleModel } from '../models/module.model';
 import { CreateIParams, IRespInfo, IServiceInput, IUser } from '../../base/IBase';
 import { CompanyModel } from '../models/company.model';
-// import { ModuleViewModel } from '../models/module-view.model';
 import { CompanyViewModel } from '../models/company-view.model';
 import { CompanyTypeModel } from '../models/company-type.model';
-// import { CompanyViewModel } from '../models/company-view.model';
 
 export class CompanyService extends CdService {
     b: any; // instance of BaseService
@@ -83,6 +80,29 @@ export class CompanyService extends CdService {
         }
     }
 
+    async createSL(req, res) {
+        const svSess = new SessionService();
+        await this.b.initSqlite(req, res)
+        if (await this.validateCreateSL(req, res)) {
+            await this.beforeCreateSL(req, res);
+            const serviceInput = {
+                serviceInstance: this,
+                serviceModel: CompanyModel,
+                serviceModelInstance: this.serviceModel,
+                docName: 'Create Company',
+                dSource: 1,
+            }
+            const result = await this.b.createSL(req, res, serviceInput)
+            this.b.connSLClose()
+            this.b.i.app_msg = '';
+            this.b.setAppState(true, this.b.i, svSess.sessResp);
+            this.b.cdResp.data = result;
+            const r = await this.b.respond(req, res);
+        } else {
+            const r = await this.b.respond(req, res);
+        }
+    }
+
     async createI(req, res, createIParams: CreateIParams): Promise<CompanyModel | boolean> {
         return await this.b.createI(req, res, createIParams)
     }
@@ -107,8 +127,44 @@ export class CompanyService extends CdService {
         return true;
     }
 
+    async beforeCreateSL(req, res): Promise<any> {
+        this.b.setPlData(req, { key: 'companyGuid', value: this.b.getGuid() });
+        this.b.setPlData(req, { key: 'companyEnabled', value: true });
+        return true;
+    }
+
     async read(req, res, serviceInput: IServiceInput): Promise<any> {
         //
+    }
+
+    async readSL(req, res, serviceInput: IServiceInput): Promise<any> {
+        await this.b.initSqlite(req, res)
+        const q = this.b.getQuery(req);
+        console.log('CompanyService::getCompany/q:', q);
+        try {
+            this.b.readSL$(req, res, serviceInput)
+                .subscribe((r) => {
+                    // console.log('CompanyService::read$()/r:', r)
+                    this.b.i.code = 'CompanyService::Get';
+                    const svSess = new SessionService();
+                    svSess.sessResp.cd_token = req.post.dat.token;
+                    svSess.sessResp.ttl = svSess.getTtl();
+                    this.b.setAppState(true, this.b.i, svSess.sessResp);
+                    this.b.cdResp.data = r;
+                    this.b.connSLClose()
+                    this.b.respond(req, res)
+                })
+        } catch (e) {
+            console.log('CompanyService::read$()/e:', e)
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'CompanyService:update',
+                app_msg: ''
+            };
+            this.b.serviceErr(req, res, e, i.code)
+            this.b.respond(req, res)
+        }
     }
 
     update(req, res) {
@@ -132,6 +188,28 @@ export class CompanyService extends CdService {
             })
     }
 
+    updateSL(req, res) {
+        console.log('CompanyService::update()/01');
+        let q = this.b.getQuery(req);
+        q = this.beforeUpdateSL(q);
+        const serviceInput = {
+            serviceModel: CompanyModel,
+            docName: 'CompanyService::update',
+            cmd: {
+                action: 'update',
+                query: q
+            },
+            dSource: 1
+        }
+        console.log('CompanyService::update()/02')
+        this.b.updateSL$(req, res, serviceInput)
+            .subscribe((ret) => {
+                this.b.cdResp.data = ret;
+                this.b.connSLClose()
+                this.b.respond(req, res)
+            })
+    }
+
     /**
      * harmonise any data that can
      * result in type error;
@@ -141,6 +219,13 @@ export class CompanyService extends CdService {
     beforeUpdate(q: any) {
         if (q.update.companyEnabled === '') {
             q.update.companyEnabled = null;
+        }
+        return q;
+    }
+
+    beforeUpdateSL(q: any) {
+        if (q.update.billEnabled === '') {
+            q.update.billEnabled = null;
         }
         return q;
     }
@@ -240,6 +325,10 @@ export class CompanyService extends CdService {
         return ret;
     }
 
+    async validateCreateSL(req, res) {
+        return true;
+    }
+
     getCompany(req, res) {
         const q = this.b.getQuery(req);
         console.log('CompanyService::getCompany/f:', q);
@@ -255,7 +344,7 @@ export class CompanyService extends CdService {
         try {
             this.b.read$(req, res, serviceInput)
                 .subscribe((r) => {
-                    console.log('CompanyService::read$()/r:', r)
+                    // console.log('CompanyService::read$()/r:', r)
                     this.b.i.code = 'CompanyController::Get';
                     const svSess = new SessionService();
                     svSess.sessResp.cd_token = req.post.dat.token;
@@ -270,6 +359,45 @@ export class CompanyService extends CdService {
             const i = {
                 messages: this.b.err,
                 code: 'BaseService:update',
+                app_msg: ''
+            };
+            this.b.serviceErr(req, res, e, i.code)
+            this.b.respond(req, res)
+        }
+    }
+
+    async getCompanySL(req, res) {
+        await this.b.initSqlite(req, res)
+        const q = this.b.getQuery(req);
+        console.log('CompanyService::getCompany/q:', q);
+        const serviceInput = {
+            serviceModel: CompanyModel,
+            docName: 'CompanyService::getCompany',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        try {
+            this.b.readSL$(req, res, serviceInput)
+                .subscribe((r) => {
+                    // console.log('CompanyService::read$()/r:', r)
+                    this.b.i.code = 'CompanyService::Get';
+                    const svSess = new SessionService();
+                    svSess.sessResp.cd_token = req.post.dat.token;
+                    svSess.sessResp.ttl = svSess.getTtl();
+                    this.b.setAppState(true, this.b.i, svSess.sessResp);
+                    this.b.cdResp.data = r;
+                    this.b.connSLClose()
+                    this.b.respond(req, res)
+                })
+        } catch (e) {
+            console.log('CompanyService::read$()/e:', e)
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'CompanyService:update',
                 app_msg: ''
             };
             this.b.serviceErr(req, res, e, i.code)
@@ -292,7 +420,7 @@ export class CompanyService extends CdService {
         try {
             this.b.read$(req, res, serviceInput)
                 .subscribe((r) => {
-                    console.log('CompanyService::read$()/r:', r)
+                    // console.log('CompanyService::read$()/r:', r)
                     this.b.i.code = 'CompanyController::Get';
                     const svSess = new SessionService();
                     svSess.sessResp.cd_token = req.post.dat.token;
@@ -338,6 +466,31 @@ export class CompanyService extends CdService {
             })
     }
 
+    getPagedSL(req, res) {
+        const q = this.b.getQuery(req);
+        console.log('CompanyService::getCompanyCount()/q:', q);
+        const serviceInput = {
+            serviceModel: CompanyModel,
+            docName: 'CompanyService::getCompanyCount',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        this.b.readCountSL$(req, res, serviceInput)
+            .subscribe((r) => {
+                this.b.i.code = 'CompanyService::Get';
+                const svSess = new SessionService();
+                svSess.sessResp.cd_token = req.post.dat.token;
+                svSess.sessResp.ttl = svSess.getTtl();
+                this.b.setAppState(true, this.b.i, svSess.sessResp);
+                this.b.cdResp.data = r;
+                this.b.connSLClose()
+                this.b.respond(req, res)
+            })
+    }
+
     getCompanyTypeCount(req, res) {
         const q = this.b.getQuery(req);
         console.log('CompanyService::getCompanyCount/q:', q);
@@ -376,6 +529,26 @@ export class CompanyService extends CdService {
         }
 
         this.b.delete$(req, res, serviceInput)
+            .subscribe((ret) => {
+                this.b.cdResp.data = ret;
+                this.b.respond(req, res)
+            })
+    }
+
+    deleteSL(req, res) {
+        const q = this.b.getQuery(req);
+        console.log('CompanyService::deleteSL()/q:', q)
+        const serviceInput = {
+            serviceModel: CompanyModel,
+            docName: 'CompanyService::deleteSL',
+            cmd: {
+                action: 'delete',
+                query: q
+            },
+            dSource: 1
+        }
+
+        this.b.deleteSL$(req, res, serviceInput)
             .subscribe((ret) => {
                 this.b.cdResp.data = ret;
                 this.b.respond(req, res)

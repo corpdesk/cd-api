@@ -542,6 +542,38 @@ this.b.i.app_msg = `the required fields ${this.b.isInvalidFields.join(', ')} is 
 issues:
 - consumer_guid MUST be available for consumer_reource
 
+//////////
+// SQLITE IMPLEMENTATION
+- implement sqlite CRUD
+- aggregation
+    - cost = rate x unit
+    - sum by given bill
+- sqlile connection issues/suggestions:
+    - https://github.com/typeorm/typeorm/issues/1853
+    - https://gist.github.com/aigoncharov/556f8c61d752eff730841170cd2bc3f1
+    - https://www.npmjs.com/package/generic-pool
+    - https://github.com/typeorm/typeorm/issues/1884
+    - https://github.com/nestjs/typeorm/issues/61
+    - https://levelup.gitconnected.com/learn-basic-operations-with-sqlite-and-nodejs-a693c6fc2e15
+    - https://orkhan.gitbook.io/typeorm/docs/transactions
+
+- 
+
+27/03/2022
+//////////
+// SQLITE IMPLEMENTATION
+- implement sqlite CRUD
+- aggregation
+    - cost = rate x unit
+    - sum by given bill
+- sqlile connection issues/suggestions:
+- develop controllers under accts module
+    - bill
+    - bill-item
+    - bill-rate
+    - bill-unit
+
+
 31/01/2022
 - initial work on cd-cache...IN PROGRESS
 - harmonise interface for socket.io and websocket...IN PROGRESS

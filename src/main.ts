@@ -5,7 +5,7 @@ import 'reflect-metadata';
 import { CdInit } from './CdApi/init';
 
 export class Main {
-    run(){
+    run() {
         const app = express();
         const port = config.apiPort;
         const options: cors.CorsOptions = config.Cors.options;
@@ -18,11 +18,12 @@ export class Main {
             res.setHeader('Content-Type', 'application/json');
             CdInit(req, res);
         });
+
         app.listen(port, () => {
             console.log(`server is listening on ${port}`);
         })
             .on('error', (e) => {
-                console.log(`Error:${e}`);
+                console.log(`app.listen()/Error:${e}`);
             });
     }
 

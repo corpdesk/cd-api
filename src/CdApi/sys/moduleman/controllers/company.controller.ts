@@ -42,6 +42,14 @@ export class CompanyController {
         }
     }
 
+    async CreateSL(req, res) {
+        try {
+            await this.svCompany.createSL(req, res);
+        } catch (e) {
+            this.b.serviceErr(req, res, e, 'CompanyController:CreateSL');
+        }
+    }
+
     // /**
     //  * {
     //         "ctx": "Sys",
@@ -68,6 +76,14 @@ export class CompanyController {
             await this.svCompany.getCompany(req, res);
         } catch (e) {
             this.b.serviceErr(req, res, e, 'CompanyController:Get');
+        }
+    }
+
+    async GetSL(req, res) {
+        try {
+            await this.svCompany.getCompanySL(req, res);
+        } catch (e) {
+            this.b.serviceErr(req, res, e, 'CompanyController:GetSL');
         }
     }
 
@@ -164,6 +180,14 @@ export class CompanyController {
         }
     }
 
+    async GetPagedSL(req, res) {
+        try {
+            await this.svCompany.getPagedSL(req, res);
+        } catch (e) {
+            this.b.serviceErr(req, res, e, 'CompanyController:GetSL');
+        }
+    }
+
     // /**
     //  * {
     //         "ctx": "Sys",
@@ -200,6 +224,16 @@ export class CompanyController {
         }
     }
 
+    async UpdateSL(req, res) {
+        console.log('CompanyController::UpdateSL()/01');
+        try {
+            console.log('CompanyController::UpdateSL()/02');
+            await this.svCompany.updateSL(req, res);
+        } catch (e) {
+            this.b.serviceErr(req, res, e, 'CompanyController:UpdateSL');
+        }
+    }
+
     // /**
     //  * {
     //         "ctx": "Sys",
@@ -226,6 +260,14 @@ export class CompanyController {
             await this.svCompany.delete(req, res);
         } catch (e) {
             this.b.serviceErr(req, res, e, 'ModuleController:Update');
+        }
+    }
+
+    async DeleteSL(req, res) {
+        try {
+            await this.svCompany.deleteSL(req, res);
+        } catch (e) {
+            this.b.serviceErr(req, res, e, 'BillController:DeleteSL');
         }
     }
 

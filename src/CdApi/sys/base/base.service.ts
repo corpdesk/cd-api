@@ -2,10 +2,11 @@
 import { v4 as uuidv4 } from 'uuid';
 import * as Lá from 'lodash';
 import { CreateIParams, ICdRequest, ICdResponse, IControllerContext, IQuery, IRespInfo, IServiceInput, ISessResp, ObjectItem, CacheData } from './IBase';
-import { EntityMetadata, getConnection } from 'typeorm';
+import { EntityMetadata, getConnection, createConnection, ConnectionOptions, getConnectionManager, Connection } from 'typeorm';
 import { Observable, from } from 'rxjs';
 import moment from 'moment';
 import { Database } from './connect';
+import { ConnectSqlite } from './connectSqlite';
 import { Response, Request, NextFunction } from 'express';
 // import * as redis from 'redis';
 import { createClient } from 'redis';
@@ -13,7 +14,10 @@ import { DocModel } from '../moduleman/models/doc.model';
 import { SessionService } from '../user/services/session.service';
 import { SessionModel } from '../user/models/session.model';
 import { DocService } from '../moduleman/services/doc.service';
-import config from '../../../config';
+import config, { sqliteConfig } from '../../../config';
+import { ConnectionTest } from './connection-test';
+// import { createConnection } from 'typeorm';
+
 
 const USER_ANON = 1000;
 const INVALID_REQUEST = 'invalid request';
@@ -27,6 +31,8 @@ export class BaseService {
     cdResp: ICdResponse; // cd response
     err: string[] = []; // error messages
     db;
+    // sqliteDb;
+    sqliteConn:Connection;
     cuid = USER_ANON;
     debug = false;
     pl;
@@ -44,6 +50,7 @@ export class BaseService {
         this.cdResp = this.initCdResp();
     }
     models = [];
+    sqliteModels = [];
 
     async init(req, res) {
         if (!this.db) {
@@ -53,11 +60,152 @@ export class BaseService {
                 await db.setConnEntity(model);
             });
             await db.getConnection();
-            // if(!this.cdToken){
-            //     await this.setSess(req, res);
-            // }
         }
     }
+
+    async initSqlite(req, res) {
+        const iMax = 5;
+        const i = 1;
+        try {
+            console.log('BaseService::initSqlite()/01')
+            if (this.sqliteConn) {
+                console.log('BaseService::initSqlite()/02')
+            } else {
+                console.log('BaseService::initSqlite()/03')
+                // await this.setSLConn(i)
+                this.sqliteConn = await this.connectDatabase(i)
+            }
+        } catch (e) {
+            console.log('BaseService::initSqlite()/04')
+            console.log('initSqlite()/Error:', e)
+            // const p = e.toString().search('AlreadyHasActiveConnectionError');
+            // if (p === -1 && i < iMax) {
+            //     i++;
+            //     await this.setSLConn(i);
+            // }
+            this.err.push(e.toString());
+        }
+    }
+
+    async setSLConn(i) {
+        const slConfig: ConnectionOptions = await sqliteConfig(`sqlite${i.toString()}`);
+        try {
+            await getConnection(`sqlite${i.toString()}`)
+            this.sqliteConn = await getConnection(`sqlite${i.toString()}`).connect()
+        } catch (error) {
+            this.sqliteConn = await createConnection(slConfig)
+        }
+    }
+
+    connSLClose(){
+        if(this.sqliteConn){
+            this.sqliteConn.close();
+        }
+    }
+
+    async connectDatabase(i: number = 1): Promise<Connection> {
+        console.log('connectDatabase()/01')
+        const opts: ConnectionOptions = await sqliteConfig(`sqlite${i.toString()}`);
+        let connection: Connection | undefined
+        try {
+            console.log('connectDatabase()/02')
+            const connectionManager = getConnectionManager()
+            console.log('connectDatabase()/03')
+            // calling connection.close() doesn't actually delete it from the map, so "has" will still be true;
+            // so if this is anything but the first attempt, try to create the connection again
+            if (connectionManager.has(opts.name) && i === 1) {
+                console.log('connectDatabase()/04')
+                // using a connection already connected (note this is a simplified version for lambda environment ...
+                // see also: https://github.com/typeorm/typeorm/issues/3427
+                connection = await connectionManager.get(`sqlite${i.toString()}`)
+                console.log('connectDatabase()/05')
+                if (!connection.isConnected) {
+                    console.log('connectDatabase()/06')
+                    throw new Error('Existing connection found but is not really connected')
+                }
+                console.log('connectDatabase()/07')
+            } else {
+                console.log('connectDatabase()/08')
+                connection = await connectionManager.create(opts)
+                console.log('connectDatabase()/09')
+                await connection.connect()
+            }
+            console.log('connectDatabase()/10')
+            return await connection
+        } catch (e) {
+            i++;
+            console.log('connectDatabase()/11')
+            if (i >= 5) {
+                console.error('Giving up after too many connection attempts, throwing error')
+                throw e
+            }
+            console.log('connectDatabase()/12')
+            if (connection
+                || connection.isConnected
+                || connection.close()
+            ) {
+                console.log('connectDatabase()/13')
+                const delayInMilliseconds = 200 * i;
+                await setTimeout(async () => {
+                    // connection.close();
+                    return await this.connectDatabase(i)
+                }, delayInMilliseconds);
+            }
+        }
+    }
+
+    // /**
+    //  * Connect to a database using the TypeORM ConnectionManager. Adds database to the manager if it is new. Tests database connection after connecting.
+    //  * Reports the true current connection state regardless of:
+    //  * - whether the connection already existed
+    //  * - whether the database connection was lost silently after connecting previously.
+    //  * @param database Database configuration model to try and create
+    //  * @param stayConnected Will disconnect after testing by default. Change to true to keep the connection alive
+    //  * @returns Whether the connection was successful
+    //  */
+    // async connect(database: ConnectionOptions, stayConnected = false): Promise<Connection> {
+    //     let canConnect = false
+    //     let con
+    //     console.log('BaseService::connect()/01')
+    //     const conMan = getConnectionManager()
+
+    //     try {
+    //         console.log('BaseService::connect()/02')
+    //         if (conMan.has(database.name)) {
+    //             console.log('BaseService::connect()/03')
+    //             // If database already exists, get it
+    //             con = await conMan.get(database.name)
+    //         } else {
+    //             console.log('BaseService::connect()/04')
+    //             // If connection doesnst exist, add it
+    //             con = await conMan.create(database)
+    //         }
+    //         console.log('BaseService::connect()/05')
+    //         // // Try to connect
+    //         // if (!con.isConnected) await con.connect()
+    //         // console.log('BaseService::connect()/06')
+    //         // // Store connection result
+    //         // canConnect = con.isConnected
+    //         // if (!canConnect) return false
+    //         // console.log('BaseService::connect()/07')
+    //         // // If TypeORM claims a connection, test it on the test table
+    //         // try {
+    //         //     console.log('BaseService::connect()/08')
+    //         //     const conTest = (await con.getRepository(ConnectionTest).findOne()) || new ConnectionTest(0)
+    //         //     conTest.i++
+    //         //     conTest.save()
+    //         // } catch (e) {
+    //         //     canConnect = false
+    //         // }
+
+    //         // Disconnect if it was only a test. Is default
+    //         if (!stayConnected) await con.close()
+    //     } catch (e) {
+    //         console.error(e)
+    //     }
+
+    //     return await con;
+    // }
 
     /**
      * resolve the class that is being called
@@ -68,10 +216,18 @@ export class BaseService {
      * @returns
      */
     async resolveCls(req, res, clsCtx: IControllerContext) {
-        const eImport = await import(clsCtx.path);
-        const eCls = eImport[clsCtx.clsName];
-        const cls = new eCls();
-        return await cls[clsCtx.action](req, res);
+        try {
+            console.log('BaseService::resolveCls()/01:')
+            const eImport = await import(clsCtx.path);
+            console.log('BaseService::resolveCls()/02:')
+            const eCls = eImport[clsCtx.clsName];
+            console.log('BaseService::resolveCls()/03:')
+            const cls = new eCls();
+            console.log('BaseService::resolveCls()/04:')
+            return await cls[clsCtx.action](req, res);
+        } catch (e) {
+            this.serviceErr(req, res, e, 'BaseService:resolveCls')
+        }
     }
 
     async serviceErr(req, res, e, eCode) {
@@ -295,6 +451,27 @@ export class BaseService {
         return colsFiltd;
     }
 
+    async getEntityPropertyMapSL(req, res, model) {
+        await this.initSqlite(req, res);
+        const entityMetadata: EntityMetadata = await this.sqliteConn.getMetadata(model);
+        const cols = await entityMetadata.columns;
+        // console.log('BaseService::getEntityPropertyMapSL()/cols:', cols)
+        const colsFiltdArr = [];
+        const colsFiltd = await cols.map(async (col) => {
+            const ret = {
+                propertyAliasName: await col.propertyAliasName,
+                databaseNameWithoutPrefixes: await col.databaseNameWithoutPrefixes,
+                type: await col.type
+            };
+            console.log('getEntityPropertyMapSL()/ret:', ret);
+            colsFiltdArr.push(ret);
+            return ret;
+        });
+        console.log('BaseService::getEntityPropertyMapSL()/colsFiltd:', await colsFiltd)
+        console.log('BaseService::getEntityPropertyMapSL()/colsFiltdArr:', await colsFiltdArr)
+        return colsFiltdArr;
+    }
+
     async validateUnique(req, res, params) {
         await this.init(req, res);
         // assign payload data to this.userModel
@@ -442,25 +619,25 @@ export class BaseService {
      * @returns
      */
     async create(req, res, serviceInput: IServiceInput) {
-        // console.log('BaseService::create()/01')
+        console.log('BaseService::create()/01')
         await this.init(req, res);
         let newDocData;
         try {
-            // console.log('BaseService::create()/02')
+            console.log('BaseService::create()/02')
             newDocData = await this.saveDoc(req, res, serviceInput);
-            // console.log('BaseService::create()/newDocData:', newDocData)
+            console.log('BaseService::create()/newDocData:', newDocData)
         } catch (e) {
-            // console.log('BaseService::create()/03')
+            console.log('BaseService::create()/03')
             this.serviceErr(req, res, e, 'BaseService:create/savDoc')
         }
         let serviceRepository = null;
         try {
-            // console.log('BaseService::create()/04')
-            // console.log('BaseService::create()/serviceInput1:', serviceInput)
+            console.log('BaseService::create()/04')
+            console.log('BaseService::create()/serviceInput1:', serviceInput)
             serviceRepository = await getConnection().getRepository(serviceInput.serviceModel);
         } catch (e) {
-            // console.log('BaseService::create()/serviceInput2:', serviceInput)
-            // console.log('BaseService::create()/05')
+            console.log('BaseService::create()/serviceInput2:', serviceInput)
+            console.log('BaseService::create()/05')
             this.err.push(e.toString());
             const i = {
                 messages: this.err,
@@ -472,27 +649,27 @@ export class BaseService {
         }
 
         try {
-            // console.log('BaseService::create()/06')
+            console.log('BaseService::create()/06')
             let modelInstance = serviceInput.serviceModelInstance;
             if ('dSource' in serviceInput) {
-                // console.log('BaseService::create()/07')
+                console.log('BaseService::create()/07')
                 if (serviceInput.dSource === 1) { // data source is provided by the req...data.
                     // req.post.dat.f_vals[0].data.doc_id = await newDocData.docId;
-                    // console.log('BaseService::create()/08')
+                    console.log('BaseService::create()/08')
                     // console.log('BaseService::create()/newDocData:', newDocData)
                     await this.setPlData(req, { key: 'docId', value: await newDocData.docId }) // set docId
-                    // console.log('BaseService::create()/09')
+                    console.log('BaseService::create()/09')
                     const serviceData = await this.getServiceData(req, serviceInput);
-                    // console.log('BaseService::create()/10')
+                    console.log('BaseService::create()/10')
                     console.log('BaseService::create()/serviceData:', serviceData);
                     modelInstance = await this.setEntity(serviceInput, serviceData);
-                    // console.log('BaseService::create()/11')
+                    console.log('BaseService::create()/11')
                     return await serviceRepository.save(await modelInstance);
                 }
                 console.log('BaseService::create()/12')
             }
         } catch (e) {
-            // console.log('BaseService::create()/13')
+            console.log('BaseService::create()/13')
             this.err.push(e.toString());
             const i = {
                 messages: this.err,
@@ -501,6 +678,23 @@ export class BaseService {
             };
             // await this.setAppState(false, i, null);
             await this.serviceErr(req, res, e, 'BaseService:create')
+            return this.cdResp;
+        }
+    }
+
+    async createSL(req, res, serviceInput: IServiceInput) {
+        try {
+            const repo: any = await this.sqliteConn.getRepository(serviceInput.serviceModel);
+            const pl = this.getPlData(req);
+            return await repo.save(pl);
+        } catch (e) {
+            this.err.push(e.toString());
+            const i = {
+                messages: this.err,
+                code: 'BillService:create',
+                app_msg: ''
+            };
+            await this.serviceErr(req, res, e, 'BillService:create')
             return this.cdResp;
         }
     }
@@ -728,10 +922,64 @@ export class BaseService {
         return from(this.readCount(req, res, serviceInput));
     }
 
+    async readPaged(req, res, serviceInput): Promise<any> {
+        await this.init(req, res);
+        const repo = getConnection().getRepository(serviceInput.serviceModel);
+        try {
+            const [result, total] = await repo.findAndCount(
+                this.getQuery(req)
+            );
+            return {
+                items: result,
+                count: total
+            }
+        }
+        catch (err) {
+            return await this.serviceErr(req, res, err, 'BaseService:readPaged');
+        }
+    }
+
+    readPaged$(req, res, serviceInput): Observable<any> {
+        return from(this.readPaged(req, res, serviceInput));
+    }
+
+    async readCountSL(req, res, serviceInput): Promise<any> {
+        await this.initSqlite(req, res);
+        try {
+            const repo = this.sqliteConn.getRepository(serviceInput.serviceModel);
+            const meta = await this.getEntityPropertyMapSL(req, res, serviceInput.serviceModel);
+            const [result, total] = await repo.findAndCount(
+                this.getQuery(req)
+            );
+            return {
+                metaData: meta,
+                items: result,
+                count: total
+            }
+        }
+        catch (err) {
+            return await this.serviceErr(req, res, err, 'BaseService:readCount');
+        }
+    }
+
+    readCountSL$(req, res, serviceInput): Observable<any> {
+        return from(this.readCountSL(req, res, serviceInput));
+    }
+
     async feildMap(serviceInput) {
         const meta = getConnection().getMetadata(serviceInput.serviceModel).columns;
         return await meta.map((c) => {
             return { propertyPath: c.propertyPath, givenDatabaseName: c.givenDatabaseName, dType: c.type };
+        });
+    }
+
+    async feildMapSL(req, res, serviceInput:IServiceInput) {
+        await this.initSqlite(req, res);
+        // console.log('BaseService::feildMapSL()/this.sqliteConn:', this.sqliteConn)
+        console.log('BaseService::feildMapSL()/serviceInput:', serviceInput.serviceModel)
+        const meta = await this.sqliteConn.getMetadata(serviceInput.serviceModel).columns;
+        return await meta.map(async (c) => {
+            return { propertyPath: await c.propertyPath, givenDatabaseName: await c.givenDatabaseName, dType: await c.type };
         });
     }
 
@@ -789,6 +1037,58 @@ export class BaseService {
         }
     }
 
+    async readSL(req, res, serviceInput: IServiceInput): Promise<any> {
+        try {
+            this.initSqlite(req, res);
+            const repo = this.sqliteConn.getRepository(serviceInput.serviceModel);
+            const svSess = new SessionService();
+            // const billRepository = this.sqliteConn.getRepository(BillModel)
+            // const allBills = await billRepository.find()
+            // console.log('allBills:', allBills)
+            // this.i.app_msg = '';
+            // this.setAppState(true, this.i, svSess.sessResp);
+            // this.cdResp.data = allBills;
+            // const r = await this.respond(req, res);
+
+            let r: any = null;
+            switch (serviceInput.cmd.action) {
+                case 'find':
+                    try {
+                        r = await repo.find(serviceInput.cmd.query);
+                        if (serviceInput.extraInfo) {
+                            return {
+                                result: r,
+                                fieldMap: await this.feildMapSL(req, res, serviceInput)
+                            }
+                        } else {
+                            return await r;
+                        }
+                    }
+                    catch (err) {
+                        return await this.serviceErr(req, res, err, 'BillService:read');
+                    }
+                    break;
+                case 'count':
+                    try {
+                        r = await repo.count(serviceInput.cmd.query);
+                        console.log('BillService::read()/r:', r)
+                        return r;
+                    }
+                    catch (err) {
+                        return await this.serviceErr(req, res, err, 'BillService:read');
+                    }
+                    break;
+            }
+            // this.serviceErr(res, err, 'BaseService:read');
+        } catch (e) {
+            return await this.serviceErr(req, res, e, 'BillService:read');
+        }
+    }
+
+    readSL$(req, res, serviceInput): Observable<any> {
+        return from(this.readSL(req, res, serviceInput));
+    }
+
     async update(req, res, serviceInput) {
         let ret: any = [];
         try {
@@ -827,6 +1127,27 @@ export class BaseService {
         return from(this.update(req, res, serviceInput))
     }
 
+    async updateSL(req, res, serviceInput: IServiceInput) {
+        console.log('BillService::updateSL()/01')
+        await this.initSqlite(req, res);
+        const svSess = new SessionService();
+        const repo: any = await this.sqliteConn.getRepository(serviceInput.serviceModel);
+        const result = await repo.update(
+            serviceInput.cmd.query.where,
+            await this.fieldsAdaptorSL(req, res, serviceInput.cmd.query.update, serviceInput)
+        );
+        console.log('result:', result)
+        // this.cdResp.data = ret;
+        svSess.sessResp.ttl = svSess.getTtl();
+        this.setAppState(true, this.i, svSess.sessResp);
+        this.cdResp.data = result;
+        this.respond(req, res)
+    }
+
+    updateSL$(req, res, serviceInput) {
+        return from(this.updateSL(req, res, serviceInput))
+    }
+
     /**
      * this method is used to modify values as desired for
      * acceptance to db.
@@ -840,6 +1161,32 @@ export class BaseService {
         for (const fieldName in fieldsData) {
             if (fieldName) {
                 const fieldMapData: any = propMap.filter(f => f.propertyPath === fieldName);
+
+                /**
+                 * adapt boolean values as desired
+                 * in the current case, typeorm rejects 1, "1" as boolean so
+                 * we convert them as desired;
+                 */
+                if (fieldMapData[0]) {
+                    if (this.fieldIsBoolean(fieldMapData[0].dType)) {
+                        if (this.isTrueish(fieldsData[fieldName])) {
+                            fieldsData[fieldName] = true;
+                        } else {
+                            fieldsData[fieldName] = false;
+                        }
+                    }
+                }
+            }
+        }
+        return fieldsData;
+    }
+
+    async fieldsAdaptorSL(req, res, fieldsData: any, serviceInput) {
+        // get model properties
+        const propMap = await this.feildMapSL(req, res, serviceInput);
+        for (const fieldName in fieldsData) {
+            if (fieldName) {
+                const fieldMapData: any = propMap.filter((f:any) => f.propertyPath === fieldName);
 
                 /**
                  * adapt boolean values as desired
@@ -908,6 +1255,33 @@ export class BaseService {
 
     delete$(req, res, serviceInput) {
         return from(this.delete(req, res, serviceInput))
+    }
+
+    async deleteSL(req, res, serviceInput: IServiceInput) {
+        console.log('BillService::updateSL()/01')
+        let ret: any = [];
+        await this.initSqlite(req, res);
+        const repo = await this.sqliteConn.getRepository(serviceInput.serviceModel);
+        const result = await repo.delete(
+            serviceInput.cmd.query.where
+        )
+        console.log('BaseService::deleteSL()/result:', result)
+        if ('affected' in result) {
+            this.cdResp.app_state.success = true;
+            this.cdResp.app_state.info.app_msg = `${result.affected} record/s deleted`;
+            ret = result;
+        } else {
+            this.cdResp.app_state.success = false;
+            this.cdResp.app_state.info.app_msg = `some error occorred`;
+            if (this.debug) {
+                ret = result;
+            }
+        }
+        return ret;
+    }
+
+    deleteSL$(req, res, serviceInput) {
+        return from(this.deleteSL(req, res, serviceInput))
     }
 
     /////////////////////////
@@ -1077,6 +1451,10 @@ export class BaseService {
         };
         return res;
     };
+
+    isEmpty(value) {
+        return (value == null || value.length === 0);
+    }
 
 
 

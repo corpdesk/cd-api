@@ -191,6 +191,7 @@ export interface IMenuRelations{
 
 export interface IQuery{
     select?: string [];
+    update?: object;
     where: object;
     take?: number;
     skip?: number;

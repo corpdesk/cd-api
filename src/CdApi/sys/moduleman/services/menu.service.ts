@@ -153,7 +153,6 @@ export class MenuService {
     }
 
     async beforeCreate(req, res) {
-        // const menuQuery: MenuModel = req.post.dat.f_vals[0].data;
         const cdObjQuery = req.post.dat.f_vals[0].cdObj;
         const svCdObj = new CdObjService();
         const si = {
@@ -169,9 +168,6 @@ export class MenuService {
         }
         let ret = false;
         const cdObjData: any = await svCdObj.createI(req, res, createIParams)
-        // const menuData: MenuModel[] = await this.b.get(req, res, MenuModel, { where: { menuId: menuQuery.menuParentId } });
-        // const moduleData: ModuleModel[] = await this.b.get(req, res, ModuleModel, { where: { moduleId: menuQuery.moduleParentId } });
-        // console.log('MenuService::beforeCreate()/result:', result)
         if (cdObjData) {
             console.log('MenuService::beforeCreate()/cdObjData:', cdObjData)
             this.b.setPlData(req, { key: 'menuGuid', value: this.b.getGuid() });

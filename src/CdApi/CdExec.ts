@@ -40,5 +40,4 @@ export class CdExec {
             await this.b.returnErr(req, res, i);
         }
     }
-
 }
