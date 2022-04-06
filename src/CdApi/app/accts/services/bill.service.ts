@@ -140,9 +140,9 @@ export class BillService extends CdService {
         const q = this.b.getQuery(req);
         console.log('BillService::getBill/q:', q);
         try {
-            this.b.readSL$(req, res, serviceInput)
+            this.b.read$(req, res, serviceInput)
                 .subscribe((r) => {
-                    console.log('BillService::read$()/r:', r)
+                    // console.log('BillService::read$()/r:', r)
                     this.b.i.code = 'BillService::Get';
                     const svSess = new SessionService();
                     svSess.sessResp.cd_token = req.post.dat.token;
@@ -242,6 +242,23 @@ export class BillService extends CdService {
                 this.b.sqliteConn.close();
                 this.b.respond(req, res)
             })
+    }
+
+    updateI(req, res, q): Observable<any> {
+        console.log('BillService::updateI()/01');
+        // let q = this.b.getQuery(req);
+        q = this.beforeUpdate(q);
+        const serviceInput = {
+            serviceModel: BillModel,
+            docName: 'BillService::updateI',
+            cmd: {
+                action: 'update',
+                query: q
+            },
+            dSource: 1
+        }
+        console.log('BillService::update()/02')
+        return this.b.update$(req, res, serviceInput)
     }
 
     updateSL(req, res) {

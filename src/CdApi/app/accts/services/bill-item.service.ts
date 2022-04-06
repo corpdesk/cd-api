@@ -197,15 +197,37 @@ export class BillItemService extends CdService {
             console.log('BillItemsService::beforeCreate/isInitial = false;')
             const svBill = new BillService();
             const params = { filter: { billGuid: req.post.dat.f_vals[0].bill.billGuid } }
-            const billData = await svBill.billExists(req, res, params)
-            if (billData.length > 0) {
-                console.log('BillItemService::beforeCreate()/billData2:', billData)
-                req.post.dat.f_vals[0].bill = billData[0];
+            const reqBill = req.post.dat.f_vals[0].bill
+            const dbBillData = await svBill.billExists(req, res, params)
+            if (dbBillData.length > 0) {
+                console.log('BillItemService::beforeCreate()/dbBillData:', dbBillData)
+                // req.post.dat.f_vals[0].bill = dbBillData[0];
                 console.log('BillItemService::beforeCreate()/req.post:', JSON.stringify(req.post))
                 console.log('BillItemService::beforeCreate()/req.post.dat.f_vals[0].bill.billGuid:', req.post.dat.f_vals[0].bill.billGuid)
                 console.log('BillItemService::beforeCreate()/value: req.post.dat.f_vals[0].bill.billGuid:', req.post.dat.f_vals[0].bill.billGuid)
-                this.b.setPlData(req, { key: 'billGuid', value: req.post.dat.f_vals[0].bill.billGuid });
-                this.b.setPlData(req, { key: 'billId', value: req.post.dat.f_vals[0].bill.billId });
+                this.b.setPlData(req, { key: 'billGuid', value: reqBill.billGuid });
+                this.b.setPlData(req, { key: 'billId', value: dbBillData[0].billId });
+                // update bill
+
+                const q = {
+                    update: {
+                        billName: reqBill.billName,
+                        billDescription: reqBill.billDescription,
+                        clientId: reqBill.clientId,
+                        vendorId: reqBill.vendorId,
+                        billDate: reqBill.billDate,
+                        billTax: reqBill.billTax,
+                        billDiscount: reqBill.billDiscount,
+                        billCost: reqBill.billCost
+                    },
+                    where: {
+                        billGuid: reqBill.billGuid
+                    }
+                }
+                svBill.updateI(req, res, q)
+                    .subscribe((result: any) => {
+                        console.log('BillItemService::beforeCreate()/result:', result)
+                    })
             } else {
                 this.b.serviceErr(req, res, 'billGuid is invalid', 'BillItemService:beforeCreate')
             }
@@ -323,7 +345,7 @@ export class BillItemService extends CdService {
             dSource: 1
         }
         console.log('BillItemService::update()/02')
-        this.b.updateSL$(req, res, serviceInput)
+        this.b.update$(req, res, serviceInput)
             .subscribe((ret) => {
                 this.b.cdResp.data = ret;
                 this.b.sqliteConn.close();
@@ -727,7 +749,7 @@ export class BillItemService extends CdService {
             dSource: 1
         }
 
-        this.b.deleteSL$(req, res, serviceInput)
+        this.b.delete$(req, res, serviceInput)
             .subscribe((ret) => {
                 this.b.cdResp.data = ret;
                 this.b.respond(req, res)

@@ -1,6 +1,7 @@
 import config from '../../../config';
 import {
     createConnection,
+    getConnection,
     ConnectionOptions,
     ConnectionManager,
     getConnectionManager,

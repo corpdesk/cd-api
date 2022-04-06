@@ -2,7 +2,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import * as Lá from 'lodash';
 import { CreateIParams, ICdRequest, ICdResponse, IControllerContext, IQuery, IRespInfo, IServiceInput, ISessResp, ObjectItem, CacheData } from './IBase';
-import { EntityMetadata, getConnection, createConnection, ConnectionOptions, getConnectionManager, Connection } from 'typeorm';
+import { EntityMetadata, getConnection, createConnection, ConnectionOptions, getConnectionManager, Connection, Repository } from 'typeorm';
 import { Observable, from } from 'rxjs';
 import moment from 'moment';
 import { Database } from './connect';
@@ -32,7 +32,7 @@ export class BaseService {
     err: string[] = []; // error messages
     db;
     // sqliteDb;
-    sqliteConn:Connection;
+    sqliteConn: Connection;
     cuid = USER_ANON;
     debug = false;
     pl;
@@ -97,8 +97,8 @@ export class BaseService {
         }
     }
 
-    connSLClose(){
-        if(this.sqliteConn){
+    connSLClose() {
+        if (this.sqliteConn) {
             this.sqliteConn.close();
         }
     }
@@ -151,6 +151,15 @@ export class BaseService {
                     return await this.connectDatabase(i)
                 }, delayInMilliseconds);
             }
+        }
+    }
+
+    repo(req, res, serviceModel) {
+        try {
+            console.log('BaseService::repo()/serviceModel:', serviceModel)
+            return getConnection().getRepository(serviceModel);
+        } catch (e) {
+            return this.serviceErr(req, res, e, 'BaseService:repo');
         }
     }
 
@@ -477,7 +486,9 @@ export class BaseService {
         // assign payload data to this.userModel
         params.controllerInstance.userModel = this.getPlData(req);
         // set connection
-        const baseRepository = getConnection().getRepository(params.model);
+        // const baseRepository = getConnection().getRepository(params.model);
+        console.log('BaseService::validateUnique()/repo/model:', params.model)
+        const baseRepository: any = await this.repo(req, res, params.model)
         // get model properties
         const propMap = await this.getEntityPropertyMap(params.model).then((result) => {
             // console.log('validateUnique()/result:', result)
@@ -624,6 +635,7 @@ export class BaseService {
         let newDocData;
         try {
             console.log('BaseService::create()/02')
+            console.log('BaseService::create()/serviceInput:', serviceInput)
             newDocData = await this.saveDoc(req, res, serviceInput);
             console.log('BaseService::create()/newDocData:', newDocData)
         } catch (e) {
@@ -634,7 +646,9 @@ export class BaseService {
         try {
             console.log('BaseService::create()/04')
             console.log('BaseService::create()/serviceInput1:', serviceInput)
-            serviceRepository = await getConnection().getRepository(serviceInput.serviceModel);
+            // serviceRepository = await getConnection().getRepository(serviceInput.serviceModel);
+            console.log('BaseService::create()/repo/model:', serviceInput.serviceModel)
+            serviceRepository = await this.repo(req, res, serviceInput.serviceModel)
         } catch (e) {
             console.log('BaseService::create()/serviceInput2:', serviceInput)
             console.log('BaseService::create()/05')
@@ -721,8 +735,11 @@ export class BaseService {
         }
         let serviceRepository = null;
         try {
-            serviceRepository = await getConnection().getRepository(createIParams.serviceInput.serviceModel);
+            // serviceRepository = await getConnection().getRepository(createIParams.serviceInput.serviceModel);
+            console.log('BaseService::createI()/repo/model:', createIParams.serviceInput.serviceModel)
+            serviceRepository = await this.repo(req, res, createIParams.serviceInput.serviceModel)
         } catch (e) {
+            console.log('BaseService::createI()/Error/01')
             this.err.push(e.toString());
             const i = {
                 messages: this.err,
@@ -758,8 +775,11 @@ export class BaseService {
 
 
     async saveDoc(req, res, serviceInput: IServiceInput) {
+        await this.init(req, res);
         console.log('BaseService::saveDoc()/01')
-        const docRepository: any = await getConnection().getRepository(DocModel);
+        // const docRepository: any = await getConnection().getRepository(DocModel);
+        console.log('BaseService::saveDoc()/repo/model:', DocModel)
+        const docRepository: any = await this.repo(req, res, DocModel)
         console.log('BaseService::saveDoc()/02')
         const doc = await this.setDoc(req, res, serviceInput);
         console.log('BaseService::saveDoc()/03')
@@ -794,10 +814,20 @@ export class BaseService {
         if (await !this.cdToken) {
             this.iSess = new SessionService();
             this.sess = await this.iSess.getSession(req, res);
-            if (this.sess.length > 0) {
-                // console.log('this.sess:', this.sess);
-                this.setCuid(this.sess[0].currentUserId);
-                this.cdToken = await this.sess[0].cdToken;
+            if (this.sess) {
+                if (this.sess.length > 0) {
+                    // console.log('this.sess:', this.sess);
+                    this.setCuid(this.sess[0].currentUserId);
+                    this.cdToken = await this.sess[0].cdToken;
+                } else {
+                    this.i = {
+                        messages: this.err,
+                        code: 'BaseService:setSess',
+                        app_msg: 'invalid session'
+                    };
+                    await this.serviceErr(req, res, this.i.app_msg, this.i.code)
+                    this.respond(req, res);
+                }
             } else {
                 this.i = {
                     messages: this.err,
@@ -807,6 +837,7 @@ export class BaseService {
                 await this.serviceErr(req, res, this.i.app_msg, this.i.code)
                 this.respond(req, res);
             }
+
         }
     }
 
@@ -862,7 +893,10 @@ export class BaseService {
 
     async read(req, res, serviceInput: IServiceInput): Promise<any> {
         await this.init(req, res);
-        const repo = getConnection().getRepository(serviceInput.serviceModel);
+
+        // const repo = getConnection().getRepository(serviceInput.serviceModel);
+        console.log('BaseService::read()/repo/model:', serviceInput.serviceModel)
+        const repo: any = await this.repo(req, res, serviceInput.serviceModel);
         let r: any = null;
         switch (serviceInput.cmd.action) {
             case 'find':
@@ -903,7 +937,9 @@ export class BaseService {
 
     async readCount(req, res, serviceInput): Promise<any> {
         await this.init(req, res);
-        const repo = getConnection().getRepository(serviceInput.serviceModel);
+        // const repo = getConnection().getRepository(serviceInput.serviceModel);
+        console.log('BaseService::readCount()/repo/model:', serviceInput.serviceModel)
+        const repo: any = await this.repo(req, res, serviceInput.serviceModel)
         try {
             const [result, total] = await repo.findAndCount(
                 this.getQuery(req)
@@ -924,7 +960,9 @@ export class BaseService {
 
     async readPaged(req, res, serviceInput): Promise<any> {
         await this.init(req, res);
-        const repo = getConnection().getRepository(serviceInput.serviceModel);
+        // const repo = getConnection().getRepository(serviceInput.serviceModel);
+        console.log('BaseService::readPaged()/repo/model:', serviceInput.serviceModel)
+        const repo: any = await this.repo(req, res, serviceInput.serviceModel)
         try {
             const [result, total] = await repo.findAndCount(
                 this.getQuery(req)
@@ -973,7 +1011,7 @@ export class BaseService {
         });
     }
 
-    async feildMapSL(req, res, serviceInput:IServiceInput) {
+    async feildMapSL(req, res, serviceInput: IServiceInput) {
         await this.initSqlite(req, res);
         // console.log('BaseService::feildMapSL()/this.sqliteConn:', this.sqliteConn)
         console.log('BaseService::feildMapSL()/serviceInput:', serviceInput.serviceModel)
@@ -1093,7 +1131,9 @@ export class BaseService {
         let ret: any = [];
         try {
             await this.init(req, res);
-            const serviceRepository = await getConnection().getRepository(serviceInput.serviceModel);
+            // const serviceRepository = await getConnection().getRepository(serviceInput.serviceModel);
+            console.log('BaseService::update()/repo/model:', serviceInput.serviceModel)
+            const serviceRepository: any = await this.repo(req, res, serviceInput.serviceModel)
             const result = await serviceRepository.update(
                 serviceInput.cmd.query.where,
                 await this.fieldsAdaptor(serviceInput.cmd.query.update, serviceInput)
@@ -1186,7 +1226,7 @@ export class BaseService {
         const propMap = await this.feildMapSL(req, res, serviceInput);
         for (const fieldName in fieldsData) {
             if (fieldName) {
-                const fieldMapData: any = propMap.filter((f:any) => f.propertyPath === fieldName);
+                const fieldMapData: any = propMap.filter((f: any) => f.propertyPath === fieldName);
 
                 /**
                  * adapt boolean values as desired
@@ -1234,7 +1274,9 @@ export class BaseService {
         console.log('BaseService::delete()/01')
         let ret: any = [];
         await this.init(req, res);
-        const serviceRepository = await getConnection().getRepository(serviceInput.serviceModel);
+        // const serviceRepository = await getConnection().getRepository(serviceInput.serviceModel);
+        console.log('BaseService::delete()/repo/model:', serviceInput.serviceModel)
+        const serviceRepository: any = await this.repo(req, res, serviceInput.serviceModel)
         const result = await serviceRepository.delete(
             serviceInput.cmd.query.where
         )

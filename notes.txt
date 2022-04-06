@@ -557,7 +557,8 @@ issues:
     - https://levelup.gitconnected.com/learn-basic-operations-with-sqlite-and-nodejs-a693c6fc2e15
     - https://orkhan.gitbook.io/typeorm/docs/transactions
 
-- 
+- update to work in digital ocean
+- update for app/accts/billSys
 
 27/03/2022
 //////////
