@@ -115,21 +115,21 @@ export class DocService extends CdService {
         const m = req.post.m;
         const c = req.post.c;
         const a = req.post.a;
-        // console.log('DocService::getDocTypeId()/01')
+        console.log('DocService::getDocTypeId()/01')
         const result: DocTypeModel[] = await this.getDocTypeByName(req, res, `${c}_${a}`)
-        // console.log('DocService::getDocTypeId()/02')
-        // console.log('DocService::getDocTypeId()/result:', result);
+        console.log('DocService::getDocTypeId()/02')
+        console.log('DocService::getDocTypeId()/result:', result);
         if (result.length > 0) {
-            // console.log('DocService::getDocTypeId()/03')
+            console.log('DocService::getDocTypeId()/03')
             ret = result[0].docTypeId;
         } else {
-            // console.log('DocService::getDocTypeId()/04')
+            console.log('DocService::getDocTypeId()/04')
             const r = await this.createDocType(req, res);
-            // console.log('DocService::getDocTypeId()/05')
+            console.log('DocService::getDocTypeId()/05')
             ret = r[0].docTypeId;
         }
-        // console.log('DocService::getDocTypeId()/06')
-        // console.log('DocService::getDocTypeId()/ret:', ret)
+        console.log('DocService::getDocTypeId()/06')
+        console.log('DocService::getDocTypeId()/ret:', ret)
         return await ret;
     }
 
@@ -141,17 +141,21 @@ export class DocService extends CdService {
         await this.b.setSess(req, res);
         const svModule = new ModuleService();
         const mod: ModuleModel[] = await svModule.getModuleByName(req, res, m)
-        const dtm: DocTypeModel = new DocTypeModel();
-        dtm.docTypeName = `${c}_${a}`;
-        dtm.moduleGuid = mod[0].moduleGuid;
-        dtm.docGuid = this.b.getGuid();
-        dtm.docTypeController = c;
-        dtm.docTypeAction = a;
-        dtm.docTypeEnabled = true;
-        dtm.enableNotification = true;
-        const ret = await docTypeRepository.save(await dtm);
-        console.log('createDocType()/ret:', await ret)
-        return await ret;
+        if(mod.length > 0){
+            const dtm: DocTypeModel = new DocTypeModel();
+            dtm.docTypeName = `${c}_${a}`;
+            dtm.moduleGuid = mod[0].moduleGuid;
+            dtm.docGuid = this.b.getGuid();
+            dtm.docTypeController = c;
+            dtm.docTypeAction = a;
+            dtm.docTypeEnabled = true;
+            dtm.enableNotification = true;
+            const ret = await docTypeRepository.save(await dtm);
+            return await ret;
+        } else {
+            this.b.serviceErr(req, res, `The module ${m} is not registered`, 'BaseService:createDocType')
+            return Promise.resolve([]);
+        }
     }
 
     async getDocTypeByName(req, res, docTypeName: string): Promise<DocTypeModel[]> {
@@ -265,7 +269,7 @@ export class DocService extends CdService {
     update(req, res) {
         const serviceInput = {
             serviceModel: ModuleModel,
-            docName: 'MenuService::update',
+            docName: 'DocService::update',
             cmd: {
                 action: 'update',
                 query: req.post.dat.f_vals[0].query

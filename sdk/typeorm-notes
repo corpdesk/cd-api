@@ -1,0 +1,4 @@
+OR-FILTER
+const filterOr =  { where: [{ aa: 'a' },{ bb: 'b' }]}
+AND-FILTER
+const filterAnd =  { where: { aa: 'a', bb: 'b' }}

@@ -560,6 +560,118 @@ issues:
 - update to work in digital ocean
 - update for app/accts/billSys
 
+- app/accts/cd-bill-sys: generate pdf invoice
+- attach pdf to email and send to recepient
+- send html email of invoice
+
+SELECT cd_accts_payment_id, cd_accts_payment_guid, cd_accts_payment_name, cd_accts_payment_description, doc_id, cd_accts_ext_invoice_id, cd_accts_payment_type_id
+FROM cd1213.cd_accts_payment;
+
+SELECT cd_accts_payment_type_id, cd_accts_payment_type_guid, cd_accts_payment_type_name, cd_accts_payment_type_description, doc_id
+FROM cd1213.cd_accts_payment_type;
+
+SELECT cd_accts_currency_id, cd_accts_currency_guid, cd_accts_currency_name, cd_accts_currency_description, doc_id, cd_accts_currency_type_id
+FROM cd1213.cd_accts_currency;
+
+SELECT cd_accts_tax_id, cd_accts_tax_guid, cd_accts_tax_name, cd_accts_tax_description, doc_id, cd_accts_accounts_id, cd_accts_tax_type_id
+FROM cd1213.cd_accts_tax;
+
+SELECT cd_accts_tax_type_id, cd_accts_tax_type_guid, cd_accts_tax_type_name, cd_accts_tax_type_description, doc_id
+FROM cd1213.cd_accts_tax_type;
+
+SELECT cd_accts_transact_id, cd_accts_transact_guid, cd_accts_transact_name, cd_accts_transact_description, doc_id, cd_accts_account_id, cd_accts_transact_media_id, cd_accts_transact_state_id, credit, debit, currency_id, cd_accts_transact_type_id, company_id, cd_accts_transact_amount, cd_accts_transact_parent_id
+FROM cd1213.cd_accts_transact;
+
+SELECT cd_accts_transact_media_id, cd_accts_transact_media_guid, cd_accts_transact_media_name, cd_accts_transact_media_description, doc_id, cd_accts_transact_media_type_id
+FROM cd1213.cd_accts_transact_media;
+
+SELECT cd_accts_transact_media_type_id, cd_accts_transact_media_type_guid, cd_accts_transact_media_type_name, cd_accts_transact_media_type_description, doc_id
+FROM cd1213.cd_accts_transact_media_type;
+
+SELECT cd_accts_transact_state_id, cd_accts_transact_state_name
+FROM cd1213.cd_accts_transact_state;
+
+////////
+- create payment & transaction
+- modify create bill:
+    - set 'vendor' as account type
+    - set 'client' as account type
+    - set 'service' as account type
+    - set 'product' as account type
+    - set 'grantee' as account type
+    - set 'donor' as account type
+    - set 'grant-admin' as account type
+
+review create bill:
+    - check if vendor & client has acct/account while creating bill
+    - set vendor/acct-account as parent while creating bill
+    - set client/acct-account as child
+    - create account while creating bill with client/acct-account as hiearchial parent
+    - get account data
+    - create accts/invoice while creating a bill
+    - create accts/transaction
+    - update invoice with account data
+
+Please update your TypeScript version
+The workspace is using an old version of TypeScript (undefined).
+
+Before reporting an issue, please update the workspace to use the latest stable TypeScript release to make sure the bug has not already been fixed.
+
+Bugs:
+- tax and discount (decimal) values are not being inserted
+- https://medium.com/@matthew.bajorek/how-to-properly-handle-decimals-with-typeorm-f0eb2b79ca9c
+- https://github.com/MikeMcl/decimal.js/
+
+Integrate with cd-accts scructure
+- sync bill with invoice
+- sync invoice with transact
+    - enter invoice to client as credit to vendor and debit to client
+- sync receipt to transaction
+    - enter receipt to client as debit to vendor and credit to client 
+    - receipt synced with invoice/cash sale: this can be done via docId 
+- on update of bill, update invoice and trasaction
+
+29/04/20
+////////
+- create payment & transaction
+- modify create bill:
+    - set 'vendor' as account type
+    - set 'client' as account type
+    - set 'service' as account type
+    - set 'product' as account type
+    - set 'grantee' as account type
+    - set 'donor' as account type
+    - set 'grant-admin' as account type
+
+review create bill:
+    - check if vendor & client has acct/account while creating bill
+    - set vendor/acct-account as parent while creating bill
+    - set client/acct-account as child
+    - create account while creating bill with client/acct-account as hiearchial parent
+    - get account data
+    - create accts/invoice while creating a bill
+    - create accts/transaction
+    - update invoice with account data
+
+Please update your TypeScript version
+The workspace is using an old version of TypeScript (undefined).
+
+Before reporting an issue, please update the workspace to use the latest stable TypeScript release to make sure the bug has not already been fixed.
+
+Bugs:
+- tax and discount (decimal) values are not being inserted
+- https://medium.com/@matthew.bajorek/how-to-properly-handle-decimals-with-typeorm-f0eb2b79ca9c
+- https://github.com/MikeMcl/decimal.js/
+
+Integrate with cd-accts scructure
+- sync bill with invoice
+- sync invoice with transact
+    - enter invoice to client as credit to vendor and debit to client
+- sync receipt to transaction
+    - enter receipt to client as debit to vendor and credit to client 
+    - receipt synced with invoice/cash sale: this can be done via docId 
+- on update of bill, update invoice and trasaction
+
 27/03/2022
 //////////
 // SQLITE IMPLEMENTATION

@@ -1,0 +1,112 @@
+/**
+ * for basic table
+ */
+
+.i-table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 14px;
+}
+
+
+th,
+td {
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2
+}
+
+th {
+    background-color: #2c296d;
+    color: white;
+}
+
+/*************/
+
+.cell-align-right {
+    text-align: right;
+    margin-right: 1em;
+}
+
+.row-input-hide {
+    display: none;
+}
+
+.row-input-show {
+    display: inline;
+}
+
+.search>.bx {
+    color: #5b56b4;
+    font-size: 14px;
+}
+
+.save>.bx {
+    color: #5b56b4;
+    font-size: 14px;
+}
+
+.add>.bx {
+    color: #5b56b4;
+    font-size: 14px;
+}
+
+.edit>.bx {
+    color: #5b56b4;
+    font-size: 14px;
+}
+
+.delete>.bx {
+    color: #5b56b4;
+    font-size: 14px;
+}
+
+.valid{
+    border-color: rgb(38, 210, 131);
+}
+
+.invalid{
+    border-color: rgb(178, 31, 44);
+}
+
+/*************/
+
+.pagination {
+    display: inline-block;
+}
+
+.pagination a {
+    color: black;
+    float: left;
+    padding: 8px 16px;
+    text-decoration: none;
+    font-size: 12px;
+}
+
+/* .node-type-annual-report-page #content table .md-table-align-right,
+.node-type-portfolio-budget-statement-page #content table .md-table-align-right,
+.node-type-corporate-plan-page #content table .md-table-align-right {
+    text-align: right;
+} */
+
+.md-table-align-right {
+    text-align: right;
+    padding-right: 3px;
+}
+
+.md-table-align-center {
+    text-align: center;
+}
+
+.md-table-border-bottom {
+    border-bottom: 2px solid #003450;
+    border-bottom-color: rgb(0, 52, 80);
+}
+
+.md-table-border-top {
+    border-top: 2px solid #003450;
+    border-top-color: rgb(0, 52, 80);
+}

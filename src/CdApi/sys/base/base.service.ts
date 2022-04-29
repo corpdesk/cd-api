@@ -239,7 +239,7 @@ export class BaseService {
         }
     }
 
-    async serviceErr(req, res, e, eCode) {
+    async serviceErr(req, res, e, eCode, lineNumber = null) {
         const svSess = new SessionService();
         svSess.sessResp.cd_token = req.post.dat.token;
         svSess.sessResp.ttl = svSess.getTtl();
@@ -635,8 +635,10 @@ export class BaseService {
         let newDocData;
         try {
             console.log('BaseService::create()/02')
-            console.log('BaseService::create()/serviceInput:', serviceInput)
+            console.log('BaseService::create()/serviceInput0:', serviceInput)
+            console.log('BaseService::create()/021')
             newDocData = await this.saveDoc(req, res, serviceInput);
+            console.log('BaseService::create()/022')
             console.log('BaseService::create()/newDocData:', newDocData)
         } catch (e) {
             console.log('BaseService::create()/03')
@@ -670,7 +672,7 @@ export class BaseService {
                 if (serviceInput.dSource === 1) { // data source is provided by the req...data.
                     // req.post.dat.f_vals[0].data.doc_id = await newDocData.docId;
                     console.log('BaseService::create()/08')
-                    // console.log('BaseService::create()/newDocData:', newDocData)
+                    console.log('BaseService::create()/newDocData:', newDocData)
                     await this.setPlData(req, { key: 'docId', value: await newDocData.docId }) // set docId
                     console.log('BaseService::create()/09')
                     const serviceData = await this.getServiceData(req, serviceInput);
@@ -690,8 +692,8 @@ export class BaseService {
                 code: 'BaseService:create',
                 app_msg: ''
             };
-            // await this.setAppState(false, i, null);
-            await this.serviceErr(req, res, e, 'BaseService:create')
+            await this.setAppState(false, i, null);
+            // await this.serviceErr(req, res, e, 'BaseService:create')
             return this.cdResp;
         }
     }
@@ -724,21 +726,26 @@ export class BaseService {
      * @param createIParams
      */
     async createI(req, res, createIParams: CreateIParams): Promise<any> {
+        console.log('BaseService::createI()/01')
         await this.init(req, res);
         let newDocData;
         let ret: any;
         try {
+            console.log('BaseService::createI()/02')
             newDocData = await this.saveDoc(req, res, createIParams.serviceInput);
             // console.log('BaseService::createI()/newDocData:', newDocData)
         } catch (e) {
-            this.serviceErr(req, res, e, 'BaseService:create!/savDoc')
+            console.log('BaseService::createI()/03')
+            this.serviceErr(req, res, e, 'BaseService:createI()/savDoc')
         }
         let serviceRepository = null;
         try {
+            console.log('BaseService::createI()/04')
             // serviceRepository = await getConnection().getRepository(createIParams.serviceInput.serviceModel);
             console.log('BaseService::createI()/repo/model:', createIParams.serviceInput.serviceModel)
             serviceRepository = await this.repo(req, res, createIParams.serviceInput.serviceModel)
         } catch (e) {
+            console.log('BaseService::createI()/05')
             console.log('BaseService::createI()/Error/01')
             this.err.push(e.toString());
             const i = {
@@ -746,21 +753,32 @@ export class BaseService {
                 code: 'BaseService:create/getConnection',
                 app_msg: 'problem creating connection'
             };
+            console.log('BaseService::createI()/06')
             await this.serviceErr(req, res, e, 'BaseService:create/getConnection')
             return this.cdResp;
         }
 
         try {
+            console.log('BaseService::createI()/07')
             let modelInstance = createIParams.serviceInput.serviceModelInstance;
             if ('dSource' in createIParams.serviceInput) {
+                console.log('BaseService::createI()/08')
                 if (createIParams.serviceInput.dSource === 1) {
+                    console.log('BaseService::createI()/09')
+                    console.log('BaseService::createI()/newDocData:', newDocData)
+                    console.log('BaseService::createI()/createIParams:', createIParams)
+                    console.log('BaseService::createI()/createIParams.controllerData:', createIParams.controllerData)
                     createIParams.controllerData = await this.setCreateIData(req, createIParams.controllerData, { key: 'docId', value: await newDocData.docId })
+                    console.log('BaseService::createI()/091')
                     const serviceData = await createIParams.controllerData;
+                    console.log('BaseService::createI()/092')
                     modelInstance = await this.setEntity(createIParams.serviceInput, await serviceData);
+                    console.log('BaseService::createI()/093')
                     ret = await serviceRepository.save(await modelInstance);
                 }
             }
         } catch (e) {
+            console.log('BaseService::createI()/10')
             this.err.push(e.toString());
             const i = {
                 messages: this.err,
@@ -770,6 +788,7 @@ export class BaseService {
             await this.serviceErr(req, res, e, 'BaseService:createI')
             ret = false;
         }
+        console.log('BaseService::createI()/11')
         return await ret;
     }
 
@@ -811,15 +830,21 @@ export class BaseService {
     }
 
     async setSess(req, res) {
+        console.log('BaseService::setSess()/01')
         if (await !this.cdToken) {
+            console.log('BaseService::setSess()/02')
             this.iSess = new SessionService();
             this.sess = await this.iSess.getSession(req, res);
+            console.log('BaseService::setSess()/03')
             if (this.sess) {
+                console.log('BaseService::setSess()/04')
                 if (this.sess.length > 0) {
-                    // console.log('this.sess:', this.sess);
+                    console.log('BaseService::setSess()/05')
+                    console.log('this.sess:', this.sess);
                     this.setCuid(this.sess[0].currentUserId);
                     this.cdToken = await this.sess[0].cdToken;
                 } else {
+                    console.log('BaseService::setSess()/06')
                     this.i = {
                         messages: this.err,
                         code: 'BaseService:setSess',
@@ -829,6 +854,7 @@ export class BaseService {
                     this.respond(req, res);
                 }
             } else {
+                console.log('BaseService::setSess()/07')
                 this.i = {
                     messages: this.err,
                     code: 'BaseService:setSess',
@@ -871,12 +897,16 @@ export class BaseService {
     }
 
     async mysqlNow() {
+        console.log('BaseService::mysqlNow()/01')
         const now = new Date();
         const date = await moment(
             now,
             'ddd MMM DD YYYY HH:mm:ss'
         );
-        return await date.format('YYYY-MM-DD HH:mm:ss'); // convert to mysql date
+        console.log('BaseService::mysqlNow()/02')
+        const ret = await date.format('YYYY-MM-DD HH:mm:ss'); // convert to mysql date
+        console.log('BaseService::mysqlNow()/03')
+        return ret;
     }
 
     getGuid() {
@@ -892,26 +922,32 @@ export class BaseService {
     }
 
     async read(req, res, serviceInput: IServiceInput): Promise<any> {
+        console.log('BaseService::read()/01')
         await this.init(req, res);
-
-        // const repo = getConnection().getRepository(serviceInput.serviceModel);
-        console.log('BaseService::read()/repo/model:', serviceInput.serviceModel)
+        console.log('BaseService::read()/02')
+        console.log('BaseService::read()/repo/model:', JSON.stringify(serviceInput.serviceModel))
         const repo: any = await this.repo(req, res, serviceInput.serviceModel);
+        console.log('BaseService::read()/03')
         let r: any = null;
         switch (serviceInput.cmd.action) {
             case 'find':
                 try {
+                    console.log('BaseService::read()/031')
                     r = await repo.find(serviceInput.cmd.query);
+                    console.log('BaseService::read()/04')
                     if (serviceInput.extraInfo) {
+                        console.log('BaseService::read()/05')
                         return {
                             result: r,
                             fieldMap: await this.feildMap(serviceInput)
                         }
                     } else {
+                        console.log('BaseService::read()/06')
                         return await r;
                     }
                 }
                 catch (err) {
+                    console.log('BaseService::read()/07')
                     return await this.serviceErr(req, res, err, 'BaseService:read');
                 }
                 break;
