@@ -2,36 +2,36 @@ import { Column, PrimaryGeneratedColumn, Entity } from 'typeorm';
 
 @Entity(
     {
-        name: 'cd_accts_payment',
+        name: 'cd_accts_expenditure',
         synchronize: false
     }
 )
-export class CdAcctsPaymentModel {
+export class CdAcctsExpenditureModel {
     @PrimaryGeneratedColumn(
         {
-            name: 'cd_accts_payment_id'
+            name: 'cd_accts_expenditure_id'
         }
     )
-    cdAcctsPaymentId: number;
+    cdAcctsExpenditureId: number;
 
     @Column({
-        name: 'cd_accts_payment_guid',
+        name: 'cd_accts_expenditure_guid',
     })
-    cdAcctsPaymentGuid: string;
+    cdAcctsExpenditureGuid: string;
 
     @Column(
         {
-            name: 'cd_accts_payment_name',
+            name: 'cd_accts_expenditure_name',
         }
     )
-    cdAcctsPaymentName: string;
+    cdAcctsExpenditureName: string;
 
     @Column(
         {
-            name: 'cd_accts_payment_description',
+            name: 'cd_accts_expenditure_description',
         }
     )
-    cdAcctsPaymentDescription?: string;
+    cdAcctsExpenditureDescription?: string;
 
     @Column(
         {
@@ -49,10 +49,10 @@ export class CdAcctsPaymentModel {
 
     @Column(
         {
-            name: 'cd_accts_payment_type_id',
+            name: 'cd_accts_expenditure_type_id',
         }
     )
-    cdAcctsPaymentTypeId: number;
+    cdAcctsExpenditureTypeId: number;
 
     @Column(
         {

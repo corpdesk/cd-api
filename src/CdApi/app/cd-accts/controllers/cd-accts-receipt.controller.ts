@@ -1,76 +1,100 @@
 import { BaseService } from '../../../sys/base/base.service';
 import { IServiceInput } from '../../../sys/base/IBase';
-import { CdAcctsPaymentService } from '../services/cd-accts-payment.service';
+import { CdAcctsReceiptService } from '../services/cd-accts-receipt.service';
 
-export class CdAcctsPaymentController {
+export class CdAcctsReceiptController {
 
     b: BaseService;
-    svPayment: CdAcctsPaymentService;
+    svReceipt: CdAcctsReceiptService;
 
     constructor() {
-        console.log('CdAcctsPaymentController::constructor()/01')
+        console.log('CdAcctsReceiptController::constructor()/01')
         this.b = new BaseService();
-        console.log('CdAcctsPaymentController::constructor()/02')
-        this.svPayment = new CdAcctsPaymentService();
+        console.log('CdAcctsReceiptController::constructor()/02')
+        this.svReceipt = new CdAcctsReceiptService();
     }
 
     // SELECT cd_accts_payment_id, cd_accts_payment_guid, cd_accts_payment_name, cd_accts_payment_description, doc_id, cd_accts_ext_invoice_id, cd_accts_payment_type_id
     // FROM cd1213.cd_accts_payment;
 
 
-    // // /**
-    // //  * {
-    //         "ctx": "App",
-    //         "m": "cd-accts",
-    //         "c": "CdAcctsPayment",
-    //         "a": "Create",
-    //         "dat": {
-    //             "f_vals": [
-    //                 {
-    //                     "cdAcctsTransact": {
-    //                         "cdAcctsAccountId": 0,
-    //                         "cdAcctsTransactMediaId": 0,
-    //                         "cdAcctsTransactStateId": 0,
-    //                         "credit": true,
-    //                         "debit": false,
-    //                         "cdAcctsCurrencyId": 0,
-    //                         "cdAcctsTransactTypeId": 0,
-    //                         "companyId": 85,
-    //                         "cdAcctsTransactAmount": 100,
-    //                         "cdAcctsTransactParentId": -1
-    //                     },
-    //                     "data": {
-    //                         "cdAcctsPaymentName": "ww",
-    //                         "cdAcctsPaymentDescription": "kk",
-    //                         "cdAcctsExtInvoiceId": "2",
-    //                         "cdAcctsPaymentType_id": "4"
-    //                     }
-    //                 }
-    //             ],
-    //             "token": "3ffd785f-e885-4d37-addf-0e24379af338"
-    //         },
-    //         "args": {}
-    //     }
-    // //  * @param req
-    // //  * @param res
-    // //  */
+    /**
+     * - title
+     * - description
+     * 
+     * 
+     * - amount
+     * - media
+     * - media date
+     * - invoice number
+     * 
+     * {
+            "ctx": "App",
+            "m": "cd-accts",
+            "c": "CdAcctsReceipt",
+            "a": "Create",
+            "dat": {
+                "f_vals": [
+                    {
+                        "CdAcctsTransactVendor": {
+                            "cdAcctsTransactName": "jmnds",
+                            "cdAcctsTransactDescription": "dkaoef",
+                            "cdAcctsAccountId": 592,
+                            "cdAcctsTransactMediaId": 593,
+                            "cdAcctsTransactStateId": 599,
+                            "cdAcctsCurrencyId": 592,
+                            "companyId": 111162,
+                            "cdAcctsTransactAmount": 350,
+                            "cdAcctsTransactParentId": -1,
+                            "credit": false,
+                            "debit": true,
+                            "cdAcctsTransactMediaDate": "2022-04-07T21:00:00.000Z",
+                        },
+                        "CdAcctsTransactClient": {
+                            "cdAcctsTransactName": "jmnds",
+                            "cdAcctsTransactDescription": "dkaoef",
+                            "cdAcctsAccountId": 678,
+                            "cdAcctsTransactMediaId": 593,
+                            "cdAcctsTransactStateId": 599,
+                            "cdAcctsCurrencyId": 592,
+                            "companyId": 20,
+                            "cdAcctsTransactAmount": 350,
+                            "cdAcctsTransactParentId": -1,
+                            "credit": true,
+                            "debit": false,
+                            "cdAcctsTransactMediaDate": "2022-04-07T21:00:00.000Z",
+                        },
+                        "data": {
+                            "cdAcctsReceiptName": "jmnds",
+                            "cdAcctsReceiptDescription": "dkaoef",
+                            "cdAcctsIntInvoiceId": 647
+                        }
+                    }
+                ],
+                "token": "3ffd785f-e885-4d37-addf-0e24379af338"
+            },
+            "args": {}
+        }
+     * @param req
+     * @param res
+     */
     async Create(req, res) {
-        console.log('CdAcctsPaymentController::Create()/01')
+        console.log('CdAcctsReceiptController::Create()/01')
         try {
-            console.log('CdAcctsPaymentController::Create()/02')
-            await this.svPayment.create(req, res);
+            console.log('CdAcctsReceiptController::Create()/02')
+            await this.svReceipt.create(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsPaymentController:Create');
+            this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:Create');
         }
     }
 
     async CreateSL(req, res) {
-        console.log('CdAcctsPaymentController::Create()/01')
+        console.log('CdAcctsReceiptController::Create()/01')
         try {
-            console.log('CdAcctsPaymentController::Create()/02')
-            await this.svPayment.createSL(req, res);
+            console.log('CdAcctsReceiptController::Create()/02')
+            await this.svReceipt.createSL(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsPaymentController:CreateSL');
+            this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:CreateSL');
         }
     }
 
@@ -78,7 +102,7 @@ export class CdAcctsPaymentController {
     // {
     //     "ctx": "App",
     //     "m": "CdAccts",
-    //     "c": "Bill",
+    //     "c": "CdAcctsReceipt",
     //     "a": "Get",
     //     "dat": {
     //         "f_vals": [
@@ -97,17 +121,17 @@ export class CdAcctsPaymentController {
     //  */
     async Get(req, res) {
         try {
-            await this.svPayment.getBill(req, res);
+            await this.svReceipt.getReceipt(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsPaymentController:Get');
+            this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:Get');
         }
     }
 
     async GetSL(req, res) {
         try {
-            await this.svPayment.getBillSL(req, res);
+            await this.svReceipt.getBillSL(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsPaymentController:GetSL');
+            this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:GetSL');
         }
     }
 
@@ -185,9 +209,9 @@ export class CdAcctsPaymentController {
     //   */
     async GetCount(req, res) {
         try {
-            await this.svPayment.getPaged(req, res);
+            await this.svReceipt.getPaged(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsPaymentController:GetCount');
+            this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:GetCount');
         }
     }
 
@@ -216,17 +240,17 @@ export class CdAcctsPaymentController {
     //  */
     async BillViewPaged(req, res) {
         try {
-            await this.svPayment.getViewPaged(req, res);
+            await this.svReceipt.getViewPaged(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsPaymentController:BillViewPaged');
+            this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:BillViewPaged');
         }
     }
 
     async GetPagedSL(req, res) {
         try {
-            await this.svPayment.getPagedSL(req, res);
+            await this.svReceipt.getPagedSL(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsPaymentController:GetSL');
+            this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:GetSL');
         }
     }
 
@@ -257,22 +281,22 @@ export class CdAcctsPaymentController {
     //  * @param res
     //  */
     async Update(req, res) {
-        console.log('CdAcctsPaymentController::Update()/01');
+        console.log('CdAcctsReceiptController::Update()/01');
         try {
-            console.log('CdAcctsPaymentController::Update()/02');
-            await this.svPayment.update(req, res);
+            console.log('CdAcctsReceiptController::Update()/02');
+            await this.svReceipt.update(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsPaymentController:Update');
+            this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:Update');
         }
     }
 
     async UpdateSL(req, res) {
-        console.log('CdAcctsPaymentController::UpdateSL()/01');
+        console.log('CdAcctsReceiptController::UpdateSL()/01');
         try {
-            console.log('CdAcctsPaymentController::UpdateSL()/02');
-            await this.svPayment.update(req, res);
+            console.log('CdAcctsReceiptController::UpdateSL()/02');
+            await this.svReceipt.update(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsPaymentController:UpdateSL');
+            this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:UpdateSL');
         }
     }
 
@@ -301,25 +325,25 @@ export class CdAcctsPaymentController {
     //  */
     async Delete(req, res) {
         try {
-            await this.svPayment.delete(req, res);
+            await this.svReceipt.delete(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsPaymentController:Delete');
+            this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:Delete');
         }
     }
 
     async DeleteSL(req, res) {
         try {
-            await this.svPayment.delete(req, res);
+            await this.svReceipt.delete(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsPaymentController:DeleteSL');
+            this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:DeleteSL');
         }
     }
 
     async GetMeta(req, res) {
         try {
-            await this.svPayment.getMeta(req, res);
+            await this.svReceipt.getMeta(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsPaymentController:Get');
+            this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:Get');
         }
     }
 

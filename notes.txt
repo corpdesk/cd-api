@@ -557,6 +557,9 @@ issues:
     - https://levelup.gitconnected.com/learn-basic-operations-with-sqlite-and-nodejs-a693c6fc2e15
     - https://orkhan.gitbook.io/typeorm/docs/transactions
 
+
+
+10/06/2022
 - update to work in digital ocean
 - update for app/accts/billSys
 
@@ -631,7 +634,30 @@ Integrate with cd-accts scructure
     - receipt synced with invoice/cash sale: this can be done via docId 
 - on update of bill, update invoice and trasaction
 
-29/04/20
+///////////////////////////
+- create views for:
+    VENDOR ACCOUNT:
+    - 1. cd_accts_invoice_vendor_view: displays transacted invoices on vendor account 
+    - 2. cd_accts_receipt_vendor_view: displays transacted received payments on vendor account
+    - 3. cd_accts_transact_vendor_view: union of 1 and 2 for aggregating balances
+    CLIENT ACCOUNT:
+    - 1. cd_accts_invoice_client_view: displays transacted invoices on client account 
+    - 2. cd_accts_receipt_client_view: displays transacted received payments on client account
+    - 3. cd_accts_transact_client_view: union of 1 and 2 for aggregating balances
+
+- auto-fill:
+    - "cdAcctsAccountId": -1,
+    - "cdAcctsIntInvoiceStateId": -1,
+    - "cdAcctsCurrencyId": -1,
+    - "companyId": -1,
+    - "cdAcctsIntInvoiceParentId": -1,
+
+- confirm that transaction media date is filled
+- add doc_date and media_date to trasaction views
+- set statement model/method
+    
+
+
 ////////
 - create payment & transaction
 - modify create bill:
@@ -672,6 +698,7 @@ Integrate with cd-accts scructure
     - receipt synced with invoice/cash sale: this can be done via docId 
 - on update of bill, update invoice and trasaction
 
+
 27/03/2022
 //////////
 // SQLITE IMPLEMENTATION
@@ -686,6 +713,11 @@ Integrate with cd-accts scructure
     - bill-rate
     - bill-unit
 
+// change 'payment' to expenditure
+
+// receipt
+    - cheque processing/transaction_state
+    - reference to cheque via cd-obj
 
 31/01/2022
 - initial work on cd-cache...IN PROGRESS

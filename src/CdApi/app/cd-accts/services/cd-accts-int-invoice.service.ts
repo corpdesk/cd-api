@@ -11,6 +11,7 @@ import { CdAcctsTransactService } from './cd-accts-transact.service';
 import { CdAcctsIntInvoiceModel } from '../models/cd-accts-int-invoice.model';
 import { CdAcctsAccountModel } from '../models/cd-accts-account.model';
 import { CdAcctsAccountService } from './cd-accts-account.service';
+import { CdAcctsInvoiceVendorViewModel } from '../models/cd-accts-invoice-vendor-view.model';
 // import { CdAcctsAccountViewModel } from '../models/cdAcctsIntInvoice-view.model';
 
 export class CdAcctsIntInvoiceService extends CdService {
@@ -104,12 +105,13 @@ export class CdAcctsIntInvoiceService extends CdService {
         console.log('CdAcctsIntInvoiceSerice::afterCreate()/01')
         console.log('CdAcctsIntInvoiceSerice::afterCreate()/newInvoice:', await newInvoice)
         const accountI = new CdAcctsAccountService()
+        const transactI = new CdAcctsTransactService()
         const ni = await newInvoice;
         // get vendor account details
         const vendorAcctArr: CdAcctsAccountModel[] = await accountI.getCdAcctsAccountI(req, res, { where: { vendorId: newInvoice.vendorId, parentId: -1 } })
         console.log('CdAcctsIntInvoiceSerice::afterCreate()/vendorAcctArr:', vendorAcctArr)
         // do vendor credit transaction
-        const transactVendor = await this.transactInvoice(req, res, vendorAcctArr, newInvoice)
+        const transactVendor = await transactI.transactInvoice(req, res, vendorAcctArr, newInvoice)
         console.log('CdAcctsIntInvoiceSerice::afterCreate()/transactVendor:', transactVendor)
         // update invoice with vendor transaction details
         const updateVendor = await this.setTransactId(req, res, transactVendor, ni, 'vendor')
@@ -118,7 +120,7 @@ export class CdAcctsIntInvoiceService extends CdService {
         const clientAcctArr: CdAcctsAccountModel[] = await accountI.getCdAcctsAccountI(req, res, { where: { clientId: newInvoice.clientId, parentId: newInvoice.vendorId } })
         console.log('CdAcctsIntInvoiceSerice::afterCreate()/clientAcctArr:', clientAcctArr)
         // do client credit transaction
-        const transactClient = await this.transactInvoice(req, res, clientAcctArr, newInvoice)
+        const transactClient = await transactI.transactInvoice(req, res, clientAcctArr, newInvoice)
         console.log('CdAcctsIntInvoiceSerice::afterCreate()/transactClient:', transactClient)
         // update invoice with client transaction details
         const updateClient = await this.setTransactId(req, res, transactClient, ni, 'client')
@@ -192,68 +194,68 @@ export class CdAcctsIntInvoiceService extends CdService {
         return ret;
     }
 
-    async transactInvoice(req, res, accountArr: CdAcctsAccountModel[], newInvoice: CdAcctsIntInvoiceModel) {
-        console.log('CdAcctsIntInvoiceSerice::transactInvoice()/newInvoice:', newInvoice)
-        console.log('CdAcctsIntInvoiceSerice::transactInvoice()/accountArr:', accountArr)
-        const svTransact = new CdAcctsTransactService()
-        if (accountArr.length > 0) {
-            const account = accountArr[0];
-            console.log('CdAcctsIntInvoiceSerice::transactInvoice()/account.cdAcctsAccountTypeId:', account.cdAcctsAccountTypeId)
-            // const ni = await newInvoice;
-            // const accountModel:CdAcctsAccountModel = await this.getAccount(req, res, { where: { vendorId: newInvoice.vendorId } })[0]
-            // const clientAcct:CdAcctsAccountModel = await this.getAccount(req, res, { where: { vendorId: newInvoice.clientId } })[0]
-            let cId; //companyId
-            let isCredit = false; //credit
-            let isDebit = false; // debit
-            switch (account.cdAcctsAccountTypeId) {
-                case 591: // vendor
-                    cId = newInvoice.vendorId
-                    isCredit = true;
-                    break;
-                case 592: // client
-                    cId = newInvoice.clientId
-                    isDebit = true;
-                    break;
-            }
-            const transact: CdAcctsTransactModel = {
-                cdAcctsTransactName: newInvoice.cdAcctsIntInvoiceName,
-                cdAcctsTransactDescription: newInvoice.cdAcctsIntInvoiceDescription,
-                cdAcctsAccountId: account.cdAcctsAccountId,
-                cdAcctsTransactMediaId: await svTransact.getTransactionMedia(), //603,
-                cdAcctsTransactStateId: await svTransact.getTransactionState(), // transact state = 'invoiced'
-                Credit: isCredit,
-                Debit: isDebit,
-                cdAcctsCurrencyId: await svTransact.getTransactionCurrency(), //592,
-                companyId: cId,
-                cdAcctsTransactAmount: newInvoice.cdAcctsIntInvoiceCost,
-                cdAcctsTransactParentId: -1 // can be used to link transactions that are related eg invoice and tax
-            }
+    // async transactInvoice(req, res, accountArr: CdAcctsAccountModel[], newInvoice: CdAcctsIntInvoiceModel) {
+    //     console.log('CdAcctsIntInvoiceSerice::transactInvoice()/newInvoice:', newInvoice)
+    //     console.log('CdAcctsIntInvoiceSerice::transactInvoice()/accountArr:', accountArr)
+    //     const svTransact = new CdAcctsTransactService()
+    //     if (accountArr.length > 0) {
+    //         const account = accountArr[0];
+    //         console.log('CdAcctsIntInvoiceSerice::transactInvoice()/account.cdAcctsAccountTypeId:', account.cdAcctsAccountTypeId)
+    //         // const ni = await newInvoice;
+    //         // const accountModel:CdAcctsAccountModel = await this.getAccount(req, res, { where: { vendorId: newInvoice.vendorId } })[0]
+    //         // const clientAcct:CdAcctsAccountModel = await this.getAccount(req, res, { where: { vendorId: newInvoice.clientId } })[0]
+    //         let cId; //companyId
+    //         let isCredit = false; //credit
+    //         let isDebit = false; // debit
+    //         switch (account.cdAcctsAccountTypeId) {
+    //             case 591: // vendor
+    //                 cId = newInvoice.vendorId
+    //                 isCredit = true;
+    //                 break;
+    //             case 592: // client
+    //                 cId = newInvoice.clientId
+    //                 isDebit = true;
+    //                 break;
+    //         }
+    //         const transact: CdAcctsTransactModel = {
+    //             cdAcctsTransactName: newInvoice.cdAcctsIntInvoiceName,
+    //             cdAcctsTransactDescription: newInvoice.cdAcctsIntInvoiceDescription,
+    //             cdAcctsAccountId: account.cdAcctsAccountId,
+    //             cdAcctsTransactMediaId: await svTransact.getTransactionMedia(), //603,
+    //             cdAcctsTransactStateId: await svTransact.getTransactionState(), // transact state = 'invoiced'
+    //             Credit: isCredit,
+    //             Debit: isDebit,
+    //             cdAcctsCurrencyId: await svTransact.getTransactionCurrency(), //592,
+    //             companyId: cId,
+    //             cdAcctsTransactAmount: newInvoice.cdAcctsIntInvoiceCost,
+    //             cdAcctsTransactParentId: -1 // can be used to link transactions that are related eg invoice and tax
+    //         }
 
-            console.log('CdAcctsIntInvoiceSerice::afterCreate()/transact:', transact)
-            const si = {
-                serviceInstance: svTransact,
-                serviceModel: CdAcctsTransactModel,
-                serviceModelInstance: svTransact.serviceModel,
-                docName: 'CdAcctsIntInvoiceSerice/afterCreate',
-                dSource: 1,
-            }
+    //         console.log('CdAcctsIntInvoiceSerice::afterCreate()/transact:', transact)
+    //         const si = {
+    //             serviceInstance: svTransact,
+    //             serviceModel: CdAcctsTransactModel,
+    //             serviceModelInstance: svTransact.serviceModel,
+    //             docName: 'CdAcctsIntInvoiceSerice/afterCreate',
+    //             dSource: 1,
+    //         }
 
-            ///////////////////////////////////////////////
-            const createIParams: CreateIParams = {
-                serviceInput: si,
-                controllerData: transact
-            }
-            const newTransact: any = await svTransact.createI(req, res, createIParams)
-            console.log('CdAcctsIntInvoiceSerice::afterCreate()/newTransact:', newTransact)
-            return newTransact;
-        } else {
-            const svSess = new SessionService()
-            this.b.i.app_msg = 'one of the entities account is not set properly';
-            this.b.setAppState(true, this.b.i, svSess.sessResp);
-            this.b.cdResp.data = [];
-            await this.b.respond(req, res);
-        }
-    }
+    //         ///////////////////////////////////////////////
+    //         const createIParams: CreateIParams = {
+    //             serviceInput: si,
+    //             controllerData: transact
+    //         }
+    //         const newTransact: any = await svTransact.createI(req, res, createIParams)
+    //         console.log('CdAcctsIntInvoiceSerice::afterCreate()/newTransact:', newTransact)
+    //         return newTransact;
+    //     } else {
+    //         const svSess = new SessionService()
+    //         this.b.i.app_msg = 'one of the entities account is not set properly';
+    //         this.b.setAppState(true, this.b.i, svSess.sessResp);
+    //         this.b.cdResp.data = [];
+    //         await this.b.respond(req, res);
+    //     }
+    // }
 
 
 
@@ -261,13 +263,13 @@ export class CdAcctsIntInvoiceService extends CdService {
     //  * {
     //         "ctx": "App",
     //         "m": "CdAccts",
-    //         "c": "Bill",
+    //         "c": "CdAcctsIntInvoice",
     //         "a": "Create",
     //         "dat": {
     //             "f_vals": [
     //                 {
     //                     "data": {
-    //                         "cdAcctsIntInvoiceName": "myBill3",
+    //                         "cdAcctsIntInvoiceName": "myCdAcctsIntInvoice3",
     //                         "cdAcctsIntInvoiceGuid": "qyuiop",
     //                         "cdAcctsIntInvoiceDescription": "oiuwah"
     //                     }
@@ -289,7 +291,7 @@ export class CdAcctsIntInvoiceService extends CdService {
                 serviceInstance: this,
                 serviceModel: CdAcctsIntInvoiceModel,
                 serviceModelInstance: this.serviceModel,
-                docName: 'Create Bill',
+                docName: 'Create CdAcctsIntInvoice',
                 dSource: 1,
             }
             const result = await this.b.createSL(req, res, serviceInput)
@@ -332,7 +334,7 @@ export class CdAcctsIntInvoiceService extends CdService {
     async read(req, res, serviceInput: IServiceInput): Promise<any> {
         await this.b.initSqlite(req, res)
         const q = this.b.getQuery(req);
-        console.log('CdAcctsIntInvoiceService::getBill/q:', q);
+        console.log('CdAcctsIntInvoiceService::getCdAcctsIntInvoice/q:', q);
         try {
             this.b.read$(req, res, serviceInput)
                 .subscribe((r) => {
@@ -362,7 +364,7 @@ export class CdAcctsIntInvoiceService extends CdService {
     async readSL(req, res, serviceInput: IServiceInput): Promise<any> {
         await this.b.initSqlite(req, res)
         const q = this.b.getQuery(req);
-        console.log('CdAcctsIntInvoiceService::getBill/q:', q);
+        console.log('CdAcctsIntInvoiceService::getCdAcctsIntInvoice/q:', q);
         try {
             this.b.readSL$(req, res, serviceInput)
                 .subscribe((r) => {
@@ -394,7 +396,7 @@ export class CdAcctsIntInvoiceService extends CdService {
     //  * {
     //         "ctx": "App",
     //         "m": "CdAccts",
-    //         "c": "Bill",
+    //         "c": "CdAcctsIntInvoice",
     //         "a": "Update",
     //         "dat": {
     //             "f_vals": [
@@ -529,7 +531,7 @@ export class CdAcctsIntInvoiceService extends CdService {
     //  * {
     //         "ctx": "App",
     //         "m": "CdAccts",
-    //         "c": "Bill",
+    //         "c": "CdAcctsIntInvoice",
     //         "a": "Get",
     //         "dat": {
     //             "f_vals": [
@@ -548,12 +550,16 @@ export class CdAcctsIntInvoiceService extends CdService {
     //  * @param req
     //  * @param res
     //  */
-    async getBill(req, res) {
-        const q = this.b.getQuery(req);
-        console.log('CdAcctsIntInvoiceService::getBill/q:', q);
+    async getIntInvoice(req, res, q = null) {
+        if (q) {
+
+        } else {
+            q = this.b.getQuery(req);
+        }
+        console.log('CdAcctsIntInvoiceService::getCdAcctsIntInvoice/q:', q);
         const serviceInput = {
             serviceModel: CdAcctsIntInvoiceModel,
-            docName: 'CdAcctsIntInvoiceService::getBill',
+            docName: 'CdAcctsIntInvoiceService::getCdAcctsIntInvoice',
             cmd: {
                 action: 'find',
                 query: q
@@ -585,13 +591,44 @@ export class CdAcctsIntInvoiceService extends CdService {
         }
     }
 
-    async getBillSL(req, res) {
-        await this.b.initSqlite(req, res)
-        const q = this.b.getQuery(req);
-        console.log('CdAcctsIntInvoiceService::getBill/q:', q);
+    async getIntInvoiceI(req, res, q = null):Promise<CdAcctsIntInvoiceModel[]> {
+        if (q) {
+
+        } else {
+            q = this.b.getQuery(req);
+        }
+        console.log('CdAcctsIntInvoiceService::getCdAcctsIntInvoice/q:', q);
         const serviceInput = {
             serviceModel: CdAcctsIntInvoiceModel,
-            docName: 'CdAcctsIntInvoiceService::getBill',
+            docName: 'CdAcctsIntInvoiceService::getCdAcctsIntInvoice',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        try {
+            return this.b.read(req, res, serviceInput)
+        } catch (e) {
+            console.log('CdAcctsIntInvoiceService::read$()/e:', e)
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'CdAcctsIntInvoiceService:update',
+                app_msg: ''
+            };
+            this.b.serviceErr(req, res, e, i.code)
+            this.b.respond(req, res)
+        }
+    }
+
+    async getCdAcctsIntInvoiceSL(req, res) {
+        await this.b.initSqlite(req, res)
+        const q = this.b.getQuery(req);
+        console.log('CdAcctsIntInvoiceService::getCdAcctsIntInvoice/q:', q);
+        const serviceInput = {
+            serviceModel: CdAcctsIntInvoiceModel,
+            docName: 'CdAcctsIntInvoiceService::getCdAcctsIntInvoice',
             cmd: {
                 action: 'find',
                 query: q
@@ -624,7 +661,7 @@ export class CdAcctsIntInvoiceService extends CdService {
         }
     }
 
-    // getBillType(req, res) {
+    // getCdAcctsIntInvoiceType(req, res) {
     //     const q = this.b.getQuery(req);
     //     console.log('CdAcctsIntInvoiceService::getCompany/f:', q);
     //     const serviceInput = {
@@ -661,54 +698,84 @@ export class CdAcctsIntInvoiceService extends CdService {
     //     }
     // }
 
-    // /**
-    //  * {
-    //         "ctx": "App",
-    //         "m": "CdAccts",
-    //         "c": "Bill",
-    //         "a": "GetCount",
-    //         "dat": {
-    //             "f_vals": [
-    //                 {
-    //                     "query": {
-    //                         "select": [
-    //                             "cdAcctsIntInvoiceName",
-    //                             "cdAcctsIntInvoiceGuid"
-    //                         ],
-    //                         "where": {},
-    //                         "take": 5,
-    //                         "skip": 0
-    //                     }
-    //                 }
-    //             ],
-    //             "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
-    //         },
-    //         "args": null
-    //     }
-    //  * @param req
-    //  * @param res
-    //  */
-    getPaged(req, res) {
-        const q = this.b.getQuery(req);
-        console.log('CdAcctsIntInvoiceService::getBillCount()/q:', q);
+    /**
+     * {
+            "ctx": "App",
+            "m": "CdAccts",
+            "c": "CdAcctsIntInvoice",
+            "a": "GetPaged",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "select": [
+                                "cdAcctsIntInvoiceId",
+                                "cdAcctsIntInvoiceGuid",
+                                "cdAcctsIntInvoiceName"
+                            ],
+                            "where": {},
+                            "take": 5,
+                            "skip": 0
+                        }
+                    }
+                ],
+                "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+            },
+            "args": null
+        }
+     * @param req
+     * @param res
+     */
+    getPaged(req, res, q = null) {
+        if (q) {
+
+        } else {
+            q = this.b.getQuery(req);
+        }
+        console.log('CdAcctsIntInvoiceService::getPaged()/q:', q);
         const serviceInput = {
             serviceModel: CdAcctsIntInvoiceModel,
-            docName: 'CdAcctsIntInvoiceService::getBillCount',
+            docName: 'CdAcctsIntInvoiceService::getPaged',
             cmd: {
                 action: 'find',
                 query: q
             },
             dSource: 1
         }
-        this.b.readCountSL$(req, res, serviceInput)
+        this.b.readPaged$(req, res, serviceInput)
             .subscribe((r) => {
-                this.b.i.code = 'CdAcctsIntInvoiceService::Get';
+                this.b.i.code = 'CdAcctsIntInvoiceService::getPaged';
                 const svSess = new SessionService();
                 svSess.sessResp.cd_token = req.post.dat.token;
                 svSess.sessResp.ttl = svSess.getTtl();
                 this.b.setAppState(true, this.b.i, svSess.sessResp);
                 this.b.cdResp.data = r;
-                this.b.sqliteConn.close();
+                this.b.respond(req, res)
+            })
+    }
+
+    getPagedView(req, res) {
+        console.log('CdAcctsIntInvoiceService::getPagedView()/01')
+        const q = this.b.getQuery(req);
+        console.log('CdAcctsIntInvoiceService::getPagedView()/02')
+        console.log('CdAcctsIntInvoiceService::getPagedView()/q:', q);
+        const serviceInput = {
+            serviceModel: CdAcctsInvoiceVendorViewModel,
+            docName: 'CdAcctsIntInvoiceService::getPagedView',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        this.b.readPaged$(req, res, serviceInput)
+            .subscribe((r) => {
+                this.b.i.code = 'CdAcctsIntInvoiceService::getPagedView';
+                const svSess = new SessionService();
+                svSess.sessResp.cd_token = req.post.dat.token;
+                svSess.sessResp.ttl = svSess.getTtl();
+                this.b.setAppState(true, this.b.i, svSess.sessResp);
+                this.b.cdResp.data = r;
                 this.b.respond(req, res)
             })
     }
@@ -717,8 +784,8 @@ export class CdAcctsIntInvoiceService extends CdService {
     //  * {
     //         "ctx": "App",
     //         "m": "CdAccts",
-    //         "c": "Bill",
-    //         "a": "BillViewPaged",
+    //         "c": "CdAcctsIntInvoice",
+    //         "a": "CdAcctsIntInvoiceViewPaged",
     //         "dat": {
     //             "f_vals": [
     //                 {
@@ -762,10 +829,10 @@ export class CdAcctsIntInvoiceService extends CdService {
 
     getPagedSL(req, res) {
         const q = this.b.getQuery(req);
-        console.log('CdAcctsIntInvoiceService::getBillCount()/q:', q);
+        console.log('CdAcctsIntInvoiceService::getCdAcctsIntInvoiceCount()/q:', q);
         const serviceInput = {
             serviceModel: CdAcctsIntInvoiceModel,
-            docName: 'CdAcctsIntInvoiceService::getBillCount',
+            docName: 'CdAcctsIntInvoiceService::getCdAcctsIntInvoiceCount',
             cmd: {
                 action: 'find',
                 query: q

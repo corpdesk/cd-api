@@ -3,29 +3,29 @@ import { BaseService } from '../../../sys/base/base.service';
 import { SessionService } from '../../../sys/user/services/session.service';
 import { CdService } from '../../../sys/base/cd.service';
 import { CreateIParams, IRespInfo, IServiceInput, IUser } from '../../../sys/base/IBase';
-import { CdAcctsPaymentModel } from '../models/cd-accts-payment.model';
+import { CdAcctsExpenditureModel } from '../models/cd-accts-expenditure.model';
 import { from, Observable } from 'rxjs';
 import { getConnection } from 'typeorm';
 import { CdAcctsAccountViewModel } from '../models/cd-accts-account-view.model';
 import { CdAcctsTransactModel } from '../models/cd-accts-transact.model';
 import { CdAcctsTransactService } from './cd-accts-transact.service';
-// import { CdAcctsAccountViewModel } from '../models/cdAcctsPayment-view.model';
+// import { CdAcctsAccountViewModel } from '../models/cdAcctsExpenditure-view.model';
 
-export class CdAcctsPaymentService extends CdService {
+export class CdAcctsExpenditureService extends CdService {
     sqliteDb;
     sqliteModels = [];
     err: string[] = []; // error messages
-    b: any; // instance of CdAcctsPaymentService
+    b: any; // instance of CdAcctsExpenditureService
     cdToken: string;
-    serviceModel: CdAcctsPaymentModel;
+    serviceModel: CdAcctsExpenditureModel;
     sessModel;
 
     /*
      * create rules
      */
     cRules: any = {
-        required: ['cdAcctsPaymentName', 'cdAcctsPaymentRate', 'cdAcctsPaymentUnit', 'cdAcctsPaymentType'],
-        noDuplicate: ['cdAcctsPaymentName', 'cdAcctsPaymentId']
+        required: ['cdAcctsExpenditureName', 'cdAcctsExpenditureRate', 'cdAcctsExpenditureUnit', 'cdAcctsExpenditureType'],
+        noDuplicate: ['cdAcctsExpenditureName', 'cdAcctsExpenditureId']
     };
     uRules: any[];
     dRules: any[];
@@ -33,7 +33,7 @@ export class CdAcctsPaymentService extends CdService {
     constructor() {
         super()
         this.b = new BaseService();
-        this.serviceModel = new CdAcctsPaymentModel();
+        this.serviceModel = new CdAcctsExpenditureModel();
     }
 
     async create(req, res) {
@@ -42,9 +42,9 @@ export class CdAcctsPaymentService extends CdService {
             await this.beforeCreate(req, res);
             const serviceInput = {
                 serviceInstance: this,
-                serviceModel: CdAcctsPaymentModel,
+                serviceModel: CdAcctsExpenditureModel,
                 serviceModelInstance: this.serviceModel,
-                docName: 'Create Payment',
+                docName: 'Create Expenditure',
                 dSource: 1,
             }
             const result = await this.b.create(req, res, serviceInput)
@@ -69,9 +69,9 @@ export class CdAcctsPaymentService extends CdService {
     //             "f_vals": [
     //                 {
     //                     "data": {
-    //                         "cdAcctsPaymentName": "myBill3",
-    //                         "cdAcctsPaymentGuid": "qyuiop",
-    //                         "cdAcctsPaymentDescription": "oiuwah"
+    //                         "cdAcctsExpenditureName": "myBill3",
+    //                         "cdAcctsExpenditureGuid": "qyuiop",
+    //                         "cdAcctsExpenditureDescription": "oiuwah"
     //                     }
     //                 }
     //             ],
@@ -89,7 +89,7 @@ export class CdAcctsPaymentService extends CdService {
             await this.beforeCreateSL(req, res);
             const serviceInput = {
                 serviceInstance: this,
-                serviceModel: CdAcctsPaymentModel,
+                serviceModel: CdAcctsExpenditureModel,
                 serviceModelInstance: this.serviceModel,
                 docName: 'Create Bill',
                 dSource: 1,
@@ -105,15 +105,15 @@ export class CdAcctsPaymentService extends CdService {
         }
     }
 
-    async createI(req, res, createIParams: CreateIParams): Promise<CdAcctsPaymentModel | boolean> {
+    async createI(req, res, createIParams: CreateIParams): Promise<CdAcctsExpenditureModel | boolean> {
         return await this.b.createI(req, res, createIParams)
     }
 
-    async cdAcctsPaymentExists(req, res, params): Promise<any> {
+    async cdAcctsExpenditureExists(req, res, params): Promise<any> {
         const serviceInput: IServiceInput = {
             serviceInstance: this,
-            serviceModel: CdAcctsPaymentModel,
-            docName: 'CdAcctsPaymentService::cdAcctsPaymentExists',
+            serviceModel: CdAcctsExpenditureModel,
+            docName: 'CdAcctsExpenditureService::cdAcctsExpenditureExists',
             cmd: {
                 action: 'find',
                 query: { where: params.filter }
@@ -129,19 +129,19 @@ export class CdAcctsPaymentService extends CdService {
     }
 
     async beforeCreateSL(req, res): Promise<any> {
-        this.b.setPlData(req, { key: 'cdAcctsPaymentGuid', value: this.b.getGuid() });
+        this.b.setPlData(req, { key: 'cdAcctsExpenditureGuid', value: this.b.getGuid() });
         return true;
     }
 
     async beforeCreate(req, res): Promise<any> {
-        this.b.setPlData(req, { key: 'cdAcctsPaymentGuid', value: this.b.getGuid() });
+        this.b.setPlData(req, { key: 'cdAcctsExpenditureGuid', value: this.b.getGuid() });
         const cdAcctsTransactQuery = req.post.dat.f_vals[0].cdAcctsTransact;
         const svCdAcctsTransact = new CdAcctsTransactService();
         const si = {
             serviceInstance: svCdAcctsTransact,
             serviceModel: CdAcctsTransactModel,
             serviceModelInstance: svCdAcctsTransact.serviceModel,
-            docName: 'CdAcctsPaymentService::beforeCreate',
+            docName: 'CdAcctsExpenditureService::beforeCreate',
             dSource: 1,
         }
         const createIParams: CreateIParams = {
@@ -151,7 +151,7 @@ export class CdAcctsPaymentService extends CdService {
         let ret = false;
         const cdAcctsTransactData: any = await svCdAcctsTransact.createI(req, res, createIParams)
         if (cdAcctsTransactData) {
-            console.log('CdAcctsPaymentService::beforeCreate()/cdAcctsTransactData:', cdAcctsTransactData)
+            console.log('CdAcctsExpenditureService::beforeCreate()/cdAcctsTransactData:', cdAcctsTransactData)
             this.b.setPlData(req, { key: 'cdAcctsTransactId', value: cdAcctsTransactData.cdAcctsTransactId });
             ret = true;
         } else {
@@ -165,12 +165,12 @@ export class CdAcctsPaymentService extends CdService {
     async read(req, res, serviceInput: IServiceInput): Promise<any> {
         await this.b.initSqlite(req, res)
         const q = this.b.getQuery(req);
-        console.log('CdAcctsPaymentService::getBill/q:', q);
+        console.log('CdAcctsExpenditureService::getBill/q:', q);
         try {
             this.b.read$(req, res, serviceInput)
                 .subscribe((r) => {
-                    // console.log('CdAcctsPaymentService::read$()/r:', r)
-                    this.b.i.code = 'CdAcctsPaymentService::Get';
+                    // console.log('CdAcctsExpenditureService::read$()/r:', r)
+                    this.b.i.code = 'CdAcctsExpenditureService::Get';
                     const svSess = new SessionService();
                     svSess.sessResp.cd_token = req.post.dat.token;
                     svSess.sessResp.ttl = svSess.getTtl();
@@ -180,11 +180,11 @@ export class CdAcctsPaymentService extends CdService {
                     this.b.respond(req, res)
                 })
         } catch (e) {
-            console.log('CdAcctsPaymentService::read$()/e:', e)
+            console.log('CdAcctsExpenditureService::read$()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
-                code: 'CdAcctsPaymentService:update',
+                code: 'CdAcctsExpenditureService:update',
                 app_msg: ''
             };
             this.b.serviceErr(req, res, e, i.code)
@@ -195,12 +195,12 @@ export class CdAcctsPaymentService extends CdService {
     async readSL(req, res, serviceInput: IServiceInput): Promise<any> {
         await this.b.initSqlite(req, res)
         const q = this.b.getQuery(req);
-        console.log('CdAcctsPaymentService::getBill/q:', q);
+        console.log('CdAcctsExpenditureService::getBill/q:', q);
         try {
             this.b.readSL$(req, res, serviceInput)
                 .subscribe((r) => {
-                    console.log('CdAcctsPaymentService::read$()/r:', r)
-                    this.b.i.code = 'CdAcctsPaymentService::Get';
+                    console.log('CdAcctsExpenditureService::read$()/r:', r)
+                    this.b.i.code = 'CdAcctsExpenditureService::Get';
                     const svSess = new SessionService();
                     svSess.sessResp.cd_token = req.post.dat.token;
                     svSess.sessResp.ttl = svSess.getTtl();
@@ -210,11 +210,11 @@ export class CdAcctsPaymentService extends CdService {
                     this.b.respond(req, res)
                 })
         } catch (e) {
-            console.log('CdAcctsPaymentService::read$()/e:', e)
+            console.log('CdAcctsExpenditureService::read$()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
-                code: 'CdAcctsPaymentService:update',
+                code: 'CdAcctsExpenditureService:update',
                 app_msg: ''
             };
             this.b.serviceErr(req, res, e, i.code)
@@ -234,10 +234,10 @@ export class CdAcctsPaymentService extends CdService {
     //                 {
     //                     "query": {
     //                         "update": {
-    //                             "cdAcctsPaymentGuid": "azimio3"
+    //                             "cdAcctsExpenditureGuid": "azimio3"
     //                         },
     //                         "where": {
-    //                             "cdAcctsPaymentId": 8
+    //                             "cdAcctsExpenditureId": 8
     //                         }
     //                     }
     //                 }
@@ -250,19 +250,19 @@ export class CdAcctsPaymentService extends CdService {
     //  * @param res
     //  */
     update(req, res) {
-        console.log('CdAcctsPaymentService::update()/01');
+        console.log('CdAcctsExpenditureService::update()/01');
         let q = this.b.getQuery(req);
         q = this.beforeUpdate(q);
         const serviceInput = {
-            serviceModel: CdAcctsPaymentModel,
-            docName: 'CdAcctsPaymentService::update',
+            serviceModel: CdAcctsExpenditureModel,
+            docName: 'CdAcctsExpenditureService::update',
             cmd: {
                 action: 'update',
                 query: q
             },
             dSource: 1
         }
-        console.log('CdAcctsPaymentService::update()/02')
+        console.log('CdAcctsExpenditureService::update()/02')
         this.b.updateSL$(req, res, serviceInput)
             .subscribe((ret) => {
                 this.b.cdResp.data = ret;
@@ -272,36 +272,36 @@ export class CdAcctsPaymentService extends CdService {
     }
 
     updateI(req, res, q): Observable<any> {
-        console.log('CdAcctsPaymentService::updateI()/01');
+        console.log('CdAcctsExpenditureService::updateI()/01');
         // let q = this.b.getQuery(req);
         q = this.beforeUpdate(q);
         const serviceInput = {
-            serviceModel: CdAcctsPaymentModel,
-            docName: 'CdAcctsPaymentService::updateI',
+            serviceModel: CdAcctsExpenditureModel,
+            docName: 'CdAcctsExpenditureService::updateI',
             cmd: {
                 action: 'update',
                 query: q
             },
             dSource: 1
         }
-        console.log('CdAcctsPaymentService::update()/02')
+        console.log('CdAcctsExpenditureService::update()/02')
         return this.b.update$(req, res, serviceInput)
     }
 
     updateSL(req, res) {
-        console.log('CdAcctsPaymentService::update()/01');
+        console.log('CdAcctsExpenditureService::update()/01');
         let q = this.b.getQuery(req);
         q = this.beforeUpdateSL(q);
         const serviceInput = {
-            serviceModel: CdAcctsPaymentModel,
-            docName: 'CdAcctsPaymentService::update',
+            serviceModel: CdAcctsExpenditureModel,
+            docName: 'CdAcctsExpenditureService::update',
             cmd: {
                 action: 'update',
                 query: q
             },
             dSource: 1
         }
-        console.log('CdAcctsPaymentService::update()/02')
+        console.log('CdAcctsExpenditureService::update()/02')
         this.b.updateSL$(req, res, serviceInput)
             .subscribe((ret) => {
                 this.b.cdResp.data = ret;
@@ -317,15 +317,15 @@ export class CdAcctsPaymentService extends CdService {
      * @returns
      */
     beforeUpdate(q: any) {
-        if (q.update.cdAcctsPaymentEnabled === '') {
-            q.update.cdAcctsPaymentEnabled = null;
+        if (q.update.cdAcctsExpenditureEnabled === '') {
+            q.update.cdAcctsExpenditureEnabled = null;
         }
         return q;
     }
 
     beforeUpdateSL(q: any) {
-        if (q.update.cdAcctsPaymentEnabled === '') {
-            q.update.cdAcctsPaymentEnabled = null;
+        if (q.update.cdAcctsExpenditureEnabled === '') {
+            q.update.cdAcctsExpenditureEnabled = null;
         }
         return q;
     }
@@ -369,7 +369,7 @@ export class CdAcctsPaymentService extends CdService {
     //                 {
     //                     "query": {
     //                         "where": {
-    //                             "cdAcctsPaymentId": 8
+    //                             "cdAcctsExpenditureId": 8
     //                         }
     //                     }
     //                 }
@@ -383,10 +383,10 @@ export class CdAcctsPaymentService extends CdService {
     //  */
     async getBill(req, res) {
         const q = this.b.getQuery(req);
-        console.log('CdAcctsPaymentService::getBill/q:', q);
+        console.log('CdAcctsExpenditureService::getBill/q:', q);
         const serviceInput = {
-            serviceModel: CdAcctsPaymentModel,
-            docName: 'CdAcctsPaymentService::getBill',
+            serviceModel: CdAcctsExpenditureModel,
+            docName: 'CdAcctsExpenditureService::getBill',
             cmd: {
                 action: 'find',
                 query: q
@@ -396,8 +396,8 @@ export class CdAcctsPaymentService extends CdService {
         try {
             this.b.read$(req, res, serviceInput)
                 .subscribe((r) => {
-                    console.log('CdAcctsPaymentService::read$()/r:', r)
-                    this.b.i.code = 'CdAcctsPaymentService::Get';
+                    console.log('CdAcctsExpenditureService::read$()/r:', r)
+                    this.b.i.code = 'CdAcctsExpenditureService::Get';
                     const svSess = new SessionService();
                     svSess.sessResp.cd_token = req.post.dat.token;
                     svSess.sessResp.ttl = svSess.getTtl();
@@ -406,11 +406,11 @@ export class CdAcctsPaymentService extends CdService {
                     this.b.respond(req, res)
                 })
         } catch (e) {
-            console.log('CdAcctsPaymentService::read$()/e:', e)
+            console.log('CdAcctsExpenditureService::read$()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
-                code: 'CdAcctsPaymentService:update',
+                code: 'CdAcctsExpenditureService:update',
                 app_msg: ''
             };
             this.b.serviceErr(req, res, e, i.code)
@@ -421,10 +421,10 @@ export class CdAcctsPaymentService extends CdService {
     async getBillSL(req, res) {
         await this.b.initSqlite(req, res)
         const q = this.b.getQuery(req);
-        console.log('CdAcctsPaymentService::getBill/q:', q);
+        console.log('CdAcctsExpenditureService::getBill/q:', q);
         const serviceInput = {
-            serviceModel: CdAcctsPaymentModel,
-            docName: 'CdAcctsPaymentService::getBill',
+            serviceModel: CdAcctsExpenditureModel,
+            docName: 'CdAcctsExpenditureService::getBill',
             cmd: {
                 action: 'find',
                 query: q
@@ -434,8 +434,8 @@ export class CdAcctsPaymentService extends CdService {
         try {
             this.b.readSL$(req, res, serviceInput)
                 .subscribe((r) => {
-                    console.log('CdAcctsPaymentService::read$()/r:', r)
-                    this.b.i.code = 'CdAcctsPaymentService::Get';
+                    console.log('CdAcctsExpenditureService::read$()/r:', r)
+                    this.b.i.code = 'CdAcctsExpenditureService::Get';
                     const svSess = new SessionService();
                     svSess.sessResp.cd_token = req.post.dat.token;
                     svSess.sessResp.ttl = svSess.getTtl();
@@ -445,11 +445,11 @@ export class CdAcctsPaymentService extends CdService {
                     this.b.respond(req, res)
                 })
         } catch (e) {
-            console.log('CdAcctsPaymentService::read$()/e:', e)
+            console.log('CdAcctsExpenditureService::read$()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
-                code: 'CdAcctsPaymentService:update',
+                code: 'CdAcctsExpenditureService:update',
                 app_msg: ''
             };
             this.b.serviceErr(req, res, e, i.code)
@@ -459,10 +459,10 @@ export class CdAcctsPaymentService extends CdService {
 
     // getBillType(req, res) {
     //     const q = this.b.getQuery(req);
-    //     console.log('CdAcctsPaymentService::getCompany/f:', q);
+    //     console.log('CdAcctsExpenditureService::getCompany/f:', q);
     //     const serviceInput = {
     //         serviceModel: CompanyTypeModel,
-    //         docName: 'CdAcctsPaymentService::getCompanyType$',
+    //         docName: 'CdAcctsExpenditureService::getCompanyType$',
     //         cmd: {
     //             action: 'find',
     //             query: q
@@ -472,7 +472,7 @@ export class CdAcctsPaymentService extends CdService {
     //     try {
     //         this.b.read$(req, res, serviceInput)
     //             .subscribe((r) => {
-    //                 console.log('CdAcctsPaymentService::read$()/r:', r)
+    //                 console.log('CdAcctsExpenditureService::read$()/r:', r)
     //                 this.b.i.code = 'CompanyController::Get';
     //                 const svSess = new SessionService();
     //                 svSess.sessResp.cd_token = req.post.dat.token;
@@ -482,11 +482,11 @@ export class CdAcctsPaymentService extends CdService {
     //                 this.b.respond(req, res)
     //             })
     //     } catch (e) {
-    //         console.log('CdAcctsPaymentService::read$()/e:', e)
+    //         console.log('CdAcctsExpenditureService::read$()/e:', e)
     //         this.b.err.push(e.toString());
     //         const i = {
     //             messages: this.b.err,
-    //             code: 'CdAcctsPaymentService:update',
+    //             code: 'CdAcctsExpenditureService:update',
     //             app_msg: ''
     //         };
     //         this.b.serviceErr(req, res, e, i.code)
@@ -505,8 +505,8 @@ export class CdAcctsPaymentService extends CdService {
     //                 {
     //                     "query": {
     //                         "select": [
-    //                             "cdAcctsPaymentName",
-    //                             "cdAcctsPaymentGuid"
+    //                             "cdAcctsExpenditureName",
+    //                             "cdAcctsExpenditureGuid"
     //                         ],
     //                         "where": {},
     //                         "take": 5,
@@ -523,10 +523,10 @@ export class CdAcctsPaymentService extends CdService {
     //  */
     getPaged(req, res) {
         const q = this.b.getQuery(req);
-        console.log('CdAcctsPaymentService::getBillCount()/q:', q);
+        console.log('CdAcctsExpenditureService::getBillCount()/q:', q);
         const serviceInput = {
-            serviceModel: CdAcctsPaymentModel,
-            docName: 'CdAcctsPaymentService::getBillCount',
+            serviceModel: CdAcctsExpenditureModel,
+            docName: 'CdAcctsExpenditureService::getBillCount',
             cmd: {
                 action: 'find',
                 query: q
@@ -535,7 +535,7 @@ export class CdAcctsPaymentService extends CdService {
         }
         this.b.readCountSL$(req, res, serviceInput)
             .subscribe((r) => {
-                this.b.i.code = 'CdAcctsPaymentService::Get';
+                this.b.i.code = 'CdAcctsExpenditureService::Get';
                 const svSess = new SessionService();
                 svSess.sessResp.cd_token = req.post.dat.token;
                 svSess.sessResp.ttl = svSess.getTtl();
@@ -571,10 +571,10 @@ export class CdAcctsPaymentService extends CdService {
     //  */
     getViewPaged(req, res) {
         const q = this.b.getQuery(req);
-        console.log('CdAcctsPaymentService::getViewPaged()/q:', q);
+        console.log('CdAcctsExpenditureService::getViewPaged()/q:', q);
         const serviceInput = {
-            serviceModel: CdAcctsPaymentModel,
-            docName: 'CdAcctsPaymentService::getViewPaged',
+            serviceModel: CdAcctsExpenditureModel,
+            docName: 'CdAcctsExpenditureService::getViewPaged',
             cmd: {
                 action: 'find',
                 query: q
@@ -583,7 +583,7 @@ export class CdAcctsPaymentService extends CdService {
         }
         this.b.readPaged$(req, res, serviceInput)
             .subscribe((r) => {
-                this.b.i.code = 'CdAcctsPaymentService::getViewPaged';
+                this.b.i.code = 'CdAcctsExpenditureService::getViewPaged';
                 const svSess = new SessionService();
                 svSess.sessResp.cd_token = req.post.dat.token;
                 svSess.sessResp.ttl = svSess.getTtl();
@@ -595,10 +595,10 @@ export class CdAcctsPaymentService extends CdService {
 
     getPagedSL(req, res) {
         const q = this.b.getQuery(req);
-        console.log('CdAcctsPaymentService::getBillCount()/q:', q);
+        console.log('CdAcctsExpenditureService::getBillCount()/q:', q);
         const serviceInput = {
-            serviceModel: CdAcctsPaymentModel,
-            docName: 'CdAcctsPaymentService::getBillCount',
+            serviceModel: CdAcctsExpenditureModel,
+            docName: 'CdAcctsExpenditureService::getBillCount',
             cmd: {
                 action: 'find',
                 query: q
@@ -607,7 +607,7 @@ export class CdAcctsPaymentService extends CdService {
         }
         this.b.readCountSL$(req, res, serviceInput)
             .subscribe((r) => {
-                this.b.i.code = 'CdAcctsPaymentService::Get';
+                this.b.i.code = 'CdAcctsExpenditureService::Get';
                 const svSess = new SessionService();
                 svSess.sessResp.cd_token = req.post.dat.token;
                 svSess.sessResp.ttl = svSess.getTtl();
@@ -620,10 +620,10 @@ export class CdAcctsPaymentService extends CdService {
 
     // getCompanyTypeCount(req, res) {
     //     const q = this.b.getQuery(req);
-    //     console.log('CdAcctsPaymentService::getCompanyCount/q:', q);
+    //     console.log('CdAcctsExpenditureService::getCompanyCount/q:', q);
     //     const serviceInput = {
     //         serviceModel: CompanyTypeModel,
-    //         docName: 'CdAcctsPaymentService::getCompanyCount$',
+    //         docName: 'CdAcctsExpenditureService::getCompanyCount$',
     //         cmd: {
     //             action: 'find',
     //             query: q
@@ -644,10 +644,10 @@ export class CdAcctsPaymentService extends CdService {
 
     delete(req, res) {
         const q = this.b.getQuery(req);
-        console.log('CdAcctsPaymentService::delete()/q:', q)
+        console.log('CdAcctsExpenditureService::delete()/q:', q)
         const serviceInput = {
-            serviceModel: CdAcctsPaymentModel,
-            docName: 'CdAcctsPaymentService::delete',
+            serviceModel: CdAcctsExpenditureModel,
+            docName: 'CdAcctsExpenditureService::delete',
             cmd: {
                 action: 'delete',
                 query: q
@@ -664,10 +664,10 @@ export class CdAcctsPaymentService extends CdService {
 
     deleteSL(req, res) {
         const q = this.b.getQuery(req);
-        console.log('CdAcctsPaymentService::delete()/q:', q)
+        console.log('CdAcctsExpenditureService::delete()/q:', q)
         const serviceInput = {
-            serviceModel: CdAcctsPaymentModel,
-            docName: 'CdAcctsPaymentService::delete',
+            serviceModel: CdAcctsExpenditureModel,
+            docName: 'CdAcctsExpenditureService::delete',
             cmd: {
                 action: 'delete',
                 query: q
@@ -685,20 +685,20 @@ export class CdAcctsPaymentService extends CdService {
     async getMeta(req, res) {
         try {
             const serviceInput = {
-                serviceModel: CdAcctsPaymentModel,
-                docName: 'CdAcctsPaymentService::getMeta',
+                serviceModel: CdAcctsExpenditureModel,
+                docName: 'CdAcctsExpenditureService::getMeta',
                 cmd: null,
                 dSource: 1
             }
-            this.b.cdResp.data = await this.b.getEntityPropertyMapSL(req, res, CdAcctsPaymentModel);
+            this.b.cdResp.data = await this.b.getEntityPropertyMapSL(req, res, CdAcctsExpenditureModel);
             this.b.sqliteConn.close();
             this.b.respond(req, res)
         } catch (e) {
-            console.log('CdAcctsPaymentService::getMeta()/e:', e)
+            console.log('CdAcctsExpenditureService::getMeta()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
-                code: 'CdAcctsPaymentService:getMeta',
+                code: 'CdAcctsExpenditureService:getMeta',
                 app_msg: ''
             };
             this.b.serviceErr(req, res, e, i.code)

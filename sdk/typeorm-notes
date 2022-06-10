@@ -1,4 +1,15 @@
-OR-FILTER
-const filterOr =  { where: [{ aa: 'a' },{ bb: 'b' }]}
-AND-FILTER
-const filterAnd =  { where: { aa: 'a', bb: 'b' }}
+// OR-FILTER
+const filterOr = { where: [{ aa: 'a' }, { bb: 'b' }] }
+
+// AND-FILTER
+const filterAnd = { where: { aa: 'a', bb: 'b' } }
+
+// ORDERBY
+async function getPaged() {
+    return await this.repo.findAndCount({
+        where: { where: { aa: 'a', bb: 'b' } },
+        order: { aa: { aaName: 'ASC' } },
+        skip: 0,
+        take: 5,
+    });
+}

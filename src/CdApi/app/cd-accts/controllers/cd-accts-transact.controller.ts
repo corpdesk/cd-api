@@ -1,17 +1,17 @@
 import { BaseService } from '../../../sys/base/base.service';
 import { IServiceInput } from '../../../sys/base/IBase';
-import { BillService } from '../services/bill.service';
+import { CdAcctsTransactService } from '../services/cd-accts-transact.service';
 
-export class BillController {
+export class CdAcctsTransactController {
 
     b: BaseService;
-    svBill: BillService;
+    svCdAcctsTransact: CdAcctsTransactService;
 
     constructor() {
-        console.log('BillController::constructor()/01')
+        console.log('CdAcctsTransactController::constructor()/01')
         this.b = new BaseService();
-        console.log('BillController::constructor()/02')
-        this.svBill = new BillService();
+        console.log('CdAcctsTransactController::constructor()/02')
+        this.svCdAcctsTransact = new CdAcctsTransactService();
     }
 
     // // /**
@@ -36,22 +36,22 @@ export class BillController {
     // //  * @param res
     // //  */
     async Create(req, res) {
-        console.log('BillController::Create()/01')
+        console.log('CdAcctsTransactController::Create()/01')
         try {
-            console.log('BillController::Create()/02')
-            await this.svBill.create(req, res);
+            console.log('CdAcctsTransactController::Create()/02')
+            await this.svCdAcctsTransact.create(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'BillController:Create');
+            this.b.serviceErr(req, res, e, 'CdAcctsTransactController:Create');
         }
     }
 
     async CreateSL(req, res) {
-        console.log('BillController::Create()/01')
+        console.log('CdAcctsTransactController::Create()/01')
         try {
-            console.log('BillController::Create()/02')
-            await this.svBill.createSL(req, res);
+            console.log('CdAcctsTransactController::Create()/02')
+            await this.svCdAcctsTransact.createSL(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'BillController:CreateSL');
+            this.b.serviceErr(req, res, e, 'CdAcctsTransactController:CreateSL');
         }
     }
 
@@ -59,7 +59,7 @@ export class BillController {
     // {
     //     "ctx": "App",
     //     "m": "CdAccts",
-    //     "c": "Bill",
+    //     "c": "CdAcctsTransact",
     //     "a": "Get",
     //     "dat": {
     //         "f_vals": [
@@ -78,19 +78,56 @@ export class BillController {
     //  */
     async Get(req, res) {
         try {
-            await this.svBill.getBill(req, res);
+            await this.svCdAcctsTransact.getTransact(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'BillController:Get');
+            this.b.serviceErr(req, res, e, 'CdAcctsTransactController:Get');
         }
     }
 
-    async GetSL(req, res) {
+    /**
+     * {
+            "ctx": "App",
+            "m": "cd-accts",
+            "c": "CdAcctsTransact",
+            "a": "GetMedia",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "select": [
+                                "cdAcctsTransactMediaId",
+                                "cdAcctsTransactMediaGuid",
+                                "cdAcctsTransactMediaName",
+                                "cdAcctsTransactMediaDescription",
+                                "docId",
+                                "cdAcctsTransactMediaTypeId"
+                            ],
+                            "where": {}
+                        }
+                    }
+                ],
+                "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+            },
+            "args": null
+        }
+     * @param req 
+     * @param res 
+     */
+    async GetMedia(req, res) {
         try {
-            await this.svBill.getBillSL(req, res);
+            await this.svCdAcctsTransact.getMedia(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'BillController:GetSL');
+            this.b.serviceErr(req, res, e, 'CdAcctsTransactController:Get');
         }
     }
+
+    // async GetSL(req, res) {
+    //     try {
+    //         await this.svCdAcctsTransact.getCdAcctsTransactSL(req, res);
+    //     } catch (e) {
+    //         this.b.serviceErr(req, res, e, 'CdAcctsTransactController:GetSL');
+    //     }
+    // }
 
     // async read(req, res, serviceInput: IServiceInput): Promise<any> {
     //     await this.init(req, res);
@@ -141,15 +178,15 @@ export class BillController {
     //   * {
     //         "ctx": "App",
     //         "m": "CdAccts",
-    //         "c": "Bill",
+    //         "c": "CdAcctsTransact",
     //         "a": "GetCount",
     //         "dat": {
     //             "f_vals": [
     //                 {
     //                     "query": {
     //                         "select": [
-    //                             "billName",
-    //                             "billGuid"
+    //                             "cd-accts-transactName",
+    //                             "cd-accts-transactGuid"
     //                         ],
     //                         "where": {},
     //                         "take": 5,
@@ -166,48 +203,168 @@ export class BillController {
     //   */
     async GetCount(req, res) {
         try {
-            await this.svBill.getPaged(req, res);
+            await this.svCdAcctsTransact.getPaged(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'BillController:GetCount');
+            this.b.serviceErr(req, res, e, 'CdAcctsTransactController:GetCount');
         }
     }
 
-    // /**
-    //  * {
-    //         "ctx": "App",
-    //         "m": "CdAccts",
-    //         "c": "Bill",
-    //         "a": "BillViewPaged",
-    //         "dat": {
-    //             "f_vals": [
-    //                 {
-    //                     "query": {
-    //                         "where": {},
-    //                         "take": 5,
-    //                         "skip": 0
-    //                     }
-    //                 }
-    //             ],
-    //             "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
-    //         },
-    //         "args": null
-    //     }
-    //  * @param req
-    //  * @param res
-    //  */
-    async BillViewPaged(req, res) {
+    /**
+     * {
+    "ctx": "App",
+    "m": "cd-accts",
+    "c": "CdAcctsTransact",
+    "a": "GetPagedView",
+    "dat": {
+        "f_vals": [
+            {
+                "query": {
+                    "select": [
+                        "cdAcctsTransactId", 
+                        "cdAcctsTransactGuid", 
+                        "cdAcctsTransactName", 
+                        "cdAcctsTransactDescription", 
+                        "docId", 
+                        "cdAcctsAccountId", 
+                        "cdAcctsTransactMediaId", 
+                        "cdAcctsTransactStateId", 
+                        "credit", 
+                        "debit", 
+                        "cdAcctsCurrencyId", 
+                        "cdAcctsTransactTypeId", 
+                        "companyId", 
+                        "cdAcctsTransactAmount", 
+                        "cdAcctsTransactParentId", 
+                        "cdAcctsTransactMediaDate"
+                    ],
+                    "where": {}
+                }
+            }
+        ],
+        "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+    },
+    "args": null
+}
+     * @param req
+     * @param res
+     */
+    async GetPagedView(req, res) {
         try {
-            await this.svBill.getViewPaged(req, res);
+            await this.svCdAcctsTransact.getPagedView(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'BillController:BillViewPaged');
+            this.b.serviceErr(req, res, e, 'CdAcctsTransactController:CdAcctsTransactViewPaged');
+        }
+    }
+
+    /**
+     * {
+            "ctx": "App",
+            "m": "cd-accts",
+            "c": "CdAcctsTransact",
+            "a": "GetInvoiceTotalSettled",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "select": [
+                                "cdAcctsIntInvoiceId",
+                                "totalPaid"
+                            ],
+                            "where": {
+                                "cdAcctsIntInvoiceId": 647
+                            }
+                        }
+                    }
+                ],
+                "token": "3ffd785f-e885-4d37-addf-0e24379af338"
+            },
+            "args": {}
+        }
+     * @param req 
+     * @param res 
+     */
+    async GetInvoiceTotalSettled(req, res) {
+        try {
+            await this.svCdAcctsTransact.getInvoiceTotalSettled(req, res);
+        } catch (e) {
+            this.b.serviceErr(req, res, e, 'CdAcctsTransactController:GetInvoiceTotalSettled');
         }
     }
 
     async GetPagedSL(req, res) {
         try {
-            await this.svBill.getPagedSL(req, res);
+            await this.svCdAcctsTransact.getPagedSL(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'BillController:GetSL');
+            this.b.serviceErr(req, res, e, 'CdAcctsTransactController:GetSL');
+        }
+    }
+
+    /**
+     * 
+     * {
+            "ctx": "App",
+            "m": "cd-accts",
+            "c": "CdAcctsTransact",
+            "a": "GetStatement",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "where": {}
+                        }
+                    }
+                ],
+                "token": "3ffd785f-e885-4d37-addf-0e24379af338"
+            },
+            "args": {}
+        }
+     * @param req 
+     * @param res 
+     */
+    async GetStatement(req, res) {
+        try {
+            await this.svCdAcctsTransact.getStatement(req, res);
+        } catch (e) {
+            this.b.serviceErr(req, res, e, 'CdAcctsTransactController:GetStatement');
+        }
+    }
+
+    /**
+     * {
+            "ctx": "App",
+            "m": "cd-accts",
+            "c": "CdAcctsTransact",
+            "a": "GetStatementPaged",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "select": [
+                                "docDate",
+                                "cdAcctsTransactMediaId",
+                                "billName",
+                                "billCost",
+                                "cdAcctsTransactAmount",
+                                "cdAcctsTransactBalance"
+                            ],
+                            "where": {},
+                            "take": 5,
+                            "skip": 0
+                        }
+                    }
+                ],
+                "token": "3ffd785f-e885-4d37-addf-0e24379af338"
+            },
+            "args": {}
+        }
+     * @param req 
+     * @param res 
+     */
+    async GetStatementPaged(req, res) {
+        try {
+            await this.svCdAcctsTransact.getStatementPaged(req, res);
+        } catch (e) {
+            this.b.serviceErr(req, res, e, 'CdAcctsTransactController:GetStatementPaged');
         }
     }
 
@@ -238,22 +395,22 @@ export class BillController {
     //  * @param res
     //  */
     async Update(req, res) {
-        console.log('BillController::Update()/01');
+        console.log('CdAcctsTransactController::Update()/01');
         try {
-            console.log('BillController::Update()/02');
-            await this.svBill.update(req, res);
+            console.log('CdAcctsTransactController::Update()/02');
+            await this.svCdAcctsTransact.update(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'BillController:Update');
+            this.b.serviceErr(req, res, e, 'CdAcctsTransactController:Update');
         }
     }
 
     async UpdateSL(req, res) {
-        console.log('BillController::UpdateSL()/01');
+        console.log('CdAcctsTransactController::UpdateSL()/01');
         try {
-            console.log('BillController::UpdateSL()/02');
-            await this.svBill.update(req, res);
+            console.log('CdAcctsTransactController::UpdateSL()/02');
+            await this.svCdAcctsTransact.update(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'BillController:UpdateSL');
+            this.b.serviceErr(req, res, e, 'CdAcctsTransactController:UpdateSL');
         }
     }
 
@@ -261,14 +418,14 @@ export class BillController {
     //  * {
     //          "ctx": "App",
     //          "m": "CdAccts",
-    //          "c": "Bill",
+    //          "c": "CdAcctsTransact",
     //          "a": "Delete",
     //          "dat": {
     //              "f_vals": [
     //                  {
     //                      "query": {
     //                          "where": {
-    //                              "billGuid": "qyuiop"
+    //                              "cd-accts-transactGuid": "qyuiop"
     //                          }
     //                      }
     //                  }
@@ -282,25 +439,25 @@ export class BillController {
     //  */
     async Delete(req, res) {
         try {
-            await this.svBill.delete(req, res);
+            await this.svCdAcctsTransact.delete(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'BillController:Delete');
+            this.b.serviceErr(req, res, e, 'CdAcctsTransactController:Delete');
         }
     }
 
     async DeleteSL(req, res) {
         try {
-            await this.svBill.delete(req, res);
+            await this.svCdAcctsTransact.delete(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'BillController:DeleteSL');
+            this.b.serviceErr(req, res, e, 'CdAcctsTransactController:DeleteSL');
         }
     }
 
     async GetMeta(req, res) {
         try {
-            await this.svBill.getMeta(req, res);
+            await this.svCdAcctsTransact.getMeta(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'BillController:Get');
+            this.b.serviceErr(req, res, e, 'CdAcctsTransactController:Get');
         }
     }
 

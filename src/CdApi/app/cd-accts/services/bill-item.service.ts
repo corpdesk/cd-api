@@ -11,7 +11,7 @@ import { BillModel } from '../models/bill.model';
 import { BillService } from './bill.service';
 import { exists } from 'fs';
 import { CdAcctsIntInvoiceModel } from '../models/cd-accts-int-invoice.model';
-import { CdAcctsIntInvoiceService } from './cd-accts-invoice.service';
+import { CdAcctsIntInvoiceService } from './cd-accts-int-invoice.service';
 import { CdAcctsTransactService } from './cd-accts-transact.service';
 import { CdAcctsTransactModel } from '../models/cd-accts-transact.model';
 import { CdAcctsAccountService } from './cd-accts-account.service';

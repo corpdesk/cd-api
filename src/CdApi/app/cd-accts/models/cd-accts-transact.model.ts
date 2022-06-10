@@ -50,7 +50,7 @@ export class CdAcctsTransactModel {
         }
     )
     cdAcctsTransactTypeId?: number;
-    
+
     @Column(
         {
             name: 'cd_accts_account_id',
@@ -77,14 +77,14 @@ export class CdAcctsTransactModel {
             name: 'credit',
         }
     )
-    Credit: boolean;
+    credit: boolean;
 
     @Column(
         {
             name: 'debit',
         }
     )
-    Debit: boolean;
+    debit: boolean;
 
     @Column(
         {
@@ -109,9 +109,23 @@ export class CdAcctsTransactModel {
 
     @Column(
         {
+            name: 'cd_accts_transact_balance',
+        }
+    )
+    cdAcctsTransactBalance: number;
+
+    @Column(
+        {
             name: 'cd_accts_transact_parent_id',
         }
     )
     cdAcctsTransactParentId?: number;
-    
+
+    @Column(
+        {
+            name: 'cd_accts_transact_media_date',
+        }
+    )
+    cdAcctsTransactMediaDate?: number;
+
 }

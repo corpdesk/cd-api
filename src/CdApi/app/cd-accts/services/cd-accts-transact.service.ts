@@ -7,6 +7,12 @@ import { from, Observable } from 'rxjs';
 import { getConnection } from 'typeorm';
 import { CdAcctsAccountViewModel } from '../models/cd-accts-account-view.model';
 import { CdAcctsTransactModel } from '../models/cd-accts-transact.model';
+import { CdAcctsAccountModel } from '../models/cd-accts-account.model';
+import { CdAcctsIntInvoiceModel } from '../models/cd-accts-int-invoice.model';
+import { CdAcctsInvoiceVendorViewModel } from '../models/cd-accts-invoice-vendor-view.model';
+import { CdAcctsTransactMediaModel } from '../models/cd-accts-transact-media.model';
+import { CdAcctsVendorStatementViewModel } from '../models/cd-accts-vendor-statement-view.model';
+import { InvoiceTotalSettledViewModel } from '../models/invoice-total-settled-view.model';
 // import { CdAcctsAccountViewModel } from '../models/cdAcctsTransact-view.model';
 
 export class CdAcctsTransactService extends CdService {
@@ -125,6 +131,90 @@ export class CdAcctsTransactService extends CdService {
         return ret;
     }
 
+    async transactInvoice(req, res, accountArr: CdAcctsAccountModel[], newInvoice: CdAcctsIntInvoiceModel) {
+        console.log('CdAcctsTransactService::transactInvoice()/newInvoice:', newInvoice)
+        console.log('CdAcctsTransactService::transactInvoice()/accountArr:', accountArr)
+        // const this = new CdAcctsTransactService()
+        if (accountArr.length > 0) {
+            const account = accountArr[0];
+            console.log('CdAcctsTransactService::transactInvoice()/account.cdAcctsAccountTypeId:', account.cdAcctsAccountTypeId)
+            // const ni = await newInvoice;
+            // const accountModel:CdAcctsAccountModel = await this.getAccount(req, res, { where: { vendorId: newInvoice.vendorId } })[0]
+            // const clientAcct:CdAcctsAccountModel = await this.getAccount(req, res, { where: { vendorId: newInvoice.clientId } })[0]
+            let cId; //companyId
+            let isCredit = false; //credit
+            let isDebit = false; // debit
+            switch (account.cdAcctsAccountTypeId) {
+                case 591: // vendor
+                    cId = newInvoice.vendorId
+                    isCredit = true;
+                    break;
+                case 592: // client
+                    cId = newInvoice.clientId
+                    isDebit = true;
+                    break;
+            }
+            const transact: CdAcctsTransactModel = {
+                cdAcctsTransactName: newInvoice.cdAcctsIntInvoiceName,
+                cdAcctsTransactDescription: newInvoice.cdAcctsIntInvoiceDescription,
+                cdAcctsAccountId: account.cdAcctsAccountId,
+                cdAcctsTransactMediaId: await this.getTransactionMedia(), //603,
+                cdAcctsTransactStateId: await this.getTransactionState(603, 'CdAcctsTransactservice::transactInvoice'), // transact state = 'invoiced'
+                credit: isCredit,
+                debit: isDebit,
+                cdAcctsCurrencyId: await this.getTransactionCurrency(), //592,
+                companyId: cId,
+                cdAcctsTransactAmount: newInvoice.cdAcctsIntInvoiceCost,
+                cdAcctsTransactParentId: -1, // can be used to link transactions that are related eg invoice and tax
+                cdAcctsTransactBalance: 0,
+            }
+
+            console.log('CdAcctsTransactService::afterCreate()/transact:', transact)
+            const si = {
+                serviceInstance: this,
+                serviceModel: CdAcctsTransactModel,
+                serviceModelInstance: this.serviceModel,
+                docName: 'CdAcctsTransactService/afterCreate',
+                dSource: 1,
+            }
+
+            ///////////////////////////////////////////////
+            const createIParams: CreateIParams = {
+                serviceInput: si,
+                controllerData: transact
+            }
+            const newTransact: any = await this.createI(req, res, createIParams)
+            console.log('CdAcctsTransactService::afterCreate()/newTransact:', newTransact)
+            return newTransact;
+        } else {
+            const svSess = new SessionService()
+            this.b.i.app_msg = 'one of the entities account is not set properly';
+            this.b.setAppState(true, this.b.i, svSess.sessResp);
+            this.b.cdResp.data = [];
+            await this.b.respond(req, res);
+        }
+    }
+
+    async transactReceipt(req, res, transact: CdAcctsTransactModel) {
+        console.log('CdAcctsTransactSerice::transactReceipt()/transact:', transact)
+        const si = {
+            serviceInstance: this,
+            serviceModel: CdAcctsTransactModel,
+            serviceModelInstance: this.serviceModel,
+            docName: 'CdAcctsTransactSerice/transactReceipt',
+            dSource: 1,
+        }
+
+        ///////////////////////////////////////////////
+        const createIParams: CreateIParams = {
+            serviceInput: si,
+            controllerData: transact
+        }
+        const newTransact: any = await this.createI(req, res, createIParams)
+        console.log('CdAcctsTransactService::afterCreate()/newTransact:', newTransact)
+        return newTransact;
+    }
+
     async cdAcctsTransactExists(req, res, params): Promise<any> {
         const serviceInput: IServiceInput = {
             serviceInstance: this,
@@ -144,13 +234,126 @@ export class CdAcctsTransactService extends CdService {
         // }
     }
 
+    async getStatement(req, res) {
+        const q = this.b.getQuery(req);
+        console.log('CdAcctsTransactService::getStatement/q:', q);
+        const serviceInput = {
+            serviceModel: CdAcctsVendorStatementViewModel,
+            docName: 'CdAcctsTransactService::getStatement',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        try {
+            this.b.read$(req, res, serviceInput)
+                .subscribe((r) => {
+                    console.log('CdAcctsTransactService::read$()/r:', r)
+                    this.b.i.code = 'CdAcctsTransactService::Get';
+                    const svSess = new SessionService();
+                    svSess.sessResp.cd_token = req.post.dat.token;
+                    svSess.sessResp.ttl = svSess.getTtl();
+                    this.b.setAppState(true, this.b.i, svSess.sessResp);
+                    this.b.cdResp.data = r;
+                    this.b.respond(req, res)
+                })
+        } catch (e) {
+            console.log('CdAcctsTransactService::read$()/e:', e)
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'BillService:update',
+                app_msg: ''
+            };
+            this.b.serviceErr(req, res, e, i.code)
+            this.b.respond(req, res)
+        }
+    }
+
+    getStatementPaged(req, res) {
+        console.log('CdAcctsTransactService::getStatementPaged()/01')
+        const q = this.b.getQuery(req);
+        console.log('CdAcctsTransactService::getStatementPaged()/02')
+        console.log('CdAcctsTransactService::getStatementPaged()/q:', q);
+        const serviceInput = {
+            serviceModel: CdAcctsVendorStatementViewModel,
+            docName: 'CdAcctsTransactService::getStatementPaged',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        this.b.readPaged$(req, res, serviceInput)
+            .subscribe((r) => {
+                this.b.i.code = 'CdAcctsTransactService::getStatementPaged';
+                const svSess = new SessionService();
+                svSess.sessResp.cd_token = req.post.dat.token;
+                svSess.sessResp.ttl = svSess.getTtl();
+                this.b.setAppState(true, this.b.i, svSess.sessResp);
+                this.b.cdResp.data = r;
+                this.b.respond(req, res)
+            })
+    }
+
+    async getInvoiceTotalSettled(req, res) {
+        const q = this.b.getQuery(req);
+        console.log('CdAcctsTransactService::getInvoiceTotalSettled/q:', q);
+        const serviceInput = {
+            serviceModel: InvoiceTotalSettledViewModel,
+            docName: 'CdAcctsTransactService::getInvoiceTotalSettled',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        try {
+            this.b.read$(req, res, serviceInput)
+                .subscribe((r) => {
+                    console.log('CdAcctsTransactService::getInvoiceTotalSettled()/r:', r)
+                    this.b.i.code = 'CdAcctsTransactService::getInvoiceTotalSettled';
+                    const svSess = new SessionService();
+                    svSess.sessResp.cd_token = req.post.dat.token;
+                    svSess.sessResp.ttl = svSess.getTtl();
+                    this.b.setAppState(true, this.b.i, svSess.sessResp);
+                    this.b.cdResp.data = r;
+                    this.b.respond(req, res)
+                })
+        } catch (e) {
+            console.log('CdAcctsTransactService::getInvoiceTotalSettled()/e:', e)
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'BillService:update',
+                app_msg: ''
+            };
+            this.b.serviceErr(req, res, e, i.code)
+            this.b.respond(req, res)
+        }
+    }
+
     /**
      * if invoice transaction,
      * if IsPartialPayment 
      * @returns 
      */
-     async getTransactionState(): Promise<number> {
-        return 598
+    async getTransactionState(mediaId, action): Promise<number> {
+        if (
+            mediaId === 593 // cheque
+            &&
+            action === 'CdAcctsReceiptService::beforeCreate' // check reception
+        ) {
+            return 599 // cheeque-received
+        } else if(
+            mediaId === 603 // invoice transaction
+            &&
+            action === 'CdAcctsTransactservice::transactInvoice' 
+        ) {
+            return 598 // invoiced
+        }
+
     }
 
     async getTransactionMedia(): Promise<number> {
@@ -172,9 +375,8 @@ export class CdAcctsTransactService extends CdService {
     }
 
     async read(req, res, serviceInput: IServiceInput): Promise<any> {
-        await this.b.initSqlite(req, res)
         const q = this.b.getQuery(req);
-        console.log('CdAcctsTransactService::getBill/q:', q);
+        console.log('CdAcctsTransactService::read/q:', q);
         try {
             this.b.read$(req, res, serviceInput)
                 .subscribe((r) => {
@@ -185,7 +387,6 @@ export class CdAcctsTransactService extends CdService {
                     svSess.sessResp.ttl = svSess.getTtl();
                     this.b.setAppState(true, this.b.i, svSess.sessResp);
                     this.b.cdResp.data = r;
-                    this.b.sqliteConn.close();
                     this.b.respond(req, res)
                 })
         } catch (e) {
@@ -204,7 +405,7 @@ export class CdAcctsTransactService extends CdService {
     async readSL(req, res, serviceInput: IServiceInput): Promise<any> {
         await this.b.initSqlite(req, res)
         const q = this.b.getQuery(req);
-        console.log('CdAcctsTransactService::getBill/q:', q);
+        console.log('CdAcctsTransactService::readSL/q:', q);
         try {
             this.b.readSL$(req, res, serviceInput)
                 .subscribe((r) => {
@@ -366,6 +567,69 @@ export class CdAcctsTransactService extends CdService {
         return true;
     }
 
+    async getTransact(req, res) {
+        const q = this.b.getQuery(req);
+        console.log('CdAcctsTransactService::getTransact/q:', q);
+        const serviceInput = {
+            serviceModel: CdAcctsTransactModel,
+            docName: 'CdAcctsTransactService::getTransact',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        try {
+            this.b.read$(req, res, serviceInput)
+                .subscribe((r) => {
+                    console.log('CdAcctsTransactService::read$()/r:', r)
+                    this.b.i.code = 'CdAcctsTransactService::getTransact';
+                    const svSess = new SessionService();
+                    svSess.sessResp.cd_token = req.post.dat.token;
+                    svSess.sessResp.ttl = svSess.getTtl();
+                    this.b.setAppState(true, this.b.i, svSess.sessResp);
+                    this.b.cdResp.data = r;
+                    this.b.respond(req, res)
+                })
+        } catch (e) {
+            console.log('CdAcctsTransactService::read$()/e:', e)
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'CdAcctsTransactService:getTransact',
+                app_msg: ''
+            };
+            this.b.serviceErr(req, res, e, i.code)
+            this.b.respond(req, res)
+        }
+    }
+
+    getPagedView(req, res) {
+        console.log('CdAcctsTransactService::getPagedView()/01')
+        const q = this.b.getQuery(req);
+        console.log('CdAcctsTransactService::getPagedView()/02')
+        console.log('CdAcctsTransactService::getPagedView()/q:', q);
+        const serviceInput = {
+            serviceModel: CdAcctsTransactModel,
+            docName: 'CdAcctsTransactService::getPagedView',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        this.b.readPaged$(req, res, serviceInput)
+            .subscribe((r) => {
+                this.b.i.code = 'CdAcctsTransactService::getPagedView';
+                const svSess = new SessionService();
+                svSess.sessResp.cd_token = req.post.dat.token;
+                svSess.sessResp.ttl = svSess.getTtl();
+                this.b.setAppState(true, this.b.i, svSess.sessResp);
+                this.b.cdResp.data = r;
+                this.b.respond(req, res)
+            })
+    }
+
     // /**
     //  *
     //  * {
@@ -390,12 +654,12 @@ export class CdAcctsTransactService extends CdService {
     //  * @param req
     //  * @param res
     //  */
-    async getBill(req, res) {
+    async getMedia(req, res) {
         const q = this.b.getQuery(req);
-        console.log('CdAcctsTransactService::getBill/q:', q);
+        console.log('CdAcctsTransactService::getMedia/q:', q);
         const serviceInput = {
-            serviceModel: CdAcctsTransactModel,
-            docName: 'CdAcctsTransactService::getBill',
+            serviceModel: CdAcctsTransactMediaModel,
+            docName: 'CdAcctsTransactService::getMedia',
             cmd: {
                 action: 'find',
                 query: q
@@ -578,12 +842,12 @@ export class CdAcctsTransactService extends CdService {
     //  * @param req
     //  * @param res
     //  */
-    getViewPaged(req, res) {
+    getTransactInvoicePaged(req, res) {
         const q = this.b.getQuery(req);
-        console.log('CdAcctsTransactService::getViewPaged()/q:', q);
+        console.log('CdAcctsIntInvoiceService::getPagedView()/q:', q);
         const serviceInput = {
-            serviceModel: CdAcctsTransactModel,
-            docName: 'CdAcctsTransactService::getViewPaged',
+            serviceModel: CdAcctsInvoiceVendorViewModel,
+            docName: 'CdAcctsIntInvoiceService::getPagedView',
             cmd: {
                 action: 'find',
                 query: q
@@ -592,7 +856,7 @@ export class CdAcctsTransactService extends CdService {
         }
         this.b.readPaged$(req, res, serviceInput)
             .subscribe((r) => {
-                this.b.i.code = 'CdAcctsTransactService::getViewPaged';
+                this.b.i.code = 'CdAcctsIntInvoiceService::getPagedView';
                 const svSess = new SessionService();
                 svSess.sessResp.cd_token = req.post.dat.token;
                 svSess.sessResp.ttl = svSess.getTtl();

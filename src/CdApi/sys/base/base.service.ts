@@ -421,12 +421,24 @@ export class BaseService {
         return ret;
     }
 
-    getPlData(req): Promise<any> {
-        return req.post.dat.f_vals[0].data;
+    getPlData(req, extData = null): Promise<any> {
+        if(extData){
+            return req.post.dat.f_vals[0][extData];
+        } else {
+            return req.post.dat.f_vals[0].data;
+        } 
     }
 
-    async setPlData(req, item: ObjectItem): Promise<void> {
-        req.post.dat.f_vals[0].data[item.key] = item.value;
+    async setPlData(req, item: ObjectItem, extData: string = null): Promise<void> {
+        console.log('BaseService::setPlData()/item:', item);
+        if(extData){
+            console.log('BaseService::setPlData()/extData:', extData);
+            console.log('BaseService::setPlData()/req.post.dat.f_vals[0][extData]:', req.post.dat.f_vals[0][extData]);
+            req.post.dat.f_vals[0][extData][item.key] = item.value;
+        } else {
+            req.post.dat.f_vals[0].data[item.key] = item.value;
+        }
+        console.log('BaseService::setPlData()/req.post.dat.f_vals[0]:', req.post.dat.f_vals[0]);
     }
 
     async setCreateIData(req, controllerData: ICdRequest, item: ObjectItem): Promise<ICdRequest> {
@@ -438,6 +450,8 @@ export class BaseService {
     }
 
     getQuery(req) {
+        console.log('BaseService::getQuery()/01')
+        console.log('BaseService::getQuery()/req.post.dat:', JSON.stringify(req.post.dat))
         const q = req.post.dat.f_vals[0].query;
         this.pl = req.post;
         if (q) {

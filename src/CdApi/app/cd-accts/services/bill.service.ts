@@ -8,7 +8,7 @@ import { from, Observable } from 'rxjs';
 import { getConnection } from 'typeorm';
 import { BillViewModel } from '../models/bill-view.model';
 import { CdAcctsIntInvoiceModel } from '../models/cd-accts-int-invoice.model';
-import { CdAcctsIntInvoiceService } from './cd-accts-invoice.service';
+import { CdAcctsIntInvoiceService } from './cd-accts-int-invoice.service';
 import { CdAcctsAccountService } from './cd-accts-account.service';
 
 export class BillService extends CdService {
@@ -716,7 +716,7 @@ export class BillService extends CdService {
             },
             dSource: 1
         }
-        this.b.readCountSL$(req, res, serviceInput)
+        this.b.readCount$(req, res, serviceInput)
             .subscribe((r) => {
                 this.b.i.code = 'BillService::Get';
                 const svSess = new SessionService();
