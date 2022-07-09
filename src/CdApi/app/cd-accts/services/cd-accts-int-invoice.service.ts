@@ -133,12 +133,9 @@ export class CdAcctsIntInvoiceService extends CdService {
     }
 
     async createI(req, res, createIParams: CreateIParams): Promise<CdAcctsIntInvoiceModel | boolean> {
-        console.log('CdAcctsIntInvoiceService::create()/01')
         console.log('CdAcctsIntInvoiceService::create()/createIParams:', createIParams)
         const newInvoice = await this.b.createI(req, res, createIParams)
-        // console.log('CdAcctsIntInvoiceService::create()/newInvoice:', newInvoice)
         const ret = await this.afterCreate(req, res, newInvoice)
-        // console.log('CdAcctsIntInvoiceService::create()/ret:', ret)
         return ret;
     }
 
@@ -356,8 +353,8 @@ export class CdAcctsIntInvoiceService extends CdService {
                 code: 'CdAcctsIntInvoiceService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -386,8 +383,8 @@ export class CdAcctsIntInvoiceService extends CdService {
                 code: 'CdAcctsIntInvoiceService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -586,8 +583,8 @@ export class CdAcctsIntInvoiceService extends CdService {
                 code: 'CdAcctsIntInvoiceService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -617,8 +614,8 @@ export class CdAcctsIntInvoiceService extends CdService {
                 code: 'CdAcctsIntInvoiceService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -656,8 +653,8 @@ export class CdAcctsIntInvoiceService extends CdService {
                 code: 'CdAcctsIntInvoiceService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -935,8 +932,8 @@ export class CdAcctsIntInvoiceService extends CdService {
                 code: 'CdAcctsIntInvoiceService:getMeta',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 }

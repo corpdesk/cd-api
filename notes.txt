@@ -698,7 +698,176 @@ Integrate with cd-accts scructure
     - receipt synced with invoice/cash sale: this can be done via docId 
 - on update of bill, update invoice and trasaction
 
+Prevent fatal error:
+- when InteRactPubService::testJsonQuery(req, res) is set with 
+  InteRactPubViewModel as model, there is an error:
+  Error at BaseService:read: QueryFailedError: Unknown column 'InteRactPubViewModel.inte_ract_pub_id' in 'field list'
+  This error cau
 
+InteReact CRUD:
+- during register, create pal group
+    
+
+    OLD PHP IMPLEMENTATION:
+    // /**
+    //  * {
+    //     "ctx": "Sys",
+    //     "m": "InteRact",
+    //     "c": "InteRactPubController",
+    //     "a": "actionCreate",
+    //     "dat": {
+    //         "f_vals": [
+    //             {
+    //                 "inte_ract_media": {
+    //                     "inte_ract_media_name": "",
+    //                     "inte_ract_media_description": "",
+    //                     "inte_ract_media_type_id": "",
+    //                     "location": "http://localhost/xxx"
+    //                 },
+    //                 "data": {
+    //                     "inte_ract_pub_name": "pms/schedule?project_id=3&schedule_id=12",
+    //                     "inte_ract_pub_description": "jgfl",
+    //                     "inte_ract_pub_type_id": "",
+    //                     "public": false,
+    //                     "m": "pms",
+    //                     "c": "schedule",
+    //                     "j_val": "{\"m\":\"pms\",\"c\":\"schedules\",\"projectID\":\"3\",\"scheduleID\":\"12\"}"
+    //                 }
+    //             }
+    //         ],
+    //         "token": "mT6blaIfqWhzNXQLG8ksVbc1VodSxRZ8lu5cMgda"
+    //     },
+    //     "args": null
+    // }
+    //  */
+    public function actionCreate(Request $request)
+    {
+        if ($this->b->valid($request)) {
+            $this->b->controller_create($request, $this);
+            if ($this->b->app_state['success']) {
+                $newInteRactPub = $this->b->getLatestInsert($this->modelStr);
+                $inte_ract_pub_id = $newInteRactPub[0]->inte_ract_pub_id;
+                $pubFilter = $request->input('dat.f_vals.0.pubFilter');
+                
+                $this->_media->b = $this->b;
+                if ($request->has('dat.f_vals.0.inte_ract_media')) {
+                    $mediaRet = $this->_media->createInteRactMedia($request, $inte_ract_pub_id,'pub');
+                } else {
+                    $mediaRet = $this->_media->createInteRactMedia($request, $inte_ract_pub_id,'default');
+                }
+                
+                /**
+                 * apply filter to fetch the new pub row
+                 * this is also useful as push data
+                 */
+                $pubFilter = [
+                    [
+                        "field" => "inte_ract_pub.inte_ract_pub_id",
+                        "operator" => "=",
+                        "val" => $newInteRactPub[0]->inte_ract_pub_id
+                    ]
+                ];
+                $pubs = mInteRact::getPubs($pubFilter,null, true);
+                
+                
+                $ret = [
+                    "affectedRows" => $this->b->affectedRows,
+                    "newInteRactPub" => $newInteRactPub,
+                    "newInteRactMedia" => $mediaRet,
+                    "pubs" => $pubs
+                ];
+                $this->b->setResult($ret);
+                $sess_arr = lib\CDSession::getSessArr();
+                $this->b->setAppState(1, "", 0, $sess_arr);
+                return $this->b->processResponse();
+            } else {
+                return $this->b->returnErr("validation error");
+            }
+
+        } else {
+            return $this->b->returnErr("invalid session");
+        }
+    }
+- create pal: DONE
+- test and refine register: DONE
+- test login in consideration of bcrypt that was created by php: DONE
+- develop changePassword(): DONE
+- send group invitation DONE
+- accept invitation
+    - token for jondoo: 415cc20f-33d4-4641-9fa2-ab35f9dcc8df
+    - move guestUser to invited group
+        - GroupInvitationController::Accept(req, res)...DONE
+        - GroupInvitationService::accept(req, res)...DONE
+            - enforce user privacy: only the subject user, can perform the accept process....DONE
+            So confirm that the currentUser maps to the user accepting the invitation
+        - develop GroupService::createI(req, res, params)...DONE
+        - develop BaseService::validateUniqueI(req, res, params)...DONE
+        - GroupInvitationService::acceptInvitation(req, res)/accept script...DONE
+        - set alertMsg...DONE
+        - do successResponse()...DONE
+        
+    - createI() for use with accept...DONE
+    - flag as accepted...DONE
+- review invitation: do validation on group_members for existing member...DONE
+- sync BaseService instance so cuid is available to controller and service...DONE
+    - at the BaseService::resolveCls(), add: 
+            if(this.sess){
+                // set sessData in req so it is available thoughout 
+                // the lifetime of the request
+                req.post.sessData = this.sess;
+            }
+- getInvitations:...DONE
+    - {where: {hostUser:this.b.cuid}}
+- getAssociates...DONE
+- create pub
+- Group::afterDelete(){// remove all related conversations; }
+- GroupMember::afterDelete(){// remove all related conversations; }
+- GroupInvitation::afterDelete(){// remove all related conversations; }
+- think through security in terms of user who has the right to move what to a given group.
+    - eg when you are invited to a group, then you have the right to do the insertion to a group.
+    - any other user should not then have the righ to do this insertion
+
+09/07/2022
+- create pal: DONE
+- test and refine register: DONE
+- test login in consideration of bcrypt that was created by php: DONE
+- develop changePassword(): DONE
+- send group invitation DONE
+- accept invitation
+    - token for jondoo: 415cc20f-33d4-4641-9fa2-ab35f9dcc8df
+    - move guestUser to invited group
+        - GroupInvitationController::Accept(req, res)...DONE
+        - GroupInvitationService::accept(req, res)...DONE
+            - enforce user privacy: only the subject user, can perform the accept process....DONE
+            So confirm that the currentUser maps to the user accepting the invitation
+        - develop GroupService::createI(req, res, params)...DONE
+        - develop BaseService::validateUniqueI(req, res, params)...DONE
+        - GroupInvitationService::acceptInvitation(req, res)/accept script...DONE
+        - set alertMsg...DONE
+        - do successResponse()...DONE
+        
+    - createI() for use with accept...DONE
+    - flag as accepted...DONE
+- review invitation: do validation on group_members for existing member...DONE
+- sync BaseService instance so cuid is available to controller and service...DONE
+    - at the BaseService::resolveCls(), add: 
+            if(this.sess){
+                // set sessData in req so it is available thoughout 
+                // the lifetime of the request
+                req.post.sessData = this.sess;
+            }
+- getInvitations:...DONE
+    - {where: {hostUser:this.b.cuid}}
+- getAssociates...DONE
+- create pub
+- Group::afterDelete(){// remove all related conversations; }
+- GroupMember::afterDelete(){// remove all related conversations; }
+- GroupInvitation::afterDelete(){// remove all related conversations; }
+- think through security in terms of user who has the right to move what to a given group.
+    - eg when you are invited to a group, then you have the right to do the insertion to a group.
+    - any other user should not then have the righ to do this insertion
+
+    
 27/03/2022
 //////////
 // SQLITE IMPLEMENTATION

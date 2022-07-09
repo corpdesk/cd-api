@@ -41,7 +41,7 @@ export class CdAcctsTransactController {
             console.log('CdAcctsTransactController::Create()/02')
             await this.svCdAcctsTransact.create(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsTransactController:Create');
+            await this.b.serviceErr(req, res, e, 'CdAcctsTransactController:Create');
         }
     }
 
@@ -51,7 +51,7 @@ export class CdAcctsTransactController {
             console.log('CdAcctsTransactController::Create()/02')
             await this.svCdAcctsTransact.createSL(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsTransactController:CreateSL');
+            await this.b.serviceErr(req, res, e, 'CdAcctsTransactController:CreateSL');
         }
     }
 
@@ -80,7 +80,7 @@ export class CdAcctsTransactController {
         try {
             await this.svCdAcctsTransact.getTransact(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsTransactController:Get');
+            await this.b.serviceErr(req, res, e, 'CdAcctsTransactController:Get');
         }
     }
 
@@ -117,7 +117,7 @@ export class CdAcctsTransactController {
         try {
             await this.svCdAcctsTransact.getMedia(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsTransactController:Get');
+            await this.b.serviceErr(req, res, e, 'CdAcctsTransactController:Get');
         }
     }
 
@@ -205,7 +205,7 @@ export class CdAcctsTransactController {
         try {
             await this.svCdAcctsTransact.getPaged(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsTransactController:GetCount');
+            await this.b.serviceErr(req, res, e, 'CdAcctsTransactController:GetCount');
         }
     }
 
@@ -252,7 +252,7 @@ export class CdAcctsTransactController {
         try {
             await this.svCdAcctsTransact.getPagedView(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsTransactController:CdAcctsTransactViewPaged');
+            await this.b.serviceErr(req, res, e, 'CdAcctsTransactController:CdAcctsTransactViewPaged');
         }
     }
 
@@ -287,7 +287,7 @@ export class CdAcctsTransactController {
         try {
             await this.svCdAcctsTransact.getInvoiceTotalSettled(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsTransactController:GetInvoiceTotalSettled');
+            await this.b.serviceErr(req, res, e, 'CdAcctsTransactController:GetInvoiceTotalSettled');
         }
     }
 
@@ -295,7 +295,7 @@ export class CdAcctsTransactController {
         try {
             await this.svCdAcctsTransact.getPagedSL(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsTransactController:GetSL');
+            await this.b.serviceErr(req, res, e, 'CdAcctsTransactController:GetSL');
         }
     }
 
@@ -325,7 +325,7 @@ export class CdAcctsTransactController {
         try {
             await this.svCdAcctsTransact.getStatement(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsTransactController:GetStatement');
+            await this.b.serviceErr(req, res, e, 'CdAcctsTransactController:GetStatement');
         }
     }
 
@@ -364,7 +364,7 @@ export class CdAcctsTransactController {
         try {
             await this.svCdAcctsTransact.getStatementPaged(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsTransactController:GetStatementPaged');
+            await this.b.serviceErr(req, res, e, 'CdAcctsTransactController:GetStatementPaged');
         }
     }
 
@@ -400,7 +400,7 @@ export class CdAcctsTransactController {
             console.log('CdAcctsTransactController::Update()/02');
             await this.svCdAcctsTransact.update(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsTransactController:Update');
+            await this.b.serviceErr(req, res, e, 'CdAcctsTransactController:Update');
         }
     }
 
@@ -410,7 +410,7 @@ export class CdAcctsTransactController {
             console.log('CdAcctsTransactController::UpdateSL()/02');
             await this.svCdAcctsTransact.update(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsTransactController:UpdateSL');
+            await this.b.serviceErr(req, res, e, 'CdAcctsTransactController:UpdateSL');
         }
     }
 
@@ -441,7 +441,7 @@ export class CdAcctsTransactController {
         try {
             await this.svCdAcctsTransact.delete(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsTransactController:Delete');
+            await this.b.serviceErr(req, res, e, 'CdAcctsTransactController:Delete');
         }
     }
 
@@ -449,7 +449,7 @@ export class CdAcctsTransactController {
         try {
             await this.svCdAcctsTransact.delete(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsTransactController:DeleteSL');
+            await this.b.serviceErr(req, res, e, 'CdAcctsTransactController:DeleteSL');
         }
     }
 

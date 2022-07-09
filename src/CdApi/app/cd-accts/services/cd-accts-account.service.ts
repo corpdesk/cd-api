@@ -201,8 +201,8 @@ export class CdAcctsAccountService extends CdService {
                 code: 'CdAcctsAccountService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -231,8 +231,8 @@ export class CdAcctsAccountService extends CdService {
                 code: 'CdAcctsAccountService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -427,8 +427,8 @@ export class CdAcctsAccountService extends CdService {
                 code: 'CdAcctsAccountService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -729,8 +729,8 @@ export class CdAcctsAccountService extends CdService {
                 code: 'CdAcctsAccountService:getMeta',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -877,7 +877,7 @@ export class CdAcctsAccountService extends CdService {
             console.log('CdAcctsAccountSerice::registerAccount()/q2:', q)
             console.log('CdAcctsAccountSerice::registerAccount()/companyArr:', companyArr)
             console.log('CdAcctsAccountSerice::registerAccount()/accountTypeName:', accountTypeName)
-            this.b.serviceErr(req, res, 'the client or vendor is invalid', 'BillController:Create');
+            await this.b.serviceErr(req, res, 'the client or vendor is invalid', 'BillController:Create');
         }
 
     }
@@ -916,7 +916,7 @@ export class CdAcctsAccountService extends CdService {
             console.log('CdAcctsAccountService::getAccount/ret:', ret);
             return ret;
         } catch(e){
-            this.b.serviceErr(req, res, 'encountered a problem reading accounts', 'CdAcctsAccountService:getAccount');
+            await this.b.serviceErr(req, res, 'encountered a problem reading accounts', 'CdAcctsAccountService:getAccount');
         }
         
     }

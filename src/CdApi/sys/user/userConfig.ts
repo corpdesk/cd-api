@@ -1,3 +1,4 @@
+// Administer the behaviour of user account
 export default {
     register: {
         notification: {

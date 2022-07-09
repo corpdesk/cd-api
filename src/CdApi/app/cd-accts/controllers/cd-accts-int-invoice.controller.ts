@@ -60,7 +60,7 @@ export class CdAcctsIntInvoiceController {
             console.log('CdAcctsIntInvoiceController::Create()/02')
             await this.svIntInvoice.create(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsIntInvoiceController:Create');
+            await this.b.serviceErr(req, res, e, 'CdAcctsIntInvoiceController:Create');
         }
     }
 
@@ -70,7 +70,7 @@ export class CdAcctsIntInvoiceController {
             console.log('CdAcctsIntInvoiceController::Create()/02')
             await this.svIntInvoice.createSL(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsIntInvoiceController:CreateSL');
+            await this.b.serviceErr(req, res, e, 'CdAcctsIntInvoiceController:CreateSL');
         }
     }
 
@@ -104,7 +104,7 @@ export class CdAcctsIntInvoiceController {
         try {
             await this.svIntInvoice.getIntInvoice(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsIntInvoiceController:Get');
+            await this.b.serviceErr(req, res, e, 'CdAcctsIntInvoiceController:Get');
         }
     }
 
@@ -112,7 +112,7 @@ export class CdAcctsIntInvoiceController {
         try {
             await this.svIntInvoice.getCdAcctsIntInvoiceSL(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsIntInvoiceController:GetSL');
+            await this.b.serviceErr(req, res, e, 'CdAcctsIntInvoiceController:GetSL');
         }
     }
 
@@ -192,7 +192,7 @@ export class CdAcctsIntInvoiceController {
         try {
             await this.svIntInvoice.getPaged(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsIntInvoiceController:GetCount');
+            await this.b.serviceErr(req, res, e, 'CdAcctsIntInvoiceController:GetCount');
         }
     }
 
@@ -228,7 +228,7 @@ export class CdAcctsIntInvoiceController {
         try {
             await this.svIntInvoice.getPaged(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsIntInvoiceController:GetCount');
+            await this.b.serviceErr(req, res, e, 'CdAcctsIntInvoiceController:GetCount');
         }
     }
 
@@ -238,7 +238,7 @@ export class CdAcctsIntInvoiceController {
             console.log('CdAcctsIntInvoiceController::GetPagedView()/02')
             await this.svIntInvoice.getPagedView(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsIntInvoiceController:GetCount');
+            await this.b.serviceErr(req, res, e, 'CdAcctsIntInvoiceController:GetCount');
         }
     }
 
@@ -269,7 +269,7 @@ export class CdAcctsIntInvoiceController {
         try {
             await this.svIntInvoice.getViewPaged(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsIntInvoiceController:CdAcctsIntInvoiceViewPaged');
+            await this.b.serviceErr(req, res, e, 'CdAcctsIntInvoiceController:CdAcctsIntInvoiceViewPaged');
         }
     }
 
@@ -277,7 +277,7 @@ export class CdAcctsIntInvoiceController {
         try {
             await this.svIntInvoice.getPagedSL(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsIntInvoiceController:GetSL');
+            await this.b.serviceErr(req, res, e, 'CdAcctsIntInvoiceController:GetSL');
         }
     }
 
@@ -313,7 +313,7 @@ export class CdAcctsIntInvoiceController {
             console.log('CdAcctsIntInvoiceController::Update()/02');
             await this.svIntInvoice.update(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsIntInvoiceController:Update');
+            await this.b.serviceErr(req, res, e, 'CdAcctsIntInvoiceController:Update');
         }
     }
 
@@ -323,7 +323,7 @@ export class CdAcctsIntInvoiceController {
             console.log('CdAcctsIntInvoiceController::UpdateSL()/02');
             await this.svIntInvoice.update(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsIntInvoiceController:UpdateSL');
+            await this.b.serviceErr(req, res, e, 'CdAcctsIntInvoiceController:UpdateSL');
         }
     }
 
@@ -354,7 +354,7 @@ export class CdAcctsIntInvoiceController {
         try {
             await this.svIntInvoice.delete(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsIntInvoiceController:Delete');
+            await this.b.serviceErr(req, res, e, 'CdAcctsIntInvoiceController:Delete');
         }
     }
 
@@ -362,7 +362,7 @@ export class CdAcctsIntInvoiceController {
         try {
             await this.svIntInvoice.delete(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsIntInvoiceController:DeleteSL');
+            await this.b.serviceErr(req, res, e, 'CdAcctsIntInvoiceController:DeleteSL');
         }
     }
 
@@ -370,7 +370,7 @@ export class CdAcctsIntInvoiceController {
         try {
             await this.svIntInvoice.getMeta(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsIntInvoiceController:Get');
+            await this.b.serviceErr(req, res, e, 'CdAcctsIntInvoiceController:Get');
         }
     }
 

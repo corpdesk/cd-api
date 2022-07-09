@@ -5,6 +5,7 @@ import { IServiceInput, ISessResp } from '../../base/IBase';
 import { DocModel } from '../../moduleman/models/doc.model';
 import { SessionModel } from '../models/session.model';
 import { UserModel } from '../models/user.model';
+import { UserService } from './user.service';
 
 
 export class SessionService {
@@ -44,7 +45,7 @@ export class SessionService {
             }
             return await this.b.create(req, res, serviceInput);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'SessionService:create');
+            await this.b.serviceErr(req, res, e, 'SessionService:create');
         }
     }
 
@@ -121,15 +122,22 @@ export class SessionService {
         return req.ip;
     }
 
-    async getConsumerGuid(req) {
-        return await req.post.sessData.consumerGuid;
-    }
+    // async getConsumerGuid(req) {
+    //     return await req.post.sessData.consumerGuid;
+    // }
 
     async getCuid(req) {
         return req.post.sessData.cuid;
     }
 
-    async getCurrentUser(req) {
-        return req.post.sessData.userData;
+    async getCurrentUser(req, res) {
+        const svUser = new UserService()
+        if('sessData' in req.post){
+            return req.post.sessData.userData;
+        }
+        if(this.b.isRegisterRequest()){
+            svUser.getAnon(req, res)
+        }
+        
     }
 }

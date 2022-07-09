@@ -15,7 +15,7 @@ export class ModuleController {
         try {
             await this.svModule.create(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ModuleController:Create');
+            await this.b.serviceErr(req, res, e, 'ModuleController:Create');
         }
     }
 
@@ -42,7 +42,7 @@ export class ModuleController {
         try {
             await this.svModule.getModule(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ModuleController:Get');
+            await this.b.serviceErr(req, res, e, 'ModuleController:Get');
         }
     }
 
@@ -74,7 +74,7 @@ export class ModuleController {
         try {
             await this.svModule.getModuleCount(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ModuleController:Get');
+            await this.b.serviceErr(req, res, e, 'ModuleController:Get');
         }
     }
 
@@ -107,7 +107,7 @@ export class ModuleController {
         try {
             await this.svModule.update(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ModuleController:Update');
+            await this.b.serviceErr(req, res, e, 'ModuleController:Update');
         }
     }
 
@@ -115,7 +115,7 @@ export class ModuleController {
         try {
             await this.svModule.delete(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ModuleController:Update');
+            await this.b.serviceErr(req, res, e, 'ModuleController:Update');
         }
     }
 

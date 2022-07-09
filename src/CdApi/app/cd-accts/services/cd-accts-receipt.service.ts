@@ -268,8 +268,8 @@ export class CdAcctsReceiptService extends CdService {
                 code: 'CdAcctsReceiptService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -298,8 +298,8 @@ export class CdAcctsReceiptService extends CdService {
                 code: 'CdAcctsReceiptService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -494,8 +494,8 @@ export class CdAcctsReceiptService extends CdService {
                 code: 'CdAcctsReceiptService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -533,8 +533,8 @@ export class CdAcctsReceiptService extends CdService {
                 code: 'CdAcctsReceiptService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 

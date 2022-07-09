@@ -154,8 +154,8 @@ export class BillUnitService extends CdService {
                 code: 'BillUnitService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -184,8 +184,8 @@ export class BillUnitService extends CdService {
                 code: 'BillUnitService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -359,8 +359,8 @@ export class BillUnitService extends CdService {
                 code: 'BillUnitService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -398,8 +398,8 @@ export class BillUnitService extends CdService {
                 code: 'BillUnitService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -600,8 +600,8 @@ export class BillUnitService extends CdService {
                 code: 'BillUnitService:getMeta',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 }

@@ -153,7 +153,7 @@ export class DocService extends CdService {
             const ret = await docTypeRepository.save(await dtm);
             return await ret;
         } else {
-            this.b.serviceErr(req, res, `The module ${m} is not registered`, 'BaseService:createDocType')
+            await this.b.serviceErr(req, res, `The module ${m} is not registered`, 'BaseService:createDocType')
             return Promise.resolve([]);
         }
     }

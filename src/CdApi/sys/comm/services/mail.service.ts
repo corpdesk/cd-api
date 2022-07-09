@@ -5,6 +5,7 @@ export class MailService{
     constructor(){
         this.b = new BaseService();
     }
+    
     async sendEmailNotif(req, res) {
         console.log(`starting UserController::sendEmailNotif(req, res)`);
         const mailService = 'NodemailerService';

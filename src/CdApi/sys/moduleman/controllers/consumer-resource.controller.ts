@@ -38,7 +38,7 @@ export class ConsumerResourceController {
         try {
             await this.svConsumerResource.create(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ConsumerResourceController:Create');
+            await this.b.serviceErr(req, res, e, 'ConsumerResourceController:Create');
         }
     }
 
@@ -69,7 +69,7 @@ export class ConsumerResourceController {
         try {
             await this.svConsumerResource.getConsumerResource(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ConsumerResourceController:Get');
+            await this.b.serviceErr(req, res, e, 'ConsumerResourceController:Get');
         }
     }
 
@@ -94,7 +94,7 @@ export class ConsumerResourceController {
         try {
             await this.svConsumerResource.getConsumerResourceTypeCount(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ConsumerResourceController:Get');
+            await this.b.serviceErr(req, res, e, 'ConsumerResourceController:Get');
         }
     }
 
@@ -127,7 +127,7 @@ export class ConsumerResourceController {
         try {
             await this.svConsumerResource.getConsumerResourceCount(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ConsumerResourceController:Get');
+            await this.b.serviceErr(req, res, e, 'ConsumerResourceController:Get');
         }
     }
 
@@ -163,7 +163,7 @@ export class ConsumerResourceController {
             console.log('ConsumerResourceController::Update()/02');
             await this.svConsumerResource.update(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ConsumerResourceController:Update');
+            await this.b.serviceErr(req, res, e, 'ConsumerResourceController:Update');
         }
     }
 
@@ -192,7 +192,7 @@ export class ConsumerResourceController {
         try {
             await this.svConsumerResource.delete(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ConsumerResourceController:Update');
+            await this.b.serviceErr(req, res, e, 'ConsumerResourceController:Update');
         }
     }
 

@@ -12,6 +12,21 @@ import {
 } from 'class-validator';
 import { BaseService } from '../../base/base.service';
 import { DocModel } from './doc.model';
+import { IQuery } from '../../base/IBase';
+import { CompanyViewModel } from './company-view.model';
+
+
+export function siGet(q:IQuery){
+    return {
+        serviceModel: CompanyViewModel,
+        docName: 'CompanyModel::siGet',
+        cmd: {
+            action: 'find',
+            query: q
+        },
+        dSource: 1
+    }
+}
 
 // SELECT company_id, company_type_id, directory_category_id, company_name, postal_address, phone, e_mail, website, physical_location, city, country, area_of_specialization, logo, fax, password, trusted, doc_id, city_id, county_id, company_guid, company_description, parent_id, consumer_id
 // FROM cd1213.company;

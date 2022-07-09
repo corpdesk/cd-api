@@ -13,3 +13,86 @@ async function getPaged() {
         take: 5,
     });
 }
+
+// working with json in mysql
+// https://www.digitalocean.com/community/tutorials/working-with-json-in-mysql
+
+JSON_EXTRACT(`field_name` , '$.jsonPath') '= or > or <' 
+
+// query json data
+
+/**
+   * 
+      {
+          "ctx": "Sys",
+          "m": "InteRact",
+          "c": "InteRactPubController",
+          "a": "actionGet",
+          "dat": {
+              "f_vals": [
+                  {
+                      "filter": [
+                          {
+                              "field": "user_id",
+                              "operator": "=",
+                              "val": 1007,
+                              "conjType": "or"
+                          },
+                          {
+                              "field": "user_id",
+                              "operator": "=",
+                              "val": 1002,
+                              "conjType": "or"
+                          },
+                          {
+                              "field": "user_id",
+                              "operator": "=",
+                              "val": 1010,
+                              "conjType": "or"
+                          }
+                      ],
+                      "filterExt": [
+                          [
+                              {
+                                  "fieldType": "json",
+                                  "jField": "j_val",
+                                  "jPath": "$.m",
+                                  "operator": "=",
+                                  "jVal": "user"
+                              },
+                              {
+                                  "fieldType": "json",
+                                  "jField": "j_val",
+                                  "jPath": "$.domain.group_invitation_type_id",
+                                  "operator": "=",
+                                  "jVal": 1313
+                              }
+                          ]
+                      ]
+                  }
+              ],
+              "token": "5B812D34-EA96-9FFE-8EE9-443DEEF214A8"
+          },
+          "args": null
+      }
+   * @param filter 
+   */
+
+   // type orm query json column
+this.repo.query('SELECT some-column->"$.email_verification.token" as `token`  FROM `user` WHERE some-column->"$.email_verification.token" = "some-token";');
+
+getManager().getRepository(User)
+    .createQueryBuilder('user')
+    .select()
+    // postgres syntax
+    .where(`user.address ::jsonb @> \'{"state":"${query.location}"}\'`)
+
+// working- option 1:
+r = await repo.query('SELECT * FROM `inte_ract_pub` WHERE j_val->"$.domain.group.doc_id" = 11091;');
+
+// working-option 2:
+r = await repo.createQueryBuilder('inte_ract_pub')
+    .select()
+    /** mysql sytax: */
+    .where(`JSON_EXTRACT(j_val, '$.domain.group.doc_id') = 11091`)
+    .getMany()

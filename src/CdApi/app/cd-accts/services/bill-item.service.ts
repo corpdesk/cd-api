@@ -230,7 +230,7 @@ export class BillItemService extends CdService {
                 const updateTransaction = await this.updateTransaction(req, res, reqBill)
                 console.log('BillItemService::beforeCreate()/updateTransaction:', updateTransaction)
             } else {
-                this.b.serviceErr(req, res, 'billGuid is invalid', 'BillItemService:beforeCreate')
+                await this.b.serviceErr(req, res, 'billGuid is invalid', 'BillItemService:beforeCreate')
             }
         }
         return ret;
@@ -387,6 +387,9 @@ export class BillItemService extends CdService {
             const accountClient: CdAcctsAccountModel[] = await svAccount.getAccount(req, res, qClient)
             console.log('BillItemService::updateTransaction()/accountClient:', accountClient)
 
+            const mediaId = '', 
+            action = ''
+
             // update vendor transation
             const svTransact = new CdAcctsTransactService()
             let q = {
@@ -395,7 +398,7 @@ export class BillItemService extends CdService {
                     cdAcctsTransactDescription: invoice.cdAcctsIntInvoiceDescription,
                     cdAcctsAccountId: accountVendor[0].cdAcctsAccountId,
                     cdAcctsTransactMediaId: await svTransact.getTransactionMedia(), // 603,
-                    cdAcctsTransactStateId: await svTransact.getTransactionState(), // transact state = 'invoiced'
+                    cdAcctsTransactStateId: await svTransact.getTransactionState(mediaId, action), // transact state = 'invoiced'
                     cdAcctsCurrencyId: await svTransact.getTransactionCurrency(), // 592,
                     companyId: reqBill.vendorId,
                     cdAcctsTransactAmount: invoice.cdAcctsIntInvoiceCost,
@@ -412,7 +415,7 @@ export class BillItemService extends CdService {
                     cdAcctsTransactDescription: invoice.cdAcctsIntInvoiceDescription,
                     cdAcctsAccountId: accountClient[0].cdAcctsAccountId,
                     cdAcctsTransactMediaId: await svTransact.getTransactionMedia(), // 603,
-                    cdAcctsTransactStateId: await svTransact.getTransactionState(), // transact state = 'invoiced'
+                    cdAcctsTransactStateId: await svTransact.getTransactionState(mediaId, action), // transact state = 'invoiced'
                     cdAcctsCurrencyId: await svTransact.getTransactionCurrency(), // 592,
                     companyId: reqBill.clientId,
                     cdAcctsTransactAmount: invoice.cdAcctsIntInvoiceCost,
@@ -430,8 +433,8 @@ export class BillItemService extends CdService {
                 code: 'BillItemService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -460,8 +463,8 @@ export class BillItemService extends CdService {
                 code: 'BillItemService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -490,8 +493,8 @@ export class BillItemService extends CdService {
                 code: 'BillItemService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -672,8 +675,8 @@ export class BillItemService extends CdService {
                 code: 'BillItemService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -711,8 +714,8 @@ export class BillItemService extends CdService {
                 code: 'BillItemService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -748,8 +751,8 @@ export class BillItemService extends CdService {
                 code: 'BillItemService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -787,8 +790,8 @@ export class BillItemService extends CdService {
                 code: 'BillItemService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -989,8 +992,8 @@ export class BillItemService extends CdService {
                 code: 'BillItemService:getMeta',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 }

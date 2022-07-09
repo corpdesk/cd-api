@@ -13,24 +13,24 @@ export class UserController extends CdController {
 
     /**
      * {
-     *   "ctx": "Sys",
-     *   "m": "User",
-     *   "c": "User",
-     *   "a": "Login",
-     *   "dat": {
-     *       "f_vals": [
-     *           {
-     *               "data": {
-     *                   "user_name": "goremo2",
-     *                   "password": "ekzo3lxm",
-     *                   "consumer_guid": "B0B3DA99-1859-A499-90F6-1E3F69575DCD"
-     *               }
-     *           }
-     *       ],
-     *       "token": "29947F3F-FF52-9659-F24C-90D716BC77B2"
-     *   },
-     *   "args": null
-     * }
+            "ctx": "Sys",
+            "m": "User",
+            "c": "User",
+            "a": "Login",
+            "dat": {
+                "f_vals": [
+                    {
+                        "data": {
+                            "userName": "jondoo",
+                            "password": "iiii",
+                            "consumerGuid": "B0B3DA99-1859-A499-90F6-1E3F69575DCD"
+                        }
+                    }
+                ],
+                "token": ""
+            },
+            "args": null
+        }
      * @param req
      * @param res
      */
@@ -39,33 +39,31 @@ export class UserController extends CdController {
         try {
             await this.svUser.auth(req,res);
         } catch (e) {
-            this.b.serviceErr(req, res, e,'UserService:Login');
+            await this.b.serviceErr(req, res, e,'UserService:Login');
         }
     }
 
     /**
      * {
-     *   "ctx": "Sys",
-     *   "m": "User",
-     *   "c": "User",
-     *   "a": "Login",
-     *   "dat": {
-     *       "f_vals": [
-     *           {
-     *               "data": {
-     *                   "f_name": "George",
-     *                   "l_name": "Oremo",
-     *                   "email": "george.oremo@corpdesk.io",
-     *                   "user_name": "goremo2",
-     *                   "password": "ekzo3lxm",
-     *                   "consumer_guid": "B0B3DA99-1859-A499-90F6-1E3F69575DCD"
-     *               }
-     *           }
-     *       ],
-     *       "token": "29947F3F-FF52-9659-F24C-90D716BC77B2"
-     *   },
-     *   "args": null
-     * }
+            "ctx": "Sys",
+            "m": "User",
+            "c": "User",
+            "a": "Register",
+            "dat": {
+                "f_vals": [
+                    {
+                        "data":{
+                            "userName": "goremo05",
+                            "email":"goremo05@gmail.com",
+                            "password": "yrhuiak",
+                            "consumerGuid":"B0B3DA99-1859-A499-90F6-1E3F69575DCD" // all clients must have consumer guid which pegs them to a given company
+                        }
+                    }
+                ],
+                "token": ""
+            },
+            "args": {}
+        }
      * @param req
      * @param res
      */
@@ -73,9 +71,11 @@ export class UserController extends CdController {
         try {
             await this.svUser.create(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e,'UserService:Register');
+            await this.b.serviceErr(req, res, e,'UserService:Register');
         }
     }
+
+
 
     // {
     //     "ctx": "Sys",
@@ -100,7 +100,7 @@ export class UserController extends CdController {
         try {
             await this.svUser.getUser(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'UserController:Get');
+            await this.b.serviceErr(req, res, e, 'UserController:Get');
         }
     }
 
@@ -156,7 +156,7 @@ export class UserController extends CdController {
         try {
             await this.svUser.getUserCount(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'UserController:Get');
+            await this.b.serviceErr(req, res, e, 'UserController:Get');
         }
     }
 
@@ -192,7 +192,104 @@ export class UserController extends CdController {
             console.log('UserController::Update()/02');
             await this.svUser.update(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'UserController:Update');
+            await this.b.serviceErr(req, res, e, 'UserController:Update');
+        }
+    }
+
+    /**
+     * To test regiser a new user as below the followed by the update of
+     * the password in the script that follows the one below:
+     * 
+     * /////////////////////////////////////////////////////////////////////////////////////////
+        // 1. create new user
+        /////////////////////////////////////////////////////////////////////////////////////////
+     * {
+            "ctx": "Sys",
+            "m": "User",
+            "c": "User",
+            "a": "Register",
+            "dat": {
+                "f_vals": [
+                    {
+                        "data": {
+                            "userName": "goremo05",
+                            "email": "goremo05@gmail.com",
+                            "password": "yrhuiak",
+                            "consumerGuid": "B0B3DA99-1859-A499-90F6-1E3F69575DCD" // all clients must have consumer guid which pegs them to a given company
+                        }
+                    }
+                ],
+                "token": ""
+            },
+            "args": {}
+        }
+                
+                
+        /////////////////////////////////////////////////////////////////////////////////////////
+        // 2. update password
+        /////////////////////////////////////////////////////////////////////////////////////////
+        There are circumstances that will require old password but in cases of 'forgotPassword',
+        some token can be sent to user securely process update without use of 'oldPassword'
+        {
+            "ctx": "Sys",
+            "m": "User",
+            "c": "User",
+            "a": "UpdatePassword",
+            "dat": {
+                "f_vals": [
+                    {
+                        "forgotPassword":false,
+                        "oldPassword": "yrhuiak",
+                        "query": {
+                            "update": {
+                                "password": "emj8a#jul"
+                            },
+                            "where": {
+                                "userId": 1500
+                            }
+                        }
+                    }
+                ],
+                "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+            },
+            "args": {}
+        }
+
+        // see use case for 'forgotPassword'
+        {
+            "ctx": "Sys",
+            "m": "User",
+            "c": "User",
+            "a": "UpdatePassword",
+            "dat": {
+                "f_vals": [
+                    {
+                        "forgotPassword": true, // optional: used securely when oldPassword is not avialble (developer option...NOT end user) 
+                        "oldPassword": null, // can be set to oldPassword text or set to null by develper to use in case of forgotPassword === true;
+                        "query": {
+                            "update": {
+                                "password": "iiii"
+                            },
+                            "where": {
+                                "userId": 1003
+                            }
+                        }
+                    }
+                ],
+                "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+            },
+            "args": {}
+        }
+     * @param req 
+     * @param res 
+     */
+    async UpdatePassword(req, res) {
+        console.log('UserController::UpdatePassword()/01');
+        try {
+            console.log('UserController::UpdatePassword()/02');
+            await this.svUser.updatePassword(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'UserController:UpdatePassword');
         }
     }
 
@@ -221,7 +318,7 @@ export class UserController extends CdController {
         try {
             await this.svUser.delete(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'UserController:Update');
+            await this.b.serviceErr(req, res, e, 'UserController:Update');
         }
     }
 }

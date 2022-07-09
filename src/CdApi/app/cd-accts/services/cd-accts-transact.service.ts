@@ -266,8 +266,8 @@ export class CdAcctsTransactService extends CdService {
                 code: 'BillService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -329,8 +329,8 @@ export class CdAcctsTransactService extends CdService {
                 code: 'BillService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -397,8 +397,8 @@ export class CdAcctsTransactService extends CdService {
                 code: 'CdAcctsTransactService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -427,8 +427,8 @@ export class CdAcctsTransactService extends CdService {
                 code: 'CdAcctsTransactService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -599,8 +599,8 @@ export class CdAcctsTransactService extends CdService {
                 code: 'CdAcctsTransactService:getTransact',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -686,8 +686,8 @@ export class CdAcctsTransactService extends CdService {
                 code: 'CdAcctsTransactService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -725,8 +725,8 @@ export class CdAcctsTransactService extends CdService {
                 code: 'CdAcctsTransactService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -974,8 +974,8 @@ export class CdAcctsTransactService extends CdService {
                 code: 'CdAcctsTransactService:getMeta',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 }

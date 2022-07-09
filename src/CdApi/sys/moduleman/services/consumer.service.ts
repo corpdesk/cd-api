@@ -17,6 +17,7 @@ import { Observable } from 'rxjs';
 import { ConsumerResourceViewModel } from '../models/consumer-resource-view.model';
 import { CompanyViewModel } from '../models/company-view.model';
 import { CompanyModel } from '../models/company.model';
+import { CompanyService } from './company.service';
 // import { ConsumerViewModel } from '../models/consumer-view.model';
 
 export class ConsumerService extends CdService {
@@ -28,7 +29,7 @@ export class ConsumerService extends CdService {
     serviceModel: ConsumerModel;
     sessModel;
     // moduleModel: ModuleModel;
-    company:CompanyModel;
+    company: CompanyModel;
 
     /*
      * create rules
@@ -115,7 +116,7 @@ export class ConsumerService extends CdService {
         this.b.setPlData(req, { key: 'consumerName', value: this.company.companyName });
         this.b.setPlData(req, { key: 'companyId', value: this.company.companyId });
         this.b.setPlData(req, { key: 'companyGuid', value: pl.companyGuid });
-        this.b.setPlData(req, { key: 'consumerGuid', value: this.b.getGuid()});
+        this.b.setPlData(req, { key: 'consumerGuid', value: this.b.getGuid() });
         this.b.setPlData(req, { key: 'consumerEnabled', value: true });
         return true;
     }
@@ -270,7 +271,7 @@ export class ConsumerService extends CdService {
         return ret;
     }
 
-    getConsumer(req, res) {
+    async getConsumer(req, res) {
         const q = this.b.getQuery(req);
         console.log('ConsumerService::getConsumer/f:', q);
         const serviceInput = {
@@ -302,12 +303,12 @@ export class ConsumerService extends CdService {
                 code: 'BaseService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
-    getConsumerType(req, res) {
+    async getConsumerType(req, res) {
         const q = this.b.getQuery(req);
         console.log('ConsumerService::getConsumer/f:', q);
         const serviceInput = {
@@ -339,8 +340,8 @@ export class ConsumerService extends CdService {
                 code: 'BaseService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -427,6 +428,21 @@ export class ConsumerService extends CdService {
         return this.b.read$(req, res, serviceInput);
     }
 
+    async getConsumerByGuid(req, res, consmGuid): Promise<any> {
+        // console.log('starting getConsumerByGuid(req, res, consmGuid)');
+        const serviceInput: IServiceInput = {
+            serviceInstance: this,
+            serviceModel: ConsumerModel,
+            docName: 'ConsumerService::getConsumerByGuid',
+            cmd: {
+                action: 'find',
+                query: { where: { consumerGuid: consmGuid } }
+            },
+            dSource: 1,
+        }
+        return this.b.read(req, res, serviceInput);
+    }
+
     async getIDByGuid(consumerGuid) {
         return [{}];
     }
@@ -455,7 +471,78 @@ export class ConsumerService extends CdService {
         return req.post.dat.f_vals[0].data.consumerGuid;
     }
 
-    consumerGuidIsValid() {
-        return true;
+    async consumerGuidIsValid(req, res, consumerGuid: string = null): Promise<boolean> {
+        console.log('ConsumerService::consumerGuidIsValid()/01')
+        const svConsumer = new ConsumerService()
+        let consGuid = null
+        if (consumerGuid) {
+            console.log('ConsumerService::consumerGuidIsValid()/02')
+            const plData = await this.b.getPlData(req)
+            consGuid = plData.consumerGuid
+        } else {
+            console.log('ConsumerService::consumerGuidIsValid()/03')
+            consGuid = this.b.getReqToken(req)
+        }
+        const consumerData: ConsumerModel[] = await svConsumer.getConsumerByGuid(req, res, consGuid)
+        if (consumerData.length > 0) {
+            console.log('ConsumerService::consumerGuidIsValid()/04')
+            return true;
+        } else {
+            console.log('ConsumerService::consumerGuidIsValid()/05')
+            return false;
+        }
+    }
+
+    async activeCompany(req, res) {
+        //use token to get consumer_guid
+        const svConsumer = new ConsumerService();
+        const svCompany = new CompanyService();
+        const svSess = new SessionService();
+        const consumerData: ConsumerModel[] = await this.getConsumerGuidByToken(req, res);
+        console.log('ConsumerService::activeCompany()/consumerData:', consumerData)
+        let companyData = [];
+        let companyGuid = null;
+        let coId = null;
+        if (consumerData.length > 0) {
+            console.log('ConsumerService::activeCompany()/consumerData[0].companyId:', consumerData[0].companyId)
+            coId = consumerData[0].companyId;
+            return await svCompany.getCompany(req, res, { where: { companyId: coId } })
+        } else {
+            return Promise.resolve([])
+        }
+    }
+
+    async activeConsumer(req, res) {
+        //use token to get consumer_guid
+        const svConsumer = new ConsumerService();
+        const svCompany = new CompanyService();
+        const svSess = new SessionService();
+        const consumerData: ConsumerModel[] = await this.getConsumerGuidByToken(req, res);
+        console.log('ConsumerService::activeCompany()/consumerData:', consumerData)
+        let companyData = [];
+        let companyGuid = null;
+        let coId = null;
+        if (consumerData.length > 0) {
+            console.log('ConsumerService::activeCompany()/consumerData[0].companyId:', consumerData[0].companyId)
+            return consumerData
+        } else {
+            return Promise.resolve([])
+        }
+    }
+
+    async getConsumerGuidByToken(req, res): Promise<ConsumerModel[]> {
+        const svSess = new SessionService()
+        const sess = await svSess.getSession(req, res)
+        const serviceInput: IServiceInput = {
+            serviceInstance: this,
+            serviceModel: ConsumerModel,
+            docName: 'ConsumerService::getConsumerGuidByToken',
+            cmd: {
+                action: 'find',
+                query: { where: { consumerGuid: sess[0].consumerGuid } }
+            },
+            dSource: 1,
+        }
+        return await this.b.read(req, res, serviceInput);
     }
 }

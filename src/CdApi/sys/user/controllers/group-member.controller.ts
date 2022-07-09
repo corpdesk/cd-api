@@ -40,7 +40,7 @@ export class GroupMemberController extends CdController {
         try {
             await this.svGroupMember.create(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'GroupMemberController:Create');
+            await this.b.serviceErr(req, res, e, 'GroupMemberController:Create');
         }
     }
 
@@ -69,7 +69,7 @@ export class GroupMemberController extends CdController {
         try {
             await this.svGroupMember.getGroupMember(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'GroupMemberController:Get');
+            await this.b.serviceErr(req, res, e, 'GroupMemberController:Get');
         }
     }
 
@@ -109,7 +109,7 @@ export class GroupMemberController extends CdController {
         try {
             await this.svGroupMember.getGroupMemberCount(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ModuleController:Get');
+            await this.b.serviceErr(req, res, e, 'ModuleController:Get');
         }
     }
 
@@ -145,7 +145,7 @@ export class GroupMemberController extends CdController {
             console.log('GroupMemberController::Update()/02');
             await this.svGroupMember.update(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ModuleController:Update');
+            await this.b.serviceErr(req, res, e, 'ModuleController:Update');
         }
     }
 
@@ -174,7 +174,7 @@ export class GroupMemberController extends CdController {
         try {
             await this.svGroupMember.delete(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ModuleController:Update');
+            await this.b.serviceErr(req, res, e, 'ModuleController:Update');
         }
     }
 

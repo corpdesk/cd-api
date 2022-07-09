@@ -1,33 +1,213 @@
-export class GroupInvitationController {
-    public modelStr = 'group_invitation';
-    public b; // handle to cd base controller
-    private CD_AUTH_DRIVER; // should idealy be set at the config file
-    private result = null;
-    private hostGroup; // the group where the invitee is expected to join
-    private rules = [];
+import { BaseService } from '../../base/base.service';
+import { CdController } from '../../base/cd.controller';
+import { CreateIParams } from '../../base/IBase';
+import { ConsumerService } from '../../moduleman/services/consumer.service';
+import { GroupInvitationService } from '../services/group-invitation.service';
+import { SessionService } from '../services/session.service';
 
-    /*
-     * create rules
-     */
-    public cRules = {
-        'required': [
-            'hostUser',
-            'guestUser',
-            'group_invitation_type_id',
-            'group_id',
-        ],
-        'no_duplicate': [
-            'hostUser',
-            'guestUser',
-            'group_id',
-        ],
-    };
+export class GroupInvitationController extends CdController {
+    b: BaseService;
+    svGroupInvitation: GroupInvitationService;
 
     constructor() {
-        console.log('starting GroupInvitationController()');
+        super();
+        this.b = new BaseService();
+        this.svGroupInvitation = new GroupInvitationService();
     }
 
-    actionCreate() {
-        console.log('starting actionCreate()');
+    // /**
+    //  * {
+    //         "ctx": "Sys",
+    //         "m": "User",
+    //         "c": "GroupInvitation",
+    //         "a": "Create",
+    //         "dat": {
+    //             "f_vals": [
+    //                 {
+    //                     "data": {
+    //                         "groupName": "/src/CdApi/sys/moduleman",
+    //                         "groupTypeGuid": "7ae902cd-5bc5-493b-a739-125f10ca0268",
+    //                         "parentGroupInvitationGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b"
+    //                     }
+    //                 }
+    //             ],
+    //             "token": "3ffd785f-e885-4d37-addf-0e24379af338"
+    //         },
+    //         "args": {}
+    //     }
+    //  * @param req
+    //  * @param res
+    //  */
+    async Create(req, res) {
+        try {
+            await this.svGroupInvitation.create(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'GroupInvitationController:Create');
+        }
+    }
+
+    /**
+     * {
+            "ctx": "Sys",
+            "m": "User",
+            "c": "GroupInvitation",
+            "a": "Accept",
+            "dat": {
+                "f_vals": [
+                    {
+                        "data": {
+                            "groupInvitationId": 1431
+                        }
+                    }
+                ],
+                "token": "415cc20f-33d4-4641-9fa2-ab35f9dcc8df"
+            },
+            "args": {}
+        }
+     * @param req
+     * @param res
+     */
+    async Accept(req, res) {
+        try {
+            console.log('GroupInvitationController::Accept()/01')
+            await this.svGroupInvitation.accept(req, res);
+        } catch (e) {
+            console.log('GroupInvitationController::Accept()/02')
+            await this.b.serviceErr(req, res, e, 'GroupInvitationController:Create');
+        }
+    }
+
+    /**
+     * {
+            "ctx": "Sys",
+            "m": "User",
+            "c": "GroupInvitation",
+            "a": "Get",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "where": {"hostUser": 1003}
+                        }
+                    }
+                ],
+                "token": "415cc20f-33d4-4641-9fa2-ab35f9dcc8df"
+            },
+            "args": null
+        }
+     * @param req
+     * @param res
+     */
+    async Get(req, res) {
+        try {
+            await this.svGroupInvitation.getGroupInvitation(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'GroupInvitationController:Get');
+        }
+    }
+
+    async GetType(req, res) {
+        try {
+            await this.svGroupInvitation.getGroupInvitationTypeCount(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'GroupInvitationController:Get');
+        }
+    }
+
+    /** Pageable request:
+     * {
+            "ctx": "Sys",
+            "m": "User",
+            "c": "GroupInvitation",
+            "a": "GetPaged",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "select":["moduleId","moduleGuid"],
+                            "where": {},
+                            "take": 5,
+                            "skip": 1
+                            }
+                    }
+                ],
+                "token": "29947F3F-FF52-9659-F24C-90D716BC77B2"
+            },
+            "args": null
+        }
+     * @param req
+     * @param res
+     */
+    async GetPaged(req, res) {
+        try {
+            await this.svGroupInvitation.getPaged(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'GroupInvitationController:GetPaged');
+        }
+    }
+
+    // /**
+    //  * {
+    //         "ctx": "Sys",
+    //         "m": "User",
+    //         "c": "GroupInvitation",
+    //         "a": "Update",
+    //         "dat": {
+    //             "f_vals": [
+    //                 {
+    //                     "query": {
+    //                         "update": {
+    //                             "groupName": "/corp-deskv1.2.1.2/system/modules/comm/controllers"
+    //                         },
+    //                         "where": {
+    //                             "groupId": 45762
+    //                         }
+    //                     }
+    //                 }
+    //             ],
+    //             "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+    //         },
+    //         "args": {}
+    //     }
+    //  * @param req
+    //  * @param res
+    //  */
+    async Update(req, res) {
+        console.log('GroupInvitationController::Update()/01');
+        try {
+            console.log('GroupInvitationController::Update()/02');
+            await this.svGroupInvitation.update(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'GroupInvitationController:Update');
+        }
+    }
+
+    // /**
+    //  * {
+    //         "ctx": "Sys",
+    //         "m": "User",
+    //         "c": "GroupInvitation",
+    //         "a": "GetCount",
+    //         "dat": {
+    //             "f_vals": [
+    //                 {
+    //                     "query": {
+    //                         "where": {"groupId": 45763}
+    //                     }
+    //                 }
+    //             ],
+    //             "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+    //         },
+    //         "args": null
+    //     }
+    //  * @param req
+    //  * @param res
+    //  */
+    async Delete(req, res) {
+        try {
+            await this.svGroupInvitation.delete(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'GroupInvitationController:Update');
+        }
     }
 }

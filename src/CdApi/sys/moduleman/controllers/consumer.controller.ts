@@ -36,7 +36,7 @@ export class ConsumerController {
         try {
             await this.svConsumer.create(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ConsumerController:Create');
+            await this.b.serviceErr(req, res, e, 'ConsumerController:Create');
         }
     }
 
@@ -67,7 +67,7 @@ export class ConsumerController {
         try {
             await this.svConsumer.getConsumer(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ConsumerController:Get');
+            await this.b.serviceErr(req, res, e, 'ConsumerController:Get');
         }
     }
 
@@ -75,7 +75,7 @@ export class ConsumerController {
         try {
             await this.svConsumer.getConsumerTypeCount(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ConsumerController:Get');
+            await this.b.serviceErr(req, res, e, 'ConsumerController:Get');
         }
     }
 
@@ -110,7 +110,7 @@ export class ConsumerController {
         try {
             await this.svConsumer.getConsumerCount(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ConsumerController:Get');
+            await this.b.serviceErr(req, res, e, 'ConsumerController:Get');
         }
     }
 
@@ -146,7 +146,7 @@ export class ConsumerController {
             console.log('ConsumerController::Update()/02');
             await this.svConsumer.update(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ConsumerController:Update');
+            await this.b.serviceErr(req, res, e, 'ConsumerController:Update');
         }
     }
 
@@ -175,7 +175,7 @@ export class ConsumerController {
         try {
             await this.svConsumer.delete(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ConsumerController:Update');
+            await this.b.serviceErr(req, res, e, 'ConsumerController:Update');
         }
     }
 

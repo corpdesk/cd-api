@@ -2,8 +2,8 @@ import { BaseService } from '../../base/base.service';
 import { CdService } from '../../base/cd.service';
 import { SessionService } from '../../user/services/session.service';
 import { UserService } from '../../user/services/user.service';
-import { CreateIParams, IRespInfo, IServiceInput, IUser } from '../../base/IBase';
-import { CompanyModel } from '../models/company.model';
+import { CreateIParams, IQuery, IRespInfo, IServiceInput, IUser } from '../../base/IBase';
+import { CompanyModel, siGet } from '../models/company.model';
 import { CompanyViewModel } from '../models/company-view.model';
 import { CompanyTypeModel } from '../models/company-type.model';
 
@@ -162,8 +162,8 @@ export class CompanyService extends CdService {
                 code: 'CompanyService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -329,30 +329,15 @@ export class CompanyService extends CdService {
         return true;
     }
 
-    getCompany(req, res) {
-        const q = this.b.getQuery(req);
-        console.log('CompanyService::getCompany/f:', q);
-        const serviceInput = {
-            serviceModel: CompanyViewModel,
-            docName: 'CompanyService::getCompany$',
-            cmd: {
-                action: 'find',
-                query: q
-            },
-            dSource: 1
+    async getCompany(req, res, q:IQuery = null): Promise<any> {
+        if(q === null){
+            q = this.b.getQuery(req);
         }
+        console.log('CompanyService::getCompany/f:', q);
+        const serviceInput = siGet(q)
         try {
-            this.b.read$(req, res, serviceInput)
-                .subscribe((r) => {
-                    // console.log('CompanyService::read$()/r:', r)
-                    this.b.i.code = 'CompanyController::Get';
-                    const svSess = new SessionService();
-                    svSess.sessResp.cd_token = req.post.dat.token;
-                    svSess.sessResp.ttl = svSess.getTtl();
-                    this.b.setAppState(true, this.b.i, svSess.sessResp);
-                    this.b.cdResp.data = r;
-                    this.b.respond(req, res)
-                })
+            const r = await this.b.read(req, res, serviceInput)
+            this.b.successResponse(req, res, r)
         } catch (e) {
             console.log('CompanyService::read$()/e:', e)
             this.b.err.push(e.toString());
@@ -361,8 +346,8 @@ export class CompanyService extends CdService {
                 code: 'BaseService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -370,15 +355,7 @@ export class CompanyService extends CdService {
         await this.b.initSqlite(req, res)
         const q = this.b.getQuery(req);
         console.log('CompanyService::getCompany/q:', q);
-        const serviceInput = {
-            serviceModel: CompanyModel,
-            docName: 'CompanyService::getCompany',
-            cmd: {
-                action: 'find',
-                query: q
-            },
-            dSource: 1
-        }
+        const serviceInput = siGet(q)
         try {
             this.b.readSL$(req, res, serviceInput)
                 .subscribe((r) => {
@@ -400,8 +377,8 @@ export class CompanyService extends CdService {
                 code: 'CompanyService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 

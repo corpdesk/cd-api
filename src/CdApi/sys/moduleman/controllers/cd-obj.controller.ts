@@ -38,7 +38,7 @@ export class CdObjController {
         try {
             await this.svCdObj.create(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdObjController:Create');
+            await this.b.serviceErr(req, res, e, 'CdObjController:Create');
         }
     }
 
@@ -67,7 +67,7 @@ export class CdObjController {
         try {
             await this.svCdObj.getCdObj(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdObjController:Get');
+            await this.b.serviceErr(req, res, e, 'CdObjController:Get');
         }
     }
 
@@ -75,7 +75,7 @@ export class CdObjController {
         try {
             await this.svCdObj.getCdObjTypeCount(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdObjController:Get');
+            await this.b.serviceErr(req, res, e, 'CdObjController:Get');
         }
     }
 
@@ -107,7 +107,7 @@ export class CdObjController {
         try {
             await this.svCdObj.getCdObjCount(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ModuleController:Get');
+            await this.b.serviceErr(req, res, e, 'ModuleController:Get');
         }
     }
 
@@ -143,7 +143,7 @@ export class CdObjController {
             console.log('CdObjController::Update()/02');
             await this.svCdObj.update(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ModuleController:Update');
+            await this.b.serviceErr(req, res, e, 'ModuleController:Update');
         }
     }
 
@@ -172,7 +172,7 @@ export class CdObjController {
         try {
             await this.svCdObj.delete(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ModuleController:Update');
+            await this.b.serviceErr(req, res, e, 'ModuleController:Update');
         }
     }
 

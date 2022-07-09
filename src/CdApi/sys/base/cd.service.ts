@@ -19,7 +19,7 @@ export abstract class CdService {
     serviceModel: any;
 
     public abstract create(req, res): Promise<any>;
-    public abstract beforeCreate(req, res):Promise<boolean>;
+    public abstract beforeCreate(req, res):Promise<any>;
     public abstract read(req, res, serviceInput: IServiceInput): Promise<any>;
     public abstract update(req, res): void;
     public abstract remove(req, res): void;

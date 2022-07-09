@@ -101,4 +101,24 @@ export class GroupMemberModel {
     )
     groupInvitationId: number;
 
+    @Column(
+        'varchar',
+        {
+            name: 'group_id_parent',
+            length: 50,
+            nullable: true
+        }
+    )
+    groupIdParent: string;
+
+    @Column(
+        'varchar',
+        {
+            name: 'member_id',
+            length: 50,
+            nullable: true
+        }
+    )
+    memberId: string;
+
 }

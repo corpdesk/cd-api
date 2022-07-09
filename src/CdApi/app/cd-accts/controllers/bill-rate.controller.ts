@@ -41,7 +41,7 @@ export class BillRateController {
             console.log('BillController::Create()/02')
             await this.svBillRate.create(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'BillController:Create');
+            await this.b.serviceErr(req, res, e, 'BillController:Create');
         }
     }
 
@@ -51,7 +51,7 @@ export class BillRateController {
             console.log('BillController::Create()/02')
             await this.svBillRate.createSL(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'BillController:CreateSL');
+            await this.b.serviceErr(req, res, e, 'BillController:CreateSL');
         }
     }
 
@@ -82,7 +82,7 @@ export class BillRateController {
         try {
             await this.svBillRate.getBillRate(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'BillController:Get');
+            await this.b.serviceErr(req, res, e, 'BillController:Get');
         }
     }
 
@@ -90,7 +90,7 @@ export class BillRateController {
         try {
             await this.svBillRate.getBillRateSL(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'BillController:GetSL');
+            await this.b.serviceErr(req, res, e, 'BillController:GetSL');
         }
     }
 
@@ -170,7 +170,7 @@ export class BillRateController {
         try {
             await this.svBillRate.getPaged(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'BillController:Get');
+            await this.b.serviceErr(req, res, e, 'BillController:Get');
         }
     }
 
@@ -178,7 +178,7 @@ export class BillRateController {
         try {
             await this.svBillRate.getPagedSL(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'BillController:GetSL');
+            await this.b.serviceErr(req, res, e, 'BillController:GetSL');
         }
     }
 
@@ -214,7 +214,7 @@ export class BillRateController {
             console.log('BillController::Update()/02');
             await this.svBillRate.update(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'BillController:Update');
+            await this.b.serviceErr(req, res, e, 'BillController:Update');
         }
     }
 
@@ -224,7 +224,7 @@ export class BillRateController {
             console.log('BillController::UpdateSL()/02');
             await this.svBillRate.update(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'BillController:UpdateSL');
+            await this.b.serviceErr(req, res, e, 'BillController:UpdateSL');
         }
     }
 
@@ -255,7 +255,7 @@ export class BillRateController {
         try {
             await this.svBillRate.delete(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'BillController:Delete');
+            await this.b.serviceErr(req, res, e, 'BillController:Delete');
         }
     }
 
@@ -263,7 +263,7 @@ export class BillRateController {
         try {
             await this.svBillRate.delete(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'BillController:DeleteSL');
+            await this.b.serviceErr(req, res, e, 'BillController:DeleteSL');
         }
     }
 
@@ -271,7 +271,7 @@ export class BillRateController {
         try {
             await this.svBillRate.getMeta(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'BillController:Get');
+            await this.b.serviceErr(req, res, e, 'BillController:Get');
         }
     }
 

@@ -1,8 +1,12 @@
 import { Observable } from 'rxjs';
 import { BaseService } from '../../base/base.service';
 import { CdService } from '../../base/cd.service';
-import { CreateIParams, IServiceInput } from '../../base/IBase';
+import { CreateIParams, IQuery, IServiceInput } from '../../base/IBase';
 import { CdObjTypeModel } from '../../moduleman/models/cd-obj-type.model';
+import { CompanyModel } from '../../moduleman/models/company.model';
+import { ConsumerModel } from '../../moduleman/models/consumer.model';
+import { CompanyService } from '../../moduleman/services/company.service';
+import { ConsumerService } from '../../moduleman/services/consumer.service';
 import { GroupTypeModel } from '../models/group-type.model';
 import { GroupModel } from '../models/group.model';
 import { SessionModel } from '../models/session.model';
@@ -133,6 +137,66 @@ export class GroupService extends CdService {
 
     async createI(req, res, createIParams: CreateIParams): Promise<GroupModel | boolean> {
         return await this.b.createI(req, res, createIParams)
+    }
+
+    async createPalsGroup(req, res, userData:UserModel){
+        console.log('GroupService::createPalsGroup()/01')
+        // const svGroup = new GroupService()
+        const svConsumer = new ConsumerService()
+        svConsumer.b = this.b
+        const svCompany = new CompanyService()
+        svCompany.b = this.b
+        // const svSess = new SessionService()
+        let coId = null;
+        let consGuid = null;
+        // const co = await svConsumer.activeCompany(req, res);
+        
+        ////////////
+        const plData = await this.b.getPlData(req)
+        consGuid = plData.consumerGuid
+        const consumerData:ConsumerModel[] = await svConsumer.getConsumerByGuid(req, res, consGuid)
+        console.log('GroupService::createPalsGroup()/consumerData:', consumerData)
+        // const consumerData = await svConsumer.activeConsumer(req, res);
+          
+        if(consumerData.length > 0){
+            coId = consumerData[0].companyId;
+        }
+        const co:CompanyModel[] = await svCompany.getCompany(req, res, { where: { companyId: coId } })
+        console.log('GroupService::createPalsGroup()/co:', co)
+        
+        if(co.length > 0){
+            coId = co[0].companyId
+            consGuid = consumerData[0].consumerGuid
+        }
+        // const cUser = await svSess.getCurrentUser(req)
+        console.log('GroupService::createPalsGroup()/userData:', userData)
+        console.log('GroupService::createPalsGroup()/co[0].consumerGuid:', co[0].consumerGuid)
+        console.log('GroupService::createPalsGroup()/consGuid:', consGuid)
+        const groupData = {
+            groupGuid: this.b.getGuid(),
+            groupName: `${userData.userGuid}-pals`,
+            groupOwnerId: userData.userId,
+            groupTypeId: 7,
+            moduleGuid: "-dkkm6",
+            companyId: coId,
+            consumerGuid: consGuid,
+            isPublic: false,
+            enabled: true,
+        };
+        console.log('GroupService::createPalsGroup()/groupData:', groupData)
+        const si = {
+            serviceInstance: this,
+            serviceModel: GroupModel,
+            serviceModelInstance: this.serviceModel,
+            docName: 'UserService/afterCreate',
+            dSource: 1,
+        }
+        const createIParams: CreateIParams = {
+            serviceInput: si,
+            controllerData: groupData
+        }
+        console.log('GroupService::createPalsGroup()/createIParams:', createIParams)
+        return await this.createI(req, res, createIParams)
     }
 
     async groupExists(req, res, params): Promise<boolean> {
@@ -293,7 +357,7 @@ export class GroupService extends CdService {
         return ret;
     }
 
-    getGroup(req, res) {
+    async getGroup(req, res) {
         const q = this.b.getQuery(req);
         console.log('GroupService::getGroup/f:', q);
         const serviceInput = {
@@ -325,12 +389,41 @@ export class GroupService extends CdService {
                 code: 'BaseService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
-    getGroupType(req, res) {
+    async getGroupI(req, res, q: IQuery = null): Promise<GroupModel[]> {
+        if (q == null) {
+            q = this.b.getQuery(req);
+        }
+        console.log('GroupService::getGroupI/f:', q);
+        const serviceInput = {
+            serviceModel: GroupModel,
+            docName: 'GroupService::getGroupI',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        try {
+            return this.b.read(req, res, serviceInput)
+        } catch (e) {
+            console.log('GroupService::getGroupI()/e:', e)
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'GroupService:getGroupI',
+                app_msg: ''
+            };
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
+        }
+    }
+
+    async getGroupType(req, res) {
         const q = this.b.getQuery(req);
         console.log('GroupService::getGroup/f:', q);
         const serviceInput = {
@@ -362,8 +455,37 @@ export class GroupService extends CdService {
                 code: 'BaseService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
+        }
+    }
+
+    async getGroupTypeI(req, res, q: IQuery = null): Promise<GroupModel[]> {
+        if (q == null) {
+            q = this.b.getQuery(req);
+        }
+        console.log('GroupService::getGroupI/f:', q);
+        const serviceInput = {
+            serviceModel: GroupTypeModel,
+            docName: 'GroupService::getGroupI',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        try {
+            return this.b.read(req, res, serviceInput)
+        } catch (e) {
+            console.log('GroupService::getGroupI()/e:', e)
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'GroupService:getGroupI',
+                app_msg: ''
+            };
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 

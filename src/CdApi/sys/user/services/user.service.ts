@@ -27,6 +27,8 @@ import { ISessResp } from '../../base/IBase';
 import { ModuleService } from '../../moduleman/services/module.service';
 import { ConsumerService } from '../../moduleman/services/consumer.service';
 import { UserViewModel } from '../models/user-view.model';
+import { GroupService } from './group.service';
+import { GroupModel } from '../models/group.model';
 
 
 
@@ -39,6 +41,8 @@ export class UserService extends CdService {
     srvSess: SessionService;
     srvModules: ModuleService;
     svConsumer: ConsumerService;
+    requestPswd: string;
+    plData:any;
 
     // i: IRespInfo = {
     //     messages: null,
@@ -54,12 +58,12 @@ export class UserService extends CdService {
     cRules: any = {
         required: [
             'userName',
-            'Email',
-            'Password',
+            'email',
+            'password',
         ],
         noDuplicate: [
             'userName',
-            'Email'
+            'email'
         ],
     };
 
@@ -85,7 +89,7 @@ export class UserService extends CdService {
     async create(req, res): Promise<void> {
         if (await this.validateCreate(req, res)) {
             const user = new UserModel();
-            await this.beforCreate(req);
+            await this.beforeCreate(req, res);
             const serviceInput = {
                 serviceInstance: this,
                 serviceModel: UserModel,
@@ -93,9 +97,13 @@ export class UserService extends CdService {
                 docName: 'Register User',
                 dSource: 1,
             }
-            const regResp: any = await this.b.create(req, res, serviceInput);
-            this.sendEmailNotification(req, res);
-            this.b.cdResp = await regResp;
+            const newUser: UserModel = await this.b.create(req, res, serviceInput);
+            console.log('UserService::create()/newUser:', newUser)
+            const plData = this.b.getPlData(req);
+            console.log('UserService::create()/plData:', plData)
+            this.afterCreate(req, res, newUser)
+            this.b.cdResp.data = await newUser;
+            this.b.cdResp.app_state.success = true;
             const r = await this.b.respond(req, res);
         } else {
             const i = {
@@ -108,31 +116,59 @@ export class UserService extends CdService {
         }
     }
 
-    createI(req, res, createIParams: CreateIParams) {
-        //
+    async createI(req, res, createIParams: CreateIParams): Promise<UserModel | boolean> {
+        return await this.b.createI(req, res, createIParams)
     }
 
     async beforeCreate(req, res) {
-        //
-        return true;
+        this.b.setPlData(req, { key: 'userGuid', value: this.b.getGuid() });
+        this.b.setPlData(req, { key: 'activationKey', value: this.b.getGuid() });
+        this.userModel.user_guid = this.b.getGuid();
+        this.userModel.activation_key = this.b.getGuid();
+        await this.cryptPassword(req);
+    }
+
+    async afterCreate(req, res, userData: UserModel) {
+        const sessData: SessionModel = await this.authI(req, res)
+        this.b.sess = [sessData];
+        console.log('UserService::afterCreate()/sessData:', sessData)
+        // update req with token
+        req.post.dat.token = sessData.cdToken
+        const svGroup = new GroupService()
+        svGroup.b = this.b
+        // every user must have 'pals' group after registration
+        const palGroup = await svGroup.createPalsGroup(req, res, userData)
+        console.log('UserService::afterCreate()/palGroup:', palGroup)
+        this.regisrationNotification(req, res);
     }
 
     async validateCreate(req, res) {
+        console.log('UserService::validateCreate()/01')
+        const svConsumer = new ConsumerService()
         const params = {
             controllerInstance: this,
             model: UserModel,
         }
+        this.plData = this.b.getPlData(req);
         if (await this.b.validateUnique(req, res, params)) {
+            console.log('UserService::validateCreate()/01')
             if (await this.b.validateRequired(req, res, this.cRules)) {
-                if (!this.srvSess.getConsumerGuid(req)) {
-                    this.b.err.push('consumer guid is missing in the auth request');
+                console.log('UserService::validateCreate()/02')
+                if (!svConsumer.getConsumerGuid(req)) {
+                    console.log('UserService::validateCreate()/03')
+                    this.b.err.push('valid consumer token is missing in the auth request');
                     return false;
                 } else {
-                    if (!this.svConsumer.consumerGuidIsValid()) {
-                        this.b.err.push('consumer guid is not valid');
+                    console.log('UserService::validateCreate()/04')
+                    const plData = await this.b.getPlData(req)
+                    if (await this.svConsumer.consumerGuidIsValid(req, res, plData.consumerGuid) === false) {
+                        console.log('UserService::validateCreate()/05')
+                        this.b.err.push('consumer token is not valid');
                         return false;
                     }
+                    console.log('UserService::validateCreate()/06')
                 }
+                console.log('UserService::validateCreate()/07')
                 return true;
             } else {
                 this.b.err.push(`you must provide ${JSON.stringify(this.cRules.required)}`);
@@ -144,27 +180,22 @@ export class UserService extends CdService {
         }
     }
 
-    async beforCreate(req) {
-        this.userModel.user_guid = this.b.getGuid();
-        this.userModel.activation_key = this.b.getGuid();
-        await this.cryptPassword(req);
-    }
-
     async cryptPassword(req) {
         const d = await this.b.getPlData(req);
-        req.post.dat.f_vals[0].data.password = await bcrypt.hash(d.password, 10);
+        this.requestPswd = this.plData.password
+        this.plData.password = await bcrypt.hash(d.password, 10);
     }
 
-    async sendEmailNotification(req, res) {
+    async regisrationNotification(req, res) {
         if (userConfig.register.notification.email) {
-            req.post.dat.f_vals[0].data.msg = registerNotifTemplate(await this.userModel);
+            this.plData.msg = registerNotifTemplate(await this.userModel);
             const mailRet = await this.mail.sendEmailNotif(await req, res);
         }
     }
 
     async createMulti(req, res): Promise<void> {
         createConnection().then(async connection => {
-            const d = req.post.dat.f_vals[0].data;
+            const d = this.plData;
             const regResp = await getConnection()
                 .createQueryBuilder()
                 .insert()
@@ -245,6 +276,138 @@ export class UserService extends CdService {
         return q;
     }
 
+    /**
+     * {
+            "ctx": "Sys",
+            "m": "User",
+            "c": "User",
+            "a": "UpdatePassword",
+            "dat": {
+                "f_vals": [
+                    {
+                        "forgotPassword": true, // optional: used securely when oldPassword is not avialble (developer option...NOT end user) 
+                        "oldPassword": null, // can be set to oldPassword text or set to null by develper to use in case of forgotPassword === true;
+                        "query": {
+                            "update": {
+                                "password": "iiii"
+                            },
+                            "where": {
+                                "userId": 1003
+                            }
+                        }
+                    }
+                ],
+                "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+            },
+            "args": {}
+        }
+     * @param req 
+     * @param res 
+     */
+    async updatePassword(req, res) {
+        // console.log('UserService::update()/01');
+        await this.beforeUpdatePassword(req, res, this.b.getQuery(req));
+        const serviceInput = {
+            serviceModel: UserModel,
+            docName: 'UserService::update',
+            cmd: {
+                action: 'update',
+                query: this.b.getQuery(req)
+            },
+            dSource: 1
+        }
+        console.log('UserService::update()/02')
+        console.log('UserService::update()/serviceInput:', JSON.stringify(serviceInput))
+        this.b.update$(req, res, serviceInput)
+            .subscribe((ret) => {
+                this.b.cdResp.data = ret;
+                this.b.respond(req, res)
+            })
+
+    }
+
+    async beforeUpdatePassword(req, res, q: IQuery) {
+        this.plData = this.b.getPlData(req)
+        // 1. get cUser
+        console.log('UserService::beforeUpdatePassword()/f:', q);
+        this.requestPswd = req.post.dat.f_vals[0].oldPassword;
+        console.log('UserService::beforeUpdatePassword()/this.requestPswd:', this.requestPswd);
+        // 1. confirm old password
+        const qExists = { where: { userId: q.where.userId } };
+        const cUser = await this.getUserI(req, res, qExists)
+        console.log('UserService::beforeUpdatePassword()/cUser:', cUser);
+        if (cUser.length > 0) {
+            if (await this.verifyPassword(req, res, cUser)) {
+                // old password is valid
+                console.log('UserService::beforeUpdatePassword()/req.post.dat.f_vals[0].update.password 1:', req.post.dat.f_vals[0].query.update.password);
+                // 2. bicrypt the new password
+                req.post.dat.f_vals[0].query.update.password = await bcrypt.hash(req.post.dat.f_vals[0].query.update.password, 10);
+                console.log('UserService::beforeUpdatePassword()/req.post.dat.f_vals[0].update.password 2:', req.post.dat.f_vals[0].query.update.password);
+            } else {
+                const i = {
+                    messages: this.b.err,
+                    code: 'UserService:beforeUpdatePassword',
+                    app_msg: 'incorrect old-password'
+                };
+                await this.b.setAppState(false, i, null);
+                const r = await this.b.respond(req, res);
+            }
+            // return q;
+        } else {
+            const i = {
+                messages: this.b.err,
+                code: 'UserService:beforeUpdatePassword',
+                app_msg: 'user not found'
+            };
+            await this.b.setAppState(false, i, null);
+            const r = await this.b.respond(req, res);
+        }
+
+    }
+
+    // async getUserI(req, res, q: IQuery): Promise<UserModel[]> {
+    //     const serviceInput: IServiceInput = {
+    //         serviceModel: UserModel,
+    //         docName: 'UserService::getUser$',
+    //         cmd: {
+    //             action: 'find',
+    //             query: q
+    //         },
+    //         dSource: 1
+    //     }
+    //     return await this.read(req, res, serviceInput)
+    // }
+
+    async getUserI(req, res, q: IQuery = null): Promise<UserModel[]> {
+        if (q == null) {
+            q = this.b.getQuery(req);
+        }
+        console.log('UserService::getUserI/f:', q);
+        const serviceInput = {
+            serviceModel: UserModel,
+            docName: 'UserService::getUserI',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        try {
+            return this.b.read(req, res, serviceInput)
+        } catch (e) {
+            console.log('UserService::getUserI()/e:', e)
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'UserService:getUserI',
+                app_msg: ''
+            };
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
+        }
+    }
+
+
     remove(req, res): Promise<void> {
         console.log(`starting SessionService::remove()`);
         return null;
@@ -265,33 +428,17 @@ export class UserService extends CdService {
     async auth(req, res) {
         console.log('UserService::auth()/01');
         const svSess = new SessionService();
-        // const serviceInput = {
-        //     serviceInstance: this,
-        //     serviceModel: UserModel,
-        //     docName: 'UserService::Login',
-        //     cmd: {
-        //         action: 'find',
-        //         query: {
-        //             // get requested user and 'anon' data/ anon data is used in case of failure
-        //             where: [
-        //                 { userName: req.post.dat.f_vals[0].data.user_name },
-        //                 { userName: 'anon' }
-        //             ]
-        //         }
-        //     },
-        //     dSource: 1,
-        // }
         console.log('auth()/req.post:', JSON.stringify(req.post.dat));
-        // console.log('auth()/serviceInput:', JSON.stringify(serviceInput));
-        // const result: UserModel[] = await this.read(req, res, serviceInput);
+        this.plData = this.b.getPlData(req);
         const q: IQuery = {
             // get requested user and 'anon' data/ anon data is used in case of failure
             where: [
-                { userName: req.post.dat.f_vals[0].data.userName },
+                { userName: this.plData.userName },
                 { userName: 'anon' }
             ]
         };
         const result: UserModel[] = await this.b.get(req, res, UserModel, q);
+        console.log('UserService::auth()/result:', result);
         const guest = await this.resolveGuest(req, res, result);
         console.log('UserService::auth()/guest:', guest)
         try {
@@ -308,30 +455,91 @@ export class UserService extends CdService {
 
     async resolveGuest(req, res, guestArr: UserModel[]): Promise<UserModel> {
         console.log('UserService::resolveGuest()/01');
+        const plData = this.b.getPlData(req);
+        console.log('UserService::resolveGuest()/plData:', plData)
         // console.log('UserService::resolveGuest()/guestArr:', guestArr)
         if (guestArr.length > 0) {
             console.log('UserService::resolveGuest()/02');
             // search if given username exists
-            console.log('UserService::resolveGuest()/req.post.dat.f_vals[0].data:', req.post.dat.f_vals[0].data)
-            let user = guestArr.filter((u) => u.userName === req.post.dat.f_vals[0].data.userName)
-            // console.log('UserService::resolveGuest()/user:', user)
-            if (user.length > 0) {
+            console.log('UserService::resolveGuest()/this.plData:', this.plData)
+            let cUser: UserModel[] = guestArr.filter((u) => u.userName === this.plData.userName)
+            console.log('UserService::resolveGuest()/cUser:', cUser)
+            if (cUser.length > 0) {
                 console.log('UserService::resolveGuest()/03');
+                this.requestPswd = this.plData.password
                 // if exists, check password
                 // ...check password
-                // if password is ok, return user data
-                this.loginState = true;
-                this.b.i.app_msg = `Welcome ${user[0].userName}!`;
-                return user[0];
+                if (await this.verifyPassword(req, res, cUser)) {
+                    console.log('UserService::resolveGuest()/031');
+                    // if password is ok, return user data
+                    this.loginState = true;
+                    this.b.i.app_msg = `Welcome ${cUser[0].userName}!`;
+                    return cUser[0];
+                } else {
+                    console.log('UserService::resolveGuest()/040');
+                    // else if password is invialid, select anon user and return
+                    this.b.i.app_msg = 'Login failed!';
+                    cUser = guestArr.filter((u) => u.userName === 'anon')
+                    return cUser[0];
+                }
             }
             else {
                 console.log('UserService::resolveGuest()/04');
                 // else if user name does not exists, seach for anon user and return
                 this.b.i.app_msg = 'Login failed!';
-                user = guestArr.filter((u) => u.userName === 'anon')
-                return user[0];
+                cUser = guestArr.filter((u) => u.userName === 'anon')
+                return cUser[0];
             }
         }
+    }
+
+    async verifyPassword(req, res, cUser: UserModel[]) {
+        console.log('UserService::verifyPassword()/01')
+        // const plData = await this.b.getPlData(req);
+        // console.log('UserService::verifyPassword()/plData:', plData)
+        console.log('UserService::verifyPassword()/cUser:', cUser)
+        // console.log('UserService::verifyPassword()/plData.password:', plData.password)
+        console.log('UserService::verifyPassword()/cUser.password:', cUser[0].password)
+        console.log('UserService::verifyPassword()/this.requestPswd:', this.requestPswd)
+        let validPassword: any = null;
+        if(req.post.dat.f_vals[0].forgotPassword){
+            // overide verification in circumstances where password is forgotten
+            validPassword = true;
+        } else {
+            validPassword = await bcrypt.compare(this.requestPswd, cUser[0].password);
+        }
+        
+        console.log('UserService::verifyPassword()/02')
+        console.log('UserService::verifyPassword()/validPassword:', validPassword)
+        if (validPassword) {
+            console.log('UserService::verifyPassword()/03')
+            return true;
+        } else {
+            console.log('UserService::verifyPassword()/04')
+            return false;
+        }
+    }
+
+    /**
+     * Auth internal
+     * used when not relying on request data but internal process
+     * @param req 
+     * @param res 
+     */
+    async authI(req, res): Promise<SessionModel> {
+        // const svSess = new SessionService();
+        console.log('auth()/req.post:', JSON.stringify(req.post.dat));
+        const q: IQuery = {
+            // get requested user and 'anon' data/ anon data is used in case of failure
+            where: [
+                { userName: this.plData.userName },
+                { userName: 'anon' }
+            ]
+        };
+        const result: UserModel[] = await this.b.get(req, res, UserModel, q);
+        const guest = await this.resolveGuest(req, res, result);
+        console.log('UserService::auth1()/guest:', guest)
+        return await this.srvSess.create(req, res, guest)
     }
 
     async authResponse(req, res, guest) {
@@ -408,19 +616,21 @@ export class UserService extends CdService {
 
     validateLogin(req) {
         let isValid = true;
-        if (!req.post.dat.f_vals[0].data.consumer_guid) {
+        if (!this.plData.consumer_guid) {
             isValid = false;
         }
 
-        if (!req.post.dat.f_vals[0].data.consumer_guid) {
+        if (!this.plData.consumer_guid) {
             this.b.err.push('consumerGuid is missing or invalid');
             isValid = false;
         }
         return isValid;
     }
 
-    getUser(req, res) {
-        const q = this.b.getQuery(req);
+    async getUser(req, res, q: IQuery = null) {
+        if (q == null) {
+            q = this.b.getQuery(req);
+        }
         console.log('UserService::getUser/f:', q);
         const serviceInput = {
             serviceModel: UserModel,
@@ -451,8 +661,8 @@ export class UserService extends CdService {
                 code: 'BaseService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
@@ -523,5 +733,24 @@ export class UserService extends CdService {
                 this.b.respond(req, res)
             })
     }
+
+    /**
+     * get anon user data
+     */
+    async getAnon(req, res) {
+        const serviceInput: IServiceInput = {
+            serviceInstance: this,
+            serviceModel: UserModel,
+            docName: 'UserService::getAnon',
+            cmd: {
+                action: 'count',
+                query: { where: { userName: 'anon' } }
+            },
+            dSource: 1,
+        }
+        return await this.b.read(req, res, serviceInput);
+    }
+
+
 
 }

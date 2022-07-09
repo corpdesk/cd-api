@@ -24,7 +24,7 @@ export class MenuController {
         try {
             await this.svMenu.create(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ModuleController:Create');
+            await this.b.serviceErr(req, res, e, 'ModuleController:Create');
         }
     }
 
@@ -32,7 +32,7 @@ export class MenuController {
         try {
             // await this.svMenu.testMenu(req, res, userMenuData$);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'RxTestController:menuCollection');
+            await this.b.serviceErr(req, res, e, 'RxTestController:menuCollection');
         }
     }
 
@@ -40,7 +40,7 @@ export class MenuController {
         try {
             await this.svMenu.getMenu(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ModuleController:Get');
+            await this.b.serviceErr(req, res, e, 'ModuleController:Get');
         }
     }
 
@@ -74,7 +74,7 @@ export class MenuController {
             console.log('MenuController::GetCount()/reached 1')
             await this.svMenu.getMenuCount(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ModuleController:Get');
+            await this.b.serviceErr(req, res, e, 'ModuleController:Get');
         }
     }
 
@@ -107,7 +107,7 @@ export class MenuController {
         try {
             await this.svMenu.update(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'MenuController:Update');
+            await this.b.serviceErr(req, res, e, 'MenuController:Update');
         }
     }
 
@@ -115,7 +115,7 @@ export class MenuController {
         try {
             await this.svMenu.delete(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'MenuController:Update');
+            await this.b.serviceErr(req, res, e, 'MenuController:Update');
         }
     }
 

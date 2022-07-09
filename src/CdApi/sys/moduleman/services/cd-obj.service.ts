@@ -297,7 +297,7 @@ export class CdObjService extends CdService {
         return ret;
     }
 
-    getCdObj(req, res) {
+    async getCdObj(req, res) {
         const q = this.b.getQuery(req);
         console.log('CdObjService::getCdObj/f:', q);
         const serviceInput = {
@@ -329,12 +329,12 @@ export class CdObjService extends CdService {
                 code: 'BaseService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
-    getCdObjType(req, res) {
+    async getCdObjType(req, res) {
         const q = this.b.getQuery(req);
         console.log('CdObjService::getCdObj/q:', q);
         const serviceInput = {
@@ -366,8 +366,8 @@ export class CdObjService extends CdService {
                 code: 'BaseService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 

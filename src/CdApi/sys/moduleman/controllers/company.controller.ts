@@ -38,7 +38,7 @@ export class CompanyController {
         try {
             await this.svCompany.create(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CompanyController:Create');
+            await this.b.serviceErr(req, res, e, 'CompanyController:Create');
         }
     }
 
@@ -46,7 +46,7 @@ export class CompanyController {
         try {
             await this.svCompany.createSL(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CompanyController:CreateSL');
+            await this.b.serviceErr(req, res, e, 'CompanyController:CreateSL');
         }
     }
 
@@ -75,7 +75,7 @@ export class CompanyController {
         try {
             await this.svCompany.getCompany(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CompanyController:Get');
+            await this.b.serviceErr(req, res, e, 'CompanyController:Get');
         }
     }
 
@@ -83,7 +83,7 @@ export class CompanyController {
         try {
             await this.svCompany.getCompanySL(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CompanyController:GetSL');
+            await this.b.serviceErr(req, res, e, 'CompanyController:GetSL');
         }
     }
 
@@ -112,7 +112,7 @@ export class CompanyController {
         try {
             await this.svCompany.getCompanyTypeCount(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CompanyController:Get');
+            await this.b.serviceErr(req, res, e, 'CompanyController:Get');
         }
     }
 
@@ -144,7 +144,7 @@ export class CompanyController {
         try {
             await this.svCompany.getCompanyCount(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ModuleController:Get');
+            await this.b.serviceErr(req, res, e, 'ModuleController:Get');
         }
     }
 
@@ -176,7 +176,7 @@ export class CompanyController {
         try {
             await this.svCompany.getCompanyCount(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ModuleController:Get');
+            await this.b.serviceErr(req, res, e, 'ModuleController:Get');
         }
     }
 
@@ -184,7 +184,7 @@ export class CompanyController {
         try {
             await this.svCompany.getPagedSL(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CompanyController:GetSL');
+            await this.b.serviceErr(req, res, e, 'CompanyController:GetSL');
         }
     }
 
@@ -220,7 +220,7 @@ export class CompanyController {
             console.log('CompanyController::Update()/02');
             await this.svCompany.update(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ModuleController:Update');
+            await this.b.serviceErr(req, res, e, 'ModuleController:Update');
         }
     }
 
@@ -230,7 +230,7 @@ export class CompanyController {
             console.log('CompanyController::UpdateSL()/02');
             await this.svCompany.updateSL(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CompanyController:UpdateSL');
+            await this.b.serviceErr(req, res, e, 'CompanyController:UpdateSL');
         }
     }
 
@@ -259,7 +259,7 @@ export class CompanyController {
         try {
             await this.svCompany.delete(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ModuleController:Update');
+            await this.b.serviceErr(req, res, e, 'ModuleController:Update');
         }
     }
 
@@ -267,7 +267,7 @@ export class CompanyController {
         try {
             await this.svCompany.deleteSL(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'BillController:DeleteSL');
+            await this.b.serviceErr(req, res, e, 'BillController:DeleteSL');
         }
     }
 

@@ -367,7 +367,7 @@ export class ConsumerResourceService extends CdService {
         return ret;
     }
 
-    getConsumerResource(req, res) {
+    async getConsumerResource(req, res) {
         const q = this.b.getQuery(req);
         console.log('ConsumerResourceService::getConsumerResource/f:', q);
         const serviceInput = {
@@ -399,12 +399,12 @@ export class ConsumerResourceService extends CdService {
                 code: 'BaseService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
-    getConsumerResourceType(req, res) {
+    async getConsumerResourceType(req, res) {
         const q = this.b.getQuery(req);
         console.log('ConsumerResourceService::getConsumerResource/f:', q);
         const serviceInput = {
@@ -436,8 +436,8 @@ export class ConsumerResourceService extends CdService {
                 code: 'BaseService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 

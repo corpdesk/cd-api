@@ -60,7 +60,7 @@ export class CdAcctsExpenditureController {
             console.log('CdAcctsExpenditureController::Create()/02')
             await this.svExpenditure.create(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsExpenditureController:Create');
+            await this.b.serviceErr(req, res, e, 'CdAcctsExpenditureController:Create');
         }
     }
 
@@ -70,7 +70,7 @@ export class CdAcctsExpenditureController {
             console.log('CdAcctsExpenditureController::Create()/02')
             await this.svExpenditure.createSL(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsExpenditureController:CreateSL');
+            await this.b.serviceErr(req, res, e, 'CdAcctsExpenditureController:CreateSL');
         }
     }
 
@@ -99,7 +99,7 @@ export class CdAcctsExpenditureController {
         try {
             await this.svExpenditure.getBill(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsExpenditureController:Get');
+            await this.b.serviceErr(req, res, e, 'CdAcctsExpenditureController:Get');
         }
     }
 
@@ -107,7 +107,7 @@ export class CdAcctsExpenditureController {
         try {
             await this.svExpenditure.getBillSL(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsExpenditureController:GetSL');
+            await this.b.serviceErr(req, res, e, 'CdAcctsExpenditureController:GetSL');
         }
     }
 
@@ -187,7 +187,7 @@ export class CdAcctsExpenditureController {
         try {
             await this.svExpenditure.getPaged(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsExpenditureController:GetCount');
+            await this.b.serviceErr(req, res, e, 'CdAcctsExpenditureController:GetCount');
         }
     }
 
@@ -218,7 +218,7 @@ export class CdAcctsExpenditureController {
         try {
             await this.svExpenditure.getViewPaged(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsExpenditureController:BillViewPaged');
+            await this.b.serviceErr(req, res, e, 'CdAcctsExpenditureController:BillViewPaged');
         }
     }
 
@@ -226,7 +226,7 @@ export class CdAcctsExpenditureController {
         try {
             await this.svExpenditure.getPagedSL(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsExpenditureController:GetSL');
+            await this.b.serviceErr(req, res, e, 'CdAcctsExpenditureController:GetSL');
         }
     }
 
@@ -262,7 +262,7 @@ export class CdAcctsExpenditureController {
             console.log('CdAcctsExpenditureController::Update()/02');
             await this.svExpenditure.update(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsExpenditureController:Update');
+            await this.b.serviceErr(req, res, e, 'CdAcctsExpenditureController:Update');
         }
     }
 
@@ -272,7 +272,7 @@ export class CdAcctsExpenditureController {
             console.log('CdAcctsExpenditureController::UpdateSL()/02');
             await this.svExpenditure.update(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsExpenditureController:UpdateSL');
+            await this.b.serviceErr(req, res, e, 'CdAcctsExpenditureController:UpdateSL');
         }
     }
 
@@ -303,7 +303,7 @@ export class CdAcctsExpenditureController {
         try {
             await this.svExpenditure.delete(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsExpenditureController:Delete');
+            await this.b.serviceErr(req, res, e, 'CdAcctsExpenditureController:Delete');
         }
     }
 
@@ -311,7 +311,7 @@ export class CdAcctsExpenditureController {
         try {
             await this.svExpenditure.delete(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsExpenditureController:DeleteSL');
+            await this.b.serviceErr(req, res, e, 'CdAcctsExpenditureController:DeleteSL');
         }
     }
 
@@ -319,7 +319,7 @@ export class CdAcctsExpenditureController {
         try {
             await this.svExpenditure.getMeta(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsExpenditureController:Get');
+            await this.b.serviceErr(req, res, e, 'CdAcctsExpenditureController:Get');
         }
     }
 

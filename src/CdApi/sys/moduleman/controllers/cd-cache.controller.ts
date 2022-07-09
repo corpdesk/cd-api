@@ -37,7 +37,7 @@ export class CdCacheController {
         try {
             await this.svCdCache.create(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdCacheController:Create');
+            await this.b.serviceErr(req, res, e, 'CdCacheController:Create');
         }
     }
 
@@ -66,7 +66,7 @@ export class CdCacheController {
         try {
             await this.svCdCache.get(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdCacheController:Get');
+            await this.b.serviceErr(req, res, e, 'CdCacheController:Get');
         }
     }
 
@@ -98,7 +98,7 @@ export class CdCacheController {
         try {
             await this.svCdCache.getCdCacheCount(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ModuleController:Get');
+            await this.b.serviceErr(req, res, e, 'ModuleController:Get');
         }
     }
 
@@ -130,7 +130,7 @@ export class CdCacheController {
         try {
             await this.svCdCache.getCdCacheCount(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ModuleController:Get');
+            await this.b.serviceErr(req, res, e, 'ModuleController:Get');
         }
     }
 
@@ -166,7 +166,7 @@ export class CdCacheController {
             console.log('CdCacheController::Update()/02');
             await this.svCdCache.update(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ModuleController:Update');
+            await this.b.serviceErr(req, res, e, 'ModuleController:Update');
         }
     }
 
@@ -195,7 +195,7 @@ export class CdCacheController {
         try {
             await this.svCdCache.delete(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'ModuleController:Update');
+            await this.b.serviceErr(req, res, e, 'ModuleController:Update');
         }
     }
 

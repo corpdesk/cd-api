@@ -14,6 +14,7 @@ export class GroupMemberService extends CdService {
     cdToken: string;
     serviceModel: GroupMemberModel;
     srvSess: SessionService;
+    validationCreateParams;
 
     /*
      * create rules
@@ -38,45 +39,156 @@ export class GroupMemberService extends CdService {
     }
 
     ///////////////
-    // /**
-    //  * {
-    //         "ctx": "Sys",
-    //         "m": "Moduleman",
-    //         "c": "GroupMember",
-    //         "a": "Create",
-    //         "dat": {
-    //             "f_vals": [
-    //                 {
-    //                     "data": {
-    //                         "group-memberName": "/src/CdApi/sys/moduleman",
-    //                         "group-memberTypeGuid": "7ae902cd-5bc5-493b-a739-125f10ca0268",
-    //                         "parentModuleGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b"
-    //                     }
-    //                 }
-    //             ],
-    //             "token": "3ffd785f-e885-4d37-addf-0e24379af338"
-    //         },
-    //         "args": {}
-    //     }
-    //  * @param req
-    //  * @param res
-    //  */
+    /**
+     * {
+            "ctx": "Sys",
+            "m": "User",
+            "c": "GroupMember",
+            "a": "Create",
+            "dat": {
+                "f_vals": [
+                    {
+                        "data": {
+                            "userIdMember": "1010",
+                            "memberGuid": "fe5b1a9d-df45-4fce-a181-65289c48ea00",
+                            "groupGuidParent": "D7FF9E61-B143-D083-6130-A51058AD9630",
+                            "cdObjTypeId": "9"
+                        }
+                    },
+                    {
+                        "data": {
+                            "userIdMember": "1015",
+                            "memberGuid": "fe5b1a9d-df45-4fce-a181-65289c48ea00",
+                            "groupGuidParent": "2cdaba03-5121-11e7-b279-c04a002428aa",
+                            "cdObjTypeId": "9"
+                        }
+                    }
+                ],
+                "token": "6E831EAF-244D-2E5A-0A9E-27C1FDF7821D"
+            },
+            "args": null
+        }
+     * @param req
+     * @param res
+     */
     async create(req, res) {
         const svSess = new SessionService();
         if (await this.validateCreate(req, res)) {
             await this.beforeCreate(req, res);
             const serviceInput = { serviceModel: GroupMemberModel, serviceModelInstance: this.serviceModel, docName: 'Create group-member', dSource: 1 };
-            this.b.cdResp.data = await this.b.create(req, res, serviceInput);
-            console.log('GroupMemberService::create()/this.b.cdResp.data:', this.b.cdResp.data)
-            await this.b.setAlertMessage('new group-member created', svSess,true);
-            await this.b.respond(req, res);
+            console.log('GroupMemberService::create()/req.post:', req.post)
+            const result = await this.b.create(req, res, serviceInput);
+            await this.afterCreate(req, res);
+            await this.b.successResponse(req, res,result,svSess)
         } else {
             await this.b.respond(req, res);
         }
     }
 
+    async beforeCreate(req, res): Promise<any> {
+        this.b.setPlData(req, { key: 'groupMemberGuid', value: this.b.getGuid() });
+        this.b.setPlData(req, { key: 'groupMemberEnabled', value: true });
+        return true;
+    }
+
+    async afterCreate(req, res){
+        const svSess = new SessionService()
+        // flag invitation group as accepted
+        await this.b.setAlertMessage('new group-member created', svSess, true);
+    }
+
     async createI(req, res, createIParams: CreateIParams): Promise<GroupMemberModel | boolean> {
-        return await this.b.createI(req, res, createIParams)
+        const svSess = new SessionService()
+        if(this.validateCreateI(req,res,createIParams)){
+            return await this.b.createI(req, res, createIParams)
+        } else {
+            this.b.setAlertMessage(`could not join group`, svSess, false);
+        }
+    }
+
+    async validateCreateI(req, res,createIParams: CreateIParams) {
+        console.log('GroupMemberService::validateCreateI()/01')
+        const svSess = new SessionService();
+        ///////////////////////////////////////////////////////////////////
+        // 1. Validate against duplication
+        console.log('GroupMemberService::validateCreateI()/011')
+        this.b.i.code = 'GroupMemberService::validateCreateI';
+        let ret = false;
+        this.validationCreateParams = {
+            controllerInstance: this,
+            model: GroupMemberModel,
+            data: createIParams.controllerData
+        }
+        // const isUnique = await this.validateUniqueMultiple(req, res, this.validationCreateParams)
+        // await this.b.validateUnique(req, res, this.validationCreateParams)
+        if (await this.b.validateUniqueI(req, res, this.validationCreateParams)) {
+            console.log('GroupMemberService::validateCreateI()/02')
+            if (await this.b.validateRequired(req, res, this.cRules)) {
+                console.log('GroupMemberService::validateCreateI()/03')
+                ///////////////////////////////////////////////////////////////////
+                // // 2. confirm the consumerTypeGuid referenced exists
+                const pl: GroupMemberModel = createIParams.controllerData;
+                let cdObjType: CdObjTypeModel[];
+                if ('cdObjTypeId' in pl) {
+                    console.log('GroupMemberService::validateCreateI()/04')
+                    cdObjType = await this.b.get(req, res, CdObjTypeModel, { where: { cdObjTypeId: pl.cdObjTypeId } })
+                    ret = await this.b.validateInputRefernce(`cdobj type reference is invalid`, cdObjType, svSess)
+                } else {
+                    console.log('GroupMemberService::validateCreateI()/04')
+                    this.b.setAlertMessage(`groupGuidParent is missing in payload`, svSess, false);
+                }
+                if ('memberGuid' in pl) {
+                    console.log('GroupMemberService::validateCreateI()/05')
+                    if (cdObjType[0].cdObjTypeName === 'group') {
+                        console.log('GroupMemberService::validateCreate()/06')
+                        const group: GroupModel[] = await this.b.get(req, res, GroupModel, { where: { groupGuid: pl.memberGuid } });
+                        ret = await this.b.validateInputRefernce(`member reference is invalid`, group, svSess)
+                    }
+                    if (cdObjType[0].cdObjTypeName === 'user') {
+                        console.log('GroupMemberService::validateCreate()/04')
+                        const user: UserModel[] = await this.b.get(req, res, UserModel, { where: { userGuid: pl.memberGuid } });
+                        if (user.length > 0) {
+                            console.log('GroupMemberService::validateCreateI()/05')
+                            this.b.setPlData(req, { key: 'userIdMember', value: user[0].userId });
+                            ret = await this.b.validateInputRefernce(`member reference is invalid`, user, svSess)
+                        } else {
+                            console.log('GroupMemberService::validateCreateI()/06')
+                            ret = await this.b.validateInputRefernce(`member reference is invalid`, user, svSess)
+                        }
+                        console.log('GroupMemberService::validateCreate()/07')
+                    }
+                } else {
+                    console.log('moduleman/GroupMemberService::validateCreateI()/11')
+                    this.b.setAlertMessage(`memberGuid is missing in payload`, svSess, false);
+                }
+                if ('groupGuidParent' in pl) {
+                    console.log('GroupMemberService::validateCreateI()/08')
+                    const q: IQuery = { where: { groupGuid: pl.groupGuidParent } };
+                    console.log('GroupMemberService::validateCreate()/q:', q)
+                    const r: GroupModel[] = await this.b.get(req, res, GroupModel, q);
+                    console.log('GroupMemberService::validateCreate()/09')
+                    ret = await this.b.validateInputRefernce(`parent reference is invalid`, r, svSess)
+                } else {
+                    console.log('GroupMemberService::validateCreateI()/10')
+                    this.b.setAlertMessage(`groupGuidParent is missing in payload`, svSess, false);
+                }
+                if (this.b.err.length > 0) {
+                    console.log('GroupMemberService::validateCreateI()/11')
+                    ret = false;
+                }
+            } else {
+                console.log('GroupMemberService::validateCreate()/12')
+                ret = false;
+                this.b.setAlertMessage(`the required fields ${this.b.isInvalidFields.join(', ')} is missing`, svSess, true);
+            }
+        } else {
+            console.log('GroupMemberService::validateCreateI()/13')
+            ret = false;
+            this.b.setAlertMessage(`duplicate for ${this.cRules.noDuplicate.join(', ')} is not allowed`, svSess, false);
+        }
+        console.log('GroupMemberService::validateCreateI()/14')
+        console.log('GroupMemberService::validateCreateI()/ret', ret)
+        return ret;
     }
 
     async groupMemberExists(req, res, params): Promise<boolean> {
@@ -91,12 +203,6 @@ export class GroupMemberService extends CdService {
             dSource: 1,
         }
         return this.b.read(req, res, serviceInput)
-    }
-
-    async beforeCreate(req, res): Promise<any> {
-        this.b.setPlData(req, { key: 'groupMemberGuid', value: this.b.getGuid() });
-        this.b.setPlData(req, { key: 'groupMemberEnabled', value: true });
-        return true;
     }
 
     async read(req, res, serviceInput: IServiceInput): Promise<any> {
@@ -157,69 +263,140 @@ export class GroupMemberService extends CdService {
     }
 
     async validateCreate(req, res) {
+        console.log('GroupMemberService::validateCreate()/01')
         const svSess = new SessionService();
         ///////////////////////////////////////////////////////////////////
         // 1. Validate against duplication
-        const params = {
+        console.log('GroupMemberService::validateCreate()/011')
+        this.b.i.code = 'GroupMemberService::validateCreate';
+        let ret = false;
+        this.validationCreateParams = {
             controllerInstance: this,
             model: GroupMemberModel,
         }
-        this.b.i.code = 'GroupMemberService::validateCreate';
-        let ret = false;
-        if (await this.b.validateUnique(req, res, params)) {
+        // const isUnique = await this.validateUniqueMultiple(req, res, this.validationCreateParams)
+        // await this.b.validateUnique(req, res, this.validationCreateParams)
+        if (await this.b.validateUnique(req, res, this.validationCreateParams)) {
+            console.log('GroupMemberService::validateCreate()/02')
             if (await this.b.validateRequired(req, res, this.cRules)) {
-                ret = true;
+                console.log('GroupMemberService::validateCreate()/03')
+                ///////////////////////////////////////////////////////////////////
+                // // 2. confirm the consumerTypeGuid referenced exists
+                const pl: GroupMemberModel = await this.b.getPlData(req);
+                let cdObjType: CdObjTypeModel[];
+                if ('cdObjTypeId' in pl) {
+                    console.log('GroupMemberService::validateCreate()/04')
+                    cdObjType = await this.b.get(req, res, CdObjTypeModel, { where: { cdObjTypeId: pl.cdObjTypeId } })
+                    ret = await this.b.validateInputRefernce(`cdobj type reference is invalid`, cdObjType, svSess)
+                } else {
+                    console.log('GroupMemberService::validateCreate()/04')
+                    this.b.setAlertMessage(`groupGuidParent is missing in payload`, svSess, false);
+                }
+                if ('memberGuid' in pl) {
+                    console.log('GroupMemberService::validateCreate()/05')
+                    if (cdObjType[0].cdObjTypeName === 'group') {
+                        console.log('GroupMemberService::validateCreate()/06')
+                        const group: GroupModel[] = await this.b.get(req, res, GroupModel, { where: { groupGuid: pl.memberGuid } });
+                        ret = await this.b.validateInputRefernce(`member reference is invalid`, group, svSess)
+                    }
+                    if (cdObjType[0].cdObjTypeName === 'user') {
+                        console.log('GroupMemberService::validateCreate()/04')
+                        const user: UserModel[] = await this.b.get(req, res, UserModel, { where: { userGuid: pl.memberGuid } });
+                        if (user.length > 0) {
+                            console.log('GroupMemberService::validateCreate()/05')
+                            this.b.setPlData(req, { key: 'userIdMember', value: user[0].userId });
+                            ret = await this.b.validateInputRefernce(`member reference is invalid`, user, svSess)
+                        } else {
+                            console.log('GroupMemberService::validateCreate()/06')
+                            ret = await this.b.validateInputRefernce(`member reference is invalid`, user, svSess)
+                        }
+                        console.log('GroupMemberService::validateCreate()/07')
+                    }
+                } else {
+                    console.log('moduleman/GroupMemberService::validateCreate()/11')
+                    this.b.setAlertMessage(`memberGuid is missing in payload`, svSess, false);
+                }
+                if ('groupGuidParent' in pl) {
+                    console.log('GroupMemberService::validateCreate()/08')
+                    const q: IQuery = { where: { groupGuid: pl.groupGuidParent } };
+                    console.log('GroupMemberService::validateCreate()/q:', q)
+                    const r: GroupModel[] = await this.b.get(req, res, GroupModel, q);
+                    console.log('GroupMemberService::validateCreate()/09')
+                    ret = await this.b.validateInputRefernce(`parent reference is invalid`, r, svSess)
+                } else {
+                    console.log('GroupMemberService::validateCreate()/10')
+                    this.b.setAlertMessage(`groupGuidParent is missing in payload`, svSess, false);
+                }
+                if (this.b.err.length > 0) {
+                    console.log('GroupMemberService::validateCreate()/11')
+                    ret = false;
+                }
             } else {
+                console.log('GroupMemberService::validateCreate()/12')
                 ret = false;
                 this.b.setAlertMessage(`the required fields ${this.b.isInvalidFields.join(', ')} is missing`, svSess, true);
             }
         } else {
+            console.log('GroupMemberService::validateCreate()/13')
             ret = false;
             this.b.setAlertMessage(`duplicate for ${this.cRules.noDuplicate.join(', ')} is not allowed`, svSess, false);
         }
-        ///////////////////////////////////////////////////////////////////
-        // // 2. confirm the consumerTypeGuid referenced exists
-        const pl: GroupMemberModel = await this.b.getPlData(req);
-        let cdObjType: CdObjTypeModel[];
-        if ('cdObjTypeId' in pl) {
-            cdObjType = await this.b.get(req, res, CdObjTypeModel, { where: { cdObjTypeId: pl.cdObjTypeId } })
-            ret = await this.b.validateInputRefernce(`cdobj type reference is invalid`, cdObjType, svSess)
-        } else {
-            this.b.setAlertMessage(`groupGuidParent is missing in payload`, svSess, false);
-        }
-        if ('memberGuid' in pl) {
-            if (cdObjType[0].cdObjTypeName === 'group') {
-                const group: GroupModel[] = await this.b.get(req, res, GroupModel, { where: { groupGuid: pl.memberGuid } });
-                ret = await this.b.validateInputRefernce(`member reference is invalid`, group, svSess)
-            }
-            if (cdObjType[0].cdObjTypeName === 'user') {
-                const user: UserModel[] = await this.b.get(req, res, UserModel, { where: { userGuid: pl.memberGuid } });
-                if (user.length > 0) {
-                    this.b.setPlData(req, { key: 'userIdMember', value: user[0].userId });
-                    ret = await this.b.validateInputRefernce(`member reference is invalid`, user, svSess)
-                } else {
-                    ret = await this.b.validateInputRefernce(`member reference is invalid`, user, svSess)
-                }
-            }
-        } else {
-            console.log('moduleman/GroupMemberService::validateCreate()/11')
-            this.b.setAlertMessage(`memberGuid is missing in payload`, svSess, false);
-        }
-        if ('groupGuidParent' in pl) {
-            const q: IQuery = { where: { groupGuid: pl.groupGuidParent } };
-            const r: GroupModel[] = await this.b.get(req, res, GroupModel, q);
-            ret = await this.b.validateInputRefernce(`parent reference is invalid`, r, svSess)
-        } else {
-            this.b.setAlertMessage(`groupGuidParent is missing in payload`, svSess, false);
-        }
-        if (this.b.err.length > 0) {
-            ret = false;
-        }
+        console.log('GroupMemberService::validateCreate()/14')
+        console.log('GroupMemberService::validateCreate()/ret', ret)
         return ret;
     }
 
-    getGroupMember(req, res) {
-        const q = this.b.getQuery(req);
+    // async validateUniqueMultiple(req, res){
+    //     let stateArr = [];
+    //     let buFVals = req.post.dat.f_vals
+    //     console.log('GroupMemberService::validateUniqueMultiple()/buFVals1:', buFVals)
+    //     await buFVals.forEach(async (plFVals, fValsIndex) => {
+    //         console.log('GroupMemberService::validateUniqueMultiple()/fValsIndex:', fValsIndex)
+    //         console.log('GroupMemberService::validateUniqueMultiple()/plFVals12:', plFVals)
+    //         // set the req
+    //         req.post.dat.f_vals[0] = plFVals
+    //         console.log('GroupMemberService::validateUniqueMultiple()/req.post.dat.f_vals[0]:', req.post.dat.f_vals[0])
+    //         const isUnq = await this.b.validateUnique(req, res, this.validationCreateParams)
+    //         console.log('GroupMemberService::validateUniqueMultiple()/isUnq:', isUnq)
+    //         const state = {
+    //             index: fValsIndex,
+    //             isUnique: isUnq
+    //         }
+    //         console.log('GroupMemberService::validateUniqueMultiple()/state:', state)
+    //         stateArr.push(state)
+    //     })
+    //     console.log('GroupMemberService::validateUniqueMultiple()/stateArr1:', stateArr)
+    //     // get valid FVal items
+    //     // const validStateArr = stateArr.filter((state) => state.isUnique)
+    //     // stateArr.forEach((state,i) => {
+    //     //     if(state.isUnique === false){
+    //     //         console.log('GroupMemberService::validateUniqueMultiple()/stateArr2:', stateArr)
+    //     //         buFVals.splice(i, 1); 
+    //     //         console.log('GroupMemberService::validateUniqueMultiple()/stateArr3:', stateArr)
+    //     //     }
+    //     // })
+    //     buFVals = buFVals.filter((fVals,i) => stateArr[i].isUnigue)
+    //     console.log('GroupMemberService::validateUniqueMultiple()/buFVals2:', buFVals)
+    //     // restor fVals...but only with valid items
+    //     req.post.dat.f_vals = buFVals;
+    //     if(buFVals.length > 0){
+    //         return true;
+    //     } else {
+    //         return false;
+    //     }
+        
+    // }
+
+    /**
+     * $members = mGroupMember::getGroupMember2([$filter1, $filter2], $usersOnly)
+     * @param req 
+     * @param res 
+     * @param q 
+     */
+    async getGroupMember(req, res, q: IQuery = null) {
+        if (q === null) {
+            q = this.b.getQuery(req);
+        }
         console.log('GroupMemberService::getGroupMember/f:', q);
         const serviceInput = {
             serviceModel: GroupMemberViewModel,
@@ -250,12 +427,12 @@ export class GroupMemberService extends CdService {
                 code: 'BaseService:update',
                 app_msg: ''
             };
-            this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
         }
     }
 
-    getGroupMemberCount(req, res) {
+    async getGroupMemberCount(req, res) {
         const q = this.b.getQuery(req);
         console.log('GroupMemberService::getGroupMemberCount/q:', q);
         const serviceInput = {

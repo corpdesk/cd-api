@@ -2,6 +2,9 @@ import { Observable } from 'rxjs';
 import { AclModuleViewModel } from '../moduleman/models/acl-module-view.model';
 import { MenuViewModel } from '../moduleman/models/menu-view.model';
 
+export const CDOBJ_TYPE_USER = 9
+export const CDOBJ_TYPE_GROUP = 10
+
 /**
  * @path // the path of the controller relative to the BaseService file
  * @clsName // class name
@@ -35,7 +38,7 @@ export interface ICdResponse {
         info: IRespInfo;
         sess: ISessResp;
         cache: object;
-        sConfig?:IServerConfig;
+        sConfig?: IServerConfig;
     };
     data: object;
 }
@@ -50,9 +53,9 @@ export interface ICdResponse {
 export interface ISessResp {
     cd_token?: string;
     userId?: number | null;
-    jwt: { jwtToken: string, checked: boolean, checkTime:number, authorized: boolean, } | null
+    jwt: { jwtToken: string, checked: boolean, checkTime: number, authorized: boolean, } | null
     ttl: number;
-    initUuid?:string;
+    initUuid?: string;
     initTime?: string;
 }
 
@@ -62,10 +65,10 @@ export interface IRespInfo {
     app_msg: any;
 }
 
-export interface IServerConfig{
+export interface IServerConfig {
     usePush: boolean;
     usePolling: boolean;
-    useCacheStore:boolean;
+    useCacheStore: boolean;
 }
 
 export const DEFAULT_CD_REQUEST: ICdRequest = {
@@ -86,21 +89,21 @@ export const DEFAULT_CD_REQUEST: ICdRequest = {
 
 export const DEFAULT_CD_RESPONSE: ICdResponse = {
     app_state: {
-      success: false,
-      info: {
-        messages: [],
-        code: '',
-        app_msg: ''
-      },
-      sess: {
-        cd_token: '',
-        jwt: null,
-        ttl: 600
-      },
-      cache: {}
+        success: false,
+        info: {
+            messages: [],
+            code: '',
+            app_msg: ''
+        },
+        sess: {
+            cd_token: '',
+            jwt: null,
+            ttl: 600
+        },
+        cache: {}
     },
     data: []
-  };
+};
 
 export interface ICdPushEnvelop {
     pushRecepients: any;
@@ -114,17 +117,17 @@ export interface ICdPushEnvelop {
 export interface IServiceInput {
     serviceInstance?: any;
     serviceModel: any;
-    serviceModelInstance?:any;
+    serviceModelInstance?: any;
     docName?: string;
-    cmd?:Cmd;
-    data?:any;
-    dSource?:number;
+    cmd?: Cmd;
+    data?: any;
+    dSource?: number;
     extraInfo?: boolean;
 }
 
-export interface Cmd{
+export interface Cmd {
     action: string;
-    query: IQuery;
+    query: IQuery | IQbInput;
 }
 
 export interface IDoc {
@@ -164,7 +167,7 @@ export interface ICommConversationSub {
     commconversationsub_accepted?: boolean;
 }
 
-export interface IAclCtx{
+export interface IAclCtx {
     memberGuid: string;
     moduleGroupGuid: any;
     consumerId: number;
@@ -179,38 +182,65 @@ export interface ISelectedMenu {
     selectedId?: number,
 }
 
-export interface IAllowedModules{
+export interface IAllowedModules {
     modules$: Observable<AclModuleViewModel[]>;
     modulesCount: number;
 }
 
-export interface IMenuRelations{
+export interface IMenuRelations {
     menuParent: MenuViewModel;
     menuChildren: MenuViewModel[];
 }
 
-export interface IQuery{
-    select?: string [];
+// query builder input
+export interface IQbInput {
+    select?: string[];
     update?: object;
-    where: object;
+    where: IQbFilter[];
     take?: number;
     skip?: number;
 }
 
-export interface ObjectItem{
+export interface IQuery {
+    select?: string[];
+    update?: object;
+    where: any;
+    take?: number;
+    skip?: number;
+    jFilters?: IJFilter[];
+}
+
+// query builder filter
+export interface IQbFilter {
+    field: string;
+    operator: string;
+    val: string;
+    conjType?: string;
+    dataType: string;
+    jPath?: string;
+}
+
+// json field filter
+export interface IJFilter {
+    jField: string;
+    jPath: string;
+    pathValue: any;
+}
+
+export interface ObjectItem {
     key: string,
     value: any
 }
 
-export interface CreateIParams{
+export interface CreateIParams {
     serviceInput: IServiceInput;
     controllerData: any;
 }
 
-export interface CacheData{
+export interface CacheData {
     key: string;
     value: string;
-    initUuid?:string;
+    initUuid?: string;
     initTime?: string;
 }
 

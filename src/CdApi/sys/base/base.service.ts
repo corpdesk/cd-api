@@ -1,7 +1,7 @@
 
 import { v4 as uuidv4 } from 'uuid';
 import * as Lá from 'lodash';
-import { CreateIParams, ICdRequest, ICdResponse, IControllerContext, IQuery, IRespInfo, IServiceInput, ISessResp, ObjectItem, CacheData } from './IBase';
+import { CreateIParams, ICdRequest, ICdResponse, IControllerContext, IQuery, IRespInfo, IServiceInput, ISessResp, ObjectItem, CacheData, IQbInput } from './IBase';
 import { EntityMetadata, getConnection, createConnection, ConnectionOptions, getConnectionManager, Connection, Repository } from 'typeorm';
 import { Observable, from } from 'rxjs';
 import moment from 'moment';
@@ -29,6 +29,7 @@ interface A {
 export class BaseService {
     cdToken: string;
     cdResp: ICdResponse; // cd response
+    cls;
     err: string[] = []; // error messages
     db;
     // sqliteDb;
@@ -36,7 +37,7 @@ export class BaseService {
     cuid = USER_ANON;
     debug = false;
     pl;
-    iSess: SessionService;
+    svSess: SessionService;
     sess: SessionModel[];
     i: IRespInfo = {
         messages: [],
@@ -44,6 +45,7 @@ export class BaseService {
         app_msg: ''
     };
     isInvalidFields = [];
+    isRegRequest = false;
     redisClient;
     constructor() {
         // this.redisInit();
@@ -233,6 +235,10 @@ export class BaseService {
             console.log('BaseService::resolveCls()/03:')
             const cls = new eCls();
             console.log('BaseService::resolveCls()/04:')
+            if (this.sess) {
+                // set sessData in req so it is available thoughout the bootstrap
+                req.post.sessData = this.sess;
+            }
             return await cls[clsCtx.action](req, res);
         } catch (e) {
             this.serviceErr(req, res, e, 'BaseService:resolveCls')
@@ -241,7 +247,13 @@ export class BaseService {
 
     async serviceErr(req, res, e, eCode, lineNumber = null) {
         const svSess = new SessionService();
-        svSess.sessResp.cd_token = req.post.dat.token;
+        try {
+            svSess.sessResp.cd_token = req.post.dat.token;
+        } catch (er) {
+            svSess.sessResp.cd_token = '';
+            this.err.push(e.toString(er));
+        }
+
         svSess.sessResp.ttl = svSess.getTtl();
         this.setAppState(true, this.i, svSess.sessResp);
         this.err.push(e.toString());
@@ -293,6 +305,7 @@ export class BaseService {
     }
 
     async noToken(req, res) {
+        console.log('BaseService::noToken()/01')
         const pl = req.post;
         const ctx = pl.ctx;
         const m = pl.m;
@@ -303,6 +316,11 @@ export class BaseService {
             this.setInvalidRequest(req, res, 'BaseService:noTocken:01');
         }
         if (m === 'User' && (a === 'Login' || a === 'Register')) {
+            console.log('BaseService::noToken()/02')
+            if (m === 'User' && a === 'Register') {
+                console.log('BaseService::noToken()/03')
+                this.isRegRequest = true;
+            }
             ret = true;
         }
         // exempt reading list of consumers. Required during registration when token is not set yet
@@ -317,7 +335,12 @@ export class BaseService {
         if ('MSISDN' in pl) {
             ret = true;
         }
+        console.log('BaseService::noToken()/returning ret:', ret)
         return ret;
+    }
+
+    isRegisterRequest() {
+        return this.isRegRequest;
     }
 
     /**
@@ -421,17 +444,68 @@ export class BaseService {
         return ret;
     }
 
-    getPlData(req, extData = null): Promise<any> {
-        if(extData){
-            return req.post.dat.f_vals[0][extData];
+    /**
+     * 
+     * @param req 
+     * @param res 
+     * @param result 
+     * @param iCode 
+     */
+    successResponse(req, res, result,appMsg = null) {
+        if(appMsg){
+            this.i.app_msg = appMsg;
+        }
+        const svSess = new SessionService();
+        svSess.sessResp.cd_token = req.post.dat.token;
+        svSess.sessResp.ttl = svSess.getTtl();
+        this.setAppState(true, this.i, svSess.sessResp);
+        this.cdResp.data = result;
+        this.respond(req, res)
+    }
+
+    /**
+     * 
+     * @param req 
+     * @param extData // used to target any property of 'f_vals' other than 'data'
+     * @param fValsIndex // used if f_val items are multiple
+     * @returns 
+     */
+    getPlData(req, extData: string | null = null, fValsIndex: number | null = null) {
+        console.log('BaseService::setPlData()/01');
+        let ret = null;
+        const svSess = new SessionService()
+        if (this.validatePlData(req, extData)) {
+            try {
+                if (extData) {
+                    console.log('BaseService::setPlData()/02')
+                    if (fValsIndex) {
+                        ret = req.post.dat.f_vals[fValsIndex][extData];
+                    } else {
+                        ret = req.post.dat.f_vals[0][extData];
+                    }
+                } else {
+                    console.log('BaseService::setPlData()/03');
+                    if (fValsIndex) {
+                        ret = req.post.dat.f_vals[fValsIndex].data;
+                    } else {
+                        ret = req.post.dat.f_vals[0].data;
+                    }
+                }
+                console.log('BaseService::setPlData()/04');
+                return ret;
+            } catch (e) {
+                this.setAlertMessage(e.toString(), svSess, false)
+                return {}
+            }
         } else {
-            return req.post.dat.f_vals[0].data;
-        } 
+            this.setAlertMessage('invalid validation request', svSess, false)
+            return {}
+        }
     }
 
     async setPlData(req, item: ObjectItem, extData: string = null): Promise<void> {
         console.log('BaseService::setPlData()/item:', item);
-        if(extData){
+        if (extData) {
             console.log('BaseService::setPlData()/extData:', extData);
             console.log('BaseService::setPlData()/req.post.dat.f_vals[0][extData]:', req.post.dat.f_vals[0][extData]);
             req.post.dat.f_vals[0][extData][item.key] = item.value;
@@ -440,6 +514,45 @@ export class BaseService {
         }
         console.log('BaseService::setPlData()/req.post.dat.f_vals[0]:', req.post.dat.f_vals[0]);
     }
+
+    /**
+     * prevent a situation where either
+     * 'data' property is missing or
+     * extData property is missing
+     * @param req 
+     * @param res 
+     * @param extData 
+     */
+    async validatePlData(req, extData) {
+        const svSess = new SessionService()
+        let ret = false;
+        if (extData) {
+            if (extData in req.post.dat.f_vals[0]) {
+                ret = true;
+            } else {
+                this.setAlertMessage('BaseService::validatePlData/requested property is missing', svSess, false)
+            }
+        } else {
+            if ('data' in req.post.dat.f_vals[0]) {
+                ret = true;
+            } else {
+                this.setAlertMessage('BaseService::validatePlData/requested property is missing', svSess, false)
+            }
+        }
+    }
+
+    getReqToken(req) {
+        const r: ICdRequest = req.post
+        return r.dat.token
+    }
+
+    // getPlQuery(req, extData = null): Promise<any> {
+    //     if (extData) {
+    //         return req.post.dat.f_vals[0][extData];
+    //     } else {
+    //         return req.post.dat.f_vals[0].data;
+    //     }
+    // }
 
     async setCreateIData(req, controllerData: ICdRequest, item: ObjectItem): Promise<ICdRequest> {
         // console.log('BaseService::setCreateIData()/item:', item);
@@ -496,9 +609,13 @@ export class BaseService {
     }
 
     async validateUnique(req, res, params) {
+        console.log('BaseService::validateUnique()/01')
+        console.log('BaseService::validateUnique()/req.post:', JSON.stringify(req.post))
+        console.log('BaseService::validateUnique()/req.post.dat.f_vals[0]:', JSON.stringify(req.post.dat.f_vals[0]))
+        console.log('BaseService::validateUnique()/params:', params)
         await this.init(req, res);
         // assign payload data to this.userModel
-        params.controllerInstance.userModel = this.getPlData(req);
+        //** */ params.controllerInstance.userModel = this.getPlData(req);
         // set connection
         // const baseRepository = getConnection().getRepository(params.model);
         console.log('BaseService::validateUnique()/repo/model:', params.model)
@@ -509,33 +626,48 @@ export class BaseService {
             return result;
         });
         // console.log('validateUnique()/propMap:', await propMap)
-        const strQueryItems = await this.getQueryItems(req, propMap, params)
-        // console.log('validateUnique()/strQueryItems:', await strQueryItems)
+        // const strQueryItems = await this.getQueryItems(req, propMap, params)
+        const strQueryItems = await this.getQueryItems(req, params)
+        console.log('BaseService::validateUnique()/strQueryItems:', strQueryItems)
         // convert the string items into JSON objects
         // const arrQueryItems = await strQueryItems.map(async (item) => {
         //     console.log('validateUnique()/item:', await item)
         //     return await JSON.parse(item);
         // });
 
-        // console.log('validateUnique()/arrQueryItems:', await arrQueryItems)
+        // console.log('validateUnique()/arrQueryItems:', arrQueryItems)
         // const filterItems = await JSON.parse(strQueryItems)
         const filterItems = await strQueryItems
-        // console.log('validateUnique()/filterItems:', await filterItems)
+        console.log('BaseService::validateUnique()/filterItems:', filterItems)
         // execute the query
         const results = await baseRepository.count({
             where: await filterItems
         });
+        console.log('BaseService::validateUnique()/results:', results)
         // return boolean result
         let ret = false;
-        if (await results < 1) {
+        if (results === 0) {
             ret = true;
+        } else {
+            this.err.push('duplicate not allowed');
+            // console.log('BaseService::create()/Error:', e.toString())
+            const i = {
+                messages: this.err,
+                code: 'BaseService:validateUnique',
+                app_msg: ''
+            };
+            await this.setAppState(false, i, null);
         }
-        return await ret;
+        console.log('BaseService::validateUnique()/ret:', ret)
+        return ret;
     }
 
-    async getQueryItems(req, propMap: any[], params: any) {
+    // async getQueryItems(req, propMap: any[], params: any) {
+    async getQueryItems(req, params, fields = null) {
         ////////////////////////////////////////////////
-        const fields = req.post.dat.f_vals[0].data
+        if (fields === null) {
+            fields = req.post.dat.f_vals[0].data
+        }
         const entries = Object.entries(fields);
         // console.log('getQueryItems()/entries:', entries)
         const entryObjArr = entries.map((e) => {
@@ -554,25 +686,6 @@ export class BaseService {
         qItems.forEach(async (f: any) => {
             result[f[0].key] = f[0].val;
         })
-        // ////////////////////////////////////////////////
-        // const strQueryItems = [];
-        // let strItems = '{';
-        // await propMap.forEach(async (field: any) => {
-        //     const f = await field;
-        //     const alias = f.propertyAliasName;
-        //     const fieldName = f.databaseNameWithoutPrefixes;
-        //     const isDuplicate = await this.isNoDuplicateField(fieldName, alias, params.controllerInstance.cRules);
-        //     if (await isDuplicate) {
-        //         console.log('isDuplicate:', isDuplicate)
-        //         const item = `"${alias}": "${this.getPlData(req)[alias]}," `;
-        //         console.log('getQueryItems()/item:', item)
-        //         strItems += item;
-        //         // strQueryItems.push(item);
-        //     }
-        // });
-
-        // console.log('getQueryItems()/strQueryItems:', await strQueryItems)
-        // return await strQueryItems;
         return await result;
     }
 
@@ -630,6 +743,60 @@ export class BaseService {
         } else {
             return true;
         }
+    }
+
+    async validateUniqueI(req, res, params) {
+        console.log('BaseService::validateUnique()/01')
+        console.log('BaseService::validateUnique()/req.post:', JSON.stringify(req.post))
+        console.log('BaseService::validateUnique()/req.post.dat.f_vals[0]:', JSON.stringify(req.post.dat.f_vals[0]))
+        console.log('BaseService::validateUnique()/params:', params)
+        await this.init(req, res);
+        // assign payload data to this.userModel
+        //** */ params.controllerInstance.userModel = this.getPlData(req);
+        // set connection
+        // const baseRepository = getConnection().getRepository(params.model);
+        console.log('BaseService::validateUnique()/repo/model:', params.model)
+        const baseRepository: any = await this.repo(req, res, params.model)
+        // get model properties
+        const propMap = await this.getEntityPropertyMap(params.model).then((result) => {
+            // console.log('validateUnique()/result:', result)
+            return result;
+        });
+        // console.log('validateUnique()/propMap:', await propMap)
+        // const strQueryItems = await this.getQueryItems(req, propMap, params)
+        const strQueryItems = await this.getQueryItems(req, params)
+        console.log('BaseService::validateUnique()/strQueryItems:', strQueryItems)
+        // convert the string items into JSON objects
+        // const arrQueryItems = await strQueryItems.map(async (item) => {
+        //     console.log('validateUnique()/item:', await item)
+        //     return await JSON.parse(item);
+        // });
+
+        // console.log('validateUnique()/arrQueryItems:', arrQueryItems)
+        // const filterItems = await JSON.parse(strQueryItems)
+        const filterItems = await strQueryItems
+        console.log('BaseService::validateUnique()/filterItems:', filterItems)
+        // execute the query
+        const results = await baseRepository.count({
+            where: await filterItems
+        });
+        console.log('BaseService::validateUnique()/results:', results)
+        // return boolean result
+        let ret = false;
+        if (results === 0) {
+            ret = true;
+        } else {
+            this.err.push('duplicate not allowed');
+            // console.log('BaseService::create()/Error:', e.toString())
+            const i = {
+                messages: this.err,
+                code: 'BaseService:validateUnique',
+                app_msg: ''
+            };
+            await this.setAppState(false, i, null);
+        }
+        console.log('BaseService::validateUnique()/ret:', ret)
+        return ret;
     }
 
     /**
@@ -701,14 +868,15 @@ export class BaseService {
         } catch (e) {
             console.log('BaseService::create()/13')
             this.err.push(e.toString());
+            console.log('BaseService::create()/Error:', e.toString())
             const i = {
                 messages: this.err,
                 code: 'BaseService:create',
                 app_msg: ''
             };
             await this.setAppState(false, i, null);
-            // await this.serviceErr(req, res, e, 'BaseService:create')
-            return this.cdResp;
+            await this.serviceErr(req, res, e, 'BaseService:create')
+            // return this.cdResp;
         }
     }
 
@@ -845,37 +1013,63 @@ export class BaseService {
 
     async setSess(req, res) {
         console.log('BaseService::setSess()/01')
+        this.svSess = new SessionService();
         if (await !this.cdToken) {
             console.log('BaseService::setSess()/02')
-            this.iSess = new SessionService();
-            this.sess = await this.iSess.getSession(req, res);
-            console.log('BaseService::setSess()/03')
-            if (this.sess) {
-                console.log('BaseService::setSess()/04')
-                if (this.sess.length > 0) {
-                    console.log('BaseService::setSess()/05')
-                    console.log('this.sess:', this.sess);
-                    this.setCuid(this.sess[0].currentUserId);
-                    this.cdToken = await this.sess[0].cdToken;
+            try {
+                console.log('BaseService::setSess()/req.post:', req.post)
+                if ('sessData' in req.post) {
+                    console.log('BaseService::setSess()/021')
+                    console.log('BaseService::setSess()/req.post.sessData:', req.post.sessData)
+                    this.sess = [req.post.sessData]
                 } else {
-                    console.log('BaseService::setSess()/06')
+                    console.log('BaseService::setSess()/022')
+                    this.sess = await this.svSess.getSession(req, res);
+                }
+                console.log('BaseService::setSess()/03')
+                console.log('BaseService::setSess()/this.sess:', this.sess)
+                if (this.sess) {
+                    console.log('BaseService::setSess()/04')
+                    if (this.sess.length > 0) {
+                        console.log('BaseService::setSess()/05')
+                        console.log('this.sess:', this.sess);
+                        this.setCuid(this.sess[0].currentUserId);
+                        this.cdToken = await this.sess[0].cdToken;
+                    } else {
+                        console.log('BaseService::setSess()/06')
+                        const noToken = await this.noToken(req, res)
+                        console.log('BaseService::setSess()/noToken:', noToken)
+                        if (noToken === false) {
+                            this.i = {
+                                messages: this.err,
+                                code: 'BaseService:setSess1',
+                                app_msg: 'invalid session'
+                            };
+                            // do not report 'invalid session' if the session is 'noToken' required.
+                            await this.serviceErr(req, res, this.i.app_msg, this.i.code)
+                            // this.respond(req, res);
+                        }
+                    }
+                } else {
+                    console.log('BaseService::setSess()/07')
                     this.i = {
                         messages: this.err,
-                        code: 'BaseService:setSess',
+                        code: 'BaseService:setSess2',
                         app_msg: 'invalid session'
                     };
                     await this.serviceErr(req, res, this.i.app_msg, this.i.code)
                     this.respond(req, res);
                 }
-            } else {
-                console.log('BaseService::setSess()/07')
+            } catch (e) {
+                console.log('BaseService::setSess()/08')
                 this.i = {
                     messages: this.err,
-                    code: 'BaseService:setSess',
-                    app_msg: 'invalid session'
+                    code: 'BaseService:setSess3',
+                    app_msg: e.toString()
                 };
-                await this.serviceErr(req, res, this.i.app_msg, this.i.code)
-                this.respond(req, res);
+                // await this.serviceErr(req, res, this.i.app_msg, this.i.code)
+                await this.setAlertMessage(e.toString(), this.svSess, false)
+                // this.respond(req, res);
             }
 
         }
@@ -927,8 +1121,8 @@ export class BaseService {
         return uuidv4();
     }
 
-    getCuid() {
-        return this.cuid;
+    getCuid(req) {
+        return req.post.sessData[0].currentUserId;
     }
 
     setCuid(cuid: number) {
@@ -939,7 +1133,7 @@ export class BaseService {
         console.log('BaseService::read()/01')
         await this.init(req, res);
         console.log('BaseService::read()/02')
-        console.log('BaseService::read()/repo/model:', JSON.stringify(serviceInput.serviceModel))
+        // console.log('BaseService::read()/repo/model:', JSON.stringify(serviceInput.serviceModel))
         const repo: any = await this.repo(req, res, serviceInput.serviceModel);
         console.log('BaseService::read()/03')
         let r: any = null;
@@ -1376,6 +1570,150 @@ export class BaseService {
         return from(this.deleteSL(req, res, serviceInput))
     }
 
+    //////////////////////////
+    // TEST JSON MYSQL QUERY:
+
+    /**
+     * 
+         {
+            "ctx": "Sys",
+            "m": "InteRact",
+            "c": "InteRactPub",
+            "a": "TestJsonQuery",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "select": [
+                                "inte_ract_pub_id",
+                                "inte_ract_pub_name",
+                                "inte_ract_pub_description",
+                                "inte_ract_pub_guid",
+                                "doc_id",
+                                "inte_ract_pub_type_id",
+                                "public",
+                                "m",
+                                "c",
+                                "j_val"
+                            ],
+                            "where": [
+                                {
+                                    "conjType": "",
+                                    "dataType":"json",
+                                    "field": "j_val",
+                                    "jPath": "'$.domain.group.doc_id'",
+                                    "operator": "=",
+                                    "val": 11091
+                                },
+                                {
+                                    "field": "doc_id",
+                                    "fieldType": "json",
+                                    "operator": "=",
+                                    "val": 11121,
+                                    "conjType": "and" 
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "token": "fc735ce6-b52f-4293-9332-0181a49231c4"
+            },
+            "args": {}
+        }
+    * @param filter 
+    */
+    // type orm query json column
+    // this.repo.query('SELECT some-column->"$.email_verification.token" as `token`  FROM `user` WHERE some-column->"$.email_verification.token" = "some-token";');
+
+    // getManager().getRepository(User)
+    //     .createQueryBuilder('user')
+    //     .select()
+    //     .where(`user.address ::jsonb @> \'{"state":"${query.location}"}\'`)
+
+    async readJSON(req, res, serviceInput: IServiceInput): Promise<any> {
+        console.log('BaseService::readJSON()/01')
+        await this.init(req, res);
+        console.log('BaseService::readJSON()/02')
+        console.log('BaseService::readJSON()/repo/model:', JSON.stringify(serviceInput.serviceModel))
+        const repo: any = await this.repo(req, res, serviceInput.serviceModel);
+        console.log('BaseService::readJSON()/03')
+        let r: any = null;
+        const q = serviceInput.cmd.query
+        switch (serviceInput.cmd.action) {
+            case 'find':
+                try {
+                    console.log('BaseService::readJSON()/031')
+                    // r = await repo.find(serviceInput.cmd.query);
+                    console.log('BaseService::readJSON()/q:', q)
+                    // working- option 1:
+                    // r = await repo.query('SELECT * FROM `inte_ract_pub` WHERE j_val->"$.domain.group.doc_id" = 11091;');
+
+                    // working-option 2:
+                    r = await repo.createQueryBuilder('inte_ract_pub')
+                        /**
+                         * at the moment any effort to query selected fields
+                         * have not worked. No error but returns []
+                         * below options have been tested
+                         * .select(q.select) with q.select as array of fields
+                         * .select(['inte_ract_pub.inte_ract_pub_id'])
+                         * NB: When config is set with logs on, the same sql generated retrieves data but
+                         * when used here, there is and empry [] as result.
+                         */
+                        .select()
+                        .where(`${this.getQbFilter(<IQbInput>q)}`)
+                        .getMany()
+                    console.log('BaseService::readJSON()/04')
+                    if (serviceInput.extraInfo) {
+                        console.log('BaseService::readJSON()/05')
+                        return {
+                            result: r,
+                            fieldMap: await this.feildMap(serviceInput)
+                        }
+                    } else {
+                        console.log('BaseService::readJSON()/06')
+                        return await r;
+                    }
+                }
+                catch (err) {
+                    console.log('BaseService::readJSON()/07')
+                    return await this.serviceErr(req, res, err, 'BaseService:read');
+                }
+                break;
+            case 'count':
+                try {
+                    r = await repo.count(serviceInput.cmd.query);
+                    console.log('BaseService::readJSON()/r:', r)
+                    return r;
+                }
+                catch (err) {
+                    return await this.serviceErr(req, res, err, 'BaseService:readJSON');
+                }
+                break;
+        }
+
+
+        // this.serviceErr(res, err, 'BaseService:read');
+    }
+
+    readJSON$(req, res, serviceInput): Observable<any> {
+        return from(this.readJSON(req, res, serviceInput));
+    }
+
+    getQbFilter(q: IQbInput) {
+        let ret = ''
+        q.where.forEach((qItem) => {
+            let conjType = ''
+            if (qItem.conjType) {
+                conjType = qItem.conjType
+            }
+            if (qItem.dataType === 'json') {
+                ret += ` ${conjType} JSON_EXTRACT(${qItem.field}, ${qItem.jPath}) ${qItem.operator} ${qItem.val} `
+            } else {
+                ret += ` ${conjType} ${qItem.field} ${qItem.operator} ${qItem.val} `
+            }
+        })
+        return ret
+    }
     /////////////////////////
     // Redis stuff
 
@@ -1481,7 +1819,7 @@ export class BaseService {
     async setAlertMessage(msg: string, svSess: SessionService, success: boolean) {
         this.i.app_msg = msg;
         this.err.push(this.i.app_msg);
-        this.setAppState(success, this.i, svSess.sessResp);
+        await this.setAppState(success, this.i, svSess.sessResp);
     }
 
     logTimeStamp(msg: string = null) {
@@ -1565,16 +1903,6 @@ export class BaseService {
         const propertyValue = object[key];
     }
 
-    testGetProperty() {
-        const obj1 = {
-            id: 1,
-            name: 'myName',
-            print() { console.log(`${this.id}`) }
-        }
-        this.getProperty(obj1, 'id');
-        this.getProperty(obj1, 'name');
-        // this.getProperty(obj1, 'surname'); // fails
-    }
 
     ///////////////////////
 
@@ -1582,30 +1910,5 @@ export class BaseService {
         return new arg1();
     }
 
-    ///////////////////////
-    // Promise
-    cdPromise(): Promise<void> {
-        // return new Promise object
-        return new Promise<void>
-            ( // start constructor
-                (
-                    resolve: () => void, // resolve function
-                    reject: () => void // reject function
-                ) => {
-                    // start of function definition
-                    function afterTimeout() {
-                        resolve();
-                    }
-                    setTimeout(afterTimeout, 1000);
-                    // end of function definition
-                }
-            ); // end constructor
-    }
-
-    testDelayedPromise() {
-        this.cdPromise().then(() => {
-            console.log(`delayed promise returned`);
-        });
-    }
 }
 

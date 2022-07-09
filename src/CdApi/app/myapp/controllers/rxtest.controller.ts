@@ -23,7 +23,7 @@ export class RxTestController extends CdController {
             // set the appropriate userGuid and consumerGuid
             await this.srvRxTest.getAclModule2(req, res);
         } catch (e) {
-            this.b.serviceErr(res, e, 'RxTestController:create');
+            // await this.b.serviceErr(res, e, 'RxTestController:create');
         }
     }
 
@@ -58,7 +58,7 @@ export class RxTestController extends CdController {
             };
             await this.srvRxRecursive.getModuleMenu$(req, res, moduleData);
         } catch (e) {
-            this.b.serviceErr(res, e, 'RxTestController:create');
+            // this.b.serviceErr(res, e, 'RxTestController:create');
         }
     }
 
@@ -74,7 +74,7 @@ export class RxTestController extends CdController {
         try {
             await this.srvRxCombined.getCombinedData(req, res);
         } catch (e) {
-            this.b.serviceErr(res, e, 'RxTestController:combinedData');
+            // this.b.serviceErr(res, e, 'RxTestController:combinedData');
         }
     }
 
@@ -82,7 +82,7 @@ export class RxTestController extends CdController {
         try {
             await this.srvRxRecursive.flat2Nested2(req, res);
         } catch (e) {
-            this.b.serviceErr(res, e, 'RxTestController:flat2Nested');
+            // this.b.serviceErr(res, e, 'RxTestController:flat2Nested');
         }
     }
 
@@ -90,7 +90,7 @@ export class RxTestController extends CdController {
         try {
             await this.srvRxRecursive.menuCollection3(req, res, {modules$: allowedModules$, modulesCount: 11});
         } catch (e) {
-            this.b.serviceErr(res, e, 'RxTestController:menuCollection');
+            // this.b.serviceErr(res, e, 'RxTestController:menuCollection');
         }
     }
 

@@ -1,6 +1,9 @@
 import { BaseService } from '../../base/base.service';
 import { CdController } from '../../base/cd.controller';
+import { CreateIParams } from '../../base/IBase';
+import { ConsumerService } from '../../moduleman/services/consumer.service';
 import { GroupService } from '../services/group.service';
+import { SessionService } from '../services/session.service';
 
 export class GroupController extends CdController {
     b: BaseService;
@@ -39,7 +42,7 @@ export class GroupController extends CdController {
         try {
             await this.svGroup.create(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'GroupController:Create');
+            await this.b.serviceErr(req, res, e, 'GroupController:Create');
         }
     }
 
@@ -68,7 +71,7 @@ export class GroupController extends CdController {
         try {
             await this.svGroup.getGroup(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'GroupController:Get');
+            await this.b.serviceErr(req, res, e, 'GroupController:Get');
         }
     }
 
@@ -76,7 +79,7 @@ export class GroupController extends CdController {
         try {
             await this.svGroup.getGroupTypeCount(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'GroupController:Get');
+            await this.b.serviceErr(req, res, e, 'GroupController:Get');
         }
     }
 
@@ -108,7 +111,7 @@ export class GroupController extends CdController {
         try {
             await this.svGroup.getGroupCount(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'GroupController:Get');
+            await this.b.serviceErr(req, res, e, 'GroupController:Get');
         }
     }
 
@@ -144,7 +147,7 @@ export class GroupController extends CdController {
             console.log('GroupController::Update()/02');
             await this.svGroup.update(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'GroupController:Update');
+            await this.b.serviceErr(req, res, e, 'GroupController:Update');
         }
     }
 
@@ -173,7 +176,7 @@ export class GroupController extends CdController {
         try {
             await this.svGroup.delete(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'GroupController:Update');
+            await this.b.serviceErr(req, res, e, 'GroupController:Update');
         }
     }
 }

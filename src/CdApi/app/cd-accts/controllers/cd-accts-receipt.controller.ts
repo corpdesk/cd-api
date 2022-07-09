@@ -84,7 +84,7 @@ export class CdAcctsReceiptController {
             console.log('CdAcctsReceiptController::Create()/02')
             await this.svReceipt.create(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:Create');
+            await this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:Create');
         }
     }
 
@@ -94,7 +94,7 @@ export class CdAcctsReceiptController {
             console.log('CdAcctsReceiptController::Create()/02')
             await this.svReceipt.createSL(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:CreateSL');
+            await this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:CreateSL');
         }
     }
 
@@ -123,7 +123,7 @@ export class CdAcctsReceiptController {
         try {
             await this.svReceipt.getReceipt(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:Get');
+            await this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:Get');
         }
     }
 
@@ -131,7 +131,7 @@ export class CdAcctsReceiptController {
         try {
             await this.svReceipt.getBillSL(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:GetSL');
+            await this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:GetSL');
         }
     }
 
@@ -211,7 +211,7 @@ export class CdAcctsReceiptController {
         try {
             await this.svReceipt.getPaged(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:GetCount');
+            await this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:GetCount');
         }
     }
 
@@ -242,7 +242,7 @@ export class CdAcctsReceiptController {
         try {
             await this.svReceipt.getViewPaged(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:BillViewPaged');
+            await this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:BillViewPaged');
         }
     }
 
@@ -250,7 +250,7 @@ export class CdAcctsReceiptController {
         try {
             await this.svReceipt.getPagedSL(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:GetSL');
+            await this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:GetSL');
         }
     }
 
@@ -286,7 +286,7 @@ export class CdAcctsReceiptController {
             console.log('CdAcctsReceiptController::Update()/02');
             await this.svReceipt.update(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:Update');
+            await this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:Update');
         }
     }
 
@@ -296,7 +296,7 @@ export class CdAcctsReceiptController {
             console.log('CdAcctsReceiptController::UpdateSL()/02');
             await this.svReceipt.update(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:UpdateSL');
+            await this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:UpdateSL');
         }
     }
 
@@ -327,7 +327,7 @@ export class CdAcctsReceiptController {
         try {
             await this.svReceipt.delete(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:Delete');
+            await this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:Delete');
         }
     }
 
@@ -335,7 +335,7 @@ export class CdAcctsReceiptController {
         try {
             await this.svReceipt.delete(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:DeleteSL');
+            await this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:DeleteSL');
         }
     }
 
@@ -343,7 +343,7 @@ export class CdAcctsReceiptController {
         try {
             await this.svReceipt.getMeta(req, res);
         } catch (e) {
-            this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:Get');
+            await this.b.serviceErr(req, res, e, 'CdAcctsReceiptController:Get');
         }
     }
 
