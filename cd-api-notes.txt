@@ -557,7 +557,19 @@ issues:
     - https://levelup.gitconnected.com/learn-basic-operations-with-sqlite-and-nodejs-a693c6fc2e15
     - https://orkhan.gitbook.io/typeorm/docs/transactions
 
-
+////////////////////////////////////
+Todo:
+- detect config file
+- scafold detection, creation and editing of config file
+- create .env file
+- documentation on how to get started
+    - config file
+    - .env file
+    - curl test
+- integrate with mysql-router
+- integrate with mysql-innodb cluster
+- dockerize in preperation for kubernetes consumption
+-
 
 10/06/2022
 - update to work in digital ocean
