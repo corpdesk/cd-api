@@ -2,5 +2,5 @@
 
 cdir=$(pwd)
 # set config file
-cp "$cdir/migration_template_files/config_sample.ts" ../src/config.ts
+cp "$cdir/sdk/migration_template_files/config_sample.ts" ../src/config.ts
 
