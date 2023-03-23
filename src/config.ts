@@ -134,12 +134,12 @@ export async function sqliteConfig(connName):Promise<any>{
 
 ///////////////////////////
 
-const API_PORT = process.env.API_PORT;
+const API_PORT = Number(process.env.API_PORT);
 const END_POINT = `${process.env.API_URL}:${API_PORT}`;
 // const ORIGIN = `${process.env.ORIGIN_URL}:${ORIGIN_PORT}`;
 
 export default {
-    apiPort: Number(process.env.API_PORT),
+    apiPort: API_PORT,
     endPoint: END_POINT,
     Cors: {
         options: {
