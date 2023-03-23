@@ -139,7 +139,7 @@ const END_POINT = `${process.env.API_URL}:${API_PORT}`;
 // const ORIGIN = `${process.env.ORIGIN_URL}:${ORIGIN_PORT}`;
 
 export default {
-    apiPort: process.env.API_PORT,
+    apiPort: Number(process.env.API_PORT),
     endPoint: END_POINT,
     Cors: {
         options: {
