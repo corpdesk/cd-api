@@ -1,0 +1,2 @@
+# initializatiion
+cp sdk/migration_template_files/env_sample ~/cd-api/.env

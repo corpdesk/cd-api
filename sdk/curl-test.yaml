@@ -1,0 +1,217 @@
+#!/bin/bash
+
+# issue curl request
+curl -k -X POST -H 'Content-Type: application/json' -d '{ "ctx": "Sys", "m": "User", "c": "User", "a": "Login", "dat": { "f_vals": [ { "data": { "userName": "karl", "password": "secret", "consumerGuid": "B0B3DA99-1859-A499-90F6-1E3F69575DCD" } } ], "token": null }, "args": null }' http://localhost:3001 -v
+
+# format response using jq
+curl -k -X POST -H 'Content-Type: application/json' -d '{ "ctx": "Sys", "m": "User", "c": "User", "a": "Login", "dat": { "f_vals": [ { "data": { "userName": "karl", "password": "secret", "consumerGuid": "B0B3DA99-1859-A499-90F6-1E3F69575DCD" } } ], "token": null }, "args": null }' http://localhost:3001 | jq '.'
+#exprected response should be of the format:
+{"app_state":{"success":true,"info":{"messages":[],"code":"","app_msg":"Welcome karl!"},"sess":{"cd_token":"9e8a646f-8024-4429-a920-7fe9c05b45c1","userId":1010,"jwt":null,"ttl":600},"cache":{},"sConfig":{"usePush":true,"usePolling":true,"useCacheStore":true}},"data":{"consumer":[{"consumerId":33,"consumerGuid":"B0B3DA99-1859-A499-90F6-1E3F69575DCD","consumerName":"emp_services","consumerEnabled":1,"docId":9276,"companyId":85,"companyGuid":"8a7ee96e-6c76-11ec-a1b0-4184d18c49ca"}],"menuData":[{"menuLabel":"cd_geo","menuId":469,"icon":"ri-map-pin-line","path":null,"isTitle":null,"badge":null,"menuParentId":-1,"isLayout":null,"moduleIsPublic":1,"moduleGuid":"C620F2D8-A0AE-0406-7DB7-7ECE806722AA","children":[{"menuLabel":"location","menuId":470,"icon":null,"path":"/moduleman/module/list","isTitle":null,"badge":null,"menuParentId":469,"isLayout":null,"moduleIsPublic":1,"moduleGuid":"C620F2D8-A0AE-0406-7DB7-7ECE806722AA","children":[]}]},{"menuLabel":"Modman","menuId":995,"icon":"ri-user-settings-line","path":"./admin","isTitle":null,"badge":null,"menuParentId":-1,"isLayout":null,"moduleIsPublic":null,"moduleGuid":"00e7c6a8-83e4-40e2-bd27-51fcff9ce63b","children":[{"menuLabel":"dashboard","menuId":996,"icon":null,"path":"admin/admin-dashboard","isTitle":null,"badge":null,"menuParentId":995,"isLayout":null,"moduleIsPublic":null,"moduleGuid":"00e7c6a8-83e4-40e2-bd27-51fcff9ce63b","children":[]},{"menuLabel":"cdobj","menuId":997,"icon":null,"path":"/moduleman/cd-obj/list","isTitle":null,"badge":null,"menuParentId":995,"isLayout":null,"moduleIsPublic":null,"moduleGuid":"00e7c6a8-83e4-40e2-bd27-51fcff9ce63b","children":[]},{"menuLabel":"company","menuId":998,"icon":null,"path":"/moduleman/company/list","isTitle":null,"badge":null,"menuParentId":995,"isLayout":null,"moduleIsPublic":null,"moduleGuid":"00e7c6a8-83e4-40e2-bd27-51fcff9ce63b","children":[]},{"menuLabel":"grus","menuId":999,"icon":null,"path":"admin/grus","isTitle":null,"badge":null,"menuParentId":995,"isLayout":null,"moduleIsPublic":null,"moduleGuid":"00e7c6a8-83e4-40e2-bd27-51fcff9ce63b","children":[]},{"menuLabel":"menu","menuId":1000,"icon":null,"path":"/moduleman/menu/list","isTitle":null,"badge":null,"menuParentId":995,"isLayout":null,"moduleIsPublic":null,"moduleGuid":"00e7c6a8-83e4-40e2-bd27-51fcff9ce63b","children":[]},{"menuLabel":"module","menuId":1001,"icon":null,"path":"/moduleman/module/list","isTitle":null,"badge":null,"menuParentId":995,"isLayout":null,"moduleIsPublic":null,"moduleGuid":"00e7c6a8-83e4-40e2-bd27-51fcff9ce63b","children":[]},{"menuLabel":"consumer","menuId":1269,"icon":null,"path":"/moduleman/consumer/list","isTitle":null,"badge":null,"menuParentId":995,"isLayout":null,"moduleIsPublic":null,"moduleGuid":"00e7c6a8-83e4-40e2-bd27-51fcff9ce63b","children":[]},{"menuLabel":"consumer-resource","menuId":1271,"icon":null,"path":null,"isTitle":null,"badge":null,"menuParentId":995,"isLayout":null,"moduleIsPublic":null,"moduleGuid":"00e7c6a8-83e4-40e2-bd27-51fcff9ce63b","children":[]}]}],"userData":{"userId":1010,"userGuid":"fe5b1a9d-df45-4fce-a181* Connection #0 to host cd-api-01 left intact
+-65289c48ea00","userName":"karl","email":"karl.lulu@anon.com","companyId":85,"docId":34,"mobile":"895909","gender":1,"birthDate":"1976-03-10T09:53:37.000Z","postalAddr":"85849","fName":"Karl","mName":"D","lName":"Lulu","nationalId":"85909","passportId":"89599","userEnabled":true,"zipCode":null,"activationKey":"8968959","userTypeId":1}}}
+
+#formated response:
+{
+  "app_state": {
+    "success": true,
+    "info": {
+      "messages": [],
+      "code": "",
+      "app_msg": "Welcome karl!"
+    },
+    "sess": {
+      "cd_token": "521b0a1c-c08c-451f-8f5f-19ea751fec02",
+      "userId": 1010,
+      "jwt": null,
+      "ttl": 600
+    },
+    "cache": {},
+    "sConfig": {
+      "usePush": true,
+      "usePolling": true,
+      "useCacheStore": true
+    }
+  },
+  "data": {
+    "consumer": [
+      {
+        "consumerId": 33,
+        "consumerGuid": "B0B3DA99-1859-A499-90F6-1E3F69575DCD",
+        "consumerName": "emp_services",
+        "consumerEnabled": 1,
+        "docId": 9276,
+        "companyId": 85,
+        "companyGuid": "8a7ee96e-6c76-11ec-a1b0-4184d18c49ca"
+      }
+    ],
+    "menuData": [
+      {
+        "menuLabel": "Modman",
+        "menuId": 995,
+        "icon": "ri-user-settings-line",
+        "path": "./admin",
+        "isTitle": null,
+        "badge": null,
+        "menuParentId": -1,
+        "isLayout": null,
+        "moduleIsPublic": null,
+        "moduleGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b",
+        "children": [
+          {
+            "menuLabel": "dashboard",
+            "menuId": 996,
+            "icon": null,
+            "path": "admin/admin-dashboard",
+            "isTitle": null,
+            "badge": null,
+            "menuParentId": 995,
+            "isLayout": null,
+            "moduleIsPublic": null,
+            "moduleGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b",
+            "children": []
+          },
+          {
+            "menuLabel": "cdobj",
+            "menuId": 997,
+            "icon": null,
+            "path": "/moduleman/cd-obj/list",
+            "isTitle": null,
+            "badge": null,
+            "menuParentId": 995,
+            "isLayout": null,
+            "moduleIsPublic": null,
+            "moduleGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b",
+            "children": []
+          },
+          {
+            "menuLabel": "company",
+            "menuId": 998,
+            "icon": null,
+            "path": "/moduleman/company/list",
+            "isTitle": null,
+            "badge": null,
+            "menuParentId": 995,
+            "isLayout": null,
+            "moduleIsPublic": null,
+            "moduleGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b",
+            "children": []
+          },
+          {
+            "menuLabel": "grus",
+            "menuId": 999,
+            "icon": null,
+            "path": "admin/grus",
+            "isTitle": null,
+            "badge": null,
+            "menuParentId": 995,
+            "isLayout": null,
+            "moduleIsPublic": null,
+            "moduleGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b",
+            "children": []
+          },
+          {
+            "menuLabel": "menu",
+            "menuId": 1000,
+            "icon": null,
+            "path": "/moduleman/menu/list",
+            "isTitle": null,
+            "badge": null,
+            "menuParentId": 995,
+            "isLayout": null,
+            "moduleIsPublic": null,
+            "moduleGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b",
+            "children": []
+          },
+          {
+            "menuLabel": "module",
+            "menuId": 1001,
+            "icon": null,
+            "path": "/moduleman/module/list",
+            "isTitle": null,
+            "badge": null,
+            "menuParentId": 995,
+            "isLayout": null,
+            "moduleIsPublic": null,
+            "moduleGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b",
+            "children": []
+          },
+          {
+            "menuLabel": "consumer",
+            "menuId": 1269,
+            "icon": null,
+            "path": "/moduleman/consumer/list",
+            "isTitle": null,
+            "badge": null,
+            "menuParentId": 995,
+            "isLayout": null,
+            "moduleIsPublic": null,
+            "moduleGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b",
+            "children": []
+          },
+          {
+            "menuLabel": "consumer-resource",
+            "menuId": 1271,
+            "icon": null,
+            "path": null,
+            "isTitle": null,
+            "badge": null,
+            "menuParentId": 995,
+            "isLayout": null,
+            "moduleIsPublic": null,
+            "moduleGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b",
+            "children": []
+          }
+        ]
+      },
+      {
+        "menuLabel": "cd_geo",
+        "menuId": 469,
+        "icon": "ri-map-pin-line",
+        "path": null,
+        "isTitle": null,
+        "badge": null,
+        "menuParentId": -1,
+        "isLayout": null,
+        "moduleIsPublic": 1,
+        "moduleGuid": "C620F2D8-A0AE-0406-7DB7-7ECE806722AA",
+        "children": [
+          {
+            "menuLabel": "location",
+            "menuId": 470,
+            "icon": null,
+            "path": "/moduleman/module/list",
+            "isTitle": null,
+            "badge": null,
+            "menuParentId": 469,
+            "isLayout": null,
+            "moduleIsPublic": 1,
+            "moduleGuid": "C620F2D8-A0AE-0406-7DB7-7ECE806722AA",
+            "children": []
+          }
+        ]
+      }
+    ],
+    "userData": {
+      "userId": 1010,
+      "userGuid": "fe5b1a9d-df45-4fce-a181-65289c48ea00",
+      "userName": "karl",
+      "email": "karl.lulu@anon.com",
+      "companyId": 85,
+      "docId": 34,
+      "mobile": "895909",
+      "gender": 1,
+      "birthDate": "1976-03-10T09:53:37.000Z",
+      "postalAddr": "85849",
+      "fName": "Karl",
+      "mName": "D",
+      "lName": "Lulu",
+      "nationalId": "85909",
+      "passportId": "89599",
+      "userEnabled": true,
+      "zipCode": null,
+      "activationKey": "8968959",
+      "userTypeId": 1
+    }
+  }
+}
+
+
