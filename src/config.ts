@@ -50,19 +50,16 @@ const mysqlConfig = {
         __dirname + '/CdApi/sys/user/models/*.model.ts',
         __dirname + '/CdApi/sys/moduleman/models/*.model.ts',
         __dirname + '/CdApi/sys/comm/models/*.model.ts',
-        __dirname + '/CdApi/sys/inte-ract/models/*.model.ts',
         __dirname + '/CdApi/sys/scheduler/models/*.model.ts',
         __dirname + '/CdApi/app/cd-accts/models/*.model.ts',
     ],
-    /**
-     * LOGGING OPTIONS
-     * query - logs all queries.
-     * error - logs all failed queries and errors.
-     * schema - logs the schema build process.
-     * warn - logs internal orm warnings.
-     * info - logs internal orm informative messages.
-     * log - logs internal orm log messages.
-     */
+    // LOGGING OPTIONS
+    // query - logs all queries.
+    // error - logs all failed queries and errors.
+    // schema - logs the schema build process.
+    // warn - logs internal orm warnings.
+    // info - logs internal orm informative messages.
+    // log - logs internal orm log messages.
     // logging: ['query', 'error','schema','warn', 'info', 'log']
 };
 
@@ -92,7 +89,7 @@ const mysqlConfig = {
 //     // }
 // };
 
-export async function sqliteConfig(connName):Promise<any>{
+export async function sqliteConfig(connName): Promise<any> {
     return {
         name: connName,
         type: 'sqlite',
@@ -104,7 +101,7 @@ export async function sqliteConfig(connName):Promise<any>{
             // BillModel
             // __dirname + '/CdApi/app/accts/models/*.model.ts'
             __dirname + '/CdApi/app/accts/models/*.model.ts',
-            __dirname + '/CdApi/sys/moduleman/models/company.model.ts',
+            __dirname + '/CdApi/sys/moduleman/models/company.model.ts'
         ],
         // migrations: [
         //   'src/app/data/migrations/**/*.ts'
@@ -134,12 +131,12 @@ export async function sqliteConfig(connName):Promise<any>{
 
 ///////////////////////////
 
-const API_PORT = Number(process.env.API_PORT);
+const API_PORT = process.env.API_PORT;
 const END_POINT = `${process.env.API_URL}:${API_PORT}`;
 // const ORIGIN = `${process.env.ORIGIN_URL}:${ORIGIN_PORT}`;
 
 export default {
-    apiPort: API_PORT,
+    apiPort: process.env.API_PORT,
     endPoint: END_POINT,
     Cors: {
         options: {
@@ -153,9 +150,12 @@ export default {
             credentials: true,
             methods: 'GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE',
             origin: [
-                'http://localhost:4500', 
-                'http://localhost:5500', 
-                'http://localhost:4202'
+                'http://cd-user-25:4407',
+                'http://cd-moduleman-26:4402',
+                'http://cd-comm-27:4401',
+                'http://cd-shell-25:4500', // shell app node 1
+                // 'http://cd-shell-02:4500', // shell app node 2
+                'http://cd-api-22:3001', // cd-api
             ],
             preflightContinue: false,
         }
@@ -163,8 +163,8 @@ export default {
     db: mysqlConfig,
     sqlite: sqliteConfig,
     push: {
-        serverHost: 'http://localhost',
-        serverPort: 3200
+        serverHost: 'http://cd-sio-23',
+        serverPort: 3000
     },
     cache: {
         ttl: 600
