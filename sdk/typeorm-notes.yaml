@@ -1,3 +1,48 @@
+
+/**
+ * 31 Aug 2023
+ * upgrading typeorm and mysql2
+ * "typeorm": "^0.3.17"
+ * "mysql2": "^3.6.0",
+ * Previous versions:
+ * "mysql2": "^2.3.3",
+ * "typeorm": "^0.2.45"
+ * 
+ * Ref: https://www.npmjs.com/package/typeorm
+ * npm i mysql2@latest typeorm@latest
+ * npm install reflect-metadata --save
+ * 
+ * issue after upgrade:
+ * in the file connect.ts(<proj-dir>/nazoxTest/cd-api/src/CdApi/sys/base/connect.ts)
+ * all the earlier imports are depicated
+ * import {
+    createConnection,
+    getConnection,
+    ConnectionOptions,
+    ConnectionManager,
+    getConnectionManager,
+    Connection
+} from 'typeorm';
+
+ * 
+ * created <proj-dir>/cd-api/src/CdApi/sys/base/connect.v2.ts
+ * to implement the lates connection codes
+ * Ref: https://www.npmjs.com/package/typeorm
+ * All other upgrade notes are joted in the file 
+ * created <proj-dir>/cd-api/src/CdApi/sys/base/connect.v2.ts
+ * 
+ * from examples given, entity must exist before the request
+ * we need to have a possible way of using dynamic entities.
+ * the entity should be specified by module name, which will 
+ * identify where the required files are
+ * 
+*/
+
+/**
+ * develop type orm migration mechanism for corpdesk
+ * https://hackmd.io/@rohit-gupta/HkG8bdzPm
+ */
+//------------------------------------
 // OR-FILTER
 const filterOr = { where: [{ aa: 'a' }, { bb: 'b' }] }
 

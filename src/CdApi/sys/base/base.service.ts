@@ -7,7 +7,6 @@ import { Observable, from } from 'rxjs';
 import moment from 'moment';
 import { Database } from './connect';
 import { ConnectSqlite } from './connectSqlite';
-import { Response, Request, NextFunction } from 'express';
 // import * as redis from 'redis';
 import { createClient } from 'redis';
 import { DocModel } from '../moduleman/models/doc.model';
@@ -17,6 +16,8 @@ import { DocService } from '../moduleman/services/doc.service';
 import config, { sqliteConfig } from '../../../config';
 import { ConnectionTest } from './connection-test';
 // import { createConnection } from 'typeorm';
+import { MysqlDataSource } from "./data-source"
+import { NextFunction, Request, Response } from "express"
 
 
 const USER_ANON = 1000;
@@ -53,6 +54,8 @@ export class BaseService {
     }
     models = [];
     sqliteModels = [];
+
+    private repo: any;
 
     async init(req, res) {
         if (!this.db) {
@@ -156,14 +159,16 @@ export class BaseService {
         }
     }
 
-    repo(req, res, serviceModel) {
-        try {
-            console.log('BaseService::repo()/serviceModel:', serviceModel)
-            return getConnection().getRepository(serviceModel);
-        } catch (e) {
-            return this.serviceErr(req, res, e, 'BaseService:repo');
-        }
-    }
+    // switched off while trying upgraded typeorm codes
+    // repo(req, res, serviceModel) {
+    //     try {
+    //         console.log('BaseService::repo()/serviceModel:', serviceModel)
+    //         return getConnection().getRepository(serviceModel);
+    //     } catch (e) {
+    //         return this.serviceErr(req, res, e, 'BaseService:repo');
+    //     }
+    // }
+
 
     // /**
     //  * Connect to a database using the TypeORM ConnectionManager. Adds database to the manager if it is new. Tests database connection after connecting.
@@ -1134,7 +1139,9 @@ export class BaseService {
         await this.init(req, res);
         console.log('BaseService::read()/02')
         // console.log('BaseService::read()/repo/model:', JSON.stringify(serviceInput.serviceModel))
-        const repo: any = await this.repo(req, res, serviceInput.serviceModel);
+        // const repo: any = await this.repo(req, res, serviceInput.serviceModel);
+        this.setRepo(serviceInput.serviceModel)
+        const repo: any = this.repo;
         console.log('BaseService::read()/03')
         let r: any = null;
         switch (serviceInput.cmd.action) {
@@ -1183,7 +1190,9 @@ export class BaseService {
         await this.init(req, res);
         // const repo = getConnection().getRepository(serviceInput.serviceModel);
         console.log('BaseService::readCount()/repo/model:', serviceInput.serviceModel)
-        const repo: any = await this.repo(req, res, serviceInput.serviceModel)
+        // const repo: any = await this.repo(req, res, serviceInput.serviceModel)
+        this.setRepo(serviceInput.serviceModel)
+        const repo: any = this.repo;
         try {
             const [result, total] = await repo.findAndCount(
                 this.getQuery(req)
@@ -1206,7 +1215,9 @@ export class BaseService {
         await this.init(req, res);
         // const repo = getConnection().getRepository(serviceInput.serviceModel);
         console.log('BaseService::readPaged()/repo/model:', serviceInput.serviceModel)
-        const repo: any = await this.repo(req, res, serviceInput.serviceModel)
+        // const repo: any = await this.repo(req, res, serviceInput.serviceModel)
+        this.setRepo(serviceInput.serviceModel)
+        const repo: any = this.repo;
         try {
             const [result, total] = await repo.findAndCount(
                 this.getQuery(req)
@@ -1228,7 +1239,9 @@ export class BaseService {
     async readCountSL(req, res, serviceInput): Promise<any> {
         await this.initSqlite(req, res);
         try {
-            const repo = this.sqliteConn.getRepository(serviceInput.serviceModel);
+            // const repo = this.sqliteConn.getRepository(serviceInput.serviceModel);
+            this.setRepo(serviceInput.serviceModel)
+            const repo: any = this.repo;
             const meta = await this.getEntityPropertyMapSL(req, res, serviceInput.serviceModel);
             const [result, total] = await repo.findAndCount(
                 this.getQuery(req)
@@ -1322,7 +1335,9 @@ export class BaseService {
     async readSL(req, res, serviceInput: IServiceInput): Promise<any> {
         try {
             this.initSqlite(req, res);
-            const repo = this.sqliteConn.getRepository(serviceInput.serviceModel);
+            // const repo = this.sqliteConn.getRepository(serviceInput.serviceModel);
+            this.setRepo(serviceInput.serviceModel)
+            const repo: any = this.repo;
             const svSess = new SessionService();
             // const billRepository = this.sqliteConn.getRepository(BillModel)
             // const allBills = await billRepository.find()
@@ -1415,7 +1430,9 @@ export class BaseService {
         console.log('BillService::updateSL()/01')
         await this.initSqlite(req, res);
         const svSess = new SessionService();
-        const repo: any = await this.sqliteConn.getRepository(serviceInput.serviceModel);
+        // const repo: any = await this.sqliteConn.getRepository(serviceInput.serviceModel);
+        this.setRepo(serviceInput.serviceModel)
+        const repo: any = this.repo;
         const result = await repo.update(
             serviceInput.cmd.query.where,
             await this.fieldsAdaptorSL(req, res, serviceInput.cmd.query.update, serviceInput)
@@ -1909,6 +1926,53 @@ export class BaseService {
     createClassInstance<T>(arg1: new () => T): T {
         return new arg1();
     }
+
+    // new crude base after upgrading typeorm
+    // 31 oct 2023
+    /////////////////////
+
+    setRepo(serviceModel){
+        this.repo = MysqlDataSource.getRepository(serviceModel)
+    }
+
+    async all(request: Request, response: Response, next: NextFunction) {
+        return this.repo.find()
+    }
+
+    async one(request: Request, response: Response, next: NextFunction) {
+        const id = parseInt(request.params.userId)
+
+
+        const user = await this.repo.findOne({
+            where: { userId: id }
+        })
+
+        if (!user) {
+            return "unregistered user"
+        }
+        return user
+    }
+
+    async save(request: Request, response: Response, serviceInput:IServiceInput, next: NextFunction) {
+        const item = Object.assign(serviceInput.serviceInstance, serviceInput.data)
+        return this.repo.save(item)
+    }
+
+    async remove(request: Request, response: Response, next: NextFunction) {
+        const id = parseInt(request.params.id)
+
+        let userToRemove = await this.repo.findOneBy({ userId: id })
+
+        if (!userToRemove) {
+            return "this user not exist"
+        }
+
+        await this.repo.remove(userToRemove)
+
+        return "user has been removed"
+    }
+
+    //////////////////////////////////////////////////////////////
 
 }
 

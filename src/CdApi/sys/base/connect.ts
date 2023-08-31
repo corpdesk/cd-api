@@ -37,7 +37,7 @@ export class Database {
     }
 
     async setConnEntity(model){
-        await this.connOptions.entities.push(model);
+        // await this.connOptions.entities.push(model);
     }
 
     handleError(e){

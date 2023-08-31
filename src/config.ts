@@ -3,6 +3,7 @@
 
 import mysql from 'mysql2';
 import * as dotenv from 'dotenv';
+import "reflect-metadata";
 import { DatabaseType } from 'typeorm';
 // import { SessionModel } from './CdApi/sys/user/models/session.model';
 dotenv.config();
@@ -62,6 +63,26 @@ const mysqlConfig = {
     // log - logs internal orm log messages.
     // logging: ['query', 'error','schema','warn', 'info', 'log']
 };
+
+const mysqlConfig2 = {
+    type: "mysql",
+    host: "localhost",
+    port: 3306,
+    username: "test",
+    password: "test",
+    database: "test",
+    synchronize: true,
+    logging: false,
+    entities: [
+        __dirname + '/CdApi/sys/user/models/*.model.ts',
+        __dirname + '/CdApi/sys/moduleman/models/*.model.ts',
+        __dirname + '/CdApi/sys/comm/models/*.model.ts',
+        __dirname + '/CdApi/sys/scheduler/models/*.model.ts',
+        __dirname + '/CdApi/app/cd-accts/models/*.model.ts',
+    ],
+    migrations: [],
+    subscribers: [],
+}
 
 // export const sqliteConfig: ConnectionOptions = {
 //     name: 'sqlite1',
@@ -150,17 +171,16 @@ export default {
             credentials: true,
             methods: 'GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE',
             origin: [
+                'http://cd-shell-24:4500', // shell app node 1
                 'http://cd-user-25:4407',
                 'http://cd-moduleman-26:4402',
                 'http://cd-comm-27:4401',
-                'http://cd-shell-25:4500', // shell app node 1
-                // 'http://cd-shell-02:4500', // shell app node 2
-                'http://cd-api-22:3001', // cd-api
             ],
             preflightContinue: false,
         }
     },
     db: mysqlConfig,
+    db2: mysqlConfig2,
     sqlite: sqliteConfig,
     push: {
         serverHost: 'http://cd-sio-23',

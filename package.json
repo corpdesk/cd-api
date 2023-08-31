@@ -15,7 +15,7 @@
     "@types/cors": "^2.8.12",
     "@types/decimal.js": "^7.4.0",
     "@types/express": "^4.17.13",
-    "@types/node": "^17.0.23",
+    "@types/node": "^17.0.45",
     "@types/puppeteer": "^5.4.5",
     "@typescript-eslint/eslint-plugin": "^5.17.0",
     "@typescript-eslint/parser": "^5.17.0",
@@ -36,14 +36,15 @@
     "lodash": "^4.17.21",
     "log4js": "^6.4.4",
     "moment": "^2.29.1",
-    "mysql2": "^2.3.3",
+    "mysql2": "^3.6.0",
     "node-ts-cache": "^4.4.0",
     "node-ts-cache-storage-memory": "^4.4.0",
     "puppeteer": "^13.5.2",
     "puppeteer-core": "^13.5.2",
     "ramda": "^0.28.0",
     "redis": "^3.1.1",
+    "reflect-metadata": "^0.1.13",
     "rxjs": "^7.5.5",
-    "typeorm": "^0.2.45"
+    "typeorm": "^0.3.17"
   }
 }
