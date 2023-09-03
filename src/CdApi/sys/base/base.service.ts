@@ -18,6 +18,9 @@ import { ConnectionTest } from './connection-test';
 // import { createConnection } from 'typeorm';
 import { MysqlDataSource } from "./data-source"
 import { NextFunction, Request, Response } from "express"
+import { UserModel } from "../user/models/user.model"
+
+import { getDataSource } from "./data-source";
 
 
 const USER_ANON = 1000;
@@ -56,6 +59,8 @@ export class BaseService {
     sqliteModels = [];
 
     private repo: any;
+    private docRepository: any;
+    ds: any = null;
 
     async init(req, res) {
         if (!this.db) {
@@ -231,7 +236,7 @@ export class BaseService {
      * @param clsCtx
      * @returns
      */
-    async resolveCls(req, res, clsCtx: IControllerContext) {
+    async resolveCls(req, res, clsCtx) {
         try {
             console.log('BaseService::resolveCls()/01:')
             const eImport = await import(clsCtx.path);
@@ -239,6 +244,7 @@ export class BaseService {
             const eCls = eImport[clsCtx.clsName];
             console.log('BaseService::resolveCls()/03:')
             const cls = new eCls();
+            this.ds = clsCtx.dataSource;
             console.log('BaseService::resolveCls()/04:')
             if (this.sess) {
                 // set sessData in req so it is available thoughout the bootstrap
@@ -456,8 +462,8 @@ export class BaseService {
      * @param result 
      * @param iCode 
      */
-    successResponse(req, res, result,appMsg = null) {
-        if(appMsg){
+    successResponse(req, res, result, appMsg = null) {
+        if (appMsg) {
             this.i.app_msg = appMsg;
         }
         const svSess = new SessionService();
@@ -818,13 +824,14 @@ export class BaseService {
     async create(req, res, serviceInput: IServiceInput) {
         console.log('BaseService::create()/01')
         await this.init(req, res);
+        this.setRepo(serviceInput);
         let newDocData;
         try {
             console.log('BaseService::create()/02')
             console.log('BaseService::create()/serviceInput0:', serviceInput)
             console.log('BaseService::create()/021')
             newDocData = await this.saveDoc(req, res, serviceInput);
-            console.log('BaseService::create()/022')
+            console.log('BaseService::create()/022/newDocData:', newDocData)
             console.log('BaseService::create()/newDocData:', newDocData)
         } catch (e) {
             console.log('BaseService::create()/03')
@@ -836,7 +843,8 @@ export class BaseService {
             console.log('BaseService::create()/serviceInput1:', serviceInput)
             // serviceRepository = await getConnection().getRepository(serviceInput.serviceModel);
             console.log('BaseService::create()/repo/model:', serviceInput.serviceModel)
-            serviceRepository = await this.repo(req, res, serviceInput.serviceModel)
+            // serviceRepository = await this.repo(req, res, serviceInput.serviceModel)
+            serviceRepository = await this.repo
         } catch (e) {
             console.log('BaseService::create()/serviceInput2:', serviceInput)
             console.log('BaseService::create()/05')
@@ -982,15 +990,20 @@ export class BaseService {
 
     async saveDoc(req, res, serviceInput: IServiceInput) {
         await this.init(req, res);
+        
         console.log('BaseService::saveDoc()/01')
         // const docRepository: any = await getConnection().getRepository(DocModel);
         console.log('BaseService::saveDoc()/repo/model:', DocModel)
-        const docRepository: any = await this.repo(req, res, DocModel)
+        // const docRepository: any = await this.repo(req, res, DocModel)
+        
         console.log('BaseService::saveDoc()/02')
         const doc = await this.setDoc(req, res, serviceInput);
-        console.log('BaseService::saveDoc()/03')
+        console.log('BaseService::saveDoc()/03/dod:', doc)
         console.log('BaseService::saveDoc()/doc:', JSON.stringify(doc))
-        return await docRepository.save(doc);
+        // await this.setRepo(serviceInput)
+        
+        // const docRepository: any = this.repo
+        return await this.docRepository.save(doc);
     }
 
     async addParam(req, param) {
@@ -1013,6 +1026,8 @@ export class BaseService {
         console.log('BaseService::setDoc()/05')
         dm.docDate = await this.mysqlNow();
         console.log('BaseService::setDoc()/06')
+        const AppDataSource = await getDataSource();
+        this.docRepository = AppDataSource.getRepository(DocModel);
         return await dm;
     }
 
@@ -1138,18 +1153,41 @@ export class BaseService {
         console.log('BaseService::read()/01')
         await this.init(req, res);
         console.log('BaseService::read()/02')
-        // console.log('BaseService::read()/repo/model:', JSON.stringify(serviceInput.serviceModel))
+        console.log('BaseService::read()/serviceInput:', serviceInput)
         // const repo: any = await this.repo(req, res, serviceInput.serviceModel);
-        this.setRepo(serviceInput.serviceModel)
-        const repo: any = this.repo;
+        await this.setRepo(serviceInput)
+        // const init = async (event) => {
+        // const AppDataSource = await getDataSource();
+        // const repo = AppDataSource.getRepository(serviceInput.serviceModel);
+        // this.repo = repo;
+        // Your business logic
+        // console.log('BaseService::read()/0031')
+        // let r: any = await repo.find(serviceInput.cmd.query);
+        // console.log('BaseService::read()/004/r:', r)
+        // if (serviceInput.extraInfo) {
+        //     console.log('BaseService::read()/005')
+        //     return {
+        //         result: r,
+        //         fieldMap: await this.feildMap(serviceInput)
+        //     }
+        // } else {
+        //     console.log('BaseService::read()/006')
+        //     return await r;
+        // }
+        // };
+        // this.repo = MysqlDataSource.getRepository(serviceInput.serviceModel)
+        // const repo: any = this.repo;
         console.log('BaseService::read()/03')
         let r: any = null;
         switch (serviceInput.cmd.action) {
             case 'find':
                 try {
                     console.log('BaseService::read()/031')
-                    r = await repo.find(serviceInput.cmd.query);
-                    console.log('BaseService::read()/04')
+                    console.log('BaseService::read()/04/serviceInput.serviceModel:', serviceInput.serviceModel)
+                    console.log('BaseService::read()/04/serviceInput.modelName:', serviceInput.modelName)
+                    await this.setRepo(serviceInput)
+                    r = await this.repo.find(serviceInput.cmd.query);
+                    console.log('BaseService::read()/04/r:', r)
                     if (serviceInput.extraInfo) {
                         console.log('BaseService::read()/05')
                         return {
@@ -1168,7 +1206,7 @@ export class BaseService {
                 break;
             case 'count':
                 try {
-                    r = await repo.count(serviceInput.cmd.query);
+                    r = await this.repo.count(serviceInput.cmd.query);
                     console.log('BaseService::read()/r:', r)
                     return r;
                 }
@@ -1278,21 +1316,23 @@ export class BaseService {
         });
     }
 
-    async get(req, res, model: any, q: IQuery): Promise<any> {
+    async get(req, res, serviceInput: IServiceInput, q: IQuery): Promise<any> {
         console.log('BaseService::get/q:', q);
-        const serviceInput: IServiceInput = {
-            serviceModel: model,
-            docName: 'BaseService::get',
-            cmd: {
-                action: 'find',
-                query: q
-            },
-            dSource: 1
-        }
+        // console.log('BaseService::get/model:', model);
+        // const serviceInput: IServiceInput = {
+        //     serviceModel: model,
+        //     modelName: null,
+        //     docName: 'BaseService::get',
+        //     cmd: {
+        //         action: 'find',
+        //         query: q
+        //     },
+        //     dSource: 1
+        // }
         try {
             return await this.read(req, res, serviceInput)
         } catch (e) {
-            console.log('CdObjService::read$()/e:', e)
+            console.log('BaseService::get()/e:', e)
             this.err.push(e.toString());
             const i = {
                 messages: this.err,
@@ -1306,17 +1346,18 @@ export class BaseService {
         }
     }
 
-    get$(req, res, model: any, q: IQuery): Observable<any> {
-        console.log('BaseService::get/q:', q);
-        const serviceInput: IServiceInput = {
-            serviceModel: model,
-            docName: 'BaseService::get',
-            cmd: {
-                action: 'find',
-                query: q
-            },
-            dSource: 1
-        }
+    get$(req, res, serviceInput: IServiceInput, q: IQuery): Observable<any> {
+        console.log('BaseService::get$/q:', q);
+        // const serviceInput: IServiceInput = {
+        //     serviceModel: model,
+        //     docName: 'BaseService::get',
+        //     cmd: {
+        //         action: 'find',
+        //         query: q
+        //     },
+        //     dSource: 1
+        // }
+        console.log('BaseService::get$/serviceInput:', serviceInput);
         try {
             return this.read$(req, res, serviceInput)
         } catch (e) {
@@ -1390,9 +1431,11 @@ export class BaseService {
         let ret: any = [];
         try {
             await this.init(req, res);
+            await this.setRepo(serviceInput.serviceModel)
             // const serviceRepository = await getConnection().getRepository(serviceInput.serviceModel);
             console.log('BaseService::update()/repo/model:', serviceInput.serviceModel)
-            const serviceRepository: any = await this.repo(req, res, serviceInput.serviceModel)
+            // const serviceRepository: any = await this.repo(req, res, serviceInput.serviceModel)
+            const serviceRepository: any = this.repo
             const result = await serviceRepository.update(
                 serviceInput.cmd.query.where,
                 await this.fieldsAdaptor(serviceInput.cmd.query.update, serviceInput)
@@ -1535,9 +1578,11 @@ export class BaseService {
         console.log('BaseService::delete()/01')
         let ret: any = [];
         await this.init(req, res);
+        await this.setRepo(serviceInput.serviceModel)
         // const serviceRepository = await getConnection().getRepository(serviceInput.serviceModel);
         console.log('BaseService::delete()/repo/model:', serviceInput.serviceModel)
-        const serviceRepository: any = await this.repo(req, res, serviceInput.serviceModel)
+        // const serviceRepository: any = await this.repo(req, res, serviceInput.serviceModel)
+        const serviceRepository: any = this.repo
         const result = await serviceRepository.delete(
             serviceInput.cmd.query.where
         )
@@ -1650,9 +1695,11 @@ export class BaseService {
     async readJSON(req, res, serviceInput: IServiceInput): Promise<any> {
         console.log('BaseService::readJSON()/01')
         await this.init(req, res);
+        await this.setRepo(serviceInput.serviceModel)
         console.log('BaseService::readJSON()/02')
         console.log('BaseService::readJSON()/repo/model:', JSON.stringify(serviceInput.serviceModel))
-        const repo: any = await this.repo(req, res, serviceInput.serviceModel);
+        // const repo: any = await this.repo(req, res, serviceInput.serviceModel);
+        const repo: any = this.repo;
         console.log('BaseService::readJSON()/03')
         let r: any = null;
         const q = serviceInput.cmd.query
@@ -1931,8 +1978,20 @@ export class BaseService {
     // 31 oct 2023
     /////////////////////
 
-    setRepo(serviceModel){
-        this.repo = MysqlDataSource.getRepository(serviceModel)
+    async setRepo(serviceInput: IServiceInput) {
+        // console.log('BaseService::setRepo()/serviceInput:', serviceInput)
+        // let m = serviceInput.modelName.replace('Model', '');
+        // m = m.toLowerCase();
+        // let modulePath = `../${m}/models/${m}.model`;
+        // console.log('BaseService::setRepo()/modulePath:', modulePath)
+        // const cdModule = await import(modulePath);
+        // // const cdModuleInstance = new cdModule.default()
+        // // console.log('BaseService::setRepo()/cdModuleInstance:', cdModuleInstance)
+        // // const eCls = eImport[eImport];
+        // // const cls = new eCls();
+        // this.repo = await MysqlDataSource.getRepository(UserModel)
+        const AppDataSource = await getDataSource();
+        this.repo = AppDataSource.getRepository(serviceInput.serviceModel);
     }
 
     async all(request: Request, response: Response, next: NextFunction) {
@@ -1953,7 +2012,7 @@ export class BaseService {
         return user
     }
 
-    async save(request: Request, response: Response, serviceInput:IServiceInput, next: NextFunction) {
+    async save(request: Request, response: Response, serviceInput: IServiceInput, next: NextFunction) {
         const item = Object.assign(serviceInput.serviceInstance, serviceInput.data)
         return this.repo.save(item)
     }

@@ -3,6 +3,7 @@ import { ViewEntity, ViewColumn } from 'typeorm';
 @ViewEntity(
     {
         name: 'acl_user_view',
+        synchronize: false,
         expression: `
             SELECT
                 user.user_id,

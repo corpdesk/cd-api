@@ -428,6 +428,7 @@ export class UserService extends CdService {
     async auth(req, res) {
         console.log('UserService::auth()/01');
         const svSess = new SessionService();
+        console.log('auth()/UserModel:', JSON.stringify(UserModel));
         console.log('auth()/req.post:', JSON.stringify(req.post.dat));
         this.plData = this.b.getPlData(req);
         const q: IQuery = {
@@ -437,7 +438,17 @@ export class UserService extends CdService {
                 { userName: 'anon' }
             ]
         };
-        const result: UserModel[] = await this.b.get(req, res, UserModel, q);
+        const serviceInput: IServiceInput = {
+            serviceModel: UserModel,
+            modelName: "UserModel",
+            docName: 'UserService::get',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        const result: UserModel[] = await this.b.get(req, res, serviceInput, q);
         console.log('UserService::auth()/result:', result);
         const guest = await this.resolveGuest(req, res, result);
         console.log('UserService::auth()/guest:', guest)
@@ -536,7 +547,17 @@ export class UserService extends CdService {
                 { userName: 'anon' }
             ]
         };
-        const result: UserModel[] = await this.b.get(req, res, UserModel, q);
+        const serviceInput: IServiceInput = {
+            serviceModel: UserModel,
+            modelName: "UserModel",
+            docName: 'UserService::get',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        const result: UserModel[] = await this.b.get(req, res, serviceInput, q);
         const guest = await this.resolveGuest(req, res, result);
         console.log('UserService::auth1()/guest:', guest)
         return await this.srvSess.create(req, res, guest)
@@ -550,7 +571,8 @@ export class UserService extends CdService {
             .subscribe(
                 (ret: any) => {
                     console.log('UserService::authResponse()/02');
-                    this.b.logTimeStamp('ModuleService::authResponse/02')
+                    this.b.logTimeStamp('ModuleService::authResponse/02/ret:')
+                    console.log('UserService::authResponse()/02/ret:', ret);
                     // const i = null;
                     const sessData: ISessResp = {
                         cd_token: ret.sessResult.cdToken,

@@ -2,27 +2,28 @@ import { ViewEntity, ViewColumn } from 'typeorm';
 
 @ViewEntity({
     name: 'module_view',
+    synchronize: false,
     expression: `
     SELECT
-        'module'.'module_id' AS 'module_id',
-        'module'.'module_guid' AS 'module_guid',
-        'module'.'module_name' AS 'module_name',
-        'module'.'module_description' AS 'module_description',
-        'module'.'module_type_id' AS 'module_type_id',
-        'module'.'module_is_public' AS 'module_is_public',
-        'module'.'is_sys_module' AS 'is_sys_module',
-        'module'.'doc_id' AS 'doc_id',
-        'module'.'module_enabled' AS 'module_enabled',
-        'module'.'group_guid' AS 'group_guid',
-        'group'.'group_name' AS 'group_name',
-        'group'.'group_owner_id' AS 'group_owner_id',
-        'group'.'group_type_id' AS 'group_type_id',
-        'group'.'company_id' AS 'company_id'
+        module.module_id' AS 'module_id,
+        module.module_guid' AS 'module_guid,
+        module.module_name' AS 'module_name,
+        module.module_description' AS 'module_description,
+        module.module_type_id' AS 'module_type_id,
+        module.module_is_public' AS 'module_is_public,
+        module.is_sys_module' AS 'is_sys_module,
+        module.doc_id' AS 'doc_id,
+        module.module_enabled' AS 'module_enabled,
+        module.group_guid' AS 'group_guid,
+        group.group_name' AS 'group_name,
+        group.group_owner_id' AS 'group_owner_id,
+        group.group_type_id' AS 'group_type_id,
+        group.company_id' AS 'company_id'
     FROM
         (
-            'group'
+            \`group\`
             JOIN 'module' ON ((
-                    'group'.'group_guid' = 'module'.'group_guid'
+                    group.group_guid = module.group_guid
                 )));
     `
 })

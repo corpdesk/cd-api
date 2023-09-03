@@ -214,7 +214,19 @@ export class GroupService extends CdService {
     }
 
     async beforeCreate(req, res): Promise<any> {
-        this.b.sess = await this.b.get(req,res,SessionModel,{where:{cdToken:req.post.dat.token}})
+        const q: any = {where:{cdToken:req.post.dat.token}};
+        const serviceInput: IServiceInput = {
+            serviceModel: SessionModel,
+            modelName: "SessionModel",
+            serviceModelInstance: new SessionModel(),
+            cmd:{
+                action:'find',
+                query: q
+            },
+            docName: 'beforeCreate',
+            dSource: 1,
+        }
+        this.b.sess = await this.b.get(req,res,serviceInput,q)
         if(this.b.sess.length > 0){
             this.b.setPlData(req, { key: 'groupOwnerId', value: this.b.sess[0].currentUserId });
         }

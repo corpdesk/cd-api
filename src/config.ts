@@ -66,11 +66,11 @@ const mysqlConfig = {
 
 const mysqlConfig2 = {
     type: "mysql",
-    host: "localhost",
-    port: 3306,
-    username: "test",
-    password: "test",
-    database: "test",
+    port: process.env.DB_PORT,
+    host: process.env.DB_HOST,
+    username: process.env.DB_USER,
+    database: process.env.DB_NAME,
+    password: process.env.DB_PWD,
     synchronize: true,
     logging: false,
     entities: [

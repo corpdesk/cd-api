@@ -6,7 +6,7 @@ export class CdExec {
     constructor() {
         this.b = new BaseService();
     }
-    async exec(req, res) {
+    async exec(req, res, ds=null) {
         console.log('CdExec::exec()/01');
         if (await this.b.valid(req, res)) {
             console.log('CdExec::exec()/02');
@@ -16,9 +16,10 @@ export class CdExec {
                 const clsCtx = {
                     path: ePath,
                     clsName: `${pl.c}Controller`,
-                    action: pl.a
+                    action: pl.a,
+                    dataSource: ds
                 }
-                console.log('CdExec::exec()/clsCtx:', clsCtx)
+                // console.log('CdExec::exec()/clsCtx:', clsCtx)
                 await this.b.resolveCls(req, res, clsCtx);
             } catch (e) {
                 console.log('CdExec::exec()/03');

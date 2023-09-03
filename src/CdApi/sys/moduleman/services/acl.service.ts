@@ -1,11 +1,11 @@
 import {
-    Observable, map, mergeMap, of, distinct, bufferCount, share, forkJoin
+    Observable, from, map, mergeMap, of, distinct, bufferCount, share, forkJoin
 } from 'rxjs';
 import { GroupMemberService } from '../../user/services/group-member.service';
 import { BaseService } from '../../base/base.service';
 import { AclModel } from '../models/acl.model';
 import { DocModel } from '../models/doc.model';
-import { IAclCtx, ICdRequest, IQuery } from '../../base/IBase';
+import { IAclCtx, ICdRequest, IQuery, IServiceInput } from '../../base/IBase';
 import { ModuleService } from './module.service';
 import { SessionService } from '../../user/services/session.service';
 import { ConsumerService } from './consumer.service';
@@ -49,8 +49,8 @@ export class AclService {
     }
 
     async getAclModule(req, res, params) {
-        // this.b.logTimeStamp(`AclService::getAclModule/params:${JSON.stringify(params)}`)
-        // console.log('AclService::getAclModule(req, res,params)/params:', params)
+        this.b.logTimeStamp(`AclService::getAclModule/params:${JSON.stringify(params)}`)
+        console.log('AclService::getAclModule(req, res,params)/params:', params)
         const result$ = of(
             this.aclUser$(req, res, { consumerGuid: params.consumerGuid }).pipe(map((u) => { return { useRoles: u } })),
             this.aclModule$(req, res).pipe(map((u) => { return { modules: u } })),
@@ -104,9 +104,20 @@ export class AclService {
      */
     aclUser$(req, res, params): Observable<any> {
         // this.b.logTimeStamp(`AclService::aclUser$/params:${JSON.stringify(params)}`)
+        const b = new BaseService();
         this.consumerGuid = params.consumerGuid;
         const q: IQuery = { where: {} };
-        const user$ = this.b.get$(req, res, AclUserViewModel, q)
+        const serviceInput: IServiceInput = {
+            serviceModel: AclUserViewModel,
+            modelName: 'AclUserViewModel',
+            docName: 'AclService::aclUser$',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        const user$ = from(b.read(req, res, serviceInput))
             .pipe(
                 share() // to avoid repeated db round trips
             )
@@ -128,6 +139,8 @@ export class AclService {
             .pipe(
                 map((u) => {
                     const ret = u.filter(isRoot)
+                    // this.b.logTimeStamp(`AclService::aclUser$/u[isRoot$]:${JSON.stringify(u)}`)
+                    // this.b.logTimeStamp(`AclService::aclUser$/ret[isRoot$]:${JSON.stringify(ret)}`)
                     return ret;
                 })
                 , distinct()
@@ -137,6 +150,8 @@ export class AclService {
             .pipe(
                 map((u) => {
                     const ret = u.filter(isConsumerRoot)
+                    // this.b.logTimeStamp(`AclService::aclUser$/u[isConsumerRoot$]:${JSON.stringify(u)}`)
+                    // this.b.logTimeStamp(`AclService::aclUser$/ret[isConsumerRoot$]:${JSON.stringify(ret)}`)
                     return ret;
                 })
                 , distinct()
@@ -146,6 +161,8 @@ export class AclService {
             .pipe(
                 map((u) => {
                     const ret = u.filter(isConsumerTechie)
+                    // this.b.logTimeStamp(`AclService::aclUser$/u[isConsumerTechie$]:${JSON.stringify(u)}`)
+                    // this.b.logTimeStamp(`AclService::aclUser$/ret[isConsumerTechie$]:${JSON.stringify(ret)}`)
                     return ret;
                 })
                 , distinct()
@@ -154,9 +171,9 @@ export class AclService {
         const isConsumerUser$ = user$
             .pipe(
                 map((u) => {
-                    // this.b.logTimeStamp(`AclService::aclUser$/u[isConsumerUser$]1:${JSON.stringify(u)}`)
                     const ret = u.filter(isConsumerUser)
-                    // this.b.logTimeStamp(`AclService::aclUser$/u[isConsumerUser$]2:${JSON.stringify(u)}`)
+                    // this.b.logTimeStamp(`AclService::aclUser$/u[isConsumerUser$]:${JSON.stringify(u)}`)
+                    // this.b.logTimeStamp(`AclService::aclUser$/ret[isConsumerUser$]:${JSON.stringify(ret)}`)
                     return ret;
                 })
                 , distinct()
@@ -182,11 +199,13 @@ export class AclService {
         // console.log('AclService::aclModule$()/this.consumerGuid:', this.consumerGuid)
         // console.log('AclService::aclModule$()/01:');
         // this.b.logTimeStamp(':AclService::aclModule$()/01')
+        const b = new BaseService();
         const isEnabled = m => m.moduleEnabled;
         const isPublicModule = m => m.moduleIsPublic;
         const isConsumerResource = m => m.moduleIsPublic || m.consumerGuid === this.consumerGuid
-        const serviceInput = {
+        const serviceInput: IServiceInput = {
             serviceModel: AclModuleViewModel,
+            modelName: "AclModuleViewModel",
             docName: 'AclService::aclModule$',
             cmd: {
                 action: 'find',
@@ -194,7 +213,7 @@ export class AclService {
             },
             dSource: 1,
         }
-        return this.b.read$(req, res, serviceInput)
+        return from(b.read(req, res, serviceInput))
             .pipe(
                 share()
             )
@@ -245,10 +264,12 @@ export class AclService {
     aclModuleMembers$(req, res, params): Observable<any> {
         // this.b.logTimeStamp('AclService::aclModuleMembers$/01')
         // console.log('AclService::aclModuleMembers$/01:');
+        const b = new BaseService();
         const isModuleMember = m => m.memberGuid === params.currentUser.userGuid;
 
-        const serviceInput = {
+        const serviceInput: IServiceInput = {
             serviceModel: AclModuleMemberViewModel,
+            modelName: 'AclModuleMemberViewModel',
             docName: 'AclService::aclUser$',
             cmd: {
                 action: 'find',
@@ -256,7 +277,7 @@ export class AclService {
             },
             dSource: 1,
         }
-        const modules$ = this.b.read$(req, res, serviceInput)
+        const modules$ = from(b.read(req, res, serviceInput))
             .pipe(
                 share() // to avoid repeated db round trips
             )

@@ -6,37 +6,38 @@ import { ViewEntity, ViewColumn } from 'typeorm';
 @ViewEntity(
     {
         name: 'acl_module_member_view',
+        synchronize: false,
         expression: `
         select distinct
-            'group'.'group_id' AS 'group_id',
-            'group'.'group_guid' AS 'group_guid',
-            'group'.'group_name' AS 'group_name',
-            'group'.'group_owner_id' AS 'group_owner_id',
-            'group'.'group_type_id' AS 'group_type_id',
-            'group'.'group_is_public' AS 'group_is_public',
-            'group'.'group_enabled' AS 'group_enabled',
-            'group_member'.'group_member_id' AS 'group_member_id',
-            'group_member'.'group_member_guid' AS 'group_member_guid',
-            'group_member'.'group_guid_parent' AS 'group_guid_parent',
-            'group_member'.'member_guid' AS 'member_guid',
-            'group_member'.'user_id_member' AS 'user_id_member',
-            'group_member'.'cd_obj_type_id' AS 'cd_obj_type_id',
-            'group_member'.'group_member_parent_id' AS 'group_member_parent_id',
-            'group_member'.'group_member_enabled' AS 'group_member_enabled',
-            'module'.'module_id' AS 'module_id',
-            'module'.'module_name' AS 'module_name',
-            'module'.'module_guid' AS 'module_guid',
-            'module'.'module_is_public' AS 'module_is_public',
-            'module'.'is_sys_module' AS 'is_sys_module',
-            'module'.'module_enabled' AS 'module_enabled',
-            'module'.'module_type_id' AS 'module_type_id'
-        FROM  'group'
+            group.group_id AS group_id,
+            group.group_guid AS group_guid,
+            group.group_name AS group_name,
+            group.group_owner_id AS group_owner_id,
+            group.group_type_id AS group_type_id,
+            group.group_is_public AS group_is_public,
+            group.group_enabled AS group_enabled,
+            group_member.group_member_id AS group_member_id,
+            group_member.group_member_guid AS group_member_guid,
+            group_member.group_guid_parent AS group_guid_parent,
+            group_member.member_guid AS member_guid,
+            group_member.user_id_member AS user_id_member,
+            group_member.cd_obj_type_id AS cd_obj_type_id,
+            group_member.group_member_parent_id AS group_member_parent_id,
+            group_member.group_member_enabled AS group_member_enabled,
+            module.module_id AS module_id,
+            module.module_name AS module_name,
+            module.module_guid AS module_guid,
+            module.module_is_public AS module_is_public,
+            module.is_sys_module AS is_sys_module,
+            module.module_enabled AS module_enabled,
+            module.module_type_id AS module_type_id'
+        FROM  \`group\`
         INNER JOIN group_member ON
-            'group'.'group_guid' = 'group_member'.'group_guid_parent'
-        INNER JOIN  'module' on
+            group.group_guid = group_member.group_guid_parent
+        INNER JOIN  module on
             group_member.group_guid_parent = module.module_guid
         WHERE
-            'group_member'.'cd_obj_type_id' = 9;
+            group_member.cd_obj_type_id = 9;
     `
     })
 

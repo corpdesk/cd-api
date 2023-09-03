@@ -2,8 +2,8 @@ import { ViewEntity, ViewColumn } from 'typeorm';
 
 
 // return \DB::table('menu')
-//             ->join('module', 'menu.module_id', '=', 'module.module_id')
-//             ->join('cd_obj', 'menu.menu_action_id', '=', 'cd_obj.cd_obj_id')
+//             ->join('module, 'menu.module_id, '=, 'module.module_id')
+//             ->join('cd_obj, 'menu.menu_action_id, '=, 'cd_obj.cd_obj_id')
 //             ->select(\DB::raw(mB::fieldsToStr(self::menu_fields_config($clientAppId))))
 //             ->where("active", true)
 //             ->distinct();
@@ -19,49 +19,50 @@ import { ViewEntity, ViewColumn } from 'typeorm';
 
 @ViewEntity({
     name: 'menu_view',
+    synchronize: false,
     expression: `
      SELECT
-        'menu'.'menu_id' AS 'menu_id',
-        'menu'.'menu_name' AS 'menu_label',
-        'menu'.'menu_name' AS 'menu_name',
-        'menu'.'menu_guid' AS 'menu_guid',
-        'menu'.'menu_closet_file' AS 'closet_file',
-        'menu'.'cd_obj_id' AS 'cd_obj_id',
-        'menu'.'menu_enabled' AS 'menu_enabled',
-        'menu'.'menu_description' AS 'menu_description',
-        'menu'.'menu_icon' AS 'menu_icon',
-        'menu'.'icon_type' AS 'icon_type',
-        'menu'.'doc_id' AS 'doc_id',
-        'menu'.'menu_parent_id' AS 'menu_parent_id',
-        'menu'.'path' AS 'path',
-        'menu'.'is_title' AS 'is_title',
-        'menu'.'badge' AS 'badge',
-        'menu'.'is_layout' AS 'is_layout',
-        'module'.'module_id' AS 'module_id',
-        'module'.'module_guid' AS 'module_guid',
-        'module'.'module_name' AS 'module_name',
-        'module'.'module_is_public' AS 'module_is_public',
-        'module'.'is_sys_module' AS 'is_sys_module',
-        (SELECT NULL) AS 'children',
-        (SELECT NULL) AS 'menu_action',
-        'cd_obj'.'cd_obj_name' AS 'cd_obj_name',
-        'cd_obj'.'last_sync_date' AS 'last_sync_date',
-        'cd_obj'.'cd_obj_disp_name' AS 'cd_obj_disp_name',
-        'cd_obj'.'cd_obj_guid' AS 'cd_obj_guid',
-        'cd_obj'.'cd_obj_type_guid' AS 'cd_obj_type_guid',
-        'cd_obj'.'last_modification_date' AS 'last_modification_date',
-        'cd_obj'.'parent_module_guid' AS 'parent_module_guid',
-        'cd_obj'.'parent_class_guid' AS 'parent_class_guid',
-        'cd_obj'.'parent_obj' AS 'parent_obj',
-        'cd_obj'.'show_name' AS 'show_name',
-        'cd_obj'.'icon' AS 'icon',
-        'cd_obj'.'show_icon' AS 'show_icon',
-        'cd_obj'.'curr_val' AS 'curr_val',
-        'cd_obj'.'cd_obj_enabled' AS 'cd_obj_enabled'
+        menu.menu_id AS menu_id,
+        menu.menu_name AS menu_label,
+        menu.menu_name AS menu_name,
+        menu.menu_guid AS menu_guid,
+        menu.menu_closet_file AS closet_file,
+        menu.cd_obj_id AS cd_obj_id,
+        menu.menu_enabled AS menu_enabled,
+        menu.menu_description AS menu_description,
+        menu.menu_icon AS menu_icon,
+        menu.icon_type AS icon_type,
+        menu.doc_id AS doc_id,
+        menu.menu_parent_id AS menu_parent_id,
+        menu.path AS path,
+        menu.is_title AS is_title,
+        menu.badge AS badge,
+        menu.is_layout AS is_layout,
+        module.module_id AS module_id,
+        module.module_guid AS module_guid,
+        module.module_name AS module_name,
+        module.module_is_public AS module_is_public,
+        module.is_sys_module AS is_sys_module,
+        (SELECT NULL) AS 'children,
+        (SELECT NULL) AS 'menu_action,
+        cd_obj.cd_obj_name AS cd_obj_name,
+        cd_obj.last_sync_date AS last_sync_date,
+        cd_obj.cd_obj_disp_name AS cd_obj_disp_name,
+        cd_obj.cd_obj_guid AS cd_obj_guid,
+        cd_obj.cd_obj_type_guid AS cd_obj_type_guid,
+        cd_obj.last_modification_date AS last_modification_date,
+        cd_obj.parent_module_guid AS parent_module_guid,
+        cd_obj.parent_class_guid AS parent_class_guid,
+        cd_obj.parent_obj AS parent_obj,
+        cd_obj.show_name AS show_name,
+        cd_obj.icon AS icon,
+        cd_obj.show_icon AS show_icon,
+        cd_obj.curr_val AS curr_val,
+        cd_obj.cd_obj_enabled AS cd_obj_enabled'
         FROM
-        (('menu'
-        JOIN 'module' ON (('menu'.'module_id' = 'module'.'module_id')))
-        JOIN 'cd_obj' ON (('cd_obj'.'cd_obj_id' = 'menu'.'cd_obj_id')))
+        ((menu
+        JOIN module ON ((menu.module_id = module.module_id)))
+        JOIN cd_obj ON ((cd_obj.cd_obj_id = menu.cd_obj_id)))
     `
 })
 export class MenuViewModel {

@@ -2,22 +2,22 @@ import { ViewEntity, ViewColumn } from 'typeorm';
 
 @ViewEntity({
     name: 'consumer_view',
+    synchronize: false,
     expression: `
-    CREATE VIEW 'consumer_view' AS
     SELECT
-        'consumer'.'consumer_id' AS 'consumer_id',
-        'consumer'.'consumer_name' AS 'consumer_name',
-        'consumer'.'consumer_guid' AS 'consumer_guid',
-        'consumer'.'doc_id' AS 'doc_id',
-        'consumer'.'company_id' AS 'company_id',
-        'consumer'.'company_enabled' AS 'company_enabled',
-        'company'.'company_guid' AS 'company_guid',
-        'company'.'company_name' AS 'company_name'
+        consumer.consumer_id AS consumer_id,
+        consumer.consumer_name AS consumer_name,
+        consumer.consumer_guid AS consumer_guid,
+        consumer.doc_id AS doc_id,
+        consumer.company_id AS company_id,
+        consumer.consumer_enabled AS consumer_enabled,
+        company.company_guid AS company_guid,
+        company.company_name AS company_name
     FROM
-        ('company'
-    JOIN 'consumer' on
-        ((convert('company'.'company_guid'
-            using utf8mb4) = 'consumer'.'company_guid')));
+        (company
+    JOIN consumer on
+        ((convert(company.company_guid
+            using utf8mb4) = consumer.company_guid)));
     `
 })
 

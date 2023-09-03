@@ -118,6 +118,7 @@ export class ModuleService extends CdService {
         this.srvMenu = new MenuService();
         this.srvAcl = new AclService();
         const cguid = this.srvConsumer.getConsumerGuid(req);
+        // console.log("ModuleService::getModulesUserData$/02/cguid:", cguid)
         const clientConsumer$ = this.srvConsumer.getConsumerByGuid$(req, res, cguid);
         const allowedModules$ = this.getAclModule$(req, res, { currentUser: cUser, consumerGuid: cguid });
         const menuData$ = allowedModules$
@@ -125,7 +126,7 @@ export class ModuleService extends CdService {
                 mergeMap(
                     (am: any[]) => iif(
                         () => {
-                            console.log('ModuleService::getModulesUserData$/am:', am)
+                            // console.log('ModuleService::getModulesUserData$/am:', am)
                             return am.length > 0
                         },
                         this.srvMenu.getAclMenu$(req, res, { modules$: allowedModules$, modulesCount: am.length }),
@@ -165,7 +166,7 @@ export class ModuleService extends CdService {
     }
 
     getAclModule$(req, res, params): Observable<any> {
-        this.b.logTimeStamp('ModuleService::getAclModule$/01')
+        // this.b.logTimeStamp('ModuleService::getAclModule$/01')
         this.consumerGuid = params.consumerGuid;
         // console.log('ModuleService::getAclModule$()/params:', params)
         // console.log('ModuleService::getAclModule$()/01:');

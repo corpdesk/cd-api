@@ -2,37 +2,37 @@ import { ViewEntity, ViewColumn } from 'typeorm';
 
 @ViewEntity({
     name: 'company_view',
+    synchronize: false,
     expression: `
-    CREATE VIEW 'company_view' AS
     SELECT
-        'company'.'company_id' AS 'company_id',
-        'company'.'company_guid' AS 'company_guid',
-        'company'.'company_type_guid' AS 'company_type_guid',
-        'company'.'directory_category_guid' AS 'directory_category_guid',
-        'company'.'company_name' AS 'company_name',
-        'company'.'postal_address' AS 'postal_address',
-        'company'.'phone' AS 'phone',
-        'company'.'email' AS 'email',
-        'company'.'website' AS 'website',
-        'company'.'physical_location' AS 'physical_location',
-        'company'.'city' AS 'city',
-        'company'.'country' AS 'country',
-        'company'.'logo' AS 'logo',
-        'company'.'company_enabled' AS 'company_enabled',
-        'company'.'doc_id' AS 'doc_id',
-        'company'.'city_guid' AS 'city_guid',
-        'company'.'county_guid' AS 'county_guid',
-        'company'.'company_guid' AS 'company_guid',
-        'company'.'company_description' AS 'company_description',
-        'company'.'parent_guid' AS 'parent_guid',
-        'company'.'consumer_guid' AS 'consumer_guid',
-        'company'.'search_tags' AS 'search_tags',
-        'company_type'.'company_type_name' AS 'company_type_name'
+        company.company_id AS company_id,
+        company.company_guid AS company_guid,
+        company.company_type_guid AS company_type_guid,
+        company.directory_category_guid AS directory_category_guid,
+        company.company_name AS company_name,
+        company.postal_address AS postal_address,
+        company.phone AS phone,
+        company.email AS email,
+        company.website AS website,
+        company.physical_location AS physical_location,
+        company.city AS city,
+        company.country AS country,
+        company.logo AS logo,
+        company.company_enabled AS company_enabled,
+        company.doc_id AS doc_id,
+        company.city_guid AS city_guid,
+        company.county_guid AS county_guid,
+        company.company_guid AS company_guid,
+        company.company_description AS company_description,
+        company.parent_guid AS parent_guid,
+        company.consumer_guid AS consumer_guid,
+        company.search_tags AS search_tags,
+        company_type.company_type_name AS company_type_name
     FROM
         (
-            'company_type'
-            JOIN 'company' ON ((
-                'company_type'.'company_type_guid' = 'company'.'company_type_guid'
+            company_type
+            JOIN company ON ((
+                company_type.company_type_guid = company.company_type_guid
         )))
     `
 })

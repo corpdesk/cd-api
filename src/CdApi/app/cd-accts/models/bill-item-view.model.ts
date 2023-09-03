@@ -2,8 +2,8 @@ import { ViewEntity, ViewColumn } from 'typeorm';
 
 @ViewEntity({
     name: 'bill_item_view',
+    synchronize:false,
     expression: `
-    CREATE VIEW bill_item_view AS
     SELECT
     bill_item_id, bill_item_guid, bill_item_name, bill_item_description, bill_item.doc_id,
     bill_item.bill_rate_id, bill_item.bill_unit_id, bill_item.bill_type_id, bill_item.bill_id, bill_item.bill_item_date,

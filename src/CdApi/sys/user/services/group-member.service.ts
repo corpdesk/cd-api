@@ -129,9 +129,20 @@ export class GroupMemberService extends CdService {
                 // // 2. confirm the consumerTypeGuid referenced exists
                 const pl: GroupMemberModel = createIParams.controllerData;
                 let cdObjType: CdObjTypeModel[];
+                let q:any = { where: { cdObjTypeId: pl.cdObjTypeId }};
+                let serviceInput: IServiceInput = {
+                    serviceModel: CdObjTypeModel,
+                    modelName: "CdObjTypeModel",
+                    docName: 'GroupMemberService::validateCreateI',
+                    cmd: {
+                        action: 'find',
+                        query: q
+                    },
+                    dSource: 1
+                }
                 if ('cdObjTypeId' in pl) {
                     console.log('GroupMemberService::validateCreateI()/04')
-                    cdObjType = await this.b.get(req, res, CdObjTypeModel, { where: { cdObjTypeId: pl.cdObjTypeId } })
+                    cdObjType = await this.b.get(req, res, serviceInput, q)
                     ret = await this.b.validateInputRefernce(`cdobj type reference is invalid`, cdObjType, svSess)
                 } else {
                     console.log('GroupMemberService::validateCreateI()/04')
@@ -141,12 +152,16 @@ export class GroupMemberService extends CdService {
                     console.log('GroupMemberService::validateCreateI()/05')
                     if (cdObjType[0].cdObjTypeName === 'group') {
                         console.log('GroupMemberService::validateCreate()/06')
-                        const group: GroupModel[] = await this.b.get(req, res, GroupModel, { where: { groupGuid: pl.memberGuid } });
+                        q = { where: { groupGuid: pl.memberGuid } };
+                        serviceInput.cmd.query = q;
+                        const group: GroupModel[] = await this.b.get(req, res, serviceInput, q);
                         ret = await this.b.validateInputRefernce(`member reference is invalid`, group, svSess)
                     }
                     if (cdObjType[0].cdObjTypeName === 'user') {
                         console.log('GroupMemberService::validateCreate()/04')
-                        const user: UserModel[] = await this.b.get(req, res, UserModel, { where: { userGuid: pl.memberGuid } });
+                        q = { where: { userGuid: pl.memberGuid } };
+                        serviceInput.cmd.query = q;
+                        const user: UserModel[] = await this.b.get(req, res, serviceInput, q);
                         if (user.length > 0) {
                             console.log('GroupMemberService::validateCreateI()/05')
                             this.b.setPlData(req, { key: 'userIdMember', value: user[0].userId });
@@ -163,9 +178,10 @@ export class GroupMemberService extends CdService {
                 }
                 if ('groupGuidParent' in pl) {
                     console.log('GroupMemberService::validateCreateI()/08')
-                    const q: IQuery = { where: { groupGuid: pl.groupGuidParent } };
                     console.log('GroupMemberService::validateCreate()/q:', q)
-                    const r: GroupModel[] = await this.b.get(req, res, GroupModel, q);
+                    q = { where: { groupGuid: pl.groupGuidParent } };
+                    serviceInput.cmd.query = q;
+                    const r: GroupModel[] = await this.b.get(req, res, serviceInput, q);
                     console.log('GroupMemberService::validateCreate()/09')
                     ret = await this.b.validateInputRefernce(`parent reference is invalid`, r, svSess)
                 } else {
@@ -284,9 +300,20 @@ export class GroupMemberService extends CdService {
                 // // 2. confirm the consumerTypeGuid referenced exists
                 const pl: GroupMemberModel = await this.b.getPlData(req);
                 let cdObjType: CdObjTypeModel[];
+                let q: any = { where: { cdObjTypeId: pl.cdObjTypeId } };
+                let serviceInput: IServiceInput = {
+                    serviceModel: CdObjTypeModel,
+                    modelName: "CdObjTypeModel",
+                    docName: 'GroupMemberService::validateCreate',
+                    cmd: {
+                        action: 'find',
+                        query: q
+                    },
+                    dSource: 1
+                }
                 if ('cdObjTypeId' in pl) {
                     console.log('GroupMemberService::validateCreate()/04')
-                    cdObjType = await this.b.get(req, res, CdObjTypeModel, { where: { cdObjTypeId: pl.cdObjTypeId } })
+                    cdObjType = await this.b.get(req, res, serviceInput, q)
                     ret = await this.b.validateInputRefernce(`cdobj type reference is invalid`, cdObjType, svSess)
                 } else {
                     console.log('GroupMemberService::validateCreate()/04')
@@ -294,14 +321,19 @@ export class GroupMemberService extends CdService {
                 }
                 if ('memberGuid' in pl) {
                     console.log('GroupMemberService::validateCreate()/05')
+                    
+                    q = { where: { groupGuid: pl.memberGuid } };
+                    serviceInput.serviceModel = GroupModel;
+                    serviceInput.cmd.query=q;
                     if (cdObjType[0].cdObjTypeName === 'group') {
                         console.log('GroupMemberService::validateCreate()/06')
-                        const group: GroupModel[] = await this.b.get(req, res, GroupModel, { where: { groupGuid: pl.memberGuid } });
+                        const group: GroupModel[] = await this.b.get(req, res, serviceInput, { where: { groupGuid: pl.memberGuid } });
                         ret = await this.b.validateInputRefernce(`member reference is invalid`, group, svSess)
                     }
                     if (cdObjType[0].cdObjTypeName === 'user') {
                         console.log('GroupMemberService::validateCreate()/04')
-                        const user: UserModel[] = await this.b.get(req, res, UserModel, { where: { userGuid: pl.memberGuid } });
+                        serviceInput.serviceModel = UserModel
+                        const user: UserModel[] = await this.b.get(req, res, serviceInput, q);
                         if (user.length > 0) {
                             console.log('GroupMemberService::validateCreate()/05')
                             this.b.setPlData(req, { key: 'userIdMember', value: user[0].userId });
@@ -319,8 +351,10 @@ export class GroupMemberService extends CdService {
                 if ('groupGuidParent' in pl) {
                     console.log('GroupMemberService::validateCreate()/08')
                     const q: IQuery = { where: { groupGuid: pl.groupGuidParent } };
+                    
                     console.log('GroupMemberService::validateCreate()/q:', q)
-                    const r: GroupModel[] = await this.b.get(req, res, GroupModel, q);
+                    serviceInput.serviceModel = GroupModel
+                    const r: GroupModel[] = await this.b.get(req, res, serviceInput, q);
                     console.log('GroupMemberService::validateCreate()/09')
                     ret = await this.b.validateInputRefernce(`parent reference is invalid`, r, svSess)
                 } else {

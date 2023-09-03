@@ -14,6 +14,7 @@ export interface IControllerContext {
     path: string;
     clsName: string;
     action: string;
+    dataSource:any;
 }
 
 export interface IModelRules {
@@ -123,6 +124,8 @@ export interface IServiceInput {
     data?: any;
     dSource?: number;
     extraInfo?: boolean;
+    modelName?: string;
+    modelPath?: string;
 }
 
 export interface Cmd {

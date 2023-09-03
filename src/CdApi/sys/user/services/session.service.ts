@@ -31,7 +31,7 @@ export class SessionService {
     }
 
     async create(req, res, guest) {
-        // console.log('starting SessionService::create(req, res, guest)');
+        console.log('starting SessionService::create(req, res, guest)');
         try {
             // const session = new SessionModel();
             await this.setSession(req, guest);
@@ -43,7 +43,9 @@ export class SessionService {
                 docName: 'Create Session',
                 data: this.sessModel
             }
-            return await this.b.create(req, res, serviceInput);
+            const ret = await this.b.create(req, res, serviceInput);
+            console.log('SessionService::create/02/ret:', ret);
+            return ret;
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'SessionService:create');
         }
