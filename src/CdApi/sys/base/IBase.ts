@@ -14,7 +14,7 @@ export interface IControllerContext {
     path: string;
     clsName: string;
     action: string;
-    dataSource:any;
+    dataSource: any;
 }
 
 export interface IModelRules {
@@ -107,12 +107,64 @@ export const DEFAULT_CD_RESPONSE: ICdResponse = {
 };
 
 export interface ICdPushEnvelop {
-    pushRecepients: any;
+    pushData: {
+        pushGuid: string;
+        m?: string;
+        pushRecepients: ICommConversationSub[];
+        triggerEvent: string;
+        emittEvent: string;
+        token: string;
+        commTrack: CommTrack;
+        isNotification: boolean | null;
+    },
+    req: ICdRequest | null;
+    resp: ICdResponse | null;
+};
+
+export interface ICommConversationSub {
+    userId: number; // subscriber userId
+    subTypeId: number; // type of subscriber
+    commconversationId?: number;
+    commconversationsubId?: number;
+    commconversationsubInvited?: boolean;
+    commconversationsubAccepted?: boolean;
+    groupId?: number; // can be used to represent chat room in websocket service
+    // commTrack: CommTrack;
+    cdObjId: CdObjId;
+}
+
+/**
+ * interface for tracking pushed message
+ * push stages:
+ * - relayed: message has arrived
+ * - pushed: message has been pushed from the server to recepient
+ * - delivered: message has reached the recepient
+ * - completed: server is notified that message was delivered and sender notified
+ */
+export interface CommTrack {
+    initTime: number | null;
+    relayTime: number | null;
+    pushed: boolean;
+    pushTime: number | null;
+    relayed: boolean;
+    deliveryTime: number | null;
+    deliverd: boolean;
+    completed: boolean;
+    completedTime: number | null;
+}
+
+
+/**
+ * triggerEvent: the servier event to handle a given message
+ * emittEvent: the event that handles message at the client
+ * sFx: server function that handles a given message
+ * cFx: client function that handles a given message
+ */
+export interface PushEvent {
     triggerEvent: string;
     emittEvent: string;
-    req: ICdRequest;
-    resp: ICdResponse;
-    pushData?: any;
+    sFx?: string;
+    cFx?: string;
 }
 
 export interface IServiceInput {
@@ -161,13 +213,44 @@ export interface IBase {
     dRules: object;
 }
 
+// export interface ICommConversationSub {
+//     userId: number; // subscriber user_id
+//     subTypeId: number; // type of subscriber
+//     cdObjId: number;
+//     commconversation_id?: number;
+//     commconversationsub_id?: number;
+//     commconversationsub_invited?: boolean;
+//     commconversationsub_accepted?: boolean;
+// }
+
 export interface ICommConversationSub {
-    user_id: number; // subscriber user_id
-    sub_type_id: number; // type of subscriber
-    commconversation_id?: number;
-    commconversationsub_id?: number;
-    commconversationsub_invited?: boolean;
-    commconversationsub_accepted?: boolean;
+    userId: number; // subscriber userId
+    subTypeId: number; // type of subscriber
+    commconversationId?: number;
+    commconversationsubId?: number;
+    commconversationsubInvited?: boolean;
+    commconversationsubAccepted?: boolean;
+    groupId?: number; // can be used to represent chat room in websocket service
+    // commTrack: CommTrack;
+    cdObjId: CdObjId;
+}
+
+export interface CommTrack {
+    initTime: number | null,
+    relayTime: number | null,
+    relayed: boolean,
+    deliveryTime: number | null,
+    deliverd: boolean,
+}
+
+export interface CdObjId {
+    ngModule: string | null;
+    resourceName: string | null;
+    resourceGuid: string | null;
+    jwtToken: string | null;
+    socket: any;
+    socketId?: string;
+    commTrack: CommTrack | null;
 }
 
 export interface IAclCtx {

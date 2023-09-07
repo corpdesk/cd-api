@@ -1,0 +1,338 @@
+
+
+import * as dotenv from 'dotenv'; import { Server } from 'socket.io';
+import { createClient, RedisClientOptions } from 'redis';
+import { createAdapter } from '@socket.io/redis-adapter';
+import { createServer } from 'http';
+import Redis from "ioredis";
+import { ICdPushEnvelop, ICommConversationSub, PushEvent } from '../../base/IBase';
+import config from '../../../../config';
+import { BaseService } from '../../base/base.service';
+dotenv.config();
+
+//////////
+/**
+ * overload the default console.log function
+ * for debugging
+ */
+const fs = require('fs');
+const util = require('util');
+const log_file = fs.createWriteStream(__dirname + '/debug.log', { flags: 'w' });
+const log_stdout = process.stdout;
+
+console.log = function (d) { //
+    log_file.write(util.format(d) + '\n');
+    log_stdout.write(util.format(d) + '\n');
+};
+////////////////////////////////////
+
+// const io = new Server();
+// const pubClient = createClient({ host: 'cd-sio-23', port: 6379 } as RedisClientOptions);
+// const subClient = pubClient.duplicate();
+
+export class SioService {
+    b = new BaseService();
+
+    run(io, pubClient, subClient) {
+        // const port = 3000;
+        // let pubClient;
+        // let subClient;
+
+        // const httpServer = createServer();
+        // const corsOpts = {
+        //     cors: {
+        //         origin: [
+        //             'http://localhost',
+        //             'http://localhost:4200',
+        //             'http://localhost:4401',
+        //             'http://localhost:4500', // shell app
+        //             // 'http://localhost:3001', // cd-api
+        //         ]
+        //     }
+        // }
+        // const io = new Server(httpServer, corsOpts);
+        // // const io = new Server();
+        // switch (config.push.mode) {
+        //     case process.env.PUSH_BASIC:
+        //         pubClient = createClient({ host: config.push.redisHost, port: config.push.redisPort } as RedisClientOptions);
+        //         subClient = pubClient.duplicate();
+        //         break;
+        //     case process.env.PUSH_CLUSTER:
+        //         pubClient = new Redis.Cluster(config.push.startupNodes);
+        //         subClient = pubClient.duplicate();
+        //         break;
+        //     case process.env.PUSH_SENTINEL:
+        //         pubClient = new Redis(config.push.sentinalOptions);
+        //         subClient = pubClient.duplicate();
+        //         break;
+        //     default:
+        //         pubClient = createClient({ host: config.push.redisHost, port: config.push.redisPort } as RedisClientOptions);
+        //         subClient = pubClient.duplicate();
+        //         break;
+        // }
+
+        // // Promise.all([pubClient.connect(), subClient.connect()]).then(() => {
+        // //     //basic
+        // //     io.adapter(createAdapter(pubClient, subClient));
+        // //     io.on('connection', (socket) => {
+        // //         socket.broadcast.emit('hello', 'to all clients except sender');
+        // //         socket.to('room42').emit('hello', "to all clients in 'room42' room except sender");
+        // //     });
+        // // });
+
+        // io.adapter(createAdapter(pubClient, subClient));
+
+        // io.on('connection', (socket) => {
+        //     console.log('a user connected');
+
+        //     // socket.on('message', async (message: string) => {
+        //     //     console.log(message);
+        //     //     const pushEnvelop: ICdPushEnvelop = JSON.parse(message)
+        //     //     const sender = this.getSender(pushEnvelop.pushData.pushRecepients);
+        //     //     await this.persistSenderData(sender, socket, pubClient)
+        //     //     this.relayMessages(pushEnvelop, io, pubClient)
+        //     // });
+        //     this.runRegisteredEvents(socket, io, pubClient)
+        //     socket.on('disconnect', () => {
+        //         console.log('a user disconnected!');
+        //     });
+        // });
+        // io.listen(port, () => {
+        //     console.log(`server is listening on ${port}`);
+        // })
+        //     .on('error', (e) => {
+        //         console.log(`Error:${e}`);
+        //     });
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        const port = config.push.serverPort;
+        pubClient.on("error", (err) => {
+            console.log(`pubClient error: ${JSON.stringify(err)}`);
+        });
+
+        io.adapter(createAdapter(pubClient, subClient));
+
+        io.on('connection', (socket) => {
+            console.log('a user connected');
+
+            // socket.on('message', async (message: string) => {
+            //     console.log(message);
+            //     const pushEnvelop: ICdPushEnvelop = JSON.parse(message)
+            //     const sender = this.getSender(pushEnvelop.pushData.pushRecepients);
+            //     await this.persistSenderData(sender, socket, pubClient)
+            //     this.relayMessages(pushEnvelop, io, pubClient)
+            // });
+            this.runRegisteredEvents(socket, io, pubClient)
+            socket.on('disconnect', () => {
+                console.log('a user disconnected!');
+            });
+        });
+
+        // io.listen(port, () => {
+        //     console.log(`cd-sio server is listening on ${port}`);
+        // })
+        //     .on('error', (e) => {
+        //         console.log(`Error:${e}`);
+        //     });
+    }
+
+    /**
+     * triggerEvent: the listening event at the server to handle a given message
+     *              or event emitted by the client
+     * emittEvent: the listening event at the client to handles a given message
+     *              or event emitted by the server
+     * sFx: server function that handles a given message
+     * 
+     * cFx: client function that handles a given message
+     */
+    getRegisteredEvents(): PushEvent[] {
+        console.log('starting getRegisteredEvents()');
+        return [
+            {
+                triggerEvent: 'srv-received',
+                emittEvent: 'push-srv-received',
+                sFx: 'push'
+            },
+            {
+                triggerEvent: 'msg-relayed',
+                emittEvent: 'push-msg-relayed',
+                sFx: 'push'
+            },
+            {
+                triggerEvent: 'msg-pushed',
+                emittEvent: 'push-msg-pushed',
+                sFx: 'push'
+            },
+            {
+                triggerEvent: 'msg-received',
+                emittEvent: 'push-delivered',
+                sFx: 'push'
+            },
+            {
+                triggerEvent: 'register',
+                emittEvent: 'registered',
+                sFx: 'push'
+            },
+            {
+                triggerEvent: 'login',
+                emittEvent: 'push-menu',
+                sFx: 'pushEnvelop'
+            },
+            {
+                triggerEvent: 'send-memo',
+                emittEvent: 'push-memo',
+                sFx: 'push'
+            },
+            {
+                triggerEvent: 'send-pub',
+                emittEvent: 'push-pub',
+                sFx: 'push'
+            },
+            {
+                triggerEvent: 'send-react',
+                emittEvent: 'push-react',
+                sFx: 'push'
+            },
+            {
+                triggerEvent: 'send-menu',
+                emittEvent: 'push-menu',
+                sFx: 'push'
+            },
+            {
+                triggerEvent: 'send-notif',
+                emittEvent: 'push-notif',
+                sFx: 'push'
+            }
+        ]
+    }
+
+    runRegisteredEvents(socket, io, pubClient) {
+        console.log('SioService::runRegisteredEvents(socket)/01');
+        // listen to registered events
+        this.getRegisteredEvents().forEach((e) => {
+            console.log(`SioService::runRegisteredEvents(socket)/e:${JSON.stringify(e)}`);
+            socket.on(e.triggerEvent, async (payLoad: string) => {
+                console.log(`SioService::runRegisteredEvents()/e.triggerEvent:${e.triggerEvent}`);
+                console.log(`SioService::runRegisteredEvents()/payLoad:${JSON.stringify(payLoad)}`);
+                const pushEnvelop: ICdPushEnvelop = JSON.parse(payLoad)
+                const sender = this.getSender(pushEnvelop.pushData.pushRecepients);
+                console.log(`SioService::runRegisteredEvents()/sender:${JSON.stringify(sender)}`);
+                await this.persistSenderData(sender, socket, pubClient)
+                this.relayMessages(pushEnvelop, io, pubClient)
+            });
+        })
+    }
+
+    getSender(pushRecepients: ICommConversationSub[]): ICommConversationSub {
+        return pushRecepients.filter((r) => r.subTypeId === 1)[0]
+    }
+
+    resourceHasSocket() {
+        // confirm if resource has socket already
+    }
+
+    async persistSenderData(sender: ICommConversationSub, socket, pubClient) {
+        console.log(`SioService::persistSenderData/01/socket.id: ${socket.id}`);
+        sender.cdObjId.socketId = socket.id;
+        // pubClient.set(sender.cdObjId.resourceGuid, JSON.stringify(sender), (err) => {
+        //     if (err) throw err;
+        //     console.log('saving userID Refs to redis: ' + socket.id);
+        // });
+        const k = sender.cdObjId.resourceGuid;
+        const v = JSON.stringify(sender);
+        console.log(`SioService::persistSenderData()/k:${k}`);
+        console.log(`SioService::persistSenderData()/v:${v}`);
+        return await this.b.wsRedisCreate(k, v);
+    }
+
+    relayMessages(pushEnvelop: ICdPushEnvelop, io, pubClient) {
+        pushEnvelop.pushData.pushRecepients.forEach(async (recepient: ICommConversationSub) => {
+            let payLoad = '';
+            // const recepientSocket = this.recepientSocket(recepient, pubClient);
+            const recepientDataStr = await this.destinationSocket(recepient, pubClient);
+            const recepientData = JSON.parse(recepientDataStr);
+            console.log(`SioService::relayMessages()/recepientData:${JSON.stringify(recepientData)}`);
+            const recepientSocketId = recepientData.cdObjId.socketId;
+            // const msg = JSON.stringify(pushEnvelop);
+            switch (recepient.subTypeId) {
+                case 1:
+                    // handle message to sender:
+                    // mark message as relayed plus relayedTime
+                    pushEnvelop.pushData.commTrack.relayTime = Number(new Date());
+                    pushEnvelop.pushData.commTrack.relayed = true;
+                    pushEnvelop.pushData.emittEvent = 'push-msg-relayed';
+                    pushEnvelop.pushData.triggerEvent = 'msg-relayed';
+                    pushEnvelop.pushData.isNotification = true;
+                    console.log(`SioService::relayMessages()/[switch 1] pushEnvelop:${JSON.stringify(pushEnvelop)}`);
+                    console.log('SioService::relayMessages()/[switch 1] sending confirmation message to sender');
+                    console.log(`SioService::relayMessages()/[switch 1] pushEnvelop.pushData.triggerEvent:${pushEnvelop.pushData.triggerEvent}`);
+                    if (pushEnvelop.pushData.isNotification) {
+                        /**
+                         * if the message is for notification
+                         * there is no need to send message to sender
+                         */
+                    } else {
+                        // send notification to client for relay
+                        if (pushEnvelop.pushData.triggerEvent === 'msg-received') {
+                            console.log(`SioService::relayMessages()/[switch 1/[msg-received]] sending 'msg-received' message to sender`);
+                            payLoad = JSON.stringify(pushEnvelop);
+                            io.to(recepientSocketId).emit('push-delivered', payLoad);
+                        } else {
+                            console.log(`SioService::relayMessages()/[switch 1[push-msg-relayed]] sending 'push-msg-relayed' message to sender`);
+                            console.log(`SioService::relayMessages()/[switch 1[push-msg-relayed]]/recepientSocketId:${JSON.stringify(recepientSocketId)}`)
+
+                            payLoad = JSON.stringify(pushEnvelop);
+                            console.log(`SioService::relayMessages()/[switch 1[push-msg-relayed]]/payLoad:${payLoad}`)
+
+                            io.to(recepientSocketId).emit('push-msg-relayed', payLoad);
+                            // io.to(recepientSocketId).emit('push-msg-relayed', '{"msg": "testing messege"}');
+                            // io.emit('push-msg-relayed', `{"msg": "testing messege"}`);
+                        }
+                    }
+
+                    break;
+                case 7:
+                    // handle message to destined recepient
+                    // if(pushEnvelop.pushData.emittEvent === 'msg-received'){
+                    //     // if it is message confirmation to sender
+                    //     pushEnvelop.pushData.commTrack.deliveryTime = Number(new Date());
+                    //     pushEnvelop.pushData.commTrack.deliverd = true;
+                    // }
+                    pushEnvelop.pushData.commTrack.relayTime = Number(new Date());
+                    pushEnvelop.pushData.commTrack.relayed = true;
+                    pushEnvelop.pushData.commTrack.pushTime = Number(new Date());
+                    pushEnvelop.pushData.commTrack.pushed = true;
+                    console.log('SioService::relayMessages()/[switch 7] pushEnvelop:', pushEnvelop);
+                    if (pushEnvelop.pushData.triggerEvent === 'msg-received') {
+                        // while relaying 'msg-received', do not send to group 7 (recepients)
+                        console.log('SioService::relayMessages()/[switch 7] not sending message to recepient, this is just confirmation');
+                    } else {
+                        console.log('SioService::relayMessages()/[switch 7] sending to recepient');
+                        pushEnvelop.pushData.triggerEvent = 'msg-relayed';
+                        pushEnvelop.pushData.emittEvent = 'push-msg-pushed';
+                        payLoad = JSON.stringify(pushEnvelop);
+                        io.to(recepientSocketId).emit(pushEnvelop.pushData.emittEvent, payLoad);
+                    }
+                    break;
+            }
+        })
+    }
+
+    async destinationSocket(recepient: ICommConversationSub, pubClient) {
+        const k = recepient.cdObjId.resourceGuid
+        // return await pubClient.get(key, (err, socketDataStr) => {
+        //     if (err) throw err;
+        //     const recepientData: ICommConversationSub = JSON.parse(socketDataStr);
+        //     const rs = recepientData.cdObjId.socketId;
+        //     console.log('recepientSocket:', rs);
+        //     return rs;
+        // });
+        return await this.b.wsRedisRead(k);
+    }
+
+    async getRooms(io) {
+        const rooms = await io.of('/').adapter.allRooms();
+        console.log(rooms); // a Set containing all rooms (across every node)
+        return rooms;
+    }
+
+}

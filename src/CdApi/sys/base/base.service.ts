@@ -1798,6 +1798,22 @@ export class BaseService {
         await this.redisClient.connect();
     }
 
+    async wsRedisInit() {
+        this.redisClient = createClient();
+        this.redisClient.on('error', async (err) => {
+            console.log('BaseService::redisCreate()/02')
+            this.err.push(err.toString());
+            const i = {
+                messages: this.err,
+                code: 'BaseService:redisCreate',
+                app_msg: ''
+            };
+            await this.wsServiceErr(this.err, 'BaseService:redisCreate')
+            return this.cdResp;
+        });
+        await this.redisClient.connect();
+    }
+
     async redisCreate(req, res) {
         await this.redisInit(req, res);
         console.log('BaseService::redisCreate()/01')
@@ -1826,6 +1842,30 @@ export class BaseService {
 
     }
 
+    async wsRedisCreate(k,v) {
+        await this.wsRedisInit();
+        try {
+            const setRet = await this.redisClient.set(k, v);
+            console.log(`BaseService::wsRedisCreate()/setRet:${JSON.stringify(setRet)}`)
+            const readBack = await this.redisClient.get(k);
+            console.log(`BaseService::wsRedisCreate()/readBack:${JSON.stringify(readBack)}`)
+            return {
+                status: setRet,
+                saved: readBack,
+            };
+        } catch (e) {
+            console.log('BaseService::wsRedisCreate()/04')
+            this.err.push(e.toString());
+            const i = {
+                messages: this.err,
+                code: 'BaseService:wsRedisCreate',
+                app_msg: ''
+            };
+            await this.wsServiceErr(this.err, 'BaseService:redisCreate')
+            return this.cdResp;
+        }
+    }
+
     async redisRead(req, res, serviceInput: IServiceInput) {
         await this.redisInit(req, res);
         console.log('BaseService::redisRead()/01')
@@ -1848,6 +1888,25 @@ export class BaseService {
         }
     }
 
+    async wsRedisRead(k) {
+        await this.wsRedisInit();
+        try {
+            const getRet = await this.redisClient.get(k);
+            console.log('BaseService::redisRead()/getRet:', getRet)
+            return getRet
+        } catch (e) {
+            console.log('BaseService::redisRead()/04')
+            this.err.push(e.toString());
+            const i = {
+                messages: this.err,
+                code: 'BaseService:redisRead',
+                app_msg: ''
+            };
+            await this.wsServiceErr(this.err, 'BaseService:redisRead')
+            return this.cdResp;
+        }
+    }
+
     redisDelete(req, res, serviceInput: IServiceInput) {
         this.redisClient.del('foo', (err, reply) => {
             if (err) throw err;
@@ -1865,6 +1924,24 @@ export class BaseService {
             });
         });
     }
+
+    async wsServiceErr(e, eCode, cdToken = null) {
+        console.log(`Error as BaseService::wsServiceErr, e: ${e.toString()} `)
+        const svSess = new SessionService();
+        svSess.sessResp.cd_token = cdToken;
+        svSess.sessResp.ttl = svSess.getTtl();
+        this.setAppState(true, this.i, svSess.sessResp);
+        this.err.push(e.toString());
+        const i = {
+            messages: await this.err,
+            code: eCode,
+            app_msg: `Error at ${eCode}: ${e.toString()}`
+        };
+        await this.setAppState(false, i, svSess.sessResp);
+        this.cdResp.data = [];
+    }
+
+    //////////////////////////////////////////////////
 
     async validateInputRefernce(msg: string, validationResponse: any[], svSess: SessionService): Promise<boolean> {
         if (validationResponse.length > 0) {

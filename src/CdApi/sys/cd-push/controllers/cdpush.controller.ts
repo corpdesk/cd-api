@@ -1,4 +1,4 @@
-import { io } from 'socket.io-client';
+// import { io } from 'socket.io-client';
 import { Observable } from 'rxjs';
 import config from '../../../../config';
 
@@ -9,7 +9,7 @@ export class CdPushController {
         // this.socket = io(`${environment.HOST}:` + environment.SOCKET_IO_PORT);
         // this.socket = io.connect('https://localhost', {secure: true});
         this.url = `${config.push.serverHost}:` + config.push.serverPort;
-        this.socket = io(this.url);
+        // this.socket = io(this.url);
     }
 
     listen(eventName: string) {

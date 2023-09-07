@@ -171,6 +171,7 @@ export default {
             credentials: true,
             methods: 'GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE',
             origin: [
+                'http://localhost:4200',
                 'http://cd-shell-24:4500', // shell app node 1
                 'http://cd-user-25:4407',
                 'http://cd-moduleman-26:4402',
@@ -183,8 +184,34 @@ export default {
     db2: mysqlConfig2,
     sqlite: sqliteConfig,
     push: {
+        mode: process.env.PUSH_BASIC,
         serverHost: 'http://cd-sio-23',
-        serverPort: 3000
+        serverPort: process.env.SIO_PORT,
+        redisHost: process.env.REDIS_HOST,
+        redisPort: process.env.REDIS_PORT,
+        /**
+         * for redis-adapter cluster
+         */
+        startupNodes: [
+            {
+                port: 6380,
+                host: 'cd-db-21'
+            },
+            {
+                port: 6381,
+                host: 'cd-api-22'
+            }
+        ],
+        /**
+         * for redis-adapter sentinel
+         */
+        sentinalOptions: {
+            sentinels: [
+                { host: 'cd-db-21', port: 26379 },
+                { host: 'cd-api-22', port: 26379 }
+            ],
+            name: 'master01'
+        }
     },
     cache: {
         ttl: 600
