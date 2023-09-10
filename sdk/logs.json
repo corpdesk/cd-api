@@ -1,0 +1,73 @@
+{
+    "pushData": {
+        "pushGuid": "",
+        "m": "",
+        "pushRecepients": [
+            {
+                "userId": 1010,
+                "subTypeId": 1,
+                "cdObjId": {
+                    "appId": "d0df501a232b4e53b1727b9033e9a807",
+                    "ngModule": "UserModule",
+                    "resourceName": "SessionService",
+                    "resourceGuid": "fdd67380-e847-4cd1-acc1-f0a3b11b60c5",
+                    "jwtToken": "",
+                    "socket": null,
+                    "socketId": "RxCWYdd5HMvvKPHdAAAD",
+                    "commTrack": {
+                        "initTime": 1694332243229,
+                        "relayTime": null,
+                        "relayed": false,
+                        "pushed": false,
+                        "pushTime": null,
+                        "deliveryTime": null,
+                        "delivered": false,
+                        "completed": false,
+                        "completedTime": null
+                    }
+                }
+            },
+            {
+                "userId": 1010,
+                "subTypeId": 7,
+                "cdObjId": {
+                    "appId": "d0df501a232b4e53b1727b9033e9a807",
+                    "ngModule": "UserModule",
+                    "resourceName": "SessionService",
+                    "resourceGuid": "fdd67380-e847-4cd1-acc1-f0a3b11b60c5",
+                    "jwtToken": "",
+                    "socket": null,
+                    "socketId": "",
+                    "commTrack": {
+                        "initTime": 1694332243229,
+                        "relayTime": null,
+                        "relayed": false,
+                        "pushed": false,
+                        "pushTime": null,
+                        "deliveryTime": null,
+                        "delivered": false,
+                        "completed": false,
+                        "completedTime": null
+                    }
+                }
+            }
+        ],
+        "triggerEvent": "msg-received",
+        "emittEvent": "push-msg-pushed",
+        "token": "",
+        "isNotification": true,
+        "commTrack": {
+            "initTime": 1694332243229,
+            "relayTime": 1694332243770,
+            "relayed": true,
+            "pushed": true,
+            "pushTime": 1694332243487,
+            "deliveryTime": 1694332243696,
+            "delivered": true,
+            "completed": false,
+            "completedTime": null
+        }
+    },
+    "req": null,
+    "resp": null
+}

@@ -148,7 +148,7 @@ export interface CommTrack {
     pushTime: number | null;
     relayed: boolean;
     deliveryTime: number | null;
-    deliverd: boolean;
+    delivered: boolean;
     completed: boolean;
     completedTime: number | null;
 }
