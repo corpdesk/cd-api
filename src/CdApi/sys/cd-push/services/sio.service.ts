@@ -7,7 +7,7 @@ import { createClient, RedisClientOptions } from 'redis';
 import { createAdapter } from '@socket.io/redis-adapter';
 import { createServer } from 'http';
 import Redis from "ioredis";
-import { ICdPushEnvelop, ICommConversationSub, PushEvent } from '../../base/IBase';
+import { ICdPushEnvelop, ICommConversationSub, ISocketItem, PushEvent } from '../../base/IBase';
 import config from '../../../../config';
 import { BaseService } from '../../base/base.service';
 dotenv.config();
@@ -36,105 +36,18 @@ export class SioService {
     b = new BaseService();
 
     run(io, pubClient, subClient) {
-        // const port = 3000;
-        // let pubClient;
-        // let subClient;
-
-        // const httpServer = createServer();
-        // const corsOpts = {
-        //     cors: {
-        //         origin: [
-        //             'http://localhost',
-        //             'http://localhost:4200',
-        //             'http://localhost:4401',
-        //             'http://localhost:4500', // shell app
-        //             // 'http://localhost:3001', // cd-api
-        //         ]
-        //     }
-        // }
-        // const io = new Server(httpServer, corsOpts);
-        // // const io = new Server();
-        // switch (config.push.mode) {
-        //     case process.env.PUSH_BASIC:
-        //         pubClient = createClient({ host: config.push.redisHost, port: config.push.redisPort } as RedisClientOptions);
-        //         subClient = pubClient.duplicate();
-        //         break;
-        //     case process.env.PUSH_CLUSTER:
-        //         pubClient = new Redis.Cluster(config.push.startupNodes);
-        //         subClient = pubClient.duplicate();
-        //         break;
-        //     case process.env.PUSH_SENTINEL:
-        //         pubClient = new Redis(config.push.sentinalOptions);
-        //         subClient = pubClient.duplicate();
-        //         break;
-        //     default:
-        //         pubClient = createClient({ host: config.push.redisHost, port: config.push.redisPort } as RedisClientOptions);
-        //         subClient = pubClient.duplicate();
-        //         break;
-        // }
-
-        // // Promise.all([pubClient.connect(), subClient.connect()]).then(() => {
-        // //     //basic
-        // //     io.adapter(createAdapter(pubClient, subClient));
-        // //     io.on('connection', (socket) => {
-        // //         socket.broadcast.emit('hello', 'to all clients except sender');
-        // //         socket.to('room42').emit('hello', "to all clients in 'room42' room except sender");
-        // //     });
-        // // });
-
-        // io.adapter(createAdapter(pubClient, subClient));
-
-        // io.on('connection', (socket) => {
-        //     console.log('a user connected');
-
-        //     // socket.on('message', async (message: string) => {
-        //     //     console.log(message);
-        //     //     const pushEnvelop: ICdPushEnvelop = JSON.parse(message)
-        //     //     const sender = this.getSender(pushEnvelop.pushData.pushRecepients);
-        //     //     await this.persistSenderData(sender, socket, pubClient)
-        //     //     this.relayMessages(pushEnvelop, io, pubClient)
-        //     // });
-        //     this.runRegisteredEvents(socket, io, pubClient)
-        //     socket.on('disconnect', () => {
-        //         console.log('a user disconnected!');
-        //     });
-        // });
-        // io.listen(port, () => {
-        //     console.log(`server is listening on ${port}`);
-        // })
-        //     .on('error', (e) => {
-        //         console.log(`Error:${e}`);
-        //     });
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         const port = config.push.serverPort;
         pubClient.on("error", (err) => {
             console.log(`pubClient error: ${JSON.stringify(err)}`);
         });
-
         io.adapter(createAdapter(pubClient, subClient));
-
         io.on('connection', (socket) => {
             console.log('a user connected');
-
-            // socket.on('message', async (message: string) => {
-            //     console.log(message);
-            //     const pushEnvelop: ICdPushEnvelop = JSON.parse(message)
-            //     const sender = this.getSender(pushEnvelop.pushData.pushRecepients);
-            //     await this.persistSenderData(sender, socket, pubClient)
-            //     this.relayMessages(pushEnvelop, io, pubClient)
-            // });
             this.runRegisteredEvents(socket, io, pubClient)
             socket.on('disconnect', () => {
                 console.log('a user disconnected!');
             });
         });
-
-        // io.listen(port, () => {
-        //     console.log(`cd-sio server is listening on ${port}`);
-        // })
-        //     .on('error', (e) => {
-        //         console.log(`Error:${e}`);
-        //     });
     }
 
     /**
@@ -155,37 +68,13 @@ export class SioService {
      */
     getRegisteredEvents(): PushEvent[] {
         console.log('starting getRegisteredEvents()');
-        console.log(green('This is a green string!'));
-        console.log(color.green('This is a green string!'));
-        console.log(color('This is a green string!', 'green'));
-
-        // chained styles
-        console.log(blue.bgRed.bold.underline('Hello world!'));
-
-        // log
-        log('This is a green string!', 'green');
-        log.green('This is a green string!', 'This is a green string!');
-
-        // helpers
-        // console.log('isSupported:', clc.isSupported());
-        // clc.disable();
-        // console.log('isSupported(after disabled):', clc.isSupported());
-        // clc.enable();
-        // console.log('isSupported(after enabled):', clc.isSupported());
-
-        // const greenstr = clc.green('This is a green string!');
-        // const striped = clc.strip(greenstr);
-        // console.log(greenstr, ' ==> [striped]', striped);
-
-        // nested
-        console.log(cyan.bgRed.bold.underline('Hello world!'));
-        console.log(bold.cyan.bgRed.underline('Hello world!'));
-
-        console.log(
-            red(`a red ${white('white')} red ${red('red')} red ${gray('gray')} red ${red('red')} red ${red('red')}`)
-        );
-
+        this.testColouredLogs();
         return [
+            {
+                triggerEvent: 'register-client',
+                emittEvent: 'push-registered-client',
+                sFx: 'push'
+            },
             {
                 triggerEvent: 'srv-received',
                 emittEvent: 'push-srv-received',
@@ -293,10 +182,6 @@ export class SioService {
     async persistSenderData(sender: ICommConversationSub, socket, pubClient) {
         console.log(`SioService::persistSenderData/01/socket.id: ${socket.id}`);
         sender.cdObjId.socketId = socket.id;
-        // pubClient.set(sender.cdObjId.resourceGuid, JSON.stringify(sender), (err) => {
-        //     if (err) throw err;
-        //     console.log('saving userID Refs to redis: ' + socket.id);
-        // });
         const k = sender.cdObjId.resourceGuid;
         const v = JSON.stringify(sender);
         console.log(`SioService::persistSenderData()/k:${k}`);
@@ -328,7 +213,7 @@ export class SioService {
                         // handle message to sender:
                         // mark message as relayed plus relayedTime
                         // const pushEnvelop1 = this.shallow(pushEnvelop)
-                        const pushEnvelop1 = JSON.parse(JSON.stringify(pushEnvelop));
+                        const pushEnvelop1: ICdPushEnvelop = JSON.parse(JSON.stringify(pushEnvelop));
                         pushEnvelop1.pushData.commTrack.relayTime = Number(new Date());
 
                         // pushEnvelop1.pushData.emittEvent = 'push-msg-relayed';
@@ -340,6 +225,28 @@ export class SioService {
                         console.log('SioService::relayMessages()/[switch 1] sending confirmation message to sender');
                         console.log(`SioService::relayMessages()/[switch 1] pushEnvelop.pushData.triggerEvent:${pushEnvelop1.pushData.triggerEvent}`);
                         console.log('case-1: 01')
+                        if (pushEnvelop1.pushData.isAppInit) {
+                            /**
+                             * if the incoming message is for applitialization:
+                             * - nb: the resourceGuid is already saved in redis for reference
+                             * - save socket in envelop
+                             * - push message back to sender with socketid info
+                             * - the client app will rely on these data for subsequest communication by federated components of the app
+                             */
+                            console.log('--------------------------------------------------------------------------')
+                            console.log('SENDING APP-INIT-DATA')
+                            console.log(`case-1: 011...isAppInit->triggerEvent === push-registered-client`)
+                            console.log('--------------------------------------------------------------------------')
+                            const socketStore: ISocketItem = {
+                                socketId:recepientSocketId,
+                                name:'appInit',
+                                socketGuid: this.b.getGuid()
+                            }
+                            // save socket
+                            pushEnvelop1.pushData.appSockets.push(socketStore)
+                            // send back to sender
+                            io.to(recepientSocketId).emit('push-registered-client', pushEnvelop1);
+                        }
                         if (pushEnvelop1.pushData.isNotification) {
                             console.log('case-1: 02...isNotification')
                             if (pushEnvelop1.pushData.commTrack.relayed !== true && pushEnvelop1.pushData.commTrack.pushed !== true) {
@@ -503,6 +410,38 @@ export class SioService {
         })
         return copy
         ////////////////////////////////////////////
+    }
+
+    testColouredLogs() {
+        console.log(green('This is a green string!'));
+        console.log(color.green('This is a green string!'));
+        console.log(color('This is a green string!', 'green'));
+
+        // chained styles
+        console.log(blue.bgRed.bold.underline('Hello world!'));
+
+        // log
+        log('This is a green string!', 'green');
+        log.green('This is a green string!', 'This is a green string!');
+
+        // helpers
+        // console.log('isSupported:', clc.isSupported());
+        // clc.disable();
+        // console.log('isSupported(after disabled):', clc.isSupported());
+        // clc.enable();
+        // console.log('isSupported(after enabled):', clc.isSupported());
+
+        // const greenstr = clc.green('This is a green string!');
+        // const striped = clc.strip(greenstr);
+        // console.log(greenstr, ' ==> [striped]', striped);
+
+        // nested
+        console.log(cyan.bgRed.bold.underline('Hello world!'));
+        console.log(bold.cyan.bgRed.underline('Hello world!'));
+
+        console.log(
+            red(`a red ${white('white')} red ${red('red')} red ${gray('gray')} red ${red('red')} red ${red('red')}`)
+        );
     }
 
 }

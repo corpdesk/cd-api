@@ -106,8 +106,25 @@ export const DEFAULT_CD_RESPONSE: ICdResponse = {
     data: []
 };
 
+// export interface ICdPushEnvelop {
+//     pushData: {
+//         pushGuid: string;
+//         m?: string;
+//         pushRecepients: ICommConversationSub[];
+//         triggerEvent: string;
+//         emittEvent: string;
+//         token: string;
+//         commTrack: CommTrack;
+//         isNotification: boolean | null;
+//     },
+//     req: ICdRequest | null;
+//     resp: ICdResponse | null;
+// };
+
 export interface ICdPushEnvelop {
     pushData: {
+        appId?: string;
+        appSockets?: ISocketItem[];
         pushGuid: string;
         m?: string;
         pushRecepients: ICommConversationSub[];
@@ -116,10 +133,17 @@ export interface ICdPushEnvelop {
         token: string;
         commTrack: CommTrack;
         isNotification: boolean | null;
+        isAppInit?: boolean | null;
     },
-    req: ICdRequest | null;
-    resp: ICdResponse | null;
+    req: ICdRequest | null,
+    resp: ICdResponse | null
 };
+
+export interface ISocketItem{
+    socketId:string;
+    name:string;
+    socketGuid?:string;
+}
 
 export interface ICommConversationSub {
     userId: number; // subscriber userId
