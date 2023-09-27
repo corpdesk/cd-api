@@ -1,0 +1,51 @@
+{
+    "pushData": {
+        "pushGuid": "",
+        "m": "",
+        "pushRecepients": [
+            {
+                "userId": 1000,
+                "subTypeId": 1,
+                "cdObjId": {
+                    "appId": "",
+                    "ngModule": "SharedModule",
+                    "resourceName": "SidebarComponent",
+                    "resourceGuid": "a7533066-610f-44f7-a1f6-e000c297e968",
+                    "jwtToken": "",
+                    "socket": null,
+                    "socketId": "w2qqGjtDNXMBSviBAAAD",
+                    "commTrack": {
+                        "initTime": 1695399004740,
+                        "relayTime": null,
+                        "relayed": false,
+                        "pushed": false,
+                        "pushTime": null,
+                        "deliveryTime": null,
+                        "delivered": false,
+                        "completed": false,
+                        "completedTime": null
+                    }
+                }
+            }
+        ],
+        "triggerEvent": "register-client",
+        "emittEvent": "push-registered-client",
+        "token": "",
+        "isNotification": true,
+        "appSockets": [],
+        "isAppInit": true,
+        "commTrack": {
+            "initTime": 1695399004739,
+            "relayTime": 1695399069156,
+            "relayed": false,
+            "pushed": false,
+            "pushTime": null,
+            "deliveryTime": null,
+            "delivered": false,
+            "completed": false,
+            "completedTime": null
+        }
+    },
+    "req": null,
+    "resp": null
+}
