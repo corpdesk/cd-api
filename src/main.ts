@@ -39,12 +39,7 @@ export class Main {
         const httpServer = createServer(app);
         const corsOpts = {
             cors: {
-                origin: [
-                    'http://localhost',
-                    'http://localhost:4200',
-                    'http://localhost:4401',
-                    'http://localhost:4500', // shell app
-                ]
+                origin: config.Cors.options.origin
             }
         }
         const io = new Server(httpServer, corsOpts);
