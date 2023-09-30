@@ -39,7 +39,7 @@ export class BaseService {
     // sqliteDb;
     sqliteConn: Connection;
     cuid = USER_ANON;
-    debug = false;
+    debug = true;
     pl;
     svSess: SessionService;
     sess: SessionModel[];
