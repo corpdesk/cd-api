@@ -54,14 +54,23 @@ const mysqlConfig = {
         __dirname + '/CdApi/sys/scheduler/models/*.model.ts',
         __dirname + '/CdApi/app/cd-accts/models/*.model.ts',
     ],
-    // LOGGING OPTIONS
-    // query - logs all queries.
-    // error - logs all failed queries and errors.
-    // schema - logs the schema build process.
-    // warn - logs internal orm warnings.
-    // info - logs internal orm informative messages.
-    // log - logs internal orm log messages.
-    // logging: ['query', 'error','schema','warn', 'info', 'log']
+    /**
+     * LOGGING OPTIONS
+     * query - logs all queries.
+     * error - logs all failed queries and errors.
+     * schema - logs the schema build process.
+     * warn - logs internal orm warnings.
+     * info - logs internal orm informative messages.
+     * log - logs internal orm log messages.
+     */
+    logging: [
+        'query', 
+        // 'error',
+        // 'schema',
+        // 'warn', 
+        // 'info', 
+        // 'log'
+    ]
 };
 
 const mysqlConfig2 = {
