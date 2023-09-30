@@ -1229,7 +1229,8 @@ export class BaseService {
         // const repo = getConnection().getRepository(serviceInput.serviceModel);
         console.log('BaseService::readCount()/repo/model:', serviceInput.serviceModel)
         // const repo: any = await this.repo(req, res, serviceInput.serviceModel)
-        this.setRepo(serviceInput.serviceModel)
+        await this.setRepo(serviceInput)
+        // this.setRepo(serviceInput.serviceModel)
         const repo: any = this.repo;
         try {
             const [result, total] = await repo.findAndCount(
@@ -1246,6 +1247,7 @@ export class BaseService {
     }
 
     readCount$(req, res, serviceInput): Observable<any> {
+        console.log('BaseService::readCount$()/serviceInput:', serviceInput)
         return from(this.readCount(req, res, serviceInput));
     }
 

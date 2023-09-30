@@ -251,7 +251,7 @@ export class ModuleService extends CdService {
 
     getModuleCount(req, res) {
         const q = this.b.getQuery(req);
-        // console.log('ModuleService::getModuleCount/q:', q);
+        console.log('ModuleService::getModuleCount/q:', q);
         const serviceInput = {
             serviceModel: ModuleViewModel,
             docName: 'MenuService::getModuleCount$',
