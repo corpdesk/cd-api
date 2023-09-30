@@ -1256,7 +1256,8 @@ export class BaseService {
         // const repo = getConnection().getRepository(serviceInput.serviceModel);
         console.log('BaseService::readPaged()/repo/model:', serviceInput.serviceModel)
         // const repo: any = await this.repo(req, res, serviceInput.serviceModel)
-        this.setRepo(serviceInput.serviceModel)
+        await this.setRepo(serviceInput)
+        // this.setRepo(serviceInput.serviceModel)
         const repo: any = this.repo;
         try {
             const [result, total] = await repo.findAndCount(
@@ -1280,7 +1281,8 @@ export class BaseService {
         await this.initSqlite(req, res);
         try {
             // const repo = this.sqliteConn.getRepository(serviceInput.serviceModel);
-            this.setRepo(serviceInput.serviceModel)
+            await this.setRepo(serviceInput)
+            // this.setRepo(serviceInput.serviceModel)
             const repo: any = this.repo;
             const meta = await this.getEntityPropertyMapSL(req, res, serviceInput.serviceModel);
             const [result, total] = await repo.findAndCount(
@@ -1379,7 +1381,8 @@ export class BaseService {
         try {
             this.initSqlite(req, res);
             // const repo = this.sqliteConn.getRepository(serviceInput.serviceModel);
-            this.setRepo(serviceInput.serviceModel)
+            await this.setRepo(serviceInput)
+            // this.setRepo(serviceInput.serviceModel)
             const repo: any = this.repo;
             const svSess = new SessionService();
             // const billRepository = this.sqliteConn.getRepository(BillModel)
@@ -1433,7 +1436,8 @@ export class BaseService {
         let ret: any = [];
         try {
             await this.init(req, res);
-            await this.setRepo(serviceInput.serviceModel)
+            // await this.setRepo(serviceInput.serviceModel)
+            await this.setRepo(serviceInput)
             // const serviceRepository = await getConnection().getRepository(serviceInput.serviceModel);
             console.log('BaseService::update()/repo/model:', serviceInput.serviceModel)
             // const serviceRepository: any = await this.repo(req, res, serviceInput.serviceModel)
@@ -1476,7 +1480,8 @@ export class BaseService {
         await this.initSqlite(req, res);
         const svSess = new SessionService();
         // const repo: any = await this.sqliteConn.getRepository(serviceInput.serviceModel);
-        this.setRepo(serviceInput.serviceModel)
+        // this.setRepo(serviceInput.serviceModel)
+        await this.setRepo(serviceInput)
         const repo: any = this.repo;
         const result = await repo.update(
             serviceInput.cmd.query.where,
@@ -1580,7 +1585,8 @@ export class BaseService {
         console.log('BaseService::delete()/01')
         let ret: any = [];
         await this.init(req, res);
-        await this.setRepo(serviceInput.serviceModel)
+        await this.setRepo(serviceInput)
+        // await this.setRepo(serviceInput.serviceModel)
         // const serviceRepository = await getConnection().getRepository(serviceInput.serviceModel);
         console.log('BaseService::delete()/repo/model:', serviceInput.serviceModel)
         // const serviceRepository: any = await this.repo(req, res, serviceInput.serviceModel)
@@ -1697,7 +1703,8 @@ export class BaseService {
     async readJSON(req, res, serviceInput: IServiceInput): Promise<any> {
         console.log('BaseService::readJSON()/01')
         await this.init(req, res);
-        await this.setRepo(serviceInput.serviceModel)
+        // await this.setRepo(serviceInput.serviceModel)
+        await this.setRepo(serviceInput)
         console.log('BaseService::readJSON()/02')
         console.log('BaseService::readJSON()/repo/model:', JSON.stringify(serviceInput.serviceModel))
         // const repo: any = await this.repo(req, res, serviceInput.serviceModel);
