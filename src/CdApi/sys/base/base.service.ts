@@ -1,5 +1,7 @@
 
 import { v4 as uuidv4 } from 'uuid';
+import { color, log, red, green, cyan, cyanBright, blue, yellow } from 'console-log-colors';
+import { bold, white, gray } from 'console-log-colors';
 import * as Lá from 'lodash';
 import { CreateIParams, ICdRequest, ICdResponse, IControllerContext, IQuery, IRespInfo, IServiceInput, ISessResp, ObjectItem, CacheData, IQbInput } from './IBase';
 import { EntityMetadata, getConnection, createConnection, ConnectionOptions, getConnectionManager, Connection, Repository } from 'typeorm';
@@ -990,18 +992,18 @@ export class BaseService {
 
     async saveDoc(req, res, serviceInput: IServiceInput) {
         await this.init(req, res);
-        
+
         console.log('BaseService::saveDoc()/01')
         // const docRepository: any = await getConnection().getRepository(DocModel);
         console.log('BaseService::saveDoc()/repo/model:', DocModel)
         // const docRepository: any = await this.repo(req, res, DocModel)
-        
+
         console.log('BaseService::saveDoc()/02')
         const doc = await this.setDoc(req, res, serviceInput);
         console.log('BaseService::saveDoc()/03/dod:', doc)
         console.log('BaseService::saveDoc()/doc:', JSON.stringify(doc))
         // await this.setRepo(serviceInput)
-        
+
         // const docRepository: any = this.repo
         return await this.docRepository.save(doc);
     }
@@ -1228,6 +1230,9 @@ export class BaseService {
         await this.init(req, res);
         // const repo = getConnection().getRepository(serviceInput.serviceModel);
         console.log('BaseService::readCount()/repo/model:', serviceInput.serviceModel)
+        console.log(blue('---------------------------------------'))
+        console.log(blue(`BaseService::readCount()/repo/model:(${cyanBright(serviceInput.serviceModel)})`))
+        console.log(blue('---------------------------------------'))
         // const repo: any = await this.repo(req, res, serviceInput.serviceModel)
         await this.setRepo(serviceInput)
         // this.setRepo(serviceInput.serviceModel)
@@ -1851,7 +1856,7 @@ export class BaseService {
 
     }
 
-    async wsRedisCreate(k,v) {
+    async wsRedisCreate(k, v) {
         await this.wsRedisInit();
         try {
             const setRet = await this.redisClient.set(k, v);
