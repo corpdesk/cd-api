@@ -577,7 +577,7 @@ export class BaseService {
 
     getQuery(req) {
         console.log('BaseService::getQuery()/01')
-        console.log(`BaseService::getQuery()/req.post.dat:${JSON.stringify(req.post.dat)}`)
+        console.log(`BaseService::getQuery()/req.post.dat.f_vals[0].query:${JSON.stringify(req.post.dat.f_vals[0].query)}`)
         const q = req.post.dat.f_vals[0].query;
         console.log(`BaseService::getQuery()/q:${q}`)
         this.pl = req.post;
