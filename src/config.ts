@@ -63,14 +63,15 @@ const mysqlConfig = {
      * info - logs internal orm informative messages.
      * log - logs internal orm log messages.
      */
-    logging: [
-        'query', 
-        // 'error',
-        // 'schema',
-        // 'warn', 
-        // 'info', 
-        // 'log'
-    ]
+    // logging: [
+    //     'query', 
+    //     // 'error',
+    //     // 'schema',
+    //     // 'warn', 
+    //     // 'info', 
+    //     // 'log'
+    // ],
+    logging: ["query", "error"]
 };
 
 const mysqlConfig2 = {
