@@ -579,7 +579,7 @@ export class BaseService {
         console.log('BaseService::getQuery()/01')
         console.log(`BaseService::getQuery()/req.post.dat:${JSON.stringify(req.post.dat)}`)
         const q = req.post.dat.f_vals[0].query;
-        console.log(`BaseService::getQuery()/q:${JSON.stringify(q)}`)
+        console.log(`BaseService::getQuery()/q:${q}`)
         this.pl = req.post;
         if (q) {
             return q;
