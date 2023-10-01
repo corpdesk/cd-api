@@ -577,8 +577,9 @@ export class BaseService {
 
     getQuery(req) {
         console.log('BaseService::getQuery()/01')
-        console.log('BaseService::getQuery()/req.post.dat:', JSON.stringify(req.post.dat))
+        console.log(`BaseService::getQuery()/req.post.dat:${JSON.stringify(req.post.dat)}`)
         const q = req.post.dat.f_vals[0].query;
+        console.log(`BaseService::getQuery()/q:${JSON.stringify(q)}`)
         this.pl = req.post;
         if (q) {
             return q;
@@ -1230,9 +1231,7 @@ export class BaseService {
         await this.init(req, res);
         // const repo = getConnection().getRepository(serviceInput.serviceModel);
         console.log('BaseService::readCount()/repo/model:', serviceInput.serviceModel)
-        console.log(blue('---------------------------------------'))
         console.log(blue(`BaseService::readCount()/repo/model:(${cyanBright(serviceInput.serviceModel)})`))
-        console.log(blue('---------------------------------------'))
         // const repo: any = await this.repo(req, res, serviceInput.serviceModel)
         await this.setRepo(serviceInput)
         // this.setRepo(serviceInput.serviceModel)
