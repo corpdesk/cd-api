@@ -1,8 +1,8 @@
 
 
 import * as dotenv from 'dotenv'; import { Server } from 'socket.io';
-import { color, log, red, green, cyan, cyanBright, blue, yellow } from 'console-log-colors';
-import { bold, white, gray } from 'console-log-colors';
+// import { color, log, red, green, cyan, cyanBright, blue, yellow } from 'console-log-colors';
+// import { bold, white, gray } from 'console-log-colors';
 import { createClient, RedisClientOptions } from 'redis';
 import { createAdapter } from '@socket.io/redis-adapter';
 import { createServer } from 'http';
@@ -145,9 +145,9 @@ export class SioService {
 
             console.log(`SioService::runRegisteredEvents(socket)/e:${JSON.stringify(e)}`);
             socket.on(e.triggerEvent, async (payLoad: string) => {
-                console.log(blue('---------------------------------------'))
-                console.log(blue(`socket.on(${cyanBright(e.triggerEvent)})`))
-                console.log(blue('---------------------------------------'))
+                console.log('---------------------------------------')
+                console.log(`socket.on${e.triggerEvent}`)
+                console.log('---------------------------------------')
                 console.log(`SioService::runRegisteredEvents()/e.triggerEvent:${e.triggerEvent}`);
                 console.log(`SioService::runRegisteredEvents()/payLoad:${JSON.stringify(payLoad)}`);
                 const pushEnvelop: ICdPushEnvelop = JSON.parse(payLoad)
@@ -413,16 +413,16 @@ export class SioService {
     }
 
     testColouredLogs() {
-        console.log(green('This is a green string!'));
-        console.log(color.green('This is a green string!'));
-        console.log(color('This is a green string!', 'green'));
+        // console.log(green('This is a green string!'));
+        // console.log(color.green('This is a green string!'));
+        // console.log(color('This is a green string!', 'green'));
 
-        // chained styles
-        console.log(blue.bgRed.bold.underline('Hello world!'));
+        // // chained styles
+        // console.log(blue.bgRed.bold.underline('Hello world!'));
 
-        // log
-        log('This is a green string!', 'green');
-        log.green('This is a green string!', 'This is a green string!');
+        // // log
+        // log('This is a green string!', 'green');
+        // log.green('This is a green string!', 'This is a green string!');
 
         // helpers
         // console.log('isSupported:', clc.isSupported());
@@ -436,12 +436,12 @@ export class SioService {
         // console.log(greenstr, ' ==> [striped]', striped);
 
         // nested
-        console.log(cyan.bgRed.bold.underline('Hello world!'));
-        console.log(bold.cyan.bgRed.underline('Hello world!'));
+        // console.log(cyan.bgRed.bold.underline('Hello world!'));
+        // console.log(bold.cyan.bgRed.underline('Hello world!'));
 
-        console.log(
-            red(`a red ${white('white')} red ${red('red')} red ${gray('gray')} red ${red('red')} red ${red('red')}`)
-        );
+        // console.log(
+        //     red(`a red ${white('white')} red ${red('red')} red ${gray('gray')} red ${red('red')} red ${red('red')}`)
+        // );
     }
 
 }

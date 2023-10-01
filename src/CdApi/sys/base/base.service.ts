@@ -1,7 +1,7 @@
 
 import { v4 as uuidv4 } from 'uuid';
-import { color, log, red, green, cyan, cyanBright, blue, yellow } from 'console-log-colors';
-import { bold, white, gray } from 'console-log-colors';
+// import { color, log, red, green, cyan, cyanBright, blue, yellow } from 'console-log-colors';
+// import { bold, white, gray } from 'console-log-colors';
 import * as Lá from 'lodash';
 import { CreateIParams, ICdRequest, ICdResponse, IControllerContext, IQuery, IRespInfo, IServiceInput, ISessResp, ObjectItem, CacheData, IQbInput } from './IBase';
 import { EntityMetadata, getConnection, createConnection, ConnectionOptions, getConnectionManager, Connection, Repository } from 'typeorm';
@@ -1231,7 +1231,7 @@ export class BaseService {
         await this.init(req, res);
         // const repo = getConnection().getRepository(serviceInput.serviceModel);
         console.log('BaseService::readCount()/repo/model:', serviceInput.serviceModel)
-        console.log(blue(`BaseService::readCount()/repo/model:(${cyanBright(serviceInput.serviceModel)})`))
+        console.log(`BaseService::readCount()/repo/model:${serviceInput.serviceModel}`)
         // const repo: any = await this.repo(req, res, serviceInput.serviceModel)
         await this.setRepo(serviceInput)
         // this.setRepo(serviceInput.serviceModel)
