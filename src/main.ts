@@ -86,13 +86,7 @@ export class Main {
                 console.log(`cd-api server: listen()/Error:${e}`);
             });
 
-        // start push server
-        httpServer.listen(config.push.serverHost, () => {
-            console.log(`cd-api server is listening on ${config.push.serverHost}`);
-        })
-            .on('error', (e) => {
-                console.log(`cd-api server: listen()/Error:${e}`);
-            });
+        
     }
 
 }
