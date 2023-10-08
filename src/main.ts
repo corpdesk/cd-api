@@ -26,7 +26,7 @@ export class Main {
 
         // basic settings
         const app = express();
-        const port = config.apiPort;
+        // const port = config.apiPort;
         const options: cors.CorsOptions = config.Cors.options;
         app.use(cors());
 
@@ -78,9 +78,17 @@ export class Main {
             CdInit(req, res, ds);
         });
 
-        // start server
-        httpServer.listen(port, () => {
-            console.log(`cd-api server is listening on ${port}`);
+        // start api server
+        httpServer.listen(config.apiPort, () => {
+            console.log(`cd-api server is listening on ${config.apiPort}`);
+        })
+            .on('error', (e) => {
+                console.log(`cd-api server: listen()/Error:${e}`);
+            });
+
+        // start push server
+        httpServer.listen(config.push.serverHost, () => {
+            console.log(`cd-api server is listening on ${config.push.serverHost}`);
         })
             .on('error', (e) => {
                 console.log(`cd-api server: listen()/Error:${e}`);

@@ -4,7 +4,16 @@ import { v4 as uuidv4 } from 'uuid';
 // import { bold, white, gray } from 'console-log-colors';
 import * as Lá from 'lodash';
 import { CreateIParams, ICdRequest, ICdResponse, IControllerContext, IQuery, IRespInfo, IServiceInput, ISessResp, ObjectItem, CacheData, IQbInput } from './IBase';
-import { EntityMetadata, getConnection, createConnection, ConnectionOptions, getConnectionManager, Connection, Repository } from 'typeorm';
+import { 
+    EntityMetadata, 
+    Repository,
+    Like,
+    getConnection, 
+    createConnection, 
+    ConnectionOptions, 
+    getConnectionManager, 
+    Connection, 
+} from 'typeorm';
 import { Observable, from } from 'rxjs';
 import moment from 'moment';
 import { Database } from './connect';
