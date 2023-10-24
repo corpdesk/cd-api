@@ -73,8 +73,22 @@ export class Main {
             });
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+        function handleRequest(request, response){
+            console.log("===================");
+            console.log("request.url : "+request.url);
+            console.log("===================");
+            console.log("request.method : "+request.method);  
+            console.log("===================");  
+            console.log("request.headers : "+JSON.stringify(request.headers));  
+            console.log("===================");
+            console.log("request.httpVersion : "+request.httpVersion);  
+            console.log("===================");
+            response.end();
+        }
+
         // set api entry point
         app.post('/', async (req: any, res: any) => {
+            handleRequest(req, req)
             res.setHeader('Content-Type', 'application/json');
             CdInit(req, res, ds);
         });
