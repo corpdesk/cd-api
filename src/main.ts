@@ -39,7 +39,8 @@ export class Main {
         const httpServer = createServer(app);
         const corsOpts = {
             cors: {
-                origin: config.Cors.options.origin
+                // origin: config.Cors.options.origin
+                origin: "*"
             }
         }
         const io = new Server(httpServer, corsOpts);
