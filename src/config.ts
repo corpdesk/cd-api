@@ -41,7 +41,7 @@ const mysqlConfig = {
     // }
     name: 'default',
     type: 'mysql',
-    port: 3306,
+    port: process.env.DB_PORT,
     host: process.env.DB_HOST,
     username: process.env.DB_USER,
     database: process.env.DB_NAME,
@@ -182,10 +182,10 @@ export default {
             methods: 'GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE',
             origin: [
                 'http://localhost:4200',
-                'http://cd-shell-24:4500', // shell app node 1
-                'http://cd-user-25:4407',
-                'http://cd-moduleman-26:4402',
-                'http://cd-comm-27:4401',
+                'http://cd-shell.io:80', // shell app node 1
+                'http://cd-user.io:80',
+                'http://cd-moduleman.io:80',
+                'http://cd-comm.io:80',
             ],
             preflightContinue: false,
         }
@@ -195,7 +195,7 @@ export default {
     sqlite: sqliteConfig,
     push: {
         mode: process.env.PUSH_BASIC,
-        serverHost: 'http://cd-sio-23',
+        serverHost: 'http://cd-api-01',
         serverPort: process.env.SIO_PORT,
         redisHost: process.env.REDIS_HOST,
         redisPort: process.env.REDIS_PORT,
@@ -205,11 +205,11 @@ export default {
         startupNodes: [
             {
                 port: 6380,
-                host: 'cd-db-21'
+                host: 'cd-aip-01'
             },
             {
                 port: 6381,
-                host: 'cd-api-22'
+                host: 'cd-api-01'
             }
         ],
         /**
@@ -217,8 +217,8 @@ export default {
          */
         sentinalOptions: {
             sentinels: [
-                { host: 'cd-db-21', port: 26379 },
-                { host: 'cd-api-22', port: 26379 }
+                { host: 'cd-api-01', port: 26379 },
+                { host: 'cd-api-01', port: 26379 }
             ],
             name: 'master01'
         }
