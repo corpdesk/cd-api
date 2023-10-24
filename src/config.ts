@@ -181,10 +181,10 @@ export default {
             credentials: true,
             methods: 'GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE',
             origin: [
-                'http://cd-shell.io:80',
-                'http://cd-user.io:80',
-                'http://cd-moduleman.io:80',
-                'http://cd-comm.io:80',
+                'http://cd-shell.io',
+                'http://cd-user.io',
+                'http://cd-moduleman.io',
+                'http://cd-comm.io',
             ],
             preflightContinue: false,
         }
