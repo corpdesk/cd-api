@@ -181,8 +181,7 @@ export default {
             credentials: true,
             methods: 'GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE',
             origin: [
-                'http://localhost:4200',
-                'http://cd-shell.io:80', // shell app node 1
+                'http://cd-shell.io:80',
                 'http://cd-user.io:80',
                 'http://cd-moduleman.io:80',
                 'http://cd-comm.io:80',
