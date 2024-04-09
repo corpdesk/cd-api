@@ -26,11 +26,11 @@ export class Main {
 
         // basic settings
         const app = express();
-        app.all('/*', function (req, res, next) {
-            res.header("Access-Control-Allow-Origin", "*");
-            res.header("Access-Control-Allow-Headers", "X-Requested-With");
-            next();
-        });
+        // app.all('/*', function (req, res, next) {
+        //     res.header("Access-Control-Allow-Origin", "*");
+        //     res.header("Access-Control-Allow-Headers", "X-Requested-With");
+        //     next();
+        // });
         // const port = config.apiPort;
         const options: cors.CorsOptions = config.Cors.options;
         app.use(cors());
