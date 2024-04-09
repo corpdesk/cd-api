@@ -194,7 +194,7 @@ export default {
     sqlite: sqliteConfig,
     push: {
         mode: process.env.PUSH_BASIC,
-        serverHost: 'http://cd-api-01',
+        serverHost: 'http://cd-sio-93',
         serverPort: process.env.SIO_PORT,
         redisHost: process.env.REDIS_HOST,
         redisPort: process.env.REDIS_PORT,
@@ -204,11 +204,11 @@ export default {
         startupNodes: [
             {
                 port: 6380,
-                host: 'cd-aip-01'
+                host: 'cd-aip-92'
             },
             {
                 port: 6381,
-                host: 'cd-api-01'
+                host: 'cd-sio-93'
             }
         ],
         /**
@@ -216,8 +216,8 @@ export default {
          */
         sentinalOptions: {
             sentinels: [
-                { host: 'cd-api-01', port: 26379 },
-                { host: 'cd-api-01', port: 26379 }
+                { host: 'cd-api-92', port: 26379 },
+                { host: 'cd-sio-93', port: 26379 }
             ],
             name: 'master01'
         }
