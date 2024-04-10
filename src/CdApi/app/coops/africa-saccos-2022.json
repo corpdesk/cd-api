@@ -1,0 +1,55 @@
+[
+	{
+		"coop_guid":"",
+		"coop_name": "Benin", 
+		"coop_description":"2022",
+		"doc_id":-1,
+		"cd_geo_location_id":"",
+		"coop_woccu": false,
+		"coop_count": 57,
+		"coop_members_count": 3144827, 
+		"coop_saves_shares":299383050,
+		"coop_loans":343758667,
+		"coop_reserves":-1, 
+		"coop_assets": -1,
+		"coop_member_penetration":43.5,
+		"coop_date_label": "2022-12-31 23:59:59",
+		"coop_ref":""
+	},
+	{
+		"coop_guid":"",
+		"coop_name": "Botswana", 
+		"coop_description":"2022",
+		"doc_id":null,
+		"cd_geo_location_id":"",
+		"coop_woccu": false,
+		"coop_count": 83,
+		"coop_members_count": 33632, 
+		"coop_saves_shares":54172035,
+		"coop_loans":63217449,
+		"coop_reserves":20547322, 
+		"coop_assets": 61000000,
+		"coop_member_penetration":2.0,
+		"coop_date_label": "2022-12-31 23:59:59",
+		"coop_ref":""
+	},
+	{
+		"coop_guid":"",
+		"coop_name": "Benin", 
+		"coop_description":"2022",
+		"doc_id":null,
+		"cd_geo_location_id":"",
+		"coop_woccu": false,
+		"coop_count": 57,
+		"coop_members_count": 3144827, 
+		"coop_saves_shares":54172035,
+		"coop_loans":63217449,
+		"coop_reserves":20547322, 
+		"coop_assets": 61000000,
+		"coop_member_penetration":2.0,
+		"coop_date_label": "2022-12-31 23:59:59",
+		"coop_ref":""
+	}
+]
+
+Burkina Faso (b) .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . 76  .  .  .  .  .  .  .  . 1,799,562  .  .  .  .  .  .  .  .  .  .  . 624,092,088  .  .  .  .  .  .  . 531,865,222  .  .  .  .  .  .  .  .  .  .  .  .  .  . N/A  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . N/A  .  .  .  .  .  .  .  .  . 14.8%

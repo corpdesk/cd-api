@@ -57,15 +57,6 @@ export class CdObjModel {
     cdObjTypeGuid: string;
 
     @Column(
-        'varchar',
-        {
-            length: 60,
-            unique: true,
-            nullable: true
-        }
-    )
-
-    @Column(
         'datetime',
         {
             name: 'last_sync_date',
