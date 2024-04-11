@@ -158,7 +158,7 @@ export class CoopModel {
             default: null
         }
     )
-    dateLabel?: Decimal;
+    dateLabel?: string;
 
     @Column(
         {
@@ -166,7 +166,7 @@ export class CoopModel {
             default: null
         }
     )
-    coopWoccu?: Decimal;
+    coopWoccu?: boolean;
 
     @Column(
         {
@@ -174,7 +174,7 @@ export class CoopModel {
             default: null
         }
     )
-    coopReserves?: Decimal;
+    coopReserves?: boolean;
 
 
 }
