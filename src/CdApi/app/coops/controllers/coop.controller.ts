@@ -42,6 +42,19 @@ export class CoopController {
         }
     }
 
+    /**
+     * CreateM, Create multiple
+     * @param req 
+     * @param res 
+     */
+    async CreateM(req, res) {
+        try {
+            await this.svCoop.createM(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'CoopController:Create');
+        }
+    }
+
     async CreateSL(req, res) {
         try {
             await this.svCoop.createSL(req, res);

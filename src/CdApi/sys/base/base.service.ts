@@ -925,8 +925,8 @@ export class BaseService {
     /**
      * similar to create() but
      * used where create is called internally
-     * Note that both create and createI, are trailed with
-     * doc data, with dates, user and other application information
+     * Note that both create and createI, are tagged with
+     * doc data which has dates, user and other application information
      * used in document tracking
      * @param req
      * @param res

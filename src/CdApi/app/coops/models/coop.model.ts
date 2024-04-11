@@ -11,6 +11,20 @@ import {
     validateOrReject,
 } from 'class-validator';
 import Decimal from 'decimal.js';
+import { IQuery } from '../../../sys/base/IBase';
+import { CoopViewModel } from './coop-view.model';
+
+export function siGet(q:IQuery){
+    return {
+        serviceModel: CoopViewModel,
+        docName: 'CompanyModel::siGet',
+        cmd: {
+            action: 'find',
+            query: q
+        },
+        dSource: 1
+    }
+}
 
 @Entity(
     {
