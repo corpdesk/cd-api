@@ -22,7 +22,7 @@ export class CoopController {
     //                 {
     //                     "data": {
     //                         "CoopName": "/src/CdApi/sys/moduleman",
-    //                         "CoopTypeGuid": "7ae902cd-5bc5-493b-a739-125f10ca0268",
+    //                         "CoopTypeId": "7ae902cd-5bc5-493b-a739-125f10ca0268",
     //                         "parentModuleGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b"
     //                     }
     //                 }

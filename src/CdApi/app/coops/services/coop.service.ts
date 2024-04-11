@@ -300,9 +300,9 @@ export class CoopService extends CdService {
         }
         console.log('coop/CoopService::validateCreate()/06')
         ///////////////////////////////////////////////////////////////////
-        // 2. confirm the CoopTypeGuid referenced exists
+        // 2. confirm the CoopTypeId referenced exists
         const pl: CoopModel = this.b.getPlData(req);
-        if ('CoopTypeGuid' in pl) {
+        if ('CoopTypeId' in pl) {
             console.log('coop/CoopService::validateCreate()/07')
             console.log('coop/CoopService::validateCreate()/pl:', pl)
             const serviceInput = {
@@ -310,7 +310,7 @@ export class CoopService extends CdService {
                 docName: 'CoopService::validateCreate',
                 cmd: {
                     action: 'find',
-                    query: { where: { CoopTypeGuid: pl.CoopTypeGuid } }
+                    query: { where: { CoopTypeId: pl.CoopTypeId } }
                 },
                 dSource: 1
             }
@@ -332,7 +332,7 @@ export class CoopService extends CdService {
             // this.b.i.app_msg = `parentModuleGuid is missing in payload`;
             // this.b.err.push(this.b.i.app_msg);
             //////////////////
-            this.b.i.app_msg = `CoopTypeGuid is missing in payload`;
+            this.b.i.app_msg = `CoopTypeId is missing in payload`;
             this.b.err.push(this.b.i.app_msg);
             this.b.setAppState(false, this.b.i, svSess.sessResp);
         }
