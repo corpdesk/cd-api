@@ -125,9 +125,9 @@ export class CoopService extends CdService {
      */
     async createM(req: ICdRequest, res) {
         console.log('CoopService::createM()/01')
-        let f_vals = req.dat.f_vals
-        let data = f_vals[0].data
-        console.log('CoopService::createM()/data:', data)
+        let dat = req.dat
+        // let data = f_vals[0].data
+        console.log('CoopService::createM()/dat:', dat)
 
         this.getCoop(req, res)
         
