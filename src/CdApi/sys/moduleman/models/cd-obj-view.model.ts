@@ -9,7 +9,7 @@ import { ViewEntity, ViewColumn } from 'typeorm';
             cd_obj.cd_obj_guid AS cd_obj_guid,
             cd_obj.cd_obj_name AS cd_obj_name,
             cd_obj.cd_obj_type_guid AS cd_obj_type_guid,
-            cd_obj.last_sync_date AS last_sync_date,
+            cd_obj.last_sync_date AS last_sync_date,W
             cd_obj.last_modification_date AS last_modification_date,
             cd_obj.parent_module_guid AS parent_module_guid,
             cd_obj.parent_class_guid AS parent_class_guid,

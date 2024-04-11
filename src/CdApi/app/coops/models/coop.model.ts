@@ -18,7 +18,7 @@ import Decimal from 'decimal.js';
         synchronize: false
     }
 )
-export class Coop {
+export class CoopModel {
     @PrimaryGeneratedColumn(
         {
             name: 'coop_id'
