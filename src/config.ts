@@ -89,6 +89,7 @@ const mysqlConfig2 = {
         __dirname + '/CdApi/sys/comm/models/*.model.ts',
         __dirname + '/CdApi/sys/scheduler/models/*.model.ts',
         __dirname + '/CdApi/app/cd-accts/models/*.model.ts',
+        __dirname + '/CdApi/app/coops/models/*.model.ts',
     ],
     migrations: [],
     subscribers: [],
