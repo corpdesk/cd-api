@@ -14,7 +14,7 @@ import Decimal from 'decimal.js';
 import { IQuery } from '../../../sys/base/IBase';
 import { CoopViewModel } from './coop-view.model';
 
-export function siGet(q:IQuery){
+export function siGet(q: IQuery) {
     return {
         serviceModel: CoopViewModel,
         docName: 'CompanyModel::siGet',
@@ -23,6 +23,16 @@ export function siGet(q:IQuery){
             query: q
         },
         dSource: 1
+    }
+}
+
+/// ColumnNumericTransformer
+export class ColumnNumericTransformer {
+    to(data: number): number {
+        return data;
+    }
+    from(data: string): number {
+        return parseFloat(data);
     }
 }
 
@@ -64,7 +74,7 @@ export class CoopModel {
             length: 60,
             default: null
         })
-        coopDescription: string;
+    coopDescription: string;
 
     @Column(
         {
@@ -131,12 +141,16 @@ export class CoopModel {
     coopAssets?: number;
 
     @Column(
-        {
-            name: 'coop_member_penetration',
-            default: null
-        }
-    )
-    coopMemberPenetration?: Decimal;
+        'numeric', {
+        name: 'coop_member_penetration',
+        precision: 7,
+        scale: 2,
+        default: null,
+        transformer: new ColumnNumericTransformer(),
+    })
+    public coopMemberPenetration: number;
+
+
 
     @Column(
         {
@@ -145,7 +159,7 @@ export class CoopModel {
         }
     )
     dateLabel?: Decimal;
-    
+
     @Column(
         {
             name: 'coop_woccu',
@@ -161,6 +175,6 @@ export class CoopModel {
         }
     )
     coopReserves?: Decimal;
-    
+
 
 }
