@@ -29,8 +29,13 @@ export interface ICdRequest {
     m: string;
     c: string;
     a: string;
-    dat: any;
+    dat: IDat;
     args: object;
+}
+
+export interface IDat {
+    f_vals: any;
+    token: string;
 }
 
 export interface ICdResponse {

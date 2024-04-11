@@ -2,7 +2,7 @@ import { BaseService } from '../../../sys/base/base.service';
 import { CdService } from '../../../sys/base/cd.service';
 import { SessionService } from '../../../sys/user/services/session.service';
 import { UserService } from '../../../sys/user/services/user.service';
-import { CreateIParams, IQuery, IRespInfo, IServiceInput, IUser } from '../../../sys/base/IBase';
+import { CreateIParams, IQuery, IRespInfo, IServiceInput, IUser, ICdRequest } from '../../../sys/base/IBase';
 import { CoopModel, siGet } from '../models/coop.model';
 import { CoopViewModel } from '../models/coop-view.model';
 import { CoopTypeModel } from '../models/coop-type.model';
@@ -116,11 +116,18 @@ export class CoopService extends CdService {
      *      - save return value
      *  - 4. set return data
      *  - 5. return data
+     * 
+     * curl test:
+     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "Coops","c": "Coop","a": "CreateM","dat": {"f_vals": [{"data": [{"coop_guid": "","coop_name": "Benin","coop_description": "2022","doc_id": -1,"cd_geo_location_id": "","coop_woccu": false,"coop_count": 57,"coop_members_count": 3144827,"coop_saves_shares": 299383050,"coop_loans": 343758667,"coop_reserves": -1,"coop_assets": -1,"coop_member_penetration": 43.5,"coop_date_label": "2022-12-31 23:59:59","coop_ref": ""},{"coop_guid": "","coop_name": "Botswana","coop_description": "2022","doc_id": null,"cd_geo_location_id": "","coop_woccu": false,"coop_count": 83,"coop_members_count": 33632,"coop_saves_shares": 54172035,"coop_loans": 63217449,"coop_reserves": 20547322,"coop_assets": 61000000,"coop_member_penetration": 2,"coop_date_label": "2022-12-31 23:59:59","coop_ref": ""},{"coop_guid": "","coop_name": "Burkina Faso","coop_description": "2022","doc_id": null,"cd_geo_location_id": "","coop_woccu": false,"coop_count": 76,"coop_members_count": 1799562,"coop_saves_shares": 624092088,"coop_loans": 531865222,"coop_reserves": null,"coop_assets": null,"coop_member_penetration": 14.8,"coop_date_label": "2022-12-31 23:59:59","coop_ref": ""},{"coop_guid": "","coop_name": "Cameroon","coop_description": "2022","doc_id": null,"cd_geo_location_id": "","coop_woccu": false,"coop_count": 183,"coop_members_count": 578067,"coop_saves_shares": 373816194,"coop_loans": 272164868,"coop_reserves": 44563826,"coop_assets": 451697808,"coop_member_penetration": 3.8,"coop_date_label": "2022-12-31 23:59:59","coop_ref": ""},{"coop_guid": "","coop_name": "Ethiopia","coop_description": "2022","doc_id": null,"cd_geo_location_id": "","coop_woccu": false,"coop_count": 21328,"coop_members_count": 6916853,"coop_saves_shares": 711228785,"coop_loans": 173329666,"coop_reserves": null,"coop_assets": 807692307,"coop_member_penetration": 9.8,"coop_date_label": "2022-12-31 23:59:59","coop_ref": ""}]}],"token": "3ffd785f-e885-4d37-addf-0e24379af338"},"args": {}}' http://cd-api-92:3001 -v
+     * 
      * @param req 
      * @param res 
      */
-    async createM(req, res) {
+    async createM(req: ICdRequest, res) {
         console.log('CoopService::createM()/01')
+        let f_vals = req.dat.f_vals
+        let data = f_vals[0].data
+        console.log('CoopService::createM()/data:', data)
 
         this.getCoop(req, res)
         
