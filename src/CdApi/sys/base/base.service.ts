@@ -599,7 +599,8 @@ export class BaseService {
         }
     }
 
-    async getEntityPropertyMap(model) {
+    async getEntityPropertyMap(req, res,model) {
+        this.init(req,res)
         console.log('BaseService::getEntityPropertyMap()/model:', model)
         const entityMetadata: EntityMetadata = await this.db.getMetadata(model);
         console.log('BaseService::getEntityPropertyMap()/entityMetadata:', entityMetadata)
@@ -648,7 +649,7 @@ export class BaseService {
         console.log('BaseService::validateUnique()/repo/model:', params.model)
         const baseRepository: any = await this.repo(req, res, params.model)
         // get model properties
-        const propMap = await this.getEntityPropertyMap(params.model).then((result) => {
+        const propMap = await this.getEntityPropertyMap(req, res,params.model).then((result) => {
             // console.log('validateUnique()/result:', result)
             return result;
         });
@@ -785,7 +786,7 @@ export class BaseService {
         console.log('BaseService::validateUnique()/repo/model:', params.model)
         const baseRepository: any = await this.repo(req, res, params.model)
         // get model properties
-        const propMap = await this.getEntityPropertyMap(params.model).then((result) => {
+        const propMap = await this.getEntityPropertyMap(req, res, params.model).then((result) => {
             // console.log('validateUnique()/result:', result)
             return result;
         });
@@ -888,7 +889,7 @@ export class BaseService {
                     const serviceData = await this.getServiceData(req, serviceInput);
                     console.log('BaseService::create()/10')
                     console.log('BaseService::create()/serviceData:', serviceData);
-                    modelInstance = await this.setEntity(serviceInput, serviceData);
+                    modelInstance = await this.setEntity(req, res,serviceInput, serviceData);
                     console.log('BaseService::create()/11')
                     return await serviceRepository.save(await modelInstance);
                 }
@@ -984,7 +985,7 @@ export class BaseService {
                     console.log('BaseService::createI()/091')
                     const serviceData = createIParams.controllerData;
                     console.log('BaseService::createI()/092')
-                    modelInstance = await this.setEntity(createIParams.serviceInput, serviceData);
+                    modelInstance = await this.setEntity(req, res, createIParams.serviceInput, serviceData);
                     // modelInstance = createIParams.serviceInput.serviceModelInstance
                     console.log('BaseService::createI()/093')
                     // serviceRepository = await this.repo
@@ -1123,8 +1124,8 @@ export class BaseService {
         }
     }
 
-    async setPropertyMapArr(serviceInput) {
-        const propMap = await this.getEntityPropertyMap(serviceInput.serviceModel);
+    async setPropertyMapArr(req, res,serviceInput) {
+        const propMap = await this.getEntityPropertyMap(req, res,serviceInput.serviceModel);
         console.log('BaseService::setPropertyMapArr()/propMap:', propMap)
         const propMapArr = [];
         await propMap.forEach(async (field: any) => {
@@ -1139,10 +1140,10 @@ export class BaseService {
         return propMapArr;
     }
 
-    async setEntity(serviceInput: IServiceInput, serviceData: any): Promise<any> {
+    async setEntity(req, res,serviceInput: IServiceInput, serviceData: any): Promise<any> {
         console.log('BaseService::setEntity()/serviceInput:', serviceInput)
         console.log('BaseService::setEntity()/serviceData:', serviceData)
-        const propMapArr = await this.setPropertyMapArr(serviceInput);
+        const propMapArr = await this.setPropertyMapArr(req, res,serviceInput);
         console.log('BaseService::setEntity()/propMapArr:', propMapArr)
         const serviceInstance = serviceInput.serviceModelInstance;
         console.log('BaseService::setEntity()/serviceInstance1:', serviceInstance)
