@@ -982,7 +982,8 @@ export class BaseService {
                     console.log('BaseService::createI()/091')
                     const serviceData = createIParams.controllerData;
                     console.log('BaseService::createI()/092')
-                    modelInstance = await this.setEntity(createIParams.serviceInput, serviceData);
+                    // modelInstance = await this.setEntity(createIParams.serviceInput, serviceData);
+                    modelInstance = createIParams.serviceInput.serviceModelInstance
                     console.log('BaseService::createI()/093')
                     ret = await serviceRepository.save(await modelInstance);
                 }
