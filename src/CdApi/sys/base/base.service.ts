@@ -955,9 +955,9 @@ export class BaseService {
         let serviceRepository = null;
         try {
             console.log('BaseService::createI()/04')
-            // serviceRepository = await getConnection().getRepository(createIParams.serviceInput.serviceModel);
+            serviceRepository = await getConnection().getRepository(createIParams.serviceInput.serviceModel);
             console.log('BaseService::createI()/repo/model:', createIParams.serviceInput.serviceModel)
-            serviceRepository = await this.repo
+            // serviceRepository = await this.repo
             // serviceRepository = await this.repo(req, res, createIParams.serviceInput.serviceModel)
         } catch (e) {
             console.log('BaseService::createI()/05')
@@ -990,7 +990,7 @@ export class BaseService {
                     modelInstance = await this.setEntity(req, res, createIParams.serviceInput, serviceData);
                     // modelInstance = createIParams.serviceInput.serviceModelInstance
                     console.log('BaseService::createI()/093')
-                    serviceRepository = await this.repo
+                    // serviceRepository = await this.repo
                     console.log('BaseService::createI()/094')
                     ret = await serviceRepository.save(await modelInstance);
                 }
