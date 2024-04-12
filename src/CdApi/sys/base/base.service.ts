@@ -990,7 +990,7 @@ export class BaseService {
                     modelInstance = await this.setEntity(req, res, createIParams.serviceInput, serviceData);
                     // modelInstance = createIParams.serviceInput.serviceModelInstance
                     console.log('BaseService::createI()/093')
-                    // serviceRepository = await this.repo
+                    serviceRepository = await this.repo
                     console.log('BaseService::createI()/094')
                     ret = await serviceRepository.save(await modelInstance);
                 }
