@@ -600,7 +600,7 @@ export class BaseService {
     }
 
     async getEntityPropertyMap(req, res,model) {
-        this.init(req,res)
+        await this.init(req,res)
         console.log('BaseService::getEntityPropertyMap()/model:', model)
         const entityMetadata: EntityMetadata = await this.db.getMetadata(model);
         console.log('BaseService::getEntityPropertyMap()/entityMetadata:', entityMetadata)
