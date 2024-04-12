@@ -126,11 +126,27 @@ export class CoopService extends CdService {
     async createM(req, res) {
         console.log('CoopService::createM()/01')
         let data = req.post.dat.f_vals[0].data
-        // let data = f_vals[0].data
         console.log('CoopService::createM()/data:', data)
-
-        this.getCoop(req, res)
         
+        for (var coopData of data) {
+            console.log('coopData', coopData)
+            const coopQuery: CoopModel = coopData;
+            const svCoop = new CoopService();
+            const si = {
+                serviceInstance: svCoop,
+                serviceModel: CoopModel,
+                serviceModelInstance: svCoop.serviceModel,
+                docName: 'CoopService::CreateM',
+                dSource: 1,
+            }
+            const createIParams: CreateIParams = {
+                serviceInput: si,
+                controllerData: coopQuery
+            }
+            let ret = await svCoop.createI(req, res, createIParams)
+            console.log('CoopService::createM()/forLoop/ret:', ret)
+        }
+        this.getCoop(req, res)
     }
 
     async CoopExists(req, res, params): Promise<boolean> {
@@ -355,8 +371,8 @@ export class CoopService extends CdService {
         return true;
     }
 
-    async getCoop(req, res, q:IQuery = null): Promise<any> {
-        if(q === null){
+    async getCoop(req, res, q: IQuery = null): Promise<any> {
+        if (q === null) {
             q = this.b.getQuery(req);
         }
         console.log('CoopService::getCoop/f:', q);
