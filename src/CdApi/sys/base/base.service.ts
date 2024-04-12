@@ -982,10 +982,10 @@ export class BaseService {
                     console.log('BaseService::createI()/091')
                     const serviceData = createIParams.controllerData;
                     console.log('BaseService::createI()/092')
-                    // modelInstance = await this.setEntity(createIParams.serviceInput, serviceData);
-                    modelInstance = createIParams.serviceInput.serviceModelInstance
+                    modelInstance = await this.setEntity(createIParams.serviceInput, serviceData);
+                    // modelInstance = createIParams.serviceInput.serviceModelInstance
                     console.log('BaseService::createI()/093')
-                    serviceRepository = await this.repo
+                    // serviceRepository = await this.repo
                     console.log('BaseService::createI()/094')
                     ret = await serviceRepository.save(await modelInstance);
                 }
@@ -1134,11 +1134,17 @@ export class BaseService {
     }
 
     async setEntity(serviceInput: IServiceInput, serviceData: any): Promise<any> {
+        console.log('BaseService::setEntity()/serviceInput:', serviceInput)
+        console.log('BaseService::setEntity()/serviceData:', serviceData)
         const propMapArr = await this.setPropertyMapArr(serviceInput);
+        console.log('BaseService::setEntity()/propMapArr:', propMapArr)
         const serviceInstance = serviceInput.serviceModelInstance;
+        console.log('BaseService::setEntity()/serviceInstance1:', serviceInstance)
         propMapArr.forEach(async (field: any, i) => {
+            console.log('BaseService::setEntity()/forEach/field:', field)
             serviceInstance[field.alias] = serviceData[field.alias];
         });
+        console.log('BaseService::setEntity()/serviceInstance2:', serviceInstance)
         return await serviceInstance;
     }
 
