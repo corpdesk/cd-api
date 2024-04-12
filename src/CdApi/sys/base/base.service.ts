@@ -980,9 +980,9 @@ export class BaseService {
                     console.log('BaseService::createI()/createIParams.controllerData:', createIParams.controllerData)
                     createIParams.controllerData = await this.setCreateIData(req, createIParams.controllerData, { key: 'docId', value: await newDocData.docId })
                     console.log('BaseService::createI()/091')
-                    const serviceData = await createIParams.controllerData;
+                    const serviceData = createIParams.controllerData;
                     console.log('BaseService::createI()/092')
-                    modelInstance = await this.setEntity(createIParams.serviceInput, await serviceData);
+                    modelInstance = await this.setEntity(createIParams.serviceInput, serviceData);
                     console.log('BaseService::createI()/093')
                     ret = await serviceRepository.save(await modelInstance);
                 }
