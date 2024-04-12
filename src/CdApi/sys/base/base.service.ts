@@ -600,7 +600,9 @@ export class BaseService {
     }
 
     async getEntityPropertyMap(model) {
-        const entityMetadata: EntityMetadata = await getConnection().getMetadata(model);
+        console.log('BaseService::getEntityPropertyMap()/model:', model)
+        const entityMetadata: EntityMetadata = await this.db.getMetadata(model);
+        console.log('BaseService::getEntityPropertyMap()/entityMetadata:', entityMetadata)
         const cols = await entityMetadata.columns;
         const colsFiltd = await cols.map(async (col) => {
             return await {
@@ -1123,11 +1125,15 @@ export class BaseService {
 
     async setPropertyMapArr(serviceInput) {
         const propMap = await this.getEntityPropertyMap(serviceInput.serviceModel);
+        console.log('BaseService::setPropertyMapArr()/propMap:', propMap)
         const propMapArr = [];
         await propMap.forEach(async (field: any) => {
+            console.log('BaseService::setPropertyMapArr()/forEach/field:', field)
             const f = await field;
             const aName = f.propertyAliasName;
+            console.log('BaseService::setPropertyMapArr()/forEach/aName:', aName)
             const rName = f.databaseNameWithoutPrefixes;
+            console.log('BaseService::setPropertyMapArr()/forEach/rName:', rName)
             propMapArr.push({ alias: aName, fieldName: rName });
         });
         return propMapArr;
