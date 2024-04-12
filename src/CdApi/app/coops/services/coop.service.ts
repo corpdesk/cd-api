@@ -126,8 +126,8 @@ export class CoopService extends CdService {
         console.log('CoopService::createM()/01')
         let data = req.post.dat.f_vals[0].data
         console.log('CoopService::createM()/data:', data)
-        this.b.models.push(CoopModel)
-        this.b.init(req, res)
+        // this.b.models.push(CoopModel)
+        // this.b.init(req, res)
         
         for (var coopData of data) {
             console.log('coopData', coopData)

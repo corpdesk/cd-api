@@ -78,6 +78,7 @@ export class BaseService {
             const db = await new Database();
             // client expected to input the required models
             this.models.forEach(async (model) => {
+                console.log("BaseService::init()/forEach/model:", model)
                 await db.setConnEntity(model);
             });
             await db.getConnection();
