@@ -17,7 +17,7 @@ import { CoopViewModel } from './coop-view.model';
 export function siGet(q: IQuery) {
     return {
         serviceModel: CoopViewModel,
-        docName: 'CompanyModel::siGet',
+        docName: 'CoopModel::siGet',
         cmd: {
             action: 'find',
             query: q
@@ -175,6 +175,14 @@ export class CoopModel {
         }
     )
     coopReserves?: boolean;
+
+    @Column(
+        {
+            name: 'coop_ref_id',
+            default: null
+        }
+    )
+    coopRefId?: number;
 
 
 }
