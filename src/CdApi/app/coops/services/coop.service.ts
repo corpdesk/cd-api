@@ -31,7 +31,6 @@ export class CoopService extends CdService {
         super()
         this.b = new BaseService();
         this.serviceModel = new CoopModel();
-        // this.moduleModel = new ModuleModel();
     }
 
     // /**
@@ -145,7 +144,7 @@ export class CoopService extends CdService {
                 serviceInput: si,
                 controllerData: coopQuery
             }
-            let ret = await svCoop.createI(req, res, createIParams)
+            let ret = await this.createI(req, res, createIParams)
             console.log('CoopService::createM()/forLoop/ret:', ret)
         }
         this.getCoop(req, res)
