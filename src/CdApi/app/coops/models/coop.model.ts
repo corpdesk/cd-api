@@ -154,7 +154,7 @@ export class CoopModel {
 
     @Column(
         {
-            name: 'date_label',
+            name: 'coop_date_label',
             default: null
         }
     )
