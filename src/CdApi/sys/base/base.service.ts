@@ -74,6 +74,7 @@ export class BaseService {
     ds: any = null;
 
     async init(req, res) {
+        console.log("BaseService::init()/01:")
         if (!this.db) {
             const db = await new Database();
             // client expected to input the required models
@@ -602,7 +603,7 @@ export class BaseService {
     async getEntityPropertyMap(req, res,model) {
         await this.init(req,res)
         console.log('BaseService::getEntityPropertyMap()/model:', model)
-        const entityMetadata: EntityMetadata = await this.db.getMetadata(model);
+        const entityMetadata: EntityMetadata = await getConnection().getMetadata(model);
         console.log('BaseService::getEntityPropertyMap()/entityMetadata:', entityMetadata)
         const cols = await entityMetadata.columns;
         const colsFiltd = await cols.map(async (col) => {
