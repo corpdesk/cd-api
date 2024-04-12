@@ -33,28 +33,41 @@ export class CoopService extends CdService {
         this.serviceModel = new CoopModel();
     }
 
-    // /**
-    //  * {
-    //         "ctx": "Sys",
-    //         "m": "Moduleman",
-    //         "c": "Coop",
-    //         "a": "Create",
-    //         "dat": {
-    //             "f_vals": [
-    //                 {
-    //                     "data": {
-    //                         "coopName": "/src/CdApi/sys/moduleman",
-    //                         "coopTypeId": "7ae902cd-5bc5-493b-a739-125f10ca0268",
-    //                     }
-    //                 }
-    //             ],
-    //             "token": "3ffd785f-e885-4d37-addf-0e24379af338"
-    //         },
-    //         "args": {}
+    // // /**
+    // //  * {
+    //     "ctx": "App",
+    //     "m": "Coops",
+    //     "c": "Coop",
+    //     "a": "Create",
+    //     "dat": {
+    //         "f_vals": [
+    //         {
+    //             "data": {
+    //             "coop_guid": "",
+    //             "coop_name": "Ethiopia",
+    //             "coop_description": "2022",
+    //             "doc_id": null,
+    //             "cd_geo_location_id": "",
+    //             "coop_woccu": false,
+    //             "coop_count": 21328,
+    //             "coop_members_count": 6916853,
+    //             "coop_saves_shares": 711228785,
+    //             "coop_loans": 173329666,
+    //             "coop_reserves": null,
+    //             "coop_assets": 807692307,
+    //             "coop_member_penetration": 9.8,
+    //             "coop_date_label": "2022-12-31 23:59:59",
+    //             "coop_ref": ""
+    //             }
+    //         }
+    //         ],
+    //         "token": "3ffd785f-e885-4d37-addf-0e24379af338"
+    //     },
+    //     "args": {}
     //     }
-    //  * @param req
-    //  * @param res
-    //  */
+    // //  * @param req
+    // //  * @param res
+    // //  */
     async create(req, res) {
         console.log('coop/create::validateCreate()/01')
         const svSess = new SessionService();
@@ -62,6 +75,7 @@ export class CoopService extends CdService {
             await this.beforeCreate(req, res);
             const serviceInput = {
                 serviceModel: CoopModel,
+                modelName: "CoopModel",
                 serviceModelInstance: this.serviceModel,
                 docName: 'Create Coop',
                 dSource: 1,

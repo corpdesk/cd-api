@@ -648,7 +648,8 @@ export class BaseService {
         // set connection
         // const baseRepository = getConnection().getRepository(params.model);
         console.log('BaseService::validateUnique()/repo/model:', params.model)
-        const baseRepository: any = await this.repo(req, res, params.model)
+        // const baseRepository: any = await this.repo(req, res, params.model)
+        const baseRepository: any = await this.repo
         // get model properties
         const propMap = await this.getEntityPropertyMap(req, res,params.model).then((result) => {
             // console.log('validateUnique()/result:', result)
