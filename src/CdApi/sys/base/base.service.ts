@@ -83,6 +83,7 @@ export class BaseService {
             });
             await db.getConnection();
         }
+        console.log("BaseService::init()/this.models:", this.models)
     }
 
     async initSqlite(req, res) {
