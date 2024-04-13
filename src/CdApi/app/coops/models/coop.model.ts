@@ -158,7 +158,7 @@ export class CoopModel {
             default: null
         }
     )
-    dateLabel?: string;
+    coopDateLabel?: string;
 
     @Column(
         {
