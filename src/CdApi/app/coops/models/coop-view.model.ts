@@ -1,4 +1,18 @@
 import { ViewEntity, ViewColumn } from 'typeorm';
+import { IQuery } from '../../../sys/base/IBase';
+
+export function siGet(q: IQuery) {
+    return {
+        serviceModel: CoopViewModel,
+        docName: 'CoopModel::siGet',
+        cmd: {
+            action: 'find',
+            query: q
+        },
+        dSource: 1
+    }
+}
+
 
 @ViewEntity({
     name: 'coop_view',
@@ -27,6 +41,7 @@ import { ViewEntity, ViewColumn } from 'typeorm';
                 ON (( 'coop_type'.'coop_type_id' = 'coop'.'coop_type_id' )));  
     `
 })
+
 
 export class CoopViewModel {
     @ViewColumn(

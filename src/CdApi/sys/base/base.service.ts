@@ -957,8 +957,6 @@ export class BaseService {
             console.log('BaseService::createI()/04')
             serviceRepository = await getConnection().getRepository(createIParams.serviceInput.serviceModel);
             console.log('BaseService::createI()/repo/model:', createIParams.serviceInput.serviceModel)
-            // serviceRepository = await this.repo
-            // serviceRepository = await this.repo(req, res, createIParams.serviceInput.serviceModel)
         } catch (e) {
             console.log('BaseService::createI()/05')
             console.log('BaseService::createI()/Error/01')

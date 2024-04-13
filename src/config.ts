@@ -1,44 +1,11 @@
-///////////////////////////
-
-
 import mysql from 'mysql2';
 import * as dotenv from 'dotenv';
 import "reflect-metadata";
 import { DatabaseType } from 'typeorm';
-// import { SessionModel } from './CdApi/sys/user/models/session.model';
 dotenv.config();
 
-// const mysqlConn = mysql.createConnection({
-//   host: process.env.DB_HOST,
-//   user: process.env.DB_USER,
-//   password: process.env.DB_PWD,
-//   database: process.env.DB_NAME
-// });
 
 const mysqlConfig = {
-    // type: 'mysql',
-    // host: process.env.DB_HOST,
-    // port: 3306,
-    // username: process.env.DB_USER,
-    // password: process.env.DB_PWD,
-    // database: process.env.DB_NAME,
-    // synchronize: true,
-    // logging: false,
-    // entities: [
-    //    'src/CdApi/**/**/models/*.model.ts'
-    // ],
-    // migrations: [
-    //    'src/migration/**/*.ts'
-    // ]
-    // ,
-    // subscribers: [
-    //    'src/subscriber/**/*.ts'
-    // ],
-    // cli: {
-    //    'entitiesDir': 'src/entity',
-    //    'migrationsDir': 'src/migration',
-    //    'subscribersDir': 'src/subscriber'
-    // }
     name: 'default',
     type: 'mysql',
     port: process.env.DB_PORT,
@@ -72,7 +39,8 @@ const mysqlConfig = {
     //     // 'info', 
     //     // 'log'
     // ],
-    logging: ["query", "error","warn","info","log"]
+    // logging: ["query", "error","warn","info","log"]
+    logging: "all"
 };
 
 const mysqlConfig2 = {
@@ -96,32 +64,6 @@ const mysqlConfig2 = {
     subscribers: [],
 }
 
-// export const sqliteConfig: ConnectionOptions = {
-//     name: 'sqlite1',
-//     type: 'sqlite',
-//     database: __dirname + '/database.sqlite',
-//     synchronize: false,
-//     // keepConnectionAlive: true,
-//     logging: false,
-//     entities: [
-//         // BillModel
-//         // __dirname + '/CdApi/app/accts/models/*.model.ts'
-//         __dirname + '/CdApi/app/accts/models/*.model.ts',
-//         __dirname + '/CdApi/sys/moduleman/models/company.model.ts'
-//     ],
-//     // migrations: [
-//     //   'src/app/data/migrations/**/*.ts'
-//     // ],
-//     // subscribers: [
-//     //   'src/app/data/subscribers/**/*.subscriber.ts'
-//     // ],
-//     // cli: {
-//     //   'entitiesDir': 'src/app/data/entities',
-//     //   'migrationsDir': 'src/app/data/migrations',
-//     //   'subscribersDir': 'src/app/data/subscribers'
-//     // }
-// };
-
 export async function sqliteConfig(connName): Promise<any> {
     return {
         name: connName,
@@ -131,42 +73,16 @@ export async function sqliteConfig(connName): Promise<any> {
         // keepConnectionAlive: true,
         logging: false,
         entities: [
-            // BillModel
-            // __dirname + '/CdApi/app/accts/models/*.model.ts'
             __dirname + '/CdApi/app/accts/models/*.model.ts',
             __dirname + '/CdApi/sys/moduleman/models/company.model.ts'
         ],
-        // migrations: [
-        //   'src/app/data/migrations/**/*.ts'
-        // ],
-        // subscribers: [
-        //   'src/app/data/subscribers/**/*.subscriber.ts'
-        // ],
-        // cli: {
-        //   'entitiesDir': 'src/app/data/entities',
-        //   'migrationsDir': 'src/app/data/migrations',
-        //   'subscribersDir': 'src/app/data/subscribers'
-        // }
     };
 }
 
 
-//  name: 'default',
-//         type: 'mysql',
-//         host: 'localhost',
-//         port: 3306,
-//         username: 'test',
-//         password: 'test',
-//         database: 'test',
-//         synchronize: true,
-//         logging: false,
-//         entities: [UserEntity],
-
-///////////////////////////
 
 const API_PORT = process.env.API_PORT;
 const END_POINT = `${process.env.API_URL}:${API_PORT}`;
-// const ORIGIN = `${process.env.ORIGIN_URL}:${ORIGIN_PORT}`;
 
 export default {
     apiPort: process.env.API_PORT,

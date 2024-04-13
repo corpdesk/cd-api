@@ -2,29 +2,10 @@ import {
     Entity,
     PrimaryGeneratedColumn,
     Column,
-    BeforeInsert,
-    BeforeUpdate,
-    OneToMany
 } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
-import {
-    validateOrReject,
-} from 'class-validator';
-import Decimal from 'decimal.js';
-import { IQuery } from '../../../sys/base/IBase';
-import { CoopViewModel } from './coop-view.model';
 
-export function siGet(q: IQuery) {
-    return {
-        serviceModel: CoopViewModel,
-        docName: 'CoopModel::siGet',
-        cmd: {
-            action: 'find',
-            query: q
-        },
-        dSource: 1
-    }
-}
+
 
 /// ColumnNumericTransformer
 export class ColumnNumericTransformer {
@@ -58,7 +39,6 @@ export class CoopModel {
     coopGuid?: string;
 
     @Column(
-        'varchar',
         {
             name: 'coop_name',
             length: 50,
@@ -68,7 +48,6 @@ export class CoopModel {
     coopName: string;
 
     @Column(
-        'varchar',
         {
             name: 'coop_description',
             length: 60,
@@ -82,7 +61,7 @@ export class CoopModel {
             default: null
         }
     )
-    docId?: string;
+    docId?: number;
 
     @Column(
         {
@@ -148,9 +127,7 @@ export class CoopModel {
         default: null,
         transformer: new ColumnNumericTransformer(),
     })
-    public coopMemberPenetration: number;
-
-
+    coopMemberPenetration: number;
 
     @Column(
         {
@@ -166,7 +143,7 @@ export class CoopModel {
             default: null
         }
     )
-    coopWoccu?: boolean;
+    coopWoccu?: number;
 
     @Column(
         {
@@ -174,7 +151,7 @@ export class CoopModel {
             default: null
         }
     )
-    coopReserves?: boolean;
+    coopReserves?: number;
 
     @Column(
         {
