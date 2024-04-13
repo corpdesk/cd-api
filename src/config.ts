@@ -72,7 +72,7 @@ const mysqlConfig = {
     //     // 'info', 
     //     // 'log'
     // ],
-    logging: ["query", "error"]
+    logging: ["query", "error","warn","info","log"]
 };
 
 const mysqlConfig2 = {
