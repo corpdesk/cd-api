@@ -3,9 +3,10 @@ import { CdService } from '../../../sys/base/cd.service';
 import { SessionService } from '../../../sys/user/services/session.service';
 import { UserService } from '../../../sys/user/services/user.service';
 import { CreateIParams, IQuery, IRespInfo, IServiceInput, IUser, ICdRequest } from '../../../sys/base/IBase';
-import { CoopModel} from '../models/coop.model';
-import { CoopViewModel, siGet } from '../models/coop-view.model';
+import { CoopModel, siGet} from '../models/coop.model';
+// import { CoopViewModel, siGet } from '../models/coop-view.model';
 import { CoopTypeModel } from '../models/coop-type.model';
+import { CoopViewModel } from '../models/coop-view.model';
 
 export class CoopService extends CdService {
     b: any; // instance of BaseService

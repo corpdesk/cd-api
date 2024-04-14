@@ -4,8 +4,19 @@ import {
     Column,
 } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
+import { IQuery } from '../../../sys/base/IBase';
 
-
+export function siGet(q: IQuery) {
+    return {
+        serviceModel: CoopModel,
+        docName: 'CoopModel::siGet',
+        cmd: {
+            action: 'find',
+            query: q
+        },
+        dSource: 1
+    }
+}
 
 /// ColumnNumericTransformer
 export class ColumnNumericTransformer {
@@ -138,12 +149,13 @@ export class CoopModel {
     coopDateLabel?: string;
 
     @Column(
+        'boolean',
         {
             name: 'coop_woccu',
             default: null
         }
     )
-    coopWoccu?: number;
+    coopWoccu?: boolean;
 
     @Column(
         {
