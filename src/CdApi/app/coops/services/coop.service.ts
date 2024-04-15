@@ -3,7 +3,7 @@ import { CdService } from '../../../sys/base/cd.service';
 import { SessionService } from '../../../sys/user/services/session.service';
 import { UserService } from '../../../sys/user/services/user.service';
 import { CreateIParams, IQuery, IRespInfo, IServiceInput, IUser, ICdRequest } from '../../../sys/base/IBase';
-import { CoopModel, siGet} from '../models/coop.model';
+import { CoopModel, siGet } from '../models/coop.model';
 // import { CoopViewModel, siGet } from '../models/coop-view.model';
 import { CoopTypeModel } from '../models/coop-type.model';
 import { CoopViewModel } from '../models/coop-view.model';
@@ -34,41 +34,40 @@ export class CoopService extends CdService {
         this.serviceModel = new CoopModel();
     }
 
-    // // /**
-    // //  * {
-    //     "ctx": "App",
-    //     "m": "Coops",
-    //     "c": "Coop",
-    //     "a": "Create",
-    //     "dat": {
-    //         "f_vals": [
-    //         {
-    //             "data": {
-    //             "coop_guid": "",
-    //             "coop_name": "Ethiopia",
-    //             "coop_description": "2022",
-    //             "doc_id": null,
-    //             "cd_geo_location_id": "",
-    //             "coop_woccu": false,
-    //             "coop_count": 21328,
-    //             "coop_members_count": 6916853,
-    //             "coop_saves_shares": 711228785,
-    //             "coop_loans": 173329666,
-    //             "coop_reserves": null,
-    //             "coop_assets": 807692307,
-    //             "coop_member_penetration": 9.8,
-    //             "coop_date_label": "2022-12-31 23:59:59",
-    //             "coop_ref": ""
-    //             }
-    //         }
-    //         ],
-    //         "token": "3ffd785f-e885-4d37-addf-0e24379af338"
-    //     },
-    //     "args": {}
-    //     }
-    // //  * @param req
-    // //  * @param res
-    // //  */
+     /**
+     * {
+        "ctx": "App",
+        "m": "Coops",
+        "c": "Coop",
+        "a": "Create",
+        "dat": {
+            "f_vals": [
+            {
+                "data": {
+                    "coopGuid":"",
+                    "coopName": "Benin", 
+                    "coopDescription":"2005",
+                    "cdGeoLocationId":null,
+                    "coopWoccu": false,
+                    "coopCount": null,
+                    "coopMembersCount": 881232, 
+                    "coopSavesShares":56429394,
+                    "coopLoans":45011150,
+                    "coopReserves":null, 
+                    "coopAssets": null,
+                    "coopMemberPenetration":20.95,
+                    "coopDateLabel": "2005-12-31 23:59:59",
+                    "coopRefId":null
+	            }
+            }
+            ],
+            "token": "3ffd785f-e885-4d37-addf-0e24379af338"
+        },
+        "args": {}
+        }
+     * @param req
+     * @param res
+     */
     async create(req, res) {
         console.log('coop/create::validateCreate()/01')
         const svSess = new SessionService();
@@ -121,7 +120,7 @@ export class CoopService extends CdService {
     }
 
     /**
-     * CreateM, Create multiple
+     * CreateM, Create multiple records
      *  - 1. validate the loop field for multiple data
      *  - 2. loop through the list
      *  - 3. in each cycle:
@@ -131,8 +130,55 @@ export class CoopService extends CdService {
      *  - 4. set return data
      *  - 5. return data
      * 
-     * curl test:
-     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "Coops","c": "Coop","a": "CreateM","dat": {"f_vals": [{"data": [{"coop_guid": "","coop_name": "Benin","coop_description": "2022","doc_id": -1,"cd_geo_location_id": "","coop_woccu": false,"coop_count": 57,"coop_members_count": 3144827,"coop_saves_shares": 299383050,"coop_loans": 343758667,"coop_reserves": -1,"coop_assets": -1,"coop_member_penetration": 43.5,"coop_date_label": "2022-12-31 23:59:59","coop_ref": ""},{"coop_guid": "","coop_name": "Botswana","coop_description": "2022","doc_id": null,"cd_geo_location_id": "","coop_woccu": false,"coop_count": 83,"coop_members_count": 33632,"coop_saves_shares": 54172035,"coop_loans": 63217449,"coop_reserves": 20547322,"coop_assets": 61000000,"coop_member_penetration": 2,"coop_date_label": "2022-12-31 23:59:59","coop_ref": ""},{"coop_guid": "","coop_name": "Burkina Faso","coop_description": "2022","doc_id": null,"cd_geo_location_id": "","coop_woccu": false,"coop_count": 76,"coop_members_count": 1799562,"coop_saves_shares": 624092088,"coop_loans": 531865222,"coop_reserves": null,"coop_assets": null,"coop_member_penetration": 14.8,"coop_date_label": "2022-12-31 23:59:59","coop_ref": ""},{"coop_guid": "","coop_name": "Cameroon","coop_description": "2022","doc_id": null,"cd_geo_location_id": "","coop_woccu": false,"coop_count": 183,"coop_members_count": 578067,"coop_saves_shares": 373816194,"coop_loans": 272164868,"coop_reserves": 44563826,"coop_assets": 451697808,"coop_member_penetration": 3.8,"coop_date_label": "2022-12-31 23:59:59","coop_ref": ""},{"coop_guid": "","coop_name": "Ethiopia","coop_description": "2022","doc_id": null,"cd_geo_location_id": "","coop_woccu": false,"coop_count": 21328,"coop_members_count": 6916853,"coop_saves_shares": 711228785,"coop_loans": 173329666,"coop_reserves": null,"coop_assets": 807692307,"coop_member_penetration": 9.8,"coop_date_label": "2022-12-31 23:59:59","coop_ref": ""}]}],"token": "3ffd785f-e885-4d37-addf-0e24379af338"},"args": {}}' http://cd-api-92:3001 -v
+     * {
+        "ctx": "App",
+        "m": "Coops",
+        "c": "Coop",
+        "a": "CreateM",
+        "dat": {
+            "f_vals": [
+            {
+                "data": [
+                {
+                    "coopGuid": "",
+                    "coopName": "Kenya",
+                    "coopDescription": "2006",
+                    "cdGeoLocationId": null,
+                    "coopWoccu": false,
+                    "coopCount": 2993,
+                    "coopMembersCount": 3265545,
+                    "coopSavesShares": 1608009012,
+                    "coopLoans": 1604043550,
+                    "coopReserves": 102792479,
+                    "coopAssets": 2146769999,
+                    "coopMemberPenetration": 16.01,
+                    "coopDateLabel": "2006-12-31 23:59:59",
+                    "coopRefId": null
+                },
+                {
+                    "coopGuid": "",
+                    "coopName": "Malawi",
+                    "coopDescription": "2006",
+                    "cdGeoLocationId": null,
+                    "coopWoccu": false,
+                    "coopCount": 70,
+                    "coopMembersCount": 62736,
+                    "coopSavesShares": 6175626,
+                    "coopLoans": 4946246,
+                    "coopReserves": 601936,
+                    "coopAssets": 7407250,
+                    "coopMemberPenetration": 0.9,
+                    "coopDateLabel": "2006-12-31 23:59:59",
+                    "coopRefId": null
+                }
+                ]
+            }
+            ],
+            "token": "3ffd785f-e885-4d37-addf-0e24379af338"
+        },
+        "args": {}
+        }
+     * 
      * 
      * @param req 
      * @param res 
@@ -143,7 +189,7 @@ export class CoopService extends CdService {
         console.log('CoopService::createM()/data:', data)
         // this.b.models.push(CoopModel)
         // this.b.init(req, res)
-        
+
         for (var coopData of data) {
             console.log('coopData', coopData)
             const coopQuery: CoopModel = coopData;
@@ -162,7 +208,21 @@ export class CoopService extends CdService {
             let ret = await this.createI(req, res, createIParams)
             console.log('CoopService::createM()/forLoop/ret:', ret)
         }
-        this.getCoop(req, res)
+        // return current sample data
+        // eg first 5
+        // this is just a sample for development
+        // producation can be tailored to requrement 
+        // and the query can be set from the client side.
+        let q = {
+            // "select": [
+            //     "coopName",
+            //     "coopDescription"
+            // ],
+            "where": {},
+            "take": 5,
+            "skip": 0
+        }
+        this.getCoop(req, res,q)
     }
 
     async CoopExists(req, res, params): Promise<boolean> {
