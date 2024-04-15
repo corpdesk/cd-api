@@ -22,7 +22,7 @@ export class CoopService extends CdService {
      * create rules
      */
     cRules: any = {
-        required: ['coopName', 'coopDateLabel'],
+        required: ['coopName', 'coopTypeId', 'coopDateLabel'],
         noDuplicate: ['coopName', 'coopDateLabel']
     };
     uRules: any[];
