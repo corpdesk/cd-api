@@ -126,6 +126,7 @@ export class DocService extends CdService {
             console.log('DocService::getDocTypeId()/04')
             const r = await this.createDocType(req, res);
             console.log('DocService::getDocTypeId()/05')
+            console.log('DocService::getDocTypeId()/r:', r)
             ret = r[0].docTypeId;
         }
         console.log('DocService::getDocTypeId()/06')
