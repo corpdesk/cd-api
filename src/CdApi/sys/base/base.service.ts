@@ -24,7 +24,7 @@ import { DocModel } from '../moduleman/models/doc.model';
 import { SessionService } from '../user/services/session.service';
 import { SessionModel } from '../user/models/session.model';
 import { DocService } from '../moduleman/services/doc.service';
-import config, { sqliteConfig } from '../../../config';
+import config, { AppDataSource, sqliteConfig } from '../../../config';
 import { ConnectionTest } from './connection-test';
 // import { createConnection } from 'typeorm';
 import { MysqlDataSource } from "./data-source"
@@ -602,9 +602,9 @@ export class BaseService {
 
     async getEntityPropertyMap(req, res,model) {
         await this.init(req,res)
-        console.log('BaseService::getEntityPropertyMap()/model:', model)
+        // console.log('BaseService::getEntityPropertyMap()/model:', model)
         const entityMetadata: EntityMetadata = await getConnection().getMetadata(model);
-        console.log('BaseService::getEntityPropertyMap()/entityMetadata:', entityMetadata)
+        // console.log('BaseService::getEntityPropertyMap()/entityMetadata:', entityMetadata)
         const cols = await entityMetadata.columns;
         const colsFiltd = await cols.map(async (col) => {
             return await {
@@ -695,6 +695,8 @@ export class BaseService {
     // async getQueryItems(req, propMap: any[], params: any) {
     async getQueryItems(req, params, fields = null) {
         ////////////////////////////////////////////////
+        console.log('BaseService::getQueryItems()/params:', params)
+        console.log('BaseService::getQueryItems()/req.post.dat.f_vals[0].data:', req.post.dat.f_vals[0].data)
         if (fields === null) {
             fields = req.post.dat.f_vals[0].data
         }
@@ -851,9 +853,8 @@ export class BaseService {
             console.log('BaseService::create()/021')
             newDocData = await this.saveDoc(req, res, serviceInput);
             console.log('BaseService::create()/022/newDocData:', newDocData)
-            console.log('BaseService::create()/newDocData:', newDocData)
         } catch (e) {
-            console.log('BaseService::create()/03')
+            console.log('BaseService::create()/03:Error', e)
             this.serviceErr(req, res, e, 'BaseService:create/savDoc')
         }
         let serviceRepository = null;
@@ -1129,12 +1130,12 @@ export class BaseService {
         console.log('BaseService::setPropertyMapArr()/propMap:', propMap)
         const propMapArr = [];
         await propMap.forEach(async (field: any) => {
-            console.log('BaseService::setPropertyMapArr()/forEach/field:', field)
+            // console.log('BaseService::setPropertyMapArr()/forEach/field:', field)
             const f = await field;
             const aName = f.propertyAliasName;
-            console.log('BaseService::setPropertyMapArr()/forEach/aName:', aName)
+            // console.log('BaseService::setPropertyMapArr()/forEach/aName:', aName)
             const rName = f.databaseNameWithoutPrefixes;
-            console.log('BaseService::setPropertyMapArr()/forEach/rName:', rName)
+            // console.log('BaseService::setPropertyMapArr()/forEach/rName:', rName)
             propMapArr.push({ alias: aName, fieldName: rName });
         });
         return propMapArr;
@@ -1186,6 +1187,7 @@ export class BaseService {
         console.log('BaseService::read()/02')
         console.log('BaseService::read()/serviceInput:', serviceInput)
         // const repo: any = await this.repo(req, res, serviceInput.serviceModel);
+        
         await this.setRepo(serviceInput)
         // const init = async (event) => {
         // const AppDataSource = await getDataSource();
@@ -1217,6 +1219,8 @@ export class BaseService {
                     console.log('BaseService::read()/04/serviceInput.serviceModel:', serviceInput.serviceModel)
                     console.log('BaseService::read()/04/serviceInput.modelName:', serviceInput.modelName)
                     await this.setRepo(serviceInput)
+                    console.log('BaseService::read()/041')
+                    console.log('BaseService::read()/this.repo:', this.repo)
                     r = await this.repo.find(serviceInput.cmd.query);
                     console.log('BaseService::read()/04/r:', r)
                     if (serviceInput.extraInfo) {
@@ -2108,8 +2112,17 @@ export class BaseService {
         // // const eCls = eImport[eImport];
         // // const cls = new eCls();
         // this.repo = await MysqlDataSource.getRepository(UserModel)
+        ////////////////////////////////////////
         const AppDataSource = await getDataSource();
         this.repo = AppDataSource.getRepository(serviceInput.serviceModel);
+        /////////////////////////////////////////
+        // if(this.ds){
+        //     this.repo = this.ds.getRepository(serviceInput.serviceModel);
+        // } else {
+        //     this.ds = await AppDataSource.initialize();
+        //     this.repo = this.ds.getRepository(serviceInput.serviceModel);
+        // }
+        
     }
 
     async all(request: Request, response: Response, next: NextFunction) {

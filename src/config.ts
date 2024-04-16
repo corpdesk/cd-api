@@ -1,8 +1,31 @@
 import mysql from 'mysql2';
 import * as dotenv from 'dotenv';
 import "reflect-metadata";
-import { DatabaseType } from 'typeorm';
+import { DataSource, DatabaseType } from 'typeorm';
 dotenv.config();
+
+export const AppDataSource = new DataSource({
+    name: 'conn2',
+    type: "mysql",
+    port: Number(process.env.DB_PORT),
+    host: process.env.DB_HOST,
+    username: process.env.DB_USER,
+    database: process.env.DB_NAME,
+    password: process.env.DB_PWD,
+    synchronize: false,
+    logging: false,
+    // entities: [UserModel],
+    entities: [
+        __dirname + '/CdApi/sys/user/models/*.model.ts',
+        __dirname + '/CdApi/sys/moduleman/models/*.model.ts',
+        __dirname + '/CdApi/sys/comm/models/*.model.ts',
+        __dirname + '/CdApi/sys/scheduler/models/*.model.ts',
+        __dirname + '/CdApi/app/cd-accts/models/*.model.ts',
+        __dirname + '/CdApi/app/coops/models/*.model.ts',
+    ],
+    migrations: [],
+    subscribers: [],
+})
 
 
 const mysqlConfig = {
@@ -39,8 +62,8 @@ const mysqlConfig = {
     //     // 'info', 
     //     // 'log'
     // ],
-    // logging: ["query", "error","warn","info","log"]
-    logging: "all"
+    logging: ["query", "error","warn","log"]
+    // logging: "all"
 };
 
 const mysqlConfig2 = {

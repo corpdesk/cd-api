@@ -1,14 +1,19 @@
 import { BaseService } from '../../../sys/base/base.service';
+import { CoopTypeService } from '../services/coop-type.service';
 import { CoopService } from '../services/coop.service';
 
 export class CoopController {
 
     b: BaseService;
     svCoop: CoopService;
+    svCoopType: CoopTypeService
 
     constructor() {
         this.b = new BaseService();
         this.svCoop = new CoopService();
+        this.svCoopType = new CoopTypeService();
+
+
     }
 
     // /**
@@ -51,7 +56,7 @@ export class CoopController {
         try {
             await this.svCoop.createM(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'CoopController:Create');
+            await this.b.serviceErr(req, res, e, 'CoopController:CreateM');
         }
     }
 
@@ -63,27 +68,31 @@ export class CoopController {
         }
     }
 
-    // /**
-    //  * {
-    //         "ctx": "Sys",
-    //         "m": "Moduleman",
-    //         "c": "Coop",
-    //         "a": "Get",
-    //         "dat": {
-    //             "f_vals": [
-    //                 {
-    //                     "query": {
-    //                         "where": {"CoopId": 45763}
-    //                     }
-    //                 }
-    //             ],
-    //             "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
-    //         },
-    //         "args": null
-    //     }
-    //  * @param req
-    //  * @param res
-    //  */
+    
+
+    /**
+     * {
+            "ctx": "App",
+            "m": "Coops",
+            "c": "Coop",
+            "a": "Get",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "where": {"coopName": "Kenya"}
+                        }
+                    }
+                ],
+                "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+            },
+            "args": null
+        }
+
+        curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App", "m": "Coops","c": "Coop","a": "Get","dat": {"f_vals": [{"query": {"where": {"coopName": "Kenya"}}}],"token":"08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
+     * @param req
+     * @param res
+     */
     async Get(req, res) {
         try {
             await this.svCoop.getCoop(req, res);
@@ -100,59 +109,64 @@ export class CoopController {
         }
     }
 
-    // /**
-    //  * {
-    //         "ctx": "Sys",
-    //         "m": "Moduleman",
-    //         "c": "Coop",
-    //         "a": "GetType",
-    //         "dat": {
-    //             "f_vals": [
-    //                 {
-    //                     "query": {
-    //                         "where": {"CoopTypeId": 45763}
-    //                     }
-    //                 }
-    //             ],
-    //             "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
-    //         },
-    //         "args": null
-    //     }
-    //  * @param req
-    //  * @param res
-    //  */
+    /**
+     * {
+            "ctx": "App",
+            "m": "Coops",
+            "c": "Coop",
+            "a": "GetType",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "where": {"coopTypeId": 100}
+                        }
+                    }
+                ],
+                "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+            },
+            "args": null
+        }
+
+        curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "Coops","c": "Coop","a": "GetType","dat":{"f_vals": [{"query":{"where": {"coopTypeId":100}}}],"token":"08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
+     * @param req
+     * @param res
+     */
     async GetType(req, res) {
         try {
-            await this.svCoop.getCoopTypeCount(req, res);
+            await this.svCoop.getCoopType(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'CoopController:Get');
         }
     }
 
-    // /** Pageable request:
-    //  * {
-    //         "ctx": "Sys",
-    //         "m": "Moduleman",
-    //         "c": "Module",
-    //         "a": "GetCount",
-    //         "dat": {
-    //             "f_vals": [
-    //                 {
-    //                     "query": {
-    //                         "select":["moduleId","moduleGuid"],
-    //                         "where": {},
-    //                         "take": 5,
-    //                         "skip": 1
-    //                         }
-    //                 }
-    //             ],
-    //             "token": "29947F3F-FF52-9659-F24C-90D716BC77B2"
-    //         },
-    //         "args": null
-    //     }
-    //  * @param req
-    //  * @param res
-    //  */
+    /** Pageable request:
+     * {
+            "ctx": "App",
+            "m": "Coops",
+            "c": "Coop",
+            "a": "GetCount",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "select":["coopId","coopGuid"],
+                            "where": {},
+                            "take": 5,
+                            "skip": 1
+                            }
+                    }
+                ],
+                "token": "29947F3F-FF52-9659-F24C-90D716BC77B2"
+            },
+            "args": null
+        }
+
+     curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "Coops","c": "Coop","a": "GetCount","dat": {"f_vals": [{"query": {"select":["coopId","coopGuid"],"where": {}, "take":5,"skip": 1}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
+
+     * @param req
+     * @param res
+     */
     async GetCount(req, res) {
         try {
             await this.svCoop.getCoopCount(req, res);
@@ -161,30 +175,33 @@ export class CoopController {
         }
     }
 
-    // /** Pageable request:
-    //  * {
-    //         "ctx": "Sys",
-    //         "m": "Moduleman",
-    //         "c": "Module",
-    //         "a": "GetPaged",
-    //         "dat": {
-    //             "f_vals": [
-    //                 {
-    //                     "query": {
-    //                         "select":["moduleId","moduleGuid"],
-    //                         "where": {},
-    //                         "take": 5,
-    //                         "skip": 1
-    //                         }
-    //                 }
-    //             ],
-    //             "token": "29947F3F-FF52-9659-F24C-90D716BC77B2"
-    //         },
-    //         "args": null
-    //     }
-    //  * @param req
-    //  * @param res
-    //  */
+    /** Pageable request:
+     * {
+            "ctx": "App",
+            "m": "Coops",
+            "c": "Coop",
+            "a": "GetPaged",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "select":["coopId","coopGuid"],
+                            "where": {},
+                            "take": 5,
+                            "skip": 1
+                            }
+                    }
+                ],
+                "token": "29947F3F-FF52-9659-F24C-90D716BC77B2"
+            },
+            "args": null
+        }
+
+     curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "Coops","c": "Coop","a": "GetPaged","dat": {"f_vals": [{"query": {"select":["coopId","coopGuid"],"where": {}, "take":5,"skip": 1}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
+
+     * @param req
+     * @param res
+     */
     async GetPaged(req, res) {
         try {
             await this.svCoop.getCoopCount(req, res);
@@ -281,6 +298,20 @@ export class CoopController {
             await this.svCoop.deleteSL(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'BillController:DeleteSL');
+        }
+    }
+
+    /**
+     * 
+     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "Coops","c": "Coop","a": "CreateType","dat": {"f_vals": [{"data": {"coopTypeName": "Continental Apex"}}],"token": "3ffd785f-e885-4d37-addf-0e24379af338"},"args": {}}' http://localhost:3001 -v  | jq '.'
+     * @param req 
+     * @param res 
+     */
+    async CreateType(req, res) {
+        try {
+            await this.svCoopType.create(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'CoopController:CreateType');
         }
     }
 
