@@ -218,32 +218,34 @@ export class CoopController {
         }
     }
 
-    // /**
-    //  * {
-    //         "ctx": "Sys",
-    //         "m": "Moduleman",
-    //         "c": "Coop",
-    //         "a": "Update",
-    //         "dat": {
-    //             "f_vals": [
-    //                 {
-    //                     "query": {
-    //                         "update": {
-    //                             "CoopName": "/corp-deskv1.2.1.2/system/modules/comm/controllers"
-    //                         },
-    //                         "where": {
-    //                             "CoopId": 45762
-    //                         }
-    //                     }
-    //                 }
-    //             ],
-    //             "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
-    //         },
-    //         "args": {}
-    //     }
-    //  * @param req
-    //  * @param res
-    //  */
+    /**
+     * {
+            "ctx": "App",
+            "m": "Coops",
+            "c": "Coop",
+            "a": "Update",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "update": {
+                                "coopAssets": null
+                            },
+                            "where": {
+                                "coopId": 1
+                            }
+                        }
+                    }
+                ],
+                "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+            },
+            "args": {}
+        }
+
+     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "Coops","c": "Coop","a": "Update","dat": {"f_vals": [{"query": {"update": {"coopAssets": null},"where": {"coopId": 1}}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": {}}' http://localhost:3001 -v  | jq '.'
+     * @param req
+     * @param res
+     */
     async Update(req, res) {
         console.log('CoopController::Update()/01');
         try {
@@ -264,27 +266,28 @@ export class CoopController {
         }
     }
 
-    // /**
-    //  * {
-    //         "ctx": "Sys",
-    //         "m": "Moduleman",
-    //         "c": "Coop",
-    //         "a": "Delete",
-    //         "dat": {
-    //             "f_vals": [
-    //                 {
-    //                     "query": {
-    //                         "where": {"CoopId": 45763}
-    //                     }
-    //                 }
-    //             ],
-    //             "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
-    //         },
-    //         "args": null
-    //     }
-    //  * @param req
-    //  * @param res
-    //  */
+    /**
+     * {
+            "ctx": "App",
+            "m": "Coops",
+            "c": "Coop",
+            "a": "Delete",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "where": {"coopId": 69}
+                        }
+                    }
+                ],
+                "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+            },
+            "args": null
+        }
+     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "Coops","c": "Coop","a": "Delete","dat": {"f_vals": [{"query": {"where": {"coopId": 69}}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": {}}' http://localhost:3001 -v  | jq '.'
+     * @param req
+     * @param res
+     */
     async Delete(req, res) {
         try {
             await this.svCoop.delete(req, res);
@@ -312,6 +315,34 @@ export class CoopController {
             await this.svCoopType.create(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'CoopController:CreateType');
+        }
+    }
+
+    /**
+     * 
+     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "Coops","c": "Coop","a": "UpudateType","dat": {"f_vals": [{"data": {"coopTypeName": "Continental Apex"}}],"token": "3ffd785f-e885-4d37-addf-0e24379af338"},"args": {}}' http://localhost:3001 -v  | jq '.'
+     * @param req 
+     * @param res 
+     */
+    async UpdateType(req, res) {
+        try {
+            await this.svCoopType.update(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'CoopController:EditType');
+        }
+    }
+
+    /**
+     * 
+     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "Coops","c": "Coop","a": "DeleteType","dat": {"f_vals": [{"query": {"where": {"coopTypeId": 107}}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": {}}' http://localhost:3001 -v  | jq '.'
+     * @param req 
+     * @param res 
+     */
+    async DeleteType(req, res) {
+        try {
+            await this.svCoopType.delete(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'CoopController:DeleteType');
         }
     }
 
