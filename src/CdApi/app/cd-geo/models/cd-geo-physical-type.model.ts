@@ -72,13 +72,5 @@ export class CdGeoPhysicalTypeModel {
     )
     cdGeoPhysicalTypeTypeId?: number;
 
-    @Column(
-        {
-            name: 'cd_geo_physical_type_count',
-            default: null
-        }
-    )
-    cdGeoPhysicalTypeCount?: number;
-
 
 }

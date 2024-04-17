@@ -64,13 +64,14 @@ export class CdGeoProximityModel {
     )
     docId?: number;
 
+    
     @Column(
         {
-            name: 'cd_geo_proximity_count',
+            name: 'cd_geo_proximity_data',
+            type: 'json',
             default: null
-        }
-    )
-    cdGeoProximityCount?: number;
+        })
+    cdGeoProximityData: string;
 
 
 }

@@ -96,5 +96,17 @@ export class CdGeoLocationModel {
     })
     cd_geo_boundary_data?: string;
 
+    @Column({
+        name: 'cd_geo_political_type_guid',
+        length: 36,
+        default: uuidv4()
+    })
+    cdGeoPoliticalTypeGuid?: string;
+
+    @Column({
+        name: 'cd_geo_political_parent',
+        default: null,
+    })
+    cdGeoPoliticalParent?: string;
 
 }

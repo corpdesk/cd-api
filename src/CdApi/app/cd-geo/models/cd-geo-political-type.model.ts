@@ -7,16 +7,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { IQuery } from '../../../sys/base/IBase';
 
 
-// `cd_geo_political_type`.`cd_geo_political_type_id`,
-//     `cd_geo_political_type`.`cd_geo_political_type_guid`,
-//     `cd_geo_political_type`.`cd_geo_political_type_name`,
-//     `cd_geo_political_type`.`cd_geo_political_type_description`,
-//     `cd_geo_political_type`.`lat`,
-//     `cd_geo_political_type`.`long`,
-//     `cd_geo_political_type`.`cd_geo_boundary_data`,
-//     `cd_geo_political_type`.`doc_id`,
-//     `cd_geo_political_type`.`cd_geo_political_type_guid`,
-//     `cd_geo_political_type`.`cd_geo_political_parent`
 
 @Entity(
     {
@@ -63,14 +53,5 @@ export class CdGeoPoliticalTypeModel {
         }
     )
     docId?: number;
-
-    @Column(
-        {
-            name: 'cd_geo_political_type_count',
-            default: null
-        }
-    )
-    cdGeoPoliticalTypeCount?: number;
-
 
 }
