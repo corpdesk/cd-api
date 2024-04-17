@@ -346,4 +346,12 @@ export class CoopController {
         }
     }
 
+    async GetStats(req, res) {
+        try {
+            await this.svCoop.getCoopStats(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'CoopController:Get');
+        }
+    }
+
 }

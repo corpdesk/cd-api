@@ -2,21 +2,15 @@ import {
     Entity,
     PrimaryGeneratedColumn,
     Column,
+    BeforeInsert,
+    BeforeUpdate,
+    OneToMany
 } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
-import { IQuery } from '../../../sys/base/IBase';
+import {
+    validateOrReject,
+} from 'class-validator';
 
-
-// `cd_geo_type`.`cd_geo_type_id`,
-//     `cd_geo_type`.`cd_geo_type_guid`,
-//     `cd_geo_type`.`cd_geo_type_name`,
-//     `cd_geo_type`.`cd_geo_type_description`,
-//     `cd_geo_type`.`lat`,
-//     `cd_geo_type`.`long`,
-//     `cd_geo_type`.`cd_geo_boundary_data`,
-//     `cd_geo_type`.`doc_id`,
-//     `cd_geo_type`.`cd_geo_type_guid`,
-//     `cd_geo_type`.`cd_geo_political_parent`
 
 @Entity(
     {
@@ -24,7 +18,9 @@ import { IQuery } from '../../../sys/base/IBase';
         synchronize: false
     }
 )
-export class CdGeoTypeModel {
+// @CdModel
+export class CdGeoViewModel {
+
     @PrimaryGeneratedColumn(
         {
             name: 'cd_geo_type_id'
@@ -40,6 +36,7 @@ export class CdGeoTypeModel {
     cdGeoTypeGuid?: string;
 
     @Column(
+        'varchar',
         {
             name: 'cd_geo_type_name',
             length: 50,
@@ -49,28 +46,35 @@ export class CdGeoTypeModel {
     cdGeoTypeName: string;
 
     @Column(
+        'varchar',
         {
             name: 'cd_geo_type_description',
-            length: 60,
-            default: null
-        })
+            length: 50,
+            nullable: true
+        }
+    )
     cdGeoTypeDescription: string;
 
     @Column(
         {
             name: 'doc_id',
             default: null
-        }
-    )
-    docId?: number;
+        })
+    docId: number;
 
     @Column(
         {
-            name: 'cd_geo_type_count',
+            name: 'parent_guid',
             default: null
-        }
-    )
-    cdGeoTypeCount?: number;
+        })
+        parentGuid: number;
 
+
+    // HOOKS
+    @BeforeInsert()
+    @BeforeUpdate()
+    async validate() {
+        await validateOrReject(this);
+    }
 
 }

@@ -1,156 +1,76 @@
-import { ViewEntity, ViewColumn } from 'typeorm';
+import {
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+} from 'typeorm';
+import { v4 as uuidv4 } from 'uuid';
+import { IQuery } from '../../../sys/base/IBase';
 
-@ViewEntity(
+
+// `cd_geo_proximity`.`cd_geo_proximity_id`,
+//     `cd_geo_proximity`.`cd_geo_proximity_guid`,
+//     `cd_geo_proximity`.`cd_geo_proximity_name`,
+//     `cd_geo_proximity`.`cd_geo_proximity_description`,
+//     `cd_geo_proximity`.`lat`,
+//     `cd_geo_proximity`.`long`,
+//     `cd_geo_proximity`.`cd_geo_boundary_data`,
+//     `cd_geo_proximity`.`doc_id`,
+//     `cd_geo_proximity`.`cd_geo_proximity_guid`,
+//     `cd_geo_proximity`.`cd_geo_political_parent`
+
+@Entity(
     {
-        name: 'group_member_view',
-        synchronize: false,
-        expression: `
-            SELECT DISTINCT
-                group.group_id AS group_id,
-                group.group_guid AS group_guid,
-                group.group_name AS group_name,
-                group.group_name AS member_name,
-                group.group_description AS group_description,
-                group.group_owner_id AS group_owner_id,
-                group.doc_id AS doc_id,
-                group.group_type_id AS group_type_id,
-                group.module_guid AS module_guid,
-                group.company_id AS company_id,
-                group.group_is_public AS group_is_public,
-                group.group_enabled AS group_enabled,
-                group_member.group_member_id AS group_member_id,
-                group_member.member_guid AS member_guid,
-                group_member.group_guid_parent AS group_guid_parent,
-                group_member.cd_obj_type_id AS cd_obj_type_id,
-                group_member.user_id_member AS user_id_member
-            FROM
-                (
-                    \`group\`
-                    JOIN group_member ON ((
-                        group.group_guid = group_member.member_guid
-                )))
-    `
+        name: 'cd_geo_proximity',
+        synchronize: false
+    }
+)
+export class CdGeoProximityModel {
+    @PrimaryGeneratedColumn(
+        {
+            name: 'cd_geo_proximity_id'
+        }
+    )
+    cdGeoProximityId?: number;
+
+    @Column({
+        name: 'cd_geo_proximity_guid',
+        length: 36,
+        default: uuidv4()
     })
+    cdGeoProximityGuid?: string;
 
-export class GroupMemberViewModel {
-
-    @ViewColumn(
+    @Column(
         {
-            name: 'group_id'
+            name: 'cd_geo_proximity_name',
+            length: 50,
+            nullable: true
         }
     )
-    groupId: number;
+    cdGeoProximityName: string;
 
-    @ViewColumn(
+    @Column(
         {
-            name: 'group_guid'
+            name: 'cd_geo_proximity_description',
+            length: 60,
+            default: null
+        })
+    cdGeoProximityDescription: string;
+
+    @Column(
+        {
+            name: 'doc_id',
+            default: null
         }
     )
-    groupGuid: string;
+    docId?: number;
 
-    @ViewColumn(
+    @Column(
         {
-            name: 'group_name'
+            name: 'cd_geo_proximity_count',
+            default: null
         }
     )
-    groupName: string;
+    cdGeoProximityCount?: number;
 
-    @ViewColumn(
-        {
-            name: 'member_name'
-        }
-    )
-    memberName: string;
-
-    @ViewColumn(
-        {
-            name: 'group_description'
-        }
-    )
-    groupDescription: string;
-
-    @ViewColumn(
-        {
-            name: 'group_owner_id'
-        }
-    )
-    groupOwner_id: number;
-
-    @ViewColumn(
-        {
-            name: 'doc_id'
-        }
-    )
-    docId: number;
-
-    @ViewColumn(
-        {
-            name: 'group_type_id'
-        }
-    )
-    groupTypeId: number;
-
-    @ViewColumn(
-        {
-            name: 'module_guid'
-        }
-    )
-    moduleGuid: string;
-
-    @ViewColumn(
-        {
-            name: 'company_id'
-        }
-    )
-    companyId: number;
-
-    @ViewColumn(
-        {
-            name: 'group_is_public'
-        }
-    )
-    groupIsPublic: number;
-
-    @ViewColumn(
-        {
-            name: 'group_enabled'
-        }
-    )
-    groupEnabled: number;
-
-    @ViewColumn(
-        {
-            name: 'group_member_id'
-        }
-    )
-    groupMember_id: number;
-
-    @ViewColumn(
-        {
-            name: 'member_guid'
-        }
-    )
-    memberGuid: string;
-
-    @ViewColumn(
-        {
-            name: 'group_guid_parent'
-        }
-    )
-    groupGuidParent: string;
-
-    @ViewColumn(
-        {
-            name: 'cd_obj_type_id'
-        }
-    )
-    cdObjTypeId: number;
-
-    @ViewColumn(
-        {
-            name: 'user_id_member'
-        }
-    )
-    userIdMember: number;
 
 }

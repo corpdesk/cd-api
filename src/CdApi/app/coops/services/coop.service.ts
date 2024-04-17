@@ -3,10 +3,11 @@ import { CdService } from '../../../sys/base/cd.service';
 import { SessionService } from '../../../sys/user/services/session.service';
 import { UserService } from '../../../sys/user/services/user.service';
 import { CreateIParams, IQuery, IRespInfo, IServiceInput, IUser, ICdRequest } from '../../../sys/base/IBase';
-import { CoopModel, siGet } from '../models/coop.model';
+import { CoopModel } from '../models/coop.model';
 // import { CoopViewModel, siGet } from '../models/coop-view.model';
 import { CoopTypeModel } from '../models/coop-type.model';
 import { CoopViewModel } from '../models/coop-view.model';
+import { siGet } from '../../../sys/base/base.model';
 
 export class CoopService extends CdService {
     b: any; // instance of BaseService
@@ -15,6 +16,7 @@ export class CoopService extends CdService {
     srvUser: UserService;
     user: IUser;
     serviceModel: CoopModel;
+    modelName: "CoopModel";
     sessModel;
     // moduleModel: ModuleModel;
 
@@ -467,11 +469,46 @@ export class CoopService extends CdService {
      * @param q 
      */
     async getCoop(req, res, q: IQuery = null): Promise<any> {
+        
         if (q === null) {
             q = this.b.getQuery(req);
         }
         console.log('CoopService::getCoop/f:', q);
-        const serviceInput = siGet(q)
+        const serviceInput = siGet(q,this)
+        try {
+            const r = await this.b.read(req, res, serviceInput)
+            this.b.successResponse(req, res, r)
+        } catch (e) {
+            console.log('CoopService::read$()/e:', e)
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'BaseService:update',
+                app_msg: ''
+            };
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
+        }
+    }
+
+    /**
+     * Queey params:
+     * - selected data level eg all-available, world, continent, country, continental-region, national-region
+     * - list of selected items 
+     * - eg: 
+     * - on selection of all-available, show list of countries availaable with summary data
+     * - on selection of world show continents with available data
+     * - on selection of continent show list of countries availaable with summary data
+     * - on selection of countrie list of national-resions availaable with summary data
+     * - on selection of national-region given national-resion with summary data
+     * @param q 
+     */
+    async getCoopStats(req, res, q: IQuery = null): Promise<any> {
+        if (q === null) {
+            q = this.b.getQuery(req);
+        }
+        console.log('CoopService::getCoop/f:', q);
+        const serviceInput = siGet(q,this)
         try {
             const r = await this.b.read(req, res, serviceInput)
             this.b.successResponse(req, res, r)
@@ -492,7 +529,7 @@ export class CoopService extends CdService {
         await this.b.initSqlite(req, res)
         const q = this.b.getQuery(req);
         console.log('CoopService::getCoop/q:', q);
-        const serviceInput = siGet(q)
+        const serviceInput = siGet(q,this)
         try {
             this.b.readSL$(req, res, serviceInput)
                 .subscribe((r) => {

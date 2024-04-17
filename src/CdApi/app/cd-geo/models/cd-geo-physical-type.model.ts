@@ -2,61 +2,59 @@ import {
     Entity,
     PrimaryGeneratedColumn,
     Column,
-    BeforeInsert,
-    BeforeUpdate,
-    OneToMany
 } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
-import {
-    validateOrReject,
-} from 'class-validator';
-import { BaseService } from '../../base/base.service';
+import { IQuery } from '../../../sys/base/IBase';
 
-// SELECT group_invitation_type_id, group_invitation_type_guid, group_invitation_type_name, group_invitation_type_description, doc_id
 
+// `cd_geo_physical_type`.`cd_geo_physical_type_id`,
+//     `cd_geo_physical_type`.`cd_geo_physical_type_guid`,
+//     `cd_geo_physical_type`.`cd_geo_physical_type_name`,
+//     `cd_geo_physical_type`.`cd_geo_physical_type_description`,
+//     `cd_geo_physical_type`.`lat`,
+//     `cd_geo_physical_type`.`long`,
+//     `cd_geo_physical_type`.`cd_geo_boundary_data`,
+//     `cd_geo_physical_type`.`doc_id`,
+//     `cd_geo_physical_type`.`cd_geo_political_type_guid`,
+//     `cd_geo_physical_type`.`cd_geo_political_parent`
 
 @Entity(
     {
-        name: 'group_invitation_type',
+        name: 'cd_geo_physical_type',
         synchronize: false
     }
 )
-// @CdModel
-export class GroupInvitationTypeModel {
-    b: BaseService;
-
+export class CdGeoPhysicalTypeModel {
     @PrimaryGeneratedColumn(
         {
-            name: 'group_invitation_type_id'
+            name: 'cd_geo_physical_type_id'
         }
     )
-    groupInvitationTypeId?: number;
+    cdGeoPhysicalTypeId?: number;
 
     @Column({
-        name: 'group_invitation_type_name',
-        length: 40,
+        name: 'cd_geo_physical_type_guid',
+        length: 36,
+        default: uuidv4()
     })
-    groupInvitationTypeName: string;
+    cdGeoPhysicalTypeGuid?: string;
 
     @Column(
-        'varchar',
         {
-            name: 'group_invitation_type_guid',
-            length: 40,
+            name: 'cd_geo_physical_type_name',
+            length: 50,
             nullable: true
         }
     )
-    groupInvitationTypeGuid: string;
+    cdGeoPhysicalTypeName: string;
 
     @Column(
-        'varchar',
         {
-            name: 'group_invitation_type_description',
-            length: 160,
-            nullable: true
-        }
-    )
-    groupInvitationTypeDescription: string;
+            name: 'cd_geo_physical_type_description',
+            length: 60,
+            default: null
+        })
+    cdGeoPhysicalTypeDescription: string;
 
     @Column(
         {
@@ -65,5 +63,22 @@ export class GroupInvitationTypeModel {
         }
     )
     docId?: number;
+
+    @Column(
+        {
+            name: 'cd_geo_physical_type_type_id',
+            default: null
+        }
+    )
+    cdGeoPhysicalTypeTypeId?: number;
+
+    @Column(
+        {
+            name: 'cd_geo_physical_type_count',
+            default: null
+        }
+    )
+    cdGeoPhysicalTypeCount?: number;
+
 
 }

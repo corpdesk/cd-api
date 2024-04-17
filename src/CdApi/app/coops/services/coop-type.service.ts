@@ -3,9 +3,10 @@ import { CdService } from '../../../sys/base/cd.service';
 import { SessionService } from '../../../sys/user/services/session.service';
 import { UserService } from '../../../sys/user/services/user.service';
 import { CreateIParams, IQuery, IRespInfo, IServiceInput, IUser, ICdRequest } from '../../../sys/base/IBase';
-import { CoopTypeModel, siGet } from '../models/coop-type.model';
+import { CoopTypeModel } from '../models/coop-type.model';
 // import { CoopViewModel, siGet } from '../models/coop-view.model';
 import { CoopViewModel } from '../models/coop-view.model';
+import { siGet } from '../../../sys/base/base.model';
 
 
 
@@ -16,6 +17,7 @@ export class CoopTypeService extends CdService {
     srvUser: UserService;
     user: IUser;
     serviceModel: CoopTypeModel;
+    modelName: "CoopTypeModel";
     sessModel;
     // moduleModel: ModuleModel;
 
@@ -472,7 +474,7 @@ export class CoopTypeService extends CdService {
             q = this.b.getQuery(req);
         }
         console.log('CoopTypeService::getCoopTypef:', q);
-        const serviceInput = siGet(q)
+        const serviceInput = siGet(q,this)
         try {
             const r = await this.b.read(req, res, serviceInput)
             this.b.successResponse(req, res, r)
@@ -493,7 +495,7 @@ export class CoopTypeService extends CdService {
         await this.b.initSqlite(req, res)
         const q = this.b.getQuery(req);
         console.log('CoopTypeService::getCoopTypeq:', q);
-        const serviceInput = siGet(q)
+        const serviceInput = siGet(q,this)
         try {
             this.b.readSL$(req, res, serviceInput)
                 .subscribe((r) => {

@@ -1,143 +1,100 @@
-import { Entity, PrimaryGeneratedColumn, Column, } from 'typeorm';
+import {
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+} from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
-import { IQuery } from '../../base/IBase';
-import { GroupInvitationService } from '../services/group-invitation.service';
+import { IQuery } from '../../../sys/base/IBase';
 
-export function siCreate(serviceInstance:GroupInvitationService){
-    return {
-        serviceModel: GroupInvitationModel,
-        serviceModelInstance: serviceInstance.serviceModel,
-        docName: 'Create invitation to a group',
-        dSource: 1,
-    }
-}
 
-export function getGroupInvitationParams(q:IQuery){
-    return {
-        serviceModel: GroupInvitationModel,
-        docName: 'GroupInvitationService::getGroupInvitation',
-        cmd: {
-            action: 'find',
-            query: q
-        },
-        dSource: 1
-    }
-}
+
+// `cd_geo_location`.`cd_geo_location_id`,
+//     `cd_geo_location`.`cd_geo_location_guid`,
+//     `cd_geo_location`.`cd_geo_location_name`,
+//     `cd_geo_location`.`cd_geo_location_description`,
+//     `cd_geo_location`.`lat`,
+//     `cd_geo_location`.`long`,
+//     `cd_geo_location`.`cd_geo_boundary_data`,
+//     `cd_geo_location`.`doc_id`,
+//     `cd_geo_location`.`cd_geo_political_type_guid`,
+//     `cd_geo_location`.`cd_geo_political_parent`
 
 @Entity(
     {
-        name: 'group_invitation',
+        name: 'cd_geo_location',
         synchronize: false
     }
 )
-// SELECT group_invitation_id, group_invitation_guid, group_invitation_name, group_invitation_description, group_id, hostUser, guestUser, accept, doc_id, group_invitation_type_id, `left`, module_name, notification_id
-
-
-export class GroupInvitationModel {
-
+export class CdGeoLocationModel {
     @PrimaryGeneratedColumn(
         {
-            name: 'group_invitation_id'
+            name: 'cd_geo_location_id'
         }
     )
-    groupInvitationId?: number;
+    cdGeoLocationId?: number;
 
     @Column({
-        name: 'group_invitation_guid',
+        name: 'cd_geo_location_guid',
         length: 36,
         default: uuidv4()
     })
-    groupInvitationGuid?: string;
+    cdGeoLocationGuid?: string;
 
     @Column(
-        'varchar',
         {
-            name: 'group_invitation_name',
+            name: 'cd_geo_location_name',
             length: 50,
             nullable: true
         }
     )
-    groupInvitationName: string;
+    cdGeoLocationName: string;
 
     @Column(
-        'varchar',
         {
-            name: 'group_invitation_description',
-            length: 50,
-            nullable: true
-        }
-    )
-    groupInvitationDescription: string;
+            name: 'cd_geo_location_description',
+            length: 60,
+            default: null
+        })
+    cdGeoLocationDescription: string;
 
     @Column(
         {
             name: 'doc_id',
-            nullable: true
+            default: null
         }
     )
-    docId: number;
+    docId?: number;
 
     @Column(
         {
-            name: 'group_id',
-            nullable: true
+            name: 'cd_geo_location_type_id',
+            default: null
         }
     )
-    groupId: number;
+    cdGeoLocationTypeId?: number;
 
     @Column(
         {
-            name: 'host_user',
-            nullable: true
+            name: 'lat',
+            default: null
         }
     )
-    hostUser: number;
+    lat?: number;
 
     @Column(
         {
-            name: 'guest_user',
-            nullable: true
+            name: 'long',
+            default: null
         }
     )
-    guestUser: number;
+    long?: number;
 
     @Column(
         {
-            name: 'accept',
-            nullable: true
-        }
-    )
-    accept: boolean;
+        name: 'cd_geo_location_guid',
+        type: 'json'
+    })
+    cd_geo_boundary_data?: string;
 
-    @Column(
-        {
-            name: 'group_invitation_type_id',
-            nullable: true
-        }
-    )
-    groupInvitationTypeId: number;
 
-    @Column(
-        {
-            name: 'left',
-            nullable: true
-        }
-    )
-    left: boolean;
-
-    @Column(
-        {
-            name: 'module_name',
-            nullable: true
-        }
-    )
-    moduleName: string;
-
-    @Column(
-        {
-            name: 'notification_id',
-            nullable: true
-        }
-    )
-    notificationId: number;
 }

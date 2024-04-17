@@ -4,29 +4,8 @@ import {
     Column,
 } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
-import { IQuery } from '../../../sys/base/IBase';
+import { ColumnNumericTransformer } from '../../../sys/base/base.model';
 
-export function siGet(q: IQuery) {
-    return {
-        serviceModel: CoopModel,
-        docName: 'CoopModel::siGet',
-        cmd: {
-            action: 'find',
-            query: q
-        },
-        dSource: 1
-    }
-}
-
-/// ColumnNumericTransformer
-export class ColumnNumericTransformer {
-    to(data: number): number {
-        return data;
-    }
-    from(data: string): number {
-        return parseFloat(data);
-    }
-}
 
 @Entity(
     {

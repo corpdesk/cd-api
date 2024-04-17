@@ -4,113 +4,73 @@ import {
     Column,
 } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
-import {
-    validateOrReject,
-} from 'class-validator';
+import { IQuery } from '../../../sys/base/IBase';
+
+
+// `cd_geo_`.`cd_geo_id`,
+//     `cd_geo_`.`cd_geo_guid`,
+//     `cd_geo_`.`cd_geo_name`,
+//     `cd_geo_`.`cd_geo_description`,
+//     `cd_geo_`.`lat`,
+//     `cd_geo_`.`long`,
+//     `cd_geo_`.`cd_geo_boundary_data`,
+//     `cd_geo_`.`doc_id`,
+//     `cd_geo_`.`cd_geo_guid`,
+//     `cd_geo_`.`cd_geo_political_parent`
 
 @Entity(
     {
-        name: 'group',
+        name: 'cd_geo_',
         synchronize: false
     }
 )
-// @CdModel
-export class GroupModel {
-
+export class CdGeoModel {
     @PrimaryGeneratedColumn(
         {
-            name: 'group_id'
+            name: 'cd_geo_id'
         }
     )
-    groupId?: number;
+    cdGeoId?: number;
 
     @Column({
-        name: 'group_guid',
+        name: 'cd_geo_guid',
         length: 36,
         default: uuidv4()
     })
-    groupGuid?: string;
+    cdGeoGuid?: string;
 
     @Column(
-        'varchar',
         {
-            name: 'group_name',
+            name: 'cd_geo_name',
             length: 50,
             nullable: true
         }
     )
-    groupName: string;
+    cdGeoName: string;
 
     @Column(
-        'varchar',
         {
-            name: 'group_description',
-            length: 50,
-            nullable: true
-        }
-    )
-    groupDescription: string;
+            name: 'cd_geo_description',
+            length: 60,
+            default: null
+        })
+    cdGeoDescription: string;
 
     @Column(
         {
             name: 'doc_id',
-            nullable: true
+            default: null
         }
     )
-    docId: number;
+    docId?: number;
 
     @Column(
         {
-            name: 'group_owner_id',
-            nullable: true
+            name: 'cd_geo_count',
+            default: null
         }
     )
-    groupOwnerId: number;
+    cdGeoCount?: number;
 
-    @Column(
-        {
-            name: 'group_type_id',
-            nullable: true
-        }
-    )
-    groupTypeId: number;
-
-    @Column({
-        name: 'module_guid',
-        length: 36,
-        default: uuidv4()
-    })
-    moduleGuid?: string;
-
-    @Column(
-        {
-            name: 'company_id',
-            nullable: true
-        }
-    )
-    companyId: number;
-
-    @Column({
-        name: 'consumer_guid',
-        length: 36,
-        default: uuidv4()
-    })
-    consumerGuid?: string;
-
-    @Column(
-        {
-            name: 'group_is_public',
-            nullable: true
-        }
-    )
-    groupIsPublic: boolean;
-
-    @Column(
-        {
-            name: 'group_enabled',
-            nullable: true
-        }
-    )
-    groupEnabled: boolean;
 
 }

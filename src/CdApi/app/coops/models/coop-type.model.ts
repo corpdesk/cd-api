@@ -10,20 +10,6 @@ import { v4 as uuidv4 } from 'uuid';
 import {
     validateOrReject,
 } from 'class-validator';
-import { IQuery } from '../../../sys/base/IBase';
-
-
-export function siGet(q: IQuery) {
-    return {
-        serviceModel: CoopTypeModel,
-        docName: 'CoopTypeModel::siGet',
-        cmd: {
-            action: 'find',
-            query: q
-        },
-        dSource: 1
-    }
-}
 
 
 @Entity(
