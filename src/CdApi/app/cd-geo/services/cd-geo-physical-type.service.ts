@@ -1,217 +1,237 @@
-import { getManager } from 'typeorm';
-import { BaseService } from '../../base/base.service';
-import { CreateIParams, IQuery, IServiceInput } from '../../base/IBase';
-import { GroupMemberViewModel } from '../models/group-member-view.model';
-import { GroupMemberModel } from '../models/group-member.model';
-import { SessionService } from './session.service';
-import { CdService } from '../../base/cd.service';
-import { GroupModel } from '../models/group.model';
-import { CdObjTypeModel } from '../../moduleman/models/cd-obj-type.model';
-import { UserModel } from '../models/user.model';
+import { BaseService } from '../../../sys/base/base.service';
+import { CdService } from '../../../sys/base/cd.service';
+import { SessionService } from '../../../sys/user/services/session.service';
+import { UserService } from '../../../sys/user/services/user.service';
+import { CreateIParams, IQuery, IRespInfo, IServiceInput, IUser, ICdRequest } from '../../../sys/base/IBase';
+import { CdGeoPhysicalTypeModel } from '../models/cd-geo-physical-type.model';
+// import { CdGeoPhysicalTypeViewModel, siGet } from '../models/cd-geo-physical-type-view.model';
+// import { CdGeoPhysicalTypeViewModel } from '../models/cd-geo-physical-type-view.model';
+import { siGet } from '../../../sys/base/base.model';
 
-export class GroupMemberService extends CdService {
-    b: BaseService;
+export class CdGeoPhysicalTypeService extends CdService {
+    b: any; // instance of BaseService
     cdToken: string;
-    serviceModel: GroupMemberModel;
     srvSess: SessionService;
-    validationCreateParams;
+    srvUser: UserService;
+    user: IUser;
+    serviceModel: CdGeoPhysicalTypeModel;
+    modelName: "CdGeoPhysicalTypeModel";
+    sessModel;
+    // moduleModel: ModuleModel;
 
     /*
      * create rules
      */
-    cRules = {
-        required: [
-            'memberGuid',
-            'groupGuidParent',
-            'cdObjTypeId',
-        ],
-        noDuplicate: [
-            'memberGuid',
-            'groupGuidParent'
-        ],
+    cRules: any = {
+        required: ['cd_geo_physical_type_name'],
+        noDuplicate: ['cd-geo-physical-typeName']
     };
+    uRules: any[];
+    dRules: any[];
 
     constructor() {
         super()
         this.b = new BaseService();
-        this.serviceModel = new GroupMemberModel();
-        this.srvSess = new SessionService();
+        this.serviceModel = new CdGeoPhysicalTypeModel();
     }
 
-    ///////////////
-    /**
+     /**
      * {
-            "ctx": "Sys",
-            "m": "User",
-            "c": "GroupMember",
-            "a": "Create",
-            "dat": {
-                "f_vals": [
-                    {
-                        "data": {
-                            "userIdMember": "1010",
-                            "memberGuid": "fe5b1a9d-df45-4fce-a181-65289c48ea00",
-                            "groupGuidParent": "D7FF9E61-B143-D083-6130-A51058AD9630",
-                            "cdObjTypeId": "9"
-                        }
-                    },
-                    {
-                        "data": {
-                            "userIdMember": "1015",
-                            "memberGuid": "fe5b1a9d-df45-4fce-a181-65289c48ea00",
-                            "groupGuidParent": "2cdaba03-5121-11e7-b279-c04a002428aa",
-                            "cdObjTypeId": "9"
-                        }
-                    }
-                ],
-                "token": "6E831EAF-244D-2E5A-0A9E-27C1FDF7821D"
-            },
-            "args": null
+        "ctx": "App",
+        "m": "CdGeoPhysicalTypes",
+        "c": "CdGeoPhysicalType",
+        "a": "Create",
+        "dat": {
+            "f_vals": [
+            {
+                "data": {
+                    "cd-geo-physical-typeGuid":"",
+                    "cd-geo-physical-typeName": "Benin", 
+                    "cd-geo-physical-typeDescription":"2005",
+                    "cdGeoLocationId":null,
+                    "cd-geo-physical-typeWoccu": false,
+                    "cd-geo-physical-typeCount": null,
+                    "cd-geo-physical-typeMembersCount": 881232, 
+                    "cd-geo-physical-typeSavesShares":56429394,
+                    "cd-geo-physical-typeLoans":45011150,
+                    "cd-geo-physical-typeReserves":null, 
+                    "cd-geo-physical-typeAssets": null,
+                    "cd-geo-physical-typeMemberPenetration":20.95,
+                    "cd-geo-physical-typeDateLabel": "2005-12-31 23:59:59",
+                    "cd-geo-physical-typeRefId":null
+	            }
+            }
+            ],
+            "token": "3ffd785f-e885-4d37-addf-0e24379af338"
+        },
+        "args": {}
         }
      * @param req
      * @param res
      */
     async create(req, res) {
+        console.log('cd-geo-physical-type/create::validateCreate()/01')
+        
         const svSess = new SessionService();
         if (await this.validateCreate(req, res)) {
             await this.beforeCreate(req, res);
-            const serviceInput = { serviceModel: GroupMemberModel, serviceModelInstance: this.serviceModel, docName: 'Create group-member', dSource: 1 };
-            console.log('GroupMemberService::create()/req.post:', req.post)
-            const result = await this.b.create(req, res, serviceInput);
-            await this.afterCreate(req, res);
-            await this.b.successResponse(req, res,result,svSess)
-        } else {
-            await this.b.respond(req, res);
-        }
-    }
-
-    async beforeCreate(req, res): Promise<any> {
-        this.b.setPlData(req, { key: 'groupMemberGuid', value: this.b.getGuid() });
-        this.b.setPlData(req, { key: 'groupMemberEnabled', value: true });
-        return true;
-    }
-
-    async afterCreate(req, res){
-        const svSess = new SessionService()
-        // flag invitation group as accepted
-        await this.b.setAlertMessage('new group-member created', svSess, true);
-    }
-
-    async createI(req, res, createIParams: CreateIParams): Promise<GroupMemberModel | boolean> {
-        const svSess = new SessionService()
-        if(this.validateCreateI(req,res,createIParams)){
-            return await this.b.createI(req, res, createIParams)
-        } else {
-            this.b.setAlertMessage(`could not join group`, svSess, false);
-        }
-    }
-
-    async validateCreateI(req, res,createIParams: CreateIParams) {
-        console.log('GroupMemberService::validateCreateI()/01')
-        const svSess = new SessionService();
-        ///////////////////////////////////////////////////////////////////
-        // 1. Validate against duplication
-        console.log('GroupMemberService::validateCreateI()/011')
-        this.b.i.code = 'GroupMemberService::validateCreateI';
-        let ret = false;
-        this.validationCreateParams = {
-            controllerInstance: this,
-            model: GroupMemberModel,
-            data: createIParams.controllerData
-        }
-        // const isUnique = await this.validateUniqueMultiple(req, res, this.validationCreateParams)
-        // await this.b.validateUnique(req, res, this.validationCreateParams)
-        if (await this.b.validateUniqueI(req, res, this.validationCreateParams)) {
-            console.log('GroupMemberService::validateCreateI()/02')
-            if (await this.b.validateRequired(req, res, this.cRules)) {
-                console.log('GroupMemberService::validateCreateI()/03')
-                ///////////////////////////////////////////////////////////////////
-                // // 2. confirm the consumerTypeGuid referenced exists
-                const pl: GroupMemberModel = createIParams.controllerData;
-                let cdObjType: CdObjTypeModel[];
-                let q:any = { where: { cdObjTypeId: pl.cdObjTypeId }};
-                let serviceInput: IServiceInput = {
-                    serviceModel: CdObjTypeModel,
-                    modelName: "CdObjTypeModel",
-                    docName: 'GroupMemberService::validateCreateI',
-                    cmd: {
-                        action: 'find',
-                        query: q
-                    },
-                    dSource: 1
-                }
-                if ('cdObjTypeId' in pl) {
-                    console.log('GroupMemberService::validateCreateI()/04')
-                    cdObjType = await this.b.get(req, res, serviceInput, q)
-                    ret = await this.b.validateInputRefernce(`cdobj type reference is invalid`, cdObjType, svSess)
-                } else {
-                    console.log('GroupMemberService::validateCreateI()/04')
-                    this.b.setAlertMessage(`groupGuidParent is missing in payload`, svSess, false);
-                }
-                if ('memberGuid' in pl) {
-                    console.log('GroupMemberService::validateCreateI()/05')
-                    if (cdObjType[0].cdObjTypeName === 'group') {
-                        console.log('GroupMemberService::validateCreate()/06')
-                        q = { where: { groupGuid: pl.memberGuid } };
-                        serviceInput.cmd.query = q;
-                        const group: GroupModel[] = await this.b.get(req, res, serviceInput, q);
-                        ret = await this.b.validateInputRefernce(`member reference is invalid`, group, svSess)
-                    }
-                    if (cdObjType[0].cdObjTypeName === 'user') {
-                        console.log('GroupMemberService::validateCreate()/04')
-                        q = { where: { userGuid: pl.memberGuid } };
-                        serviceInput.cmd.query = q;
-                        const user: UserModel[] = await this.b.get(req, res, serviceInput, q);
-                        if (user.length > 0) {
-                            console.log('GroupMemberService::validateCreateI()/05')
-                            this.b.setPlData(req, { key: 'userIdMember', value: user[0].userId });
-                            ret = await this.b.validateInputRefernce(`member reference is invalid`, user, svSess)
-                        } else {
-                            console.log('GroupMemberService::validateCreateI()/06')
-                            ret = await this.b.validateInputRefernce(`member reference is invalid`, user, svSess)
-                        }
-                        console.log('GroupMemberService::validateCreate()/07')
-                    }
-                } else {
-                    console.log('moduleman/GroupMemberService::validateCreateI()/11')
-                    this.b.setAlertMessage(`memberGuid is missing in payload`, svSess, false);
-                }
-                if ('groupGuidParent' in pl) {
-                    console.log('GroupMemberService::validateCreateI()/08')
-                    console.log('GroupMemberService::validateCreate()/q:', q)
-                    q = { where: { groupGuid: pl.groupGuidParent } };
-                    serviceInput.cmd.query = q;
-                    const r: GroupModel[] = await this.b.get(req, res, serviceInput, q);
-                    console.log('GroupMemberService::validateCreate()/09')
-                    ret = await this.b.validateInputRefernce(`parent reference is invalid`, r, svSess)
-                } else {
-                    console.log('GroupMemberService::validateCreateI()/10')
-                    this.b.setAlertMessage(`groupGuidParent is missing in payload`, svSess, false);
-                }
-                if (this.b.err.length > 0) {
-                    console.log('GroupMemberService::validateCreateI()/11')
-                    ret = false;
-                }
-            } else {
-                console.log('GroupMemberService::validateCreate()/12')
-                ret = false;
-                this.b.setAlertMessage(`the required fields ${this.b.isInvalidFields.join(', ')} is missing`, svSess, true);
+            const serviceInput = {
+                serviceModel: CdGeoPhysicalTypeModel,
+                modelName: "CdGeoPhysicalTypeModel",
+                serviceModelInstance: this.serviceModel,
+                docName: 'Create CdGeoPhysicalType',
+                dSource: 1,
             }
+            console.log('CdGeoPhysicalTypeService::create()/serviceInput:', serviceInput)
+            const respData = await this.b.create(req, res, serviceInput);
+            this.b.i.app_msg = 'new CdGeoPhysicalType created';
+            this.b.setAppState(true, this.b.i, svSess.sessResp);
+            this.b.cdResp.data = await respData;
+            const r = await this.b.respond(req, res);
         } else {
-            console.log('GroupMemberService::validateCreateI()/13')
-            ret = false;
-            this.b.setAlertMessage(`duplicate for ${this.cRules.noDuplicate.join(', ')} is not allowed`, svSess, false);
+            console.log('cd-geo-physical-type/create::validateCreate()/02')
+            const r = await this.b.respond(req, res);
         }
-        console.log('GroupMemberService::validateCreateI()/14')
-        console.log('GroupMemberService::validateCreateI()/ret', ret)
-        return ret;
     }
 
-    async groupMemberExists(req, res, params): Promise<boolean> {
+    async createSL(req, res) {
+        const svSess = new SessionService();
+        await this.b.initSqlite(req, res)
+        if (await this.validateCreateSL(req, res)) {
+            await this.beforeCreateSL(req, res);
+            const serviceInput = {
+                serviceInstance: this,
+                serviceModel: CdGeoPhysicalTypeModel,
+                serviceModelInstance: this.serviceModel,
+                docName: 'Create CdGeoPhysicalType',
+                dSource: 1,
+            }
+            const result = await this.b.createSL(req, res, serviceInput)
+            this.b.connSLClose()
+            this.b.i.app_msg = '';
+            this.b.setAppState(true, this.b.i, svSess.sessResp);
+            this.b.cdResp.data = result;
+            const r = await this.b.respond(req, res);
+        } else {
+            const r = await this.b.respond(req, res);
+        }
+    }
+
+    async createI(req, res, createIParams: CreateIParams): Promise<CdGeoPhysicalTypeModel | boolean> {
+        return await this.b.createI(req, res, createIParams)
+    }
+
+    /**
+     * CreateM, Create multiple records
+     *  - 1. validate the loop field for multiple data
+     *  - 2. loop through the list
+     *  - 3. in each cycle:
+     *      - get createItem
+     *      - createI(createItem)
+     *      - save return value
+     *  - 4. set return data
+     *  - 5. return data
+     * 
+     * {
+        "ctx": "App",
+        "m": "CdGeoPhysicalTypes",
+        "c": "CdGeoPhysicalType",
+        "a": "CreateM",
+        "dat": {
+            "f_vals": [
+            {
+                "data": [
+                {
+                    "cd-geo-physical-typeGuid": "",
+                    "cd-geo-physical-typeName": "Kenya",
+                    "cd-geo-physical-typeDescription": "2006",
+                    "cdGeoLocationId": null,
+                    "cd-geo-physical-typeWoccu": false,
+                    "cd-geo-physical-typeCount": 2993,
+                    "cd-geo-physical-typeMembersCount": 3265545,
+                    "cd-geo-physical-typeSavesShares": 1608009012,
+                    "cd-geo-physical-typeLoans": 1604043550,
+                    "cd-geo-physical-typeReserves": 102792479,
+                    "cd-geo-physical-typeAssets": 2146769999,
+                    "cd-geo-physical-typeMemberPenetration": 16.01,
+                    "cd-geo-physical-typeDateLabel": "2006-12-31 23:59:59",
+                    "cd-geo-physical-typeRefId": null
+                },
+                {
+                    "cd-geo-physical-typeGuid": "",
+                    "cd-geo-physical-typeName": "Malawi",
+                    "cd-geo-physical-typeDescription": "2006",
+                    "cdGeoLocationId": null,
+                    "cd-geo-physical-typeWoccu": false,
+                    "cd-geo-physical-typeCount": 70,
+                    "cd-geo-physical-typeMembersCount": 62736,
+                    "cd-geo-physical-typeSavesShares": 6175626,
+                    "cd-geo-physical-typeLoans": 4946246,
+                    "cd-geo-physical-typeReserves": 601936,
+                    "cd-geo-physical-typeAssets": 7407250,
+                    "cd-geo-physical-typeMemberPenetration": 0.9,
+                    "cd-geo-physical-typeDateLabel": "2006-12-31 23:59:59",
+                    "cd-geo-physical-typeRefId": null
+                }
+                ]
+            }
+            ],
+            "token": "3ffd785f-e885-4d37-addf-0e24379af338"
+        },
+        "args": {}
+        }
+     * 
+     * 
+     * @param req 
+     * @param res 
+     */
+    async createM(req, res) {
+        console.log('CdGeoPhysicalTypeService::createM()/01')
+        let data = req.post.dat.f_vals[0].data
+        console.log('CdGeoPhysicalTypeService::createM()/data:', data)
+        // this.b.models.push(CdGeoPhysicalTypeModel)
+        // this.b.init(req, res)
+
+        for (var CdGeoPhysicalTypeData of data) {
+            console.log('CdGeoPhysicalTypeData', CdGeoPhysicalTypeData)
+            const CdGeoPhysicalTypeQuery: CdGeoPhysicalTypeModel = CdGeoPhysicalTypeData;
+            const svCdGeoPhysicalType = new CdGeoPhysicalTypeService();
+            const si = {
+                serviceInstance: svCdGeoPhysicalType,
+                serviceModel: CdGeoPhysicalTypeModel,
+                serviceModelInstance: svCdGeoPhysicalType.serviceModel,
+                docName: 'CdGeoPhysicalTypeService::CreateM',
+                dSource: 1,
+            }
+            const createIParams: CreateIParams = {
+                serviceInput: si,
+                controllerData: CdGeoPhysicalTypeQuery
+            }
+            let ret = await this.createI(req, res, createIParams)
+            console.log('CdGeoPhysicalTypeService::createM()/forLoop/ret:', ret)
+        }
+        // return current sample data
+        // eg first 5
+        // this is just a sample for development
+        // producation can be tailored to requrement 
+        // and the query can be set from the client side.
+        let q = {
+            // "select": [
+            //     "cd-geo-physical-typeName",
+            //     "cd-geo-physical-typeDescription"
+            // ],
+            "where": {},
+            "take": 5,
+            "skip": 0
+        }
+        this.getCdGeoPhysicalType(req, res,q)
+    }
+
+    async CdGeoPhysicalTypeExists(req, res, params): Promise<boolean> {
         const serviceInput: IServiceInput = {
             serviceInstance: this,
-            serviceModel: GroupMemberModel,
-            docName: 'GroupMemberService::group-memberExists',
+            serviceModel: CdGeoPhysicalTypeModel,
+            docName: 'CdGeoPhysicalTypeService::CdGeoPhysicalTypeExists',
             cmd: {
                 action: 'find',
                 query: { where: params.filter }
@@ -221,27 +241,101 @@ export class GroupMemberService extends CdService {
         return this.b.read(req, res, serviceInput)
     }
 
+    async beforeCreate(req, res): Promise<any> {
+        this.b.setPlData(req, { key: 'CdGeoPhysicalTypeGuid', value: this.b.getGuid() });
+        this.b.setPlData(req, { key: 'CdGeoPhysicalTypeEnabled', value: true });
+        return true;
+    }
+
+    async beforeCreateSL(req, res): Promise<any> {
+        this.b.setPlData(req, { key: 'CdGeoPhysicalTypeGuid', value: this.b.getGuid() });
+        this.b.setPlData(req, { key: 'CdGeoPhysicalTypeEnabled', value: true });
+        return true;
+    }
+
     async read(req, res, serviceInput: IServiceInput): Promise<any> {
-        //
+        // const serviceInput: IServiceInput = {
+        //     serviceInstance: this,
+        //     serviceModel: CdGeoPhysicalTypeModel,
+        //     docName: 'CdGeoPhysicalTypeService::CdGeoPhysicalTypeExists',
+        //     cmd: {
+        //         action: 'find',
+        //         query: { where: params.filter }
+        //     },
+        //     dSource: 1,
+        // }
+        return this.b.read(req, res, serviceInput)
+    }
+
+    async readSL(req, res, serviceInput: IServiceInput): Promise<any> {
+        await this.b.initSqlite(req, res)
+        const q = this.b.getQuery(req);
+        console.log('CdGeoPhysicalTypeService::getCdGeoPhysicalType/q:', q);
+        try {
+            this.b.readSL$(req, res, serviceInput)
+                .subscribe((r) => {
+                    // console.log('CdGeoPhysicalTypeService::read$()/r:', r)
+                    this.b.i.code = 'CdGeoPhysicalTypeService::Get';
+                    const svSess = new SessionService();
+                    svSess.sessResp.cd_token = req.post.dat.token;
+                    svSess.sessResp.ttl = svSess.getTtl();
+                    this.b.setAppState(true, this.b.i, svSess.sessResp);
+                    this.b.cdResp.data = r;
+                    this.b.connSLClose()
+                    this.b.respond(req, res)
+                })
+        } catch (e) {
+            console.log('CdGeoPhysicalTypeService::read$()/e:', e)
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'CdGeoPhysicalTypeService:update',
+                app_msg: ''
+            };
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
+        }
     }
 
     update(req, res) {
-        // console.log('GroupMemberService::update()/01');
+        // console.log('CdGeoPhysicalTypeService::update()/01');
         let q = this.b.getQuery(req);
         q = this.beforeUpdate(q);
         const serviceInput = {
-            serviceModel: GroupMemberModel,
-            docName: 'GroupMemberService::update',
+            serviceModel: CdGeoPhysicalTypeModel,
+            docName: 'CdGeoPhysicalTypeService::update',
             cmd: {
                 action: 'update',
                 query: q
             },
             dSource: 1
         }
-        // console.log('GroupMemberService::update()/02')
+        // console.log('CdGeoPhysicalTypeService::update()/02')
         this.b.update$(req, res, serviceInput)
             .subscribe((ret) => {
                 this.b.cdResp.data = ret;
+                this.b.respond(req, res)
+            })
+    }
+
+    updateSL(req, res) {
+        console.log('CdGeoPhysicalTypeService::update()/01');
+        let q = this.b.getQuery(req);
+        q = this.beforeUpdateSL(q);
+        const serviceInput = {
+            serviceModel: CdGeoPhysicalTypeModel,
+            docName: 'CdGeoPhysicalTypeService::update',
+            cmd: {
+                action: 'update',
+                query: q
+            },
+            dSource: 1
+        }
+        console.log('CdGeoPhysicalTypeService::update()/02')
+        this.b.updateSL$(req, res, serviceInput)
+            .subscribe((ret) => {
+                this.b.cdResp.data = ret;
+                this.b.connSLClose()
                 this.b.respond(req, res)
             })
     }
@@ -253,8 +347,15 @@ export class GroupMemberService extends CdService {
      * @returns
      */
     beforeUpdate(q: any) {
-        if (q.update.groupMemberEnabled === '') {
-            q.update.groupMemberEnabled = null;
+        if (q.update.CdGeoPhysicalTypeEnabled === '') {
+            q.update.CdGeoPhysicalTypeEnabled = null;
+        }
+        return q;
+    }
+
+    beforeUpdateSL(q: any) {
+        if (q.update.billEnabled === '') {
+            q.update.billEnabled = null;
         }
         return q;
     }
@@ -279,182 +380,105 @@ export class GroupMemberService extends CdService {
     }
 
     async validateCreate(req, res) {
-        console.log('GroupMemberService::validateCreate()/01')
+        console.log('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/01')
         const svSess = new SessionService();
         ///////////////////////////////////////////////////////////////////
         // 1. Validate against duplication
-        console.log('GroupMemberService::validateCreate()/011')
-        this.b.i.code = 'GroupMemberService::validateCreate';
-        let ret = false;
-        this.validationCreateParams = {
+        const params = {
             controllerInstance: this,
-            model: GroupMemberModel,
+            model: CdGeoPhysicalTypeModel,
         }
-        // const isUnique = await this.validateUniqueMultiple(req, res, this.validationCreateParams)
-        // await this.b.validateUnique(req, res, this.validationCreateParams)
-        if (await this.b.validateUnique(req, res, this.validationCreateParams)) {
-            console.log('GroupMemberService::validateCreate()/02')
+        this.b.i.code = 'CdGeoPhysicalTypeService::validateCreate';
+        let ret = false;
+        if (await this.b.validateUnique(req, res, params)) {
+            console.log('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/02')
             if (await this.b.validateRequired(req, res, this.cRules)) {
-                console.log('GroupMemberService::validateCreate()/03')
-                ///////////////////////////////////////////////////////////////////
-                // // 2. confirm the consumerTypeGuid referenced exists
-                const pl: GroupMemberModel = await this.b.getPlData(req);
-                let cdObjType: CdObjTypeModel[];
-                let q: any = { where: { cdObjTypeId: pl.cdObjTypeId } };
-                let serviceInput: IServiceInput = {
-                    serviceModel: CdObjTypeModel,
-                    modelName: "CdObjTypeModel",
-                    docName: 'GroupMemberService::validateCreate',
-                    cmd: {
-                        action: 'find',
-                        query: q
-                    },
-                    dSource: 1
-                }
-                if ('cdObjTypeId' in pl) {
-                    console.log('GroupMemberService::validateCreate()/04')
-                    cdObjType = await this.b.get(req, res, serviceInput, q)
-                    ret = await this.b.validateInputRefernce(`cdobj type reference is invalid`, cdObjType, svSess)
-                } else {
-                    console.log('GroupMemberService::validateCreate()/04')
-                    this.b.setAlertMessage(`groupGuidParent is missing in payload`, svSess, false);
-                }
-                if ('memberGuid' in pl) {
-                    console.log('GroupMemberService::validateCreate()/05')
-                    
-                    q = { where: { groupGuid: pl.memberGuid } };
-                    serviceInput.serviceModel = GroupModel;
-                    serviceInput.cmd.query=q;
-                    if (cdObjType[0].cdObjTypeName === 'group') {
-                        console.log('GroupMemberService::validateCreate()/06')
-                        const group: GroupModel[] = await this.b.get(req, res, serviceInput, { where: { groupGuid: pl.memberGuid } });
-                        ret = await this.b.validateInputRefernce(`member reference is invalid`, group, svSess)
-                    }
-                    if (cdObjType[0].cdObjTypeName === 'user') {
-                        console.log('GroupMemberService::validateCreate()/04')
-                        serviceInput.serviceModel = UserModel
-                        const user: UserModel[] = await this.b.get(req, res, serviceInput, q);
-                        if (user.length > 0) {
-                            console.log('GroupMemberService::validateCreate()/05')
-                            this.b.setPlData(req, { key: 'userIdMember', value: user[0].userId });
-                            ret = await this.b.validateInputRefernce(`member reference is invalid`, user, svSess)
-                        } else {
-                            console.log('GroupMemberService::validateCreate()/06')
-                            ret = await this.b.validateInputRefernce(`member reference is invalid`, user, svSess)
-                        }
-                        console.log('GroupMemberService::validateCreate()/07')
-                    }
-                } else {
-                    console.log('moduleman/GroupMemberService::validateCreate()/11')
-                    this.b.setAlertMessage(`memberGuid is missing in payload`, svSess, false);
-                }
-                if ('groupGuidParent' in pl) {
-                    console.log('GroupMemberService::validateCreate()/08')
-                    const q: IQuery = { where: { groupGuid: pl.groupGuidParent } };
-                    
-                    console.log('GroupMemberService::validateCreate()/q:', q)
-                    serviceInput.serviceModel = GroupModel
-                    const r: GroupModel[] = await this.b.get(req, res, serviceInput, q);
-                    console.log('GroupMemberService::validateCreate()/09')
-                    ret = await this.b.validateInputRefernce(`parent reference is invalid`, r, svSess)
-                } else {
-                    console.log('GroupMemberService::validateCreate()/10')
-                    this.b.setAlertMessage(`groupGuidParent is missing in payload`, svSess, false);
-                }
-                if (this.b.err.length > 0) {
-                    console.log('GroupMemberService::validateCreate()/11')
-                    ret = false;
-                }
+                console.log('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/03')
+                ret = true;
             } else {
-                console.log('GroupMemberService::validateCreate()/12')
+                console.log('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/04')
                 ret = false;
-                this.b.setAlertMessage(`the required fields ${this.b.isInvalidFields.join(', ')} is missing`, svSess, true);
+                this.b.i.app_msg = `the required fields ${this.b.isInvalidFields.join(', ')} is missing`;
+                this.b.err.push(this.b.i.app_msg);
+                this.b.setAppState(false, this.b.i, svSess.sessResp);
             }
         } else {
-            console.log('GroupMemberService::validateCreate()/13')
+            console.log('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/05')
             ret = false;
-            this.b.setAlertMessage(`duplicate for ${this.cRules.noDuplicate.join(', ')} is not allowed`, svSess, false);
+            this.b.i.app_msg = `duplicate for ${this.cRules.noDuplicate.join(', ')} is not allowed`;
+            this.b.err.push(this.b.i.app_msg);
+            this.b.setAppState(false, this.b.i, svSess.sessResp);
         }
-        console.log('GroupMemberService::validateCreate()/14')
-        console.log('GroupMemberService::validateCreate()/ret', ret)
+        console.log('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/06')
+        ///////////////////////////////////////////////////////////////////
+        // 2. confirm the CdGeoPhysicalTypeTypeId referenced exists
+        // const pl: CdGeoPhysicalTypeModel = this.b.getPlData(req);
+        // if ('CdGeoPhysicalTypeTypeId' in pl) {
+        //     console.log('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/07')
+        //     console.log('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/pl:', pl)
+        //     const serviceInput = {
+        //         serviceModel: CdGeoPhysicalTypeTypeModel,
+        //         docName: 'CdGeoPhysicalTypeService::validateCreate',
+        //         cmd: {
+        //             action: 'find',
+        //             query: { where: { CdGeoPhysicalTypeTypeId: pl.CdGeoPhysicalTypeTypeId } }
+        //         },
+        //         dSource: 1
+        //     }
+        //     console.log('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/serviceInput:', JSON.stringify(serviceInput))
+        //     const r: any = await this.b.read(req, res, serviceInput)
+        //     console.log('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/r:', r)
+        //     if (r.length > 0) {
+        //         console.log('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/08')
+        //         ret = true;
+        //     } else {
+        //         console.log('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/10')
+        //         ret = false;
+        //         this.b.i.app_msg = `CdGeoPhysicalType type reference is invalid`;
+        //         this.b.err.push(this.b.i.app_msg);
+        //         this.b.setAppState(false, this.b.i, svSess.sessResp);
+        //     }
+        // } else {
+        //     console.log('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/11')
+        //     // this.b.i.app_msg = `parentModuleGuid is missing in payload`;
+        //     // this.b.err.push(this.b.i.app_msg);
+        //     //////////////////
+        //     this.b.i.app_msg = `CdGeoPhysicalTypeTypeId is missing in payload`;
+        //     this.b.err.push(this.b.i.app_msg);
+        //     this.b.setAppState(false, this.b.i, svSess.sessResp);
+        // }
+        console.log('CdGeoPhysicalTypeService::getCdGeoPhysicalType/12');
+        if (this.b.err.length > 0) {
+            console.log('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/13')
+            ret = false;
+        }
         return ret;
     }
 
-    // async validateUniqueMultiple(req, res){
-    //     let stateArr = [];
-    //     let buFVals = req.post.dat.f_vals
-    //     console.log('GroupMemberService::validateUniqueMultiple()/buFVals1:', buFVals)
-    //     await buFVals.forEach(async (plFVals, fValsIndex) => {
-    //         console.log('GroupMemberService::validateUniqueMultiple()/fValsIndex:', fValsIndex)
-    //         console.log('GroupMemberService::validateUniqueMultiple()/plFVals12:', plFVals)
-    //         // set the req
-    //         req.post.dat.f_vals[0] = plFVals
-    //         console.log('GroupMemberService::validateUniqueMultiple()/req.post.dat.f_vals[0]:', req.post.dat.f_vals[0])
-    //         const isUnq = await this.b.validateUnique(req, res, this.validationCreateParams)
-    //         console.log('GroupMemberService::validateUniqueMultiple()/isUnq:', isUnq)
-    //         const state = {
-    //             index: fValsIndex,
-    //             isUnique: isUnq
-    //         }
-    //         console.log('GroupMemberService::validateUniqueMultiple()/state:', state)
-    //         stateArr.push(state)
-    //     })
-    //     console.log('GroupMemberService::validateUniqueMultiple()/stateArr1:', stateArr)
-    //     // get valid FVal items
-    //     // const validStateArr = stateArr.filter((state) => state.isUnique)
-    //     // stateArr.forEach((state,i) => {
-    //     //     if(state.isUnique === false){
-    //     //         console.log('GroupMemberService::validateUniqueMultiple()/stateArr2:', stateArr)
-    //     //         buFVals.splice(i, 1); 
-    //     //         console.log('GroupMemberService::validateUniqueMultiple()/stateArr3:', stateArr)
-    //     //     }
-    //     // })
-    //     buFVals = buFVals.filter((fVals,i) => stateArr[i].isUnigue)
-    //     console.log('GroupMemberService::validateUniqueMultiple()/buFVals2:', buFVals)
-    //     // restor fVals...but only with valid items
-    //     req.post.dat.f_vals = buFVals;
-    //     if(buFVals.length > 0){
-    //         return true;
-    //     } else {
-    //         return false;
-    //     }
-        
-    // }
+    async validateCreateSL(req, res) {
+        return true;
+    }
 
     /**
-     * $members = mGroupMember::getGroupMember2([$filter1, $filter2], $usersOnly)
+     * 
+     * curl test:
+     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App", "m": "CdGeoPhysicalTypes","c": "CdGeoPhysicalType","a": "Get","dat": {"f_vals": [{"query": {"where": {"cd-geo-physical-typeName": "Kenya"}}}],"token":"08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
      * @param req 
      * @param res 
      * @param q 
      */
-    async getGroupMember(req, res, q: IQuery = null) {
+    async getCdGeoPhysicalType(req, res, q: IQuery = null): Promise<any> {
+        
         if (q === null) {
             q = this.b.getQuery(req);
         }
-        console.log('GroupMemberService::getGroupMember/f:', q);
-        const serviceInput = {
-            serviceModel: GroupMemberViewModel,
-            docName: 'GroupMemberService::getGroupMember$',
-            cmd: {
-                action: 'find',
-                query: q
-            },
-            dSource: 1
-        }
+        console.log('CdGeoPhysicalTypeService::getCdGeoPhysicalType/f:', q);
+        const serviceInput = siGet(q,this)
         try {
-            this.b.read$(req, res, serviceInput)
-                .subscribe((r) => {
-                    console.log('GroupMemberService::read$()/r:', r)
-                    this.b.i.code = 'GroupMemberController::Get';
-                    const svSess = new SessionService();
-                    svSess.sessResp.cd_token = req.post.dat.token;
-                    svSess.sessResp.ttl = svSess.getTtl();
-                    this.b.setAppState(true, this.b.i, svSess.sessResp);
-                    this.b.cdResp.data = r;
-                    this.b.respond(req, res)
-                })
+            const r = await this.b.read(req, res, serviceInput)
+            this.b.successResponse(req, res, r)
         } catch (e) {
-            console.log('GroupMemberService::read$()/e:', e)
+            console.log('CdGeoPhysicalTypeService::read$()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
@@ -466,42 +490,206 @@ export class GroupMemberService extends CdService {
         }
     }
 
-    async getGroupMemberCount(req, res) {
+    /**
+     * Queey params:
+     * - selected data level eg all-available, world, continent, country, continental-region, national-region
+     * - list of selected items 
+     * - eg: 
+     * - on selection of all-available, show list of countries availaable with summary data
+     * - on selection of world show continents with available data
+     * - on selection of continent show list of countries availaable with summary data
+     * - on selection of countrie list of national-resions availaable with summary data
+     * - on selection of national-region given national-resion with summary data
+     * @param q 
+     */
+    async getCdGeoPhysicalTypeStats(req, res, q: IQuery = null): Promise<any> {
+        if (q === null) {
+            q = this.b.getQuery(req);
+        }
+        console.log('CdGeoPhysicalTypeService::getCdGeoPhysicalType/f:', q);
+        const serviceInput = siGet(q,this)
+        try {
+            const r = await this.b.read(req, res, serviceInput)
+            this.b.successResponse(req, res, r)
+        } catch (e) {
+            console.log('CdGeoPhysicalTypeService::read$()/e:', e)
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'BaseService:update',
+                app_msg: ''
+            };
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
+        }
+    }
+
+    async getCdGeoPhysicalTypeSL(req, res) {
+        await this.b.initSqlite(req, res)
         const q = this.b.getQuery(req);
-        console.log('GroupMemberService::getGroupMemberCount/q:', q);
+        console.log('CdGeoPhysicalTypeService::getCdGeoPhysicalType/q:', q);
+        const serviceInput = siGet(q,this)
+        try {
+            this.b.readSL$(req, res, serviceInput)
+                .subscribe((r) => {
+                    // console.log('CdGeoPhysicalTypeService::read$()/r:', r)
+                    this.b.i.code = 'CdGeoPhysicalTypeService::Get';
+                    const svSess = new SessionService();
+                    svSess.sessResp.cd_token = req.post.dat.token;
+                    svSess.sessResp.ttl = svSess.getTtl();
+                    this.b.setAppState(true, this.b.i, svSess.sessResp);
+                    this.b.cdResp.data = r;
+                    this.b.connSLClose()
+                    this.b.respond(req, res)
+                })
+        } catch (e) {
+            console.log('CdGeoPhysicalTypeService::read$()/e:', e)
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'CdGeoPhysicalTypeService:update',
+                app_msg: ''
+            };
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
+        }
+    }
+
+    // /**
+    //  * 
+    //  * curl test:
+    //  * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdGeoPhysicalTypes","c": "CdGeoPhysicalType","a": "GetType","dat":{"f_vals": [{"query":{"where": {"CdGeoPhysicalTypeTypeId":100}}}],"token":"08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
+    //  * @param req 
+    //  * @param res 
+    //  */
+    // getCdGeoPhysicalTypeType(req, res) {
+    //     const q = this.b.getQuery(req);
+    //     console.log('CdGeoPhysicalTypeService::getCdGeoPhysicalType/f:', q);
+    //     const serviceInput = {
+    //         serviceModel: CdGeoPhysicalTypeTypeModel,
+    //         docName: 'CdGeoPhysicalTypeService::getCdGeoPhysicalTypeType$',
+    //         cmd: {
+    //             action: 'find',
+    //             query: q
+    //         },
+    //         dSource: 1
+    //     }
+    //     try {
+    //         this.b.read$(req, res, serviceInput)
+    //             .subscribe((r) => {
+    //                 // console.log('CdGeoPhysicalTypeService::read$()/r:', r)
+    //                 this.b.i.code = 'CdGeoPhysicalTypeController::Get';
+    //                 const svSess = new SessionService();
+    //                 svSess.sessResp.cd_token = req.post.dat.token;
+    //                 svSess.sessResp.ttl = svSess.getTtl();
+    //                 this.b.setAppState(true, this.b.i, svSess.sessResp);
+    //                 this.b.cdResp.data = r;
+    //                 this.b.respond(req, res)
+    //             })
+    //     } catch (e) {
+    //         console.log('CdGeoPhysicalTypeService::read$()/e:', e)
+    //         this.b.err.push(e.toString());
+    //         const i = {
+    //             messages: this.b.err,
+    //             code: 'BaseService:update',
+    //             app_msg: ''
+    //         };
+    //         this.b.serviceErr(req, res, e, i.code)
+    //         this.b.respond(req, res)
+    //     }
+    // }
+
+    // /**
+    //  * 
+    //  * @param req 
+    //  * @param res 
+    //  */
+    // getCdGeoPhysicalTypeCount(req, res) {
+    //     const q = this.b.getQuery(req);
+    //     console.log('CdGeoPhysicalTypeService::getCdGeoPhysicalTypeCount/q:', q);
+    //     const serviceInput = {
+    //         serviceModel: CdGeoPhysicalTypeViewModel,
+    //         docName: 'CdGeoPhysicalTypeService::getCdGeoPhysicalTypeCount$',
+    //         cmd: {
+    //             action: 'find',
+    //             query: q
+    //         },
+    //         dSource: 1
+    //     }
+    //     this.b.readCount$(req, res, serviceInput)
+    //         .subscribe((r) => {
+    //             this.b.i.code = 'CdGeoPhysicalTypeController::Get';
+    //             const svSess = new SessionService();
+    //             svSess.sessResp.cd_token = req.post.dat.token;
+    //             svSess.sessResp.ttl = svSess.getTtl();
+    //             this.b.setAppState(true, this.b.i, svSess.sessResp);
+    //             this.b.cdResp.data = r;
+    //             this.b.respond(req, res)
+    //         })
+    // }
+
+    getPagedSL(req, res) {
+        const q = this.b.getQuery(req);
+        console.log('CdGeoPhysicalTypeService::getCdGeoPhysicalTypeCount()/q:', q);
         const serviceInput = {
-            serviceModel: GroupMemberViewModel,
-            docName: 'GroupMemberService::getGroupMemberCount$',
+            serviceModel: CdGeoPhysicalTypeModel,
+            docName: 'CdGeoPhysicalTypeService::getCdGeoPhysicalTypeCount',
             cmd: {
                 action: 'find',
                 query: q
             },
             dSource: 1
         }
-        this.b.readCount$(req, res, serviceInput)
+        this.b.readCountSL$(req, res, serviceInput)
             .subscribe((r) => {
-                this.b.i.code = 'GroupMemberController::Get';
+                this.b.i.code = 'CdGeoPhysicalTypeService::Get';
                 const svSess = new SessionService();
                 svSess.sessResp.cd_token = req.post.dat.token;
                 svSess.sessResp.ttl = svSess.getTtl();
                 this.b.setAppState(true, this.b.i, svSess.sessResp);
                 this.b.cdResp.data = r;
+                this.b.connSLClose()
                 this.b.respond(req, res)
             })
     }
 
+    // getCdGeoPhysicalTypeTypeCount(req, res) {
+    //     const q = this.b.getQuery(req);
+    //     console.log('CdGeoPhysicalTypeService::getCdGeoPhysicalTypeCount/q:', q);
+    //     const serviceInput = {
+    //         serviceModel: CdGeoPhysicalTypeTypeModel,
+    //         docName: 'CdGeoPhysicalTypeService::getCdGeoPhysicalTypeCount$',
+    //         cmd: {
+    //             action: 'find',
+    //             query: q
+    //         },
+    //         dSource: 1
+    //     }
+    //     this.b.readCount$(req, res, serviceInput)
+    //         .subscribe((r) => {
+    //             this.b.i.code = 'CdGeoPhysicalTypeController::Get';
+    //             const svSess = new SessionService();
+    //             svSess.sessResp.cd_token = req.post.dat.token;
+    //             svSess.sessResp.ttl = svSess.getTtl();
+    //             this.b.setAppState(true, this.b.i, svSess.sessResp);
+    //             this.b.cdResp.data = r;
+    //             this.b.respond(req, res)
+    //         })
+    // }
+
     delete(req, res) {
         const q = this.b.getQuery(req);
-        console.log('GroupMemberService::delete()/q:', q)
+        console.log('CdGeoPhysicalTypeService::delete()/q:', q)
         const serviceInput = {
-            serviceModel: GroupMemberModel,
-            docName: 'GroupMemberService::delete',
+            serviceModel: CdGeoPhysicalTypeModel,
+            docName: 'CdGeoPhysicalTypeService::delete',
             cmd: {
                 action: 'delete',
                 query: q
             },
             dSource: 1
         }
+
         this.b.delete$(req, res, serviceInput)
             .subscribe((ret) => {
                 this.b.cdResp.data = ret;
@@ -509,36 +697,23 @@ export class GroupMemberService extends CdService {
             })
     }
 
-    getPals(cuid) {
-        return [{}];
-    }
-
-    getGroupMembers(moduleGroupGuid) {
-        return [{}];
-    }
-
-    getMembershipGroups(cuid) {
-        return [{}];
-    }
-
-    async isMember(req, res, params): Promise<boolean> {
-        console.log('starting GroupMemberService::isMember(req, res, data)');
-        const entityManager = getManager();
-        const opts = { where: params };
-        const result = await entityManager.count(GroupMemberModel, opts);
-        if (result > 0) {
-            return true;
-        } else {
-            return false;
+    deleteSL(req, res) {
+        const q = this.b.getQuery(req);
+        console.log('CdGeoPhysicalTypeService::deleteSL()/q:', q)
+        const serviceInput = {
+            serviceModel: CdGeoPhysicalTypeModel,
+            docName: 'CdGeoPhysicalTypeService::deleteSL',
+            cmd: {
+                action: 'delete',
+                query: q
+            },
+            dSource: 1
         }
-    }
 
-    getActionGroups(menuAction) {
-        return [{}];
+        this.b.deleteSL$(req, res, serviceInput)
+            .subscribe((ret) => {
+                this.b.cdResp.data = ret;
+                this.b.respond(req, res)
+            })
     }
-
-    async getUserGroups(ret) {
-        //
-    }
-
 }

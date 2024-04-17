@@ -1,512 +1,237 @@
-import { Observable } from 'rxjs';
-import { BaseService } from '../../base/base.service';
-import { CdService } from '../../base/cd.service';
-import { CDOBJ_TYPE_USER, CreateIParams, IQuery, IServiceInput } from '../../base/IBase';
-import { CdObjTypeModel } from '../../moduleman/models/cd-obj-type.model';
-import { CompanyModel } from '../../moduleman/models/company.model';
-import { ConsumerModel } from '../../moduleman/models/consumer.model';
-import { CompanyService } from '../../moduleman/services/company.service';
-import { ConsumerService } from '../../moduleman/services/consumer.service';
-import { GroupMemberController } from '../controllers/group-member.controller';
-import { GroupInvitationTypeModel } from '../models/group-invitation-type.model';
-import { getGroupInvitationParams, GroupInvitationModel, siCreate } from '../models/group-invitation.model';
-import { GroupMemberModel } from '../models/group-member.model';
-import { GroupModel } from '../models/group.model';
-import { SessionModel } from '../models/session.model';
-import { UserModel } from '../models/user.model';
-import { GroupMemberService } from './group-member.service';
-import { GroupService } from './group.service';
-import { SessionService } from './session.service';
-import { UserService } from './user.service';
+import { BaseService } from '../../../sys/base/base.service';
+import { CdService } from '../../../sys/base/cd.service';
+import { SessionService } from '../../../sys/user/services/session.service';
+import { UserService } from '../../../sys/user/services/user.service';
+import { CreateIParams, IQuery, IRespInfo, IServiceInput, IUser, ICdRequest } from '../../../sys/base/IBase';
+import { CdGeoLocationModel } from '../models/cd-geo-location.model';
+// import { CdGeoLocationViewModel, siGet } from '../models/cd-geo-location-view.model';
+// import { CdGeoLocationViewModel } from '../models/cd-geo-location-view.model';
+import { siGet } from '../../../sys/base/base.model';
 
-export class GroupInvitationService extends CdService {
+export class CdGeoLocationService extends CdService {
+    b: any; // instance of BaseService
     cdToken: string;
     srvSess: SessionService;
-    b: BaseService;
-    serviceModel: GroupInvitationModel;
-    plData: GroupInvitationModel;
-
-    hostUser: UserModel[];
-    guestUser: UserModel[];
-    inviteGroup: GroupModel[];
-    groupInvitationTypes: GroupInvitationTypeModel[];
-    hostGroupMember;
-
+    srvUser: UserService;
+    user: IUser;
+    serviceModel: CdGeoLocationModel;
+    modelName: "CdGeoLocationModel";
+    sessModel;
+    // moduleModel: ModuleModel;
 
     /*
      * create rules
      */
-    cRules = {
-        required: [
-            'hostUser',
-            'guestUser',
-            'groupInvitationTypeId',
-            'groupId'
-        ],
-        noDuplicate: [
-            'hostUser',
-            'guestUser',
-            'groupId'
-        ]
+    cRules: any = {
+        required: ['cd-geo-locationName', 'CdGeoLocationTypeId', 'cd-geo-locationDateLabel'],
+        noDuplicate: ['cd-geo-locationName', 'cd-geo-locationDateLabel']
     };
     uRules: any[];
     dRules: any[];
+
     constructor() {
         super()
         this.b = new BaseService();
-        this.serviceModel = new GroupInvitationModel();
+        this.serviceModel = new CdGeoLocationModel();
     }
 
-    /**
-     * 
-     * 
-        {
-            "ctx": "Sys",
-            "m": "User",
-            "c": "GroupInvitationController",
-            "a": "actionCreate",
-            "dat": {
-                "f_vals": [
-                    {
-                        "data": {
-                            "hostUser": "1010",
-                            "guestUser": "1003",
-                            "groupInvitationTypeId": 1315,
-                            "groupId": 1323
-                        }
-                        }
-                    ],
-                "token": "6E831EAF-244D-2E5A-0A9E-27C1FDF7821D"
-            },
-            "args": null
-        }
-
-
-        {
-            "ctx": "Sys",
-            "m": "User",
-            "c": "GroupInvitation",
-            "a": "Create",
-            "dat": {
-                "f_vals": [
-                    {
-                        "data": {
-                            "hostUser": "1010",
-                            "guestUser": "1003",
-                            "groupInvitationTypeId": "1313"
-                        }
-                        }
-                    ],
-                "token": "6E831EAF-244D-2E5A-0A9E-27C1FDF7821D"
-            },
-            "args": null
+     /**
+     * {
+        "ctx": "App",
+        "m": "CdGeoLocations",
+        "c": "CdGeoLocation",
+        "a": "Create",
+        "dat": {
+            "f_vals": [
+            {
+                "data": {
+                    "cd-geo-locationGuid":"",
+                    "cd-geo-locationName": "Benin", 
+                    "cd-geo-locationDescription":"2005",
+                    "cdGeoLocationId":null,
+                    "cd-geo-locationWoccu": false,
+                    "cd-geo-locationCount": null,
+                    "cd-geo-locationMembersCount": 881232, 
+                    "cd-geo-locationSavesShares":56429394,
+                    "cd-geo-locationLoans":45011150,
+                    "cd-geo-locationReserves":null, 
+                    "cd-geo-locationAssets": null,
+                    "cd-geo-locationMemberPenetration":20.95,
+                    "cd-geo-locationDateLabel": "2005-12-31 23:59:59",
+                    "cd-geo-locationRefId":null
+	            }
+            }
+            ],
+            "token": "3ffd785f-e885-4d37-addf-0e24379af338"
+        },
+        "args": {}
         }
      * @param req
      * @param res
      */
     async create(req, res) {
-        console.log('GroupInvitationService::create::validateCreate()/01')
+        console.log('cd-geo-location/create::validateCreate()/01')
+        
         const svSess = new SessionService();
         if (await this.validateCreate(req, res)) {
             await this.beforeCreate(req, res);
-            // const serviceInput = {
-            //     serviceModel: GroupInvitationModel,
-            //     serviceModelInstance: this.serviceModel,
-            //     docName: 'Create invitation to a group',
-            //     dSource: 1,
-            // }
-            // console.log('GroupInvitationService::create()/serviceInput:', serviceInput)
-            console.log('GroupInvitationService::create()/req.post:', JSON.stringify(req.post))
-            const respData = await this.b.create(req, res, siCreate(this));
-            console.log('GroupInvitationService::create()/respData:', JSON.stringify(respData))
-            if ('app_state' in respData) {
-                if (respData.success === false) {
-                    return respData
-                } else {
-                    const r = await this.b.respond(req, res);
-                }
-            } else {
-                this.b.i.app_msg = 'new group created';
-                this.b.setAppState(true, this.b.i, svSess.sessResp);
-                this.b.cdResp.data = await respData;
-                const r = await this.b.respond(req, res);
+            const serviceInput = {
+                serviceModel: CdGeoLocationModel,
+                modelName: "CdGeoLocationModel",
+                serviceModelInstance: this.serviceModel,
+                docName: 'Create CdGeoLocation',
+                dSource: 1,
             }
-
+            console.log('CdGeoLocationService::create()/serviceInput:', serviceInput)
+            const respData = await this.b.create(req, res, serviceInput);
+            this.b.i.app_msg = 'new CdGeoLocation created';
+            this.b.setAppState(true, this.b.i, svSess.sessResp);
+            this.b.cdResp.data = await respData;
+            const r = await this.b.respond(req, res);
         } else {
-            console.log('GroupInvitationService/create::validateCreate()/02')
+            console.log('cd-geo-location/create::validateCreate()/02')
             const r = await this.b.respond(req, res);
         }
     }
 
-    async createI(req, res, createIParams: CreateIParams): Promise<GroupInvitationModel | boolean> {
+    async createSL(req, res) {
+        const svSess = new SessionService();
+        await this.b.initSqlite(req, res)
+        if (await this.validateCreateSL(req, res)) {
+            await this.beforeCreateSL(req, res);
+            const serviceInput = {
+                serviceInstance: this,
+                serviceModel: CdGeoLocationModel,
+                serviceModelInstance: this.serviceModel,
+                docName: 'Create CdGeoLocation',
+                dSource: 1,
+            }
+            const result = await this.b.createSL(req, res, serviceInput)
+            this.b.connSLClose()
+            this.b.i.app_msg = '';
+            this.b.setAppState(true, this.b.i, svSess.sessResp);
+            this.b.cdResp.data = result;
+            const r = await this.b.respond(req, res);
+        } else {
+            const r = await this.b.respond(req, res);
+        }
+    }
+
+    async createI(req, res, createIParams: CreateIParams): Promise<CdGeoLocationModel | boolean> {
         return await this.b.createI(req, res, createIParams)
     }
 
-    async validateCreate(req, res): Promise<boolean> {
-        console.log('GroupInvitationService::validateCreate()/01')
-        const svSess = new SessionService()
-        const svUser = new UserService()
-        const svGroup = new GroupService()
-        const params = {
-            controllerInstance: this,
-            model: GroupInvitationModel,
-        }
-        this.b.i.code = 'GroupInvitation::validateCreate';
-        let ret = false;
-        this.plData = await this.b.getPlData(req)
-        /**
-                 * confirm that the host, guest and destination groups exists
-                 */
-        let q: any = { where: { userId: this.plData.hostUser } };
-        this.hostUser = await svUser.getUserI(req, res, q)
-        console.log('GroupInvitationService::validateCreate()/this.hostUser:', this.hostUser)
-        q = { where: { userId: this.plData.guestUser } };
-        this.guestUser = await svUser.getUserI(req, res, q);
-        console.log('GroupInvitationService::validateCreate()/this.guestUser:', this.guestUser)
-        // groupInvitationTypeId
-        q = { where: { groupInvitationTypeId: this.plData.groupInvitationTypeId } };
-        this.groupInvitationTypes = await this.getGroupInvitationTypeI(req, res, q)
-        console.log('GroupInvitationService::validateCreate()/this.groupInvitationTypes1:', this.groupInvitationTypes)
-        if (await this.isUserPal(req, res)) {
-            await this.setPalsGroupID(req, res);
-        }
-        if (await this.b.validateUnique(req, res, params)) {
-            console.log('GroupInvitation::validateCreate()/03')
-            if (await this.b.validateRequired(req, res, this.cRules)) {
-                console.log('GroupInvitation::validateCreate()/04')
-
-                console.log('GroupInvitationService::validateCreate()/this.plData:', this.plData)
-                // /**
-                //  * confirm that the host, guest and destination groups exists
-                //  */
-                // let q: any = { where: { userId: this.plData.hostUser } };
-                // this.hostUser = await svUser.getUserI(req, res, q)
-                // console.log('GroupInvitationService::validateCreate()/this.hostUser:', this.hostUser)
-                // q = { where: { userId: this.plData.guestUser } };
-                // this.guestUser = await svUser.getUserI(req, res, q);
-                // console.log('GroupInvitationService::validateCreate()/this.guestUser:', this.guestUser)
-                // // groupInvitationTypeId
-                // q = { where: { groupInvitationTypeId: this.plData.groupInvitationTypeId } };
-                // this.groupInvitationTypes = await this.getGroupInvitationTypeI(req, res, q)
-                // console.log('GroupInvitationService::validateCreate()/this.groupInvitationTypes1:', this.groupInvitationTypes)
-                if ('groupId' in this.plData) {
-                    q = { where: { groupId: this.plData.groupId } };
-                    this.inviteGroup = await svGroup.getGroupI(req, res, q)
-                    console.log('GroupInvitationService::validateCreate()/this.groupInvitationTypes2:', this.groupInvitationTypes)
-                    if (this.hostUser.length > 0 && this.guestUser.length > 0 && this.inviteGroup.length > 0) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }
-
-                if (this.hostUser.length > 0 && this.guestUser.length > 0) {
-                    return true;
-                } else {
-                    return false;
-                }
-
-            } else {
-                console.log('GroupInvitation::validateCreate()/04')
-                ret = false;
-                this.b.i.app_msg = `the required fields ${this.b.isInvalidFields.join(', ')} is missing`;
-                this.b.err.push(this.b.i.app_msg);
-                this.b.setAppState(false, this.b.i, svSess.sessResp);
-            }
-        } else {
-            console.log('GroupInvitation::validateCreate()/05')
-            ret = false;
-            this.b.i.app_msg = `duplicate for ${this.cRules.noDuplicate.join(', ')} is not allowed`;
-            this.b.err.push(this.b.i.app_msg);
-            this.b.setAppState(false, this.b.i, svSess.sessResp);
-        }
-    }
-
-    async beforeCreate(req, res): Promise<any> {
-        console.log('GroupInvitationService::beforeCreate()/01')
-        await this.b.setPlData(req, { key: 'groupInvitationGuid', value: this.b.getGuid() });
-    }
-
-    async isUserPal(req, res): Promise<boolean> {
-        console.log('GroupInvitationService::isUserPal()/01')
-        if (this.b.isEmpty(this.groupInvitationTypes)) {
-            const q = { where: { groupInvitationTypeId: this.plData.groupInvitationTypeId } };
-            this.groupInvitationTypes = await this.getGroupInvitationTypeI(req, res, q)
-            console.log('GroupInvitationService::isUserPal()/this.groupInvitationTypes:', this.groupInvitationTypes)
-        }
-        if (this.groupInvitationTypes[0].groupInvitationTypeName === 'user_pals') {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    async setPalsGroupID(req, res) {
-        console.log('GroupInvitationService::setPalsGroupID()/01')
-        // use hostUser to get the userGuid then use it to get group details
-        const svGroup = new GroupService()
-        console.log('GroupInvitationService::setPalsGroupID()/this.hostUser:', this.hostUser)
-        const hostGroup: GroupModel[] = await svGroup.getGroupI(req, res, { where: { groupName: `${this.hostUser[0].userGuid}-pals` } })
-        console.log('GroupInvitationService::setPalsGroupID()/hostGroup:', hostGroup)
-        await this.b.setPlData(req, { key: 'groupId', value: hostGroup[0].groupId });
-        console.log('GroupInvitationService::setPalsGroupID()/req.post:', JSON.stringify(req.post))
-    }
-
-    async createPalsGroupInvitation(req, res, userData: UserModel) {
-        console.log('GroupInvitationService::createPalsGroupInvitation()/01')
-        // const svGroupInvitation = new GroupInvitationService()
-        const svConsumer = new ConsumerService()
-        svConsumer.b = this.b
-        const svCompany = new CompanyService()
-        svCompany.b = this.b
-        // const svSess = new SessionService()
-        let coId = null;
-        let consGuid = null;
-        // const co = await svConsumer.activeCompany(req, res);
-
-        ////////////
-        const plData = await this.b.getPlData(req)
-        consGuid = plData.consumerGuid
-        const consumerData: ConsumerModel[] = await svConsumer.getConsumerByGuid(req, res, consGuid)
-        console.log('GroupInvitationService::createPalsGroupInvitation()/consumerData:', consumerData)
-        // const consumerData = await svConsumer.activeConsumer(req, res);
-
-        if (consumerData.length > 0) {
-            coId = consumerData[0].companyId;
-        }
-        const co: CompanyModel[] = await svCompany.getCompany(req, res, { where: { companyId: coId } })
-        console.log('GroupInvitationService::createPalsGroupInvitation()/co:', co)
-
-        if (co.length > 0) {
-            coId = co[0].companyId
-            consGuid = consumerData[0].consumerGuid
-        }
-        // const cUser = await svSess.getCurrentUser(req)
-        console.log('GroupInvitationService::createPalsGroupInvitation()/userData:', userData)
-        console.log('GroupInvitationService::createPalsGroupInvitation()/co[0].consumerGuid:', co[0].consumerGuid)
-        console.log('GroupInvitationService::createPalsGroupInvitation()/consGuid:', consGuid)
-        const groupData = {
-            groupGuid: this.b.getGuid(),
-            groupName: `${userData.userGuid}-pals`,
-            groupOwnerId: userData.userId,
-            groupTypeId: 7,
-            moduleGuid: "-dkkm6",
-            companyId: coId,
-            consumerGuid: consGuid,
-            isPublic: false,
-            enabled: true,
-        };
-        console.log('GroupInvitationService::createPalsGroupInvitation()/groupData:', groupData)
-        const si = {
-            serviceInstance: this,
-            serviceModel: GroupInvitationModel,
-            serviceModelInstance: this.serviceModel,
-            docName: 'UserService/afterCreate',
-            dSource: 1,
-        }
-        const createIParams: CreateIParams = {
-            serviceInput: si,
-            controllerData: groupData
-        }
-        console.log('GroupInvitationService::createPalsGroupInvitation()/createIParams:', createIParams)
-        return await this.createI(req, res, createIParams)
-    }
-
-    async accept(req, res) {
-        console.log('GroupInvitationService::accept()/01')
-        console.log('GroupInvitationService::accept()/this.b.getCuid(req):', this.b.getCuid(req))
-        const svSess = new SessionService()
-        if (await this.validateAccept(req, res)) {
-            console.log('GroupInvitationService::accept()/02')
-            try {
-                console.log('GroupInvitationService::accept()/03')
-                // move user to group 
-                const svGroupMember = new GroupMemberService()
-                let si = {
-                    serviceInstance: svGroupMember,
-                    serviceModel: GroupMemberModel,
-                    serviceModelInstance: svGroupMember.serviceModel,
-                    docName: 'svGroupInvitation/accept',
-                    dSource: 1,
-                }
-                let createIParams: CreateIParams = {
-                    serviceInput: si,
-                    controllerData: this.hostGroupMember
-                }
-                const invoiceData: any = await svGroupMember.createI(req, res, createIParams)
-                console.log('GroupInvitationService::accept()/04')
-                console.log('GroupInvitationService::accept()/this.plData:', this.plData)
-                ///////////////////
-                const serviceInput = {
-                    serviceModel: GroupInvitationModel,
-                    docName: 'GroupInvitationService::updateI',
-                    cmd: {
-                        action: 'update',
-                        query: {
-                            where: this.plData,
-                            update: { accept: true }
-                        }
-                    },
-                    dSource: 1
-                }
-                const result = await this.updateI(req, res, serviceInput)
-                // the following message can be configured for different type of membership
-                // this.b.i.app_msg = 'you are now a member'
-                // this.b.setAppState(true, this.b.i, svSess.sessResp);
-                // this.b.cdResp.data = result;
-                // const r = await this.b.respond(req, res);
-                this.b.successResponse(req, res, result, 'you are now a member')
-            } catch (e) {
-                console.log('GroupInvitationService::accept()/05')
-                console.log('GroupInvitationService::getGroupI()/e:', e)
-                this.b.err.push(e.toString());
-                const i = {
-                    messages: this.b.err,
-                    code: 'GroupInvitationService:getGroupI',
-                    app_msg: ''
-                };
-                await this.b.serviceErr(req, res, e, i.code)
-                await this.b.respond(req, res)
-            }
-        } else {
-            console.log('GroupInvitationService::accept()/06')
-            this.b.err.push('validation failure');
-            const i = {
-                messages: this.b.err,
-                code: 'GroupInvitationService:accept',
-                app_msg: ''
-            };
-            await this.b.serviceErr(req, res, 'validation failure', i.code)
-            await this.b.respond(req, res)
-        }
-    }
-
     /**
-     * - enforce user privacy: only the subject user, can perform the accept process.
-     * - So confirm that the currentUser maps to the user accepting the invitation
+     * CreateM, Create multiple records
+     *  - 1. validate the loop field for multiple data
+     *  - 2. loop through the list
+     *  - 3. in each cycle:
+     *      - get createItem
+     *      - createI(createItem)
+     *      - save return value
+     *  - 4. set return data
+     *  - 5. return data
+     * 
+     * {
+        "ctx": "App",
+        "m": "CdGeoLocations",
+        "c": "CdGeoLocation",
+        "a": "CreateM",
+        "dat": {
+            "f_vals": [
+            {
+                "data": [
+                {
+                    "cd-geo-locationGuid": "",
+                    "cd-geo-locationName": "Kenya",
+                    "cd-geo-locationDescription": "2006",
+                    "cdGeoLocationId": null,
+                    "cd-geo-locationWoccu": false,
+                    "cd-geo-locationCount": 2993,
+                    "cd-geo-locationMembersCount": 3265545,
+                    "cd-geo-locationSavesShares": 1608009012,
+                    "cd-geo-locationLoans": 1604043550,
+                    "cd-geo-locationReserves": 102792479,
+                    "cd-geo-locationAssets": 2146769999,
+                    "cd-geo-locationMemberPenetration": 16.01,
+                    "cd-geo-locationDateLabel": "2006-12-31 23:59:59",
+                    "cd-geo-locationRefId": null
+                },
+                {
+                    "cd-geo-locationGuid": "",
+                    "cd-geo-locationName": "Malawi",
+                    "cd-geo-locationDescription": "2006",
+                    "cdGeoLocationId": null,
+                    "cd-geo-locationWoccu": false,
+                    "cd-geo-locationCount": 70,
+                    "cd-geo-locationMembersCount": 62736,
+                    "cd-geo-locationSavesShares": 6175626,
+                    "cd-geo-locationLoans": 4946246,
+                    "cd-geo-locationReserves": 601936,
+                    "cd-geo-locationAssets": 7407250,
+                    "cd-geo-locationMemberPenetration": 0.9,
+                    "cd-geo-locationDateLabel": "2006-12-31 23:59:59",
+                    "cd-geo-locationRefId": null
+                }
+                ]
+            }
+            ],
+            "token": "3ffd785f-e885-4d37-addf-0e24379af338"
+        },
+        "args": {}
+        }
+     * 
+     * 
      * @param req 
      * @param res 
      */
-    async validateAccept(req, res) {
-        console.log('GroupInvitationService::validateAccept()/01')
-        console.log('GroupInvitationService::validateAccept()/this.b.getCuid(req)1:', this.b.getCuid(req))
-        const svSess = new SessionService()
-        const svGroup = new GroupService()
-        const svGroupMember = new GroupMemberService()
-        const svUser = new UserService()
-        this.plData = await this.b.getPlData(req)
-        console.log('GroupInvitationService::validateAccept()/this.plData:', this.plData)
-        try {
-            console.log('GroupInvitationService::validateAccept()/02')
-            console.log('GroupInvitationService::validateAccept()/this.b.getCuid(req)2:', this.b.getCuid(req))
-            const groupInvitations: GroupInvitationModel[] = await this.getGroupInvitationI(req, res, { where: { groupInvitationId: this.plData.groupInvitationId } })
-            console.log('GroupInvitationService::validateAccept()/groupInvitations:', groupInvitations)
-            console.log('GroupInvitationService::validateAccept()/03')
-            if (groupInvitations.length > 0) {
-                console.log('GroupInvitationService::validateAccept()/04')
-                const destinationGroup: GroupModel[] = await svGroup.getGroupI(req, res, { where: { groupId: groupInvitations[0].groupId } })
-                console.log('GroupInvitationService::validateAccept()/destinationGroup:', destinationGroup)
-                const guestUser: UserModel[] = await svUser.getUserI(req, res, { where: { userId: groupInvitations[0].guestUser } })
-                console.log('GroupInvitationService::validateAccept()/guestUser:', guestUser)
-                this.hostGroupMember = {
-                    userIdMember: guestUser[0].userId,
-                    memberGuid: guestUser[0].userGuid,
-                    groupGuidParent: destinationGroup[0].groupGuid,
-                    cdObjTypeId: CDOBJ_TYPE_USER
-                }
-                console.log('GroupInvitationService::validateAccept()/this.hostGroupMember:', this.hostGroupMember)
-                console.log('GroupInvitationService::validateAccept()/this.b.getCuid(req):', this.b.getCuid(req))
-                // const cuid = svSess.getCuid(req)
-                console.log('GroupInvitationService::validateAccept()/req.post:', req.post)
-                if (this.b.getCuid(req) === this.hostGroupMember.userIdMember) {
-                    console.log('GroupInvitationService::validateAccept()/05')
-                    // confirm the invitation has not been accepted yet
-                    if (groupInvitations[0].accept) {
-                        console.log('GroupInvitationService::validateAccept()/05_1')
-                        this.b.setAlertMessage('this invitation has already been accepted', svSess, false)
-                        return false;
-                    }
-                    return true;
-                } else {
-                    this.b.setAlertMessage('you do not have privilege to do this process', svSess, false)
-                    return false;
-                }
-            } else {
-                console.log('GroupInvitationService::validateAccept()/07')
-                return false
-            }
-        } catch (e) {
-            console.log('GroupInvitationService::validateAccept()/02')
-            console.log('GroupInvitationService::validateAccept()/e:', e)
-            this.b.err.push(e.toString());
-            const i = {
-                messages: this.b.err,
-                code: 'GroupInvitationService:validateAccept',
-                app_msg: ''
-            };
-            await this.b.serviceErr(req, res, e, i.code)
-            await this.b.respond(req, res)
-        }
-    }
+    async createM(req, res) {
+        console.log('CdGeoLocationService::createM()/01')
+        let data = req.post.dat.f_vals[0].data
+        console.log('CdGeoLocationService::createM()/data:', data)
+        // this.b.models.push(CdGeoLocationModel)
+        // this.b.init(req, res)
 
-    getMemoSummary(cuid) {
-        return [{}];
-    }
-
-    async getModuleGroupInvitation(req, res, moduleName): Promise<GroupInvitationModel[]> {
-        const serviceInput = {
-            serviceInstance: this,
-            serviceModel: GroupInvitationModel,
-            docName: 'GroupInvitationService::getGroupInvitationByName',
-            cmd: {
-                action: 'find',
-                query: { where: { groupName: moduleName } }
-            },
-            dSource: 1,
-        }
-        return await this.b.read(req, res, serviceInput);
-    }
-
-    getModuleGroupInvitation$(req, res, moduleName): Observable<GroupInvitationModel[]> {
-        const serviceInput = {
-            serviceModel: GroupInvitationModel,
-            docName: 'GroupInvitationService::getGroupInvitationByName',
-            cmd: {
-                action: 'find',
-                query: { where: { groupName: moduleName } }
-            },
-            dSource: 1,
-        }
-        return this.b.read$(req, res, serviceInput);
-    }
-
-    async getGroupInvitationByName(req, res, groupParams) {
-        // console.log('starting GroupInvitationService::getGroupInvitationByName(req, res, groupParams)');
-        // console.log('GroupInvitationService::getGroupInvitationByName/groupParams:', groupParams);
-        if (groupParams.groupName) {
-            const serviceInput = {
-                serviceInstance: this,
-                serviceModel: GroupInvitationModel,
-                docName: 'GroupInvitationService::getGroupInvitationByName',
-                cmd: {
-                    action: 'find',
-                    query: { where: { groupName: groupParams.groupName, groupTypeId: groupParams.groupTypeId } }
-                },
+        for (var CdGeoLocationData of data) {
+            console.log('CdGeoLocationData', CdGeoLocationData)
+            const CdGeoLocationQuery: CdGeoLocationModel = CdGeoLocationData;
+            const svCdGeoLocation = new CdGeoLocationService();
+            const si = {
+                serviceInstance: svCdGeoLocation,
+                serviceModel: CdGeoLocationModel,
+                serviceModelInstance: svCdGeoLocation.serviceModel,
+                docName: 'CdGeoLocationService::CreateM',
                 dSource: 1,
             }
-            return await this.b.read(req, res, serviceInput);
-        } else {
-            console.log('groupParams.groupName is invalid');
+            const createIParams: CreateIParams = {
+                serviceInput: si,
+                controllerData: CdGeoLocationQuery
+            }
+            let ret = await this.createI(req, res, createIParams)
+            console.log('CdGeoLocationService::createM()/forLoop/ret:', ret)
         }
+        // return current sample data
+        // eg first 5
+        // this is just a sample for development
+        // producation can be tailored to requrement 
+        // and the query can be set from the client side.
+        let q = {
+            // "select": [
+            //     "cd-geo-locationName",
+            //     "cd-geo-locationDescription"
+            // ],
+            "where": {},
+            "take": 5,
+            "skip": 0
+        }
+        this.getCdGeoLocation(req, res,q)
     }
 
-
-
-    async groupExists(req, res, params): Promise<boolean> {
+    async CdGeoLocationExists(req, res, params): Promise<boolean> {
         const serviceInput: IServiceInput = {
             serviceInstance: this,
-            serviceModel: GroupInvitationModel,
-            docName: 'GroupInvitationService::groupExists',
+            serviceModel: CdGeoLocationModel,
+            docName: 'CdGeoLocationService::CdGeoLocationExists',
             cmd: {
                 action: 'find',
                 query: { where: params.filter }
@@ -516,27 +241,101 @@ export class GroupInvitationService extends CdService {
         return this.b.read(req, res, serviceInput)
     }
 
+    async beforeCreate(req, res): Promise<any> {
+        this.b.setPlData(req, { key: 'CdGeoLocationGuid', value: this.b.getGuid() });
+        this.b.setPlData(req, { key: 'CdGeoLocationEnabled', value: true });
+        return true;
+    }
+
+    async beforeCreateSL(req, res): Promise<any> {
+        this.b.setPlData(req, { key: 'CdGeoLocationGuid', value: this.b.getGuid() });
+        this.b.setPlData(req, { key: 'CdGeoLocationEnabled', value: true });
+        return true;
+    }
+
     async read(req, res, serviceInput: IServiceInput): Promise<any> {
-        //
+        // const serviceInput: IServiceInput = {
+        //     serviceInstance: this,
+        //     serviceModel: CdGeoLocationModel,
+        //     docName: 'CdGeoLocationService::CdGeoLocationExists',
+        //     cmd: {
+        //         action: 'find',
+        //         query: { where: params.filter }
+        //     },
+        //     dSource: 1,
+        // }
+        return this.b.read(req, res, serviceInput)
+    }
+
+    async readSL(req, res, serviceInput: IServiceInput): Promise<any> {
+        await this.b.initSqlite(req, res)
+        const q = this.b.getQuery(req);
+        console.log('CdGeoLocationService::getCdGeoLocation/q:', q);
+        try {
+            this.b.readSL$(req, res, serviceInput)
+                .subscribe((r) => {
+                    // console.log('CdGeoLocationService::read$()/r:', r)
+                    this.b.i.code = 'CdGeoLocationService::Get';
+                    const svSess = new SessionService();
+                    svSess.sessResp.cd_token = req.post.dat.token;
+                    svSess.sessResp.ttl = svSess.getTtl();
+                    this.b.setAppState(true, this.b.i, svSess.sessResp);
+                    this.b.cdResp.data = r;
+                    this.b.connSLClose()
+                    this.b.respond(req, res)
+                })
+        } catch (e) {
+            console.log('CdGeoLocationService::read$()/e:', e)
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'CdGeoLocationService:update',
+                app_msg: ''
+            };
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
+        }
     }
 
     update(req, res) {
-        // console.log('GroupInvitationService::update()/01');
+        // console.log('CdGeoLocationService::update()/01');
         let q = this.b.getQuery(req);
         q = this.beforeUpdate(q);
         const serviceInput = {
-            serviceModel: GroupInvitationModel,
-            docName: 'GroupInvitationService::update',
+            serviceModel: CdGeoLocationModel,
+            docName: 'CdGeoLocationService::update',
             cmd: {
                 action: 'update',
                 query: q
             },
             dSource: 1
         }
-        // console.log('GroupInvitationService::update()/02')
+        // console.log('CdGeoLocationService::update()/02')
         this.b.update$(req, res, serviceInput)
             .subscribe((ret) => {
                 this.b.cdResp.data = ret;
+                this.b.respond(req, res)
+            })
+    }
+
+    updateSL(req, res) {
+        console.log('CdGeoLocationService::update()/01');
+        let q = this.b.getQuery(req);
+        q = this.beforeUpdateSL(q);
+        const serviceInput = {
+            serviceModel: CdGeoLocationModel,
+            docName: 'CdGeoLocationService::update',
+            cmd: {
+                action: 'update',
+                query: q
+            },
+            dSource: 1
+        }
+        console.log('CdGeoLocationService::update()/02')
+        this.b.updateSL$(req, res, serviceInput)
+            .subscribe((ret) => {
+                this.b.cdResp.data = ret;
+                this.b.connSLClose()
                 this.b.respond(req, res)
             })
     }
@@ -548,14 +347,17 @@ export class GroupInvitationService extends CdService {
      * @returns
      */
     beforeUpdate(q: any) {
-        if (q.update.groupResourceEnabled === '') {
-            q.update.groupResourceEnabled = null;
+        if (q.update.CdGeoLocationEnabled === '') {
+            q.update.CdGeoLocationEnabled = null;
         }
         return q;
     }
 
-    async updateI(req, res, serviceInput) {
-        return this.b.update(req, res, serviceInput)
+    beforeUpdateSL(q: any) {
+        if (q.update.billEnabled === '') {
+            q.update.billEnabled = null;
+        }
+        return q;
     }
 
     async remove(req, res) {
@@ -577,33 +379,106 @@ export class GroupInvitationService extends CdService {
         return 1;
     }
 
-    async getGroupInvitation(req, res) {
-        // const q = this.b.getQuery(req);
-        // console.log('GroupInvitationService::getGroupInvitation/f:', q);
-        // const serviceInput = {
-        //     serviceModel: GroupInvitationModel,
-        //     docName: 'GroupInvitationService::getGroupInvitation',
-        //     cmd: {
-        //         action: 'find',
-        //         query: q
-        //     },
-        //     dSource: 1
+    async validateCreate(req, res) {
+        console.log('cd-geo-location/CdGeoLocationService::validateCreate()/01')
+        const svSess = new SessionService();
+        ///////////////////////////////////////////////////////////////////
+        // 1. Validate against duplication
+        const params = {
+            controllerInstance: this,
+            model: CdGeoLocationModel,
+        }
+        this.b.i.code = 'CdGeoLocationService::validateCreate';
+        let ret = false;
+        if (await this.b.validateUnique(req, res, params)) {
+            console.log('cd-geo-location/CdGeoLocationService::validateCreate()/02')
+            if (await this.b.validateRequired(req, res, this.cRules)) {
+                console.log('cd-geo-location/CdGeoLocationService::validateCreate()/03')
+                ret = true;
+            } else {
+                console.log('cd-geo-location/CdGeoLocationService::validateCreate()/04')
+                ret = false;
+                this.b.i.app_msg = `the required fields ${this.b.isInvalidFields.join(', ')} is missing`;
+                this.b.err.push(this.b.i.app_msg);
+                this.b.setAppState(false, this.b.i, svSess.sessResp);
+            }
+        } else {
+            console.log('cd-geo-location/CdGeoLocationService::validateCreate()/05')
+            ret = false;
+            this.b.i.app_msg = `duplicate for ${this.cRules.noDuplicate.join(', ')} is not allowed`;
+            this.b.err.push(this.b.i.app_msg);
+            this.b.setAppState(false, this.b.i, svSess.sessResp);
+        }
+        console.log('cd-geo-location/CdGeoLocationService::validateCreate()/06')
+        ///////////////////////////////////////////////////////////////////
+        // 2. confirm the CdGeoLocationTypeId referenced exists
+        // const pl: CdGeoLocationModel = this.b.getPlData(req);
+        // if ('CdGeoLocationTypeId' in pl) {
+        //     console.log('cd-geo-location/CdGeoLocationService::validateCreate()/07')
+        //     console.log('cd-geo-location/CdGeoLocationService::validateCreate()/pl:', pl)
+        //     const serviceInput = {
+        //         serviceModel: CdGeoLocationTypeModel,
+        //         docName: 'CdGeoLocationService::validateCreate',
+        //         cmd: {
+        //             action: 'find',
+        //             query: { where: { CdGeoLocationTypeId: pl.CdGeoLocationTypeId } }
+        //         },
+        //         dSource: 1
+        //     }
+        //     console.log('cd-geo-location/CdGeoLocationService::validateCreate()/serviceInput:', JSON.stringify(serviceInput))
+        //     const r: any = await this.b.read(req, res, serviceInput)
+        //     console.log('cd-geo-location/CdGeoLocationService::validateCreate()/r:', r)
+        //     if (r.length > 0) {
+        //         console.log('cd-geo-location/CdGeoLocationService::validateCreate()/08')
+        //         ret = true;
+        //     } else {
+        //         console.log('cd-geo-location/CdGeoLocationService::validateCreate()/10')
+        //         ret = false;
+        //         this.b.i.app_msg = `CdGeoLocation type reference is invalid`;
+        //         this.b.err.push(this.b.i.app_msg);
+        //         this.b.setAppState(false, this.b.i, svSess.sessResp);
+        //     }
+        // } else {
+        //     console.log('cd-geo-location/CdGeoLocationService::validateCreate()/11')
+        //     // this.b.i.app_msg = `parentModuleGuid is missing in payload`;
+        //     // this.b.err.push(this.b.i.app_msg);
+        //     //////////////////
+        //     this.b.i.app_msg = `CdGeoLocationTypeId is missing in payload`;
+        //     this.b.err.push(this.b.i.app_msg);
+        //     this.b.setAppState(false, this.b.i, svSess.sessResp);
         // }
+        console.log('CdGeoLocationService::getCdGeoLocation/12');
+        if (this.b.err.length > 0) {
+            console.log('cd-geo-location/CdGeoLocationService::validateCreate()/13')
+            ret = false;
+        }
+        return ret;
+    }
+
+    async validateCreateSL(req, res) {
+        return true;
+    }
+
+    /**
+     * 
+     * curl test:
+     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App", "m": "CdGeoLocations","c": "CdGeoLocation","a": "Get","dat": {"f_vals": [{"query": {"where": {"cd-geo-locationName": "Kenya"}}}],"token":"08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
+     * @param req 
+     * @param res 
+     * @param q 
+     */
+    async getCdGeoLocation(req, res, q: IQuery = null): Promise<any> {
+        
+        if (q === null) {
+            q = this.b.getQuery(req);
+        }
+        console.log('CdGeoLocationService::getCdGeoLocation/f:', q);
+        const serviceInput = siGet(q,this)
         try {
-            this.b.read$(req, res, getGroupInvitationParams(this.b.getQuery(req)))
-                .subscribe((r) => {
-                    // console.log('GroupInvitationService::read$()/r:', r)
-                    // this.b.i.code = 'GroupInvitationController::Get';
-                    // const svSess = new SessionService();
-                    // svSess.sessResp.cd_token = req.post.dat.token;
-                    // svSess.sessResp.ttl = svSess.getTtl();
-                    // this.b.setAppState(true, this.b.i, svSess.sessResp);
-                    // this.b.cdResp.data = r;
-                    // this.b.respond(req, res)
-                    this.b.successResponse(req, res, r)
-                })
+            const r = await this.b.read(req, res, serviceInput)
+            this.b.successResponse(req, res, r)
         } catch (e) {
-            console.log('GroupInvitationService::read$()/e:', e)
+            console.log('CdGeoLocationService::read$()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
@@ -615,21 +490,29 @@ export class GroupInvitationService extends CdService {
         }
     }
 
-    async getGroupInvitationI(req, res, q) {
-        console.log('GroupInvitationService::getGroupInvitationI/f:', q);
-        const serviceInput = {
-            serviceModel: GroupInvitationModel,
-            docName: 'GroupInvitationService::getGroupInvitationI',
-            cmd: {
-                action: 'find',
-                query: q
-            },
-            dSource: 1
+    /**
+     * Queey params:
+     * - selected data level eg all-available, world, continent, country, continental-region, national-region
+     * - list of selected items 
+     * - eg: 
+     * - on selection of all-available, show list of countries availaable with summary data
+     * - on selection of world show continents with available data
+     * - on selection of continent show list of countries availaable with summary data
+     * - on selection of countrie list of national-resions availaable with summary data
+     * - on selection of national-region given national-resion with summary data
+     * @param q 
+     */
+    async getCdGeoLocationStats(req, res, q: IQuery = null): Promise<any> {
+        if (q === null) {
+            q = this.b.getQuery(req);
         }
+        console.log('CdGeoLocationService::getCdGeoLocation/f:', q);
+        const serviceInput = siGet(q,this)
         try {
-            return await this.b.read(req, res, serviceInput)
+            const r = await this.b.read(req, res, serviceInput)
+            this.b.successResponse(req, res, r)
         } catch (e) {
-            console.log('GroupInvitationService::read$()/e:', e)
+            console.log('CdGeoLocationService::read$()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
@@ -641,36 +524,30 @@ export class GroupInvitationService extends CdService {
         }
     }
 
-    async getGroupInvitationType(req, res) {
+    async getCdGeoLocationSL(req, res) {
+        await this.b.initSqlite(req, res)
         const q = this.b.getQuery(req);
-        console.log('GroupInvitationService::getGroupInvitation/f:', q);
-        const serviceInput = {
-            serviceModel: GroupInvitationTypeModel,
-            docName: 'GroupInvitationService::getGroupInvitationType$',
-            cmd: {
-                action: 'find',
-                query: q
-            },
-            dSource: 1
-        }
+        console.log('CdGeoLocationService::getCdGeoLocation/q:', q);
+        const serviceInput = siGet(q,this)
         try {
-            this.b.read$(req, res, serviceInput)
+            this.b.readSL$(req, res, serviceInput)
                 .subscribe((r) => {
-                    console.log('GroupInvitationService::read$()/r:', r)
-                    this.b.i.code = 'GroupInvitationController::Get';
+                    // console.log('CdGeoLocationService::read$()/r:', r)
+                    this.b.i.code = 'CdGeoLocationService::Get';
                     const svSess = new SessionService();
                     svSess.sessResp.cd_token = req.post.dat.token;
                     svSess.sessResp.ttl = svSess.getTtl();
                     this.b.setAppState(true, this.b.i, svSess.sessResp);
                     this.b.cdResp.data = r;
+                    this.b.connSLClose()
                     this.b.respond(req, res)
                 })
         } catch (e) {
-            console.log('GroupInvitationService::read$()/e:', e)
+            console.log('CdGeoLocationService::read$()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
-                code: 'BaseService:update',
+                code: 'CdGeoLocationService:update',
                 app_msg: ''
             };
             await this.b.serviceErr(req, res, e, i.code)
@@ -678,41 +555,61 @@ export class GroupInvitationService extends CdService {
         }
     }
 
-    async getGroupInvitationTypeI(req, res, q: IQuery = null): Promise<GroupInvitationTypeModel[]> {
-        if (q == null) {
-            q = this.b.getQuery(req);
-        }
-        console.log('GroupInvitationService::getGroupInvitationTypeI/f:', q);
-        const serviceInput = {
-            serviceModel: GroupInvitationTypeModel,
-            docName: 'GroupInvitationService::getGroupInvitationTypeI',
-            cmd: {
-                action: 'find',
-                query: q
-            },
-            dSource: 1
-        }
-        try {
-            return this.b.read(req, res, serviceInput)
-        } catch (e) {
-            console.log('GroupInvitationService::getGroupInvitationTypeI()/e:', e)
-            this.b.err.push(e.toString());
-            const i = {
-                messages: this.b.err,
-                code: 'GroupInvitationService:getGroupInvitationTypeI',
-                app_msg: ''
-            };
-            await this.b.serviceErr(req, res, e, i.code)
-            this.b.respond(req, res)
-        }
-    }
-
-    // getGroupInvitationPaged(req, res) {
+    // /**
+    //  * 
+    //  * curl test:
+    //  * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdGeoLocations","c": "CdGeoLocation","a": "GetType","dat":{"f_vals": [{"query":{"where": {"CdGeoLocationTypeId":100}}}],"token":"08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
+    //  * @param req 
+    //  * @param res 
+    //  */
+    // getCdGeoLocationType(req, res) {
     //     const q = this.b.getQuery(req);
-    //     console.log('GroupInvitationService::getGroupInvitationCount/q:', q);
+    //     console.log('CdGeoLocationService::getCdGeoLocation/f:', q);
     //     const serviceInput = {
-    //         serviceModel: GroupInvitationModel,
-    //         docName: 'GroupInvitationService::getGroupInvitationCount$',
+    //         serviceModel: CdGeoLocationTypeModel,
+    //         docName: 'CdGeoLocationService::getCdGeoLocationType$',
+    //         cmd: {
+    //             action: 'find',
+    //             query: q
+    //         },
+    //         dSource: 1
+    //     }
+    //     try {
+    //         this.b.read$(req, res, serviceInput)
+    //             .subscribe((r) => {
+    //                 // console.log('CdGeoLocationService::read$()/r:', r)
+    //                 this.b.i.code = 'CdGeoLocationController::Get';
+    //                 const svSess = new SessionService();
+    //                 svSess.sessResp.cd_token = req.post.dat.token;
+    //                 svSess.sessResp.ttl = svSess.getTtl();
+    //                 this.b.setAppState(true, this.b.i, svSess.sessResp);
+    //                 this.b.cdResp.data = r;
+    //                 this.b.respond(req, res)
+    //             })
+    //     } catch (e) {
+    //         console.log('CdGeoLocationService::read$()/e:', e)
+    //         this.b.err.push(e.toString());
+    //         const i = {
+    //             messages: this.b.err,
+    //             code: 'BaseService:update',
+    //             app_msg: ''
+    //         };
+    //         this.b.serviceErr(req, res, e, i.code)
+    //         this.b.respond(req, res)
+    //     }
+    // }
+
+    // /**
+    //  * 
+    //  * @param req 
+    //  * @param res 
+    //  */
+    // getCdGeoLocationCount(req, res) {
+    //     const q = this.b.getQuery(req);
+    //     console.log('CdGeoLocationService::getCdGeoLocationCount/q:', q);
+    //     const serviceInput = {
+    //         serviceModel: CdGeoLocationViewModel,
+    //         docName: 'CdGeoLocationService::getCdGeoLocationCount$',
     //         cmd: {
     //             action: 'find',
     //             query: q
@@ -721,7 +618,7 @@ export class GroupInvitationService extends CdService {
     //     }
     //     this.b.readCount$(req, res, serviceInput)
     //         .subscribe((r) => {
-    //             this.b.i.code = 'GroupInvitationController::Get';
+    //             this.b.i.code = 'CdGeoLocationController::Get';
     //             const svSess = new SessionService();
     //             svSess.sessResp.cd_token = req.post.dat.token;
     //             svSess.sessResp.ttl = svSess.getTtl();
@@ -731,89 +628,61 @@ export class GroupInvitationService extends CdService {
     //         })
     // }
 
-    /**
-     * {
-            "ctx": "App",
-            "m": "CdAccts",
-            "c": "GroupInvitation",
-            "a": "GetPaged",
-            "dat": {
-                "f_vals": [
-                    {
-                        "query": {
-                            "select": [
-                                "GroupInvitationName",
-                                "GroupInvitationGuid"
-                            ],
-                            "where": {},
-                            "take": 5,
-                            "skip": 0
-                        }
-                    }
-                ],
-                "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
-            },
-            "args": null
-        }
-     * @param req
-     * @param res
-     */
-    getPaged(req, res) {
-        // const q = this.b.getQuery(req);
-        // console.log('GroupInvitationService::getGroupInvitationCount()/q:', q);
-        // const serviceInput = {
-        //     serviceModel: GroupInvitationModel,
-        //     docName: 'GroupInvitationService::getGroupInvitationCount',
-        //     cmd: {
-        //         action: 'find',
-        //         query: q
-        //     },
-        //     dSource: 1
-        // }
-        this.b.readCount$(req, res, getGroupInvitationParams(this.b.getQuery(req)))
-            .subscribe((r) => {
-                // this.b.i.code = 'GroupInvitationService::Get';
-                // const svSess = new SessionService();
-                // svSess.sessResp.cd_token = req.post.dat.token;
-                // svSess.sessResp.ttl = svSess.getTtl();
-                // this.b.setAppState(true, this.b.i, svSess.sessResp);
-                // this.b.cdResp.data = r;
-                // this.b.sqliteConn.close();
-                // this.b.respond(req, res)
-                this.b.successResponse(req,res,r)
-            })
-    }
-
-    getGroupInvitationTypeCount(req, res) {
+    getPagedSL(req, res) {
         const q = this.b.getQuery(req);
-        console.log('GroupInvitationService::getGroupInvitationCount/q:', q);
+        console.log('CdGeoLocationService::getCdGeoLocationCount()/q:', q);
         const serviceInput = {
-            serviceModel: GroupInvitationTypeModel,
-            docName: 'GroupInvitationService::getGroupInvitationCount$',
+            serviceModel: CdGeoLocationModel,
+            docName: 'CdGeoLocationService::getCdGeoLocationCount',
             cmd: {
                 action: 'find',
                 query: q
             },
             dSource: 1
         }
-        this.b.readCount$(req, res, serviceInput)
+        this.b.readCountSL$(req, res, serviceInput)
             .subscribe((r) => {
-                this.b.i.code = 'GroupInvitationController::Get';
+                this.b.i.code = 'CdGeoLocationService::Get';
                 const svSess = new SessionService();
                 svSess.sessResp.cd_token = req.post.dat.token;
                 svSess.sessResp.ttl = svSess.getTtl();
                 this.b.setAppState(true, this.b.i, svSess.sessResp);
                 this.b.cdResp.data = r;
+                this.b.connSLClose()
                 this.b.respond(req, res)
             })
     }
 
+    // getCdGeoLocationTypeCount(req, res) {
+    //     const q = this.b.getQuery(req);
+    //     console.log('CdGeoLocationService::getCdGeoLocationCount/q:', q);
+    //     const serviceInput = {
+    //         serviceModel: CdGeoLocationTypeModel,
+    //         docName: 'CdGeoLocationService::getCdGeoLocationCount$',
+    //         cmd: {
+    //             action: 'find',
+    //             query: q
+    //         },
+    //         dSource: 1
+    //     }
+    //     this.b.readCount$(req, res, serviceInput)
+    //         .subscribe((r) => {
+    //             this.b.i.code = 'CdGeoLocationController::Get';
+    //             const svSess = new SessionService();
+    //             svSess.sessResp.cd_token = req.post.dat.token;
+    //             svSess.sessResp.ttl = svSess.getTtl();
+    //             this.b.setAppState(true, this.b.i, svSess.sessResp);
+    //             this.b.cdResp.data = r;
+    //             this.b.respond(req, res)
+    //         })
+    // }
+
     delete(req, res) {
         const q = this.b.getQuery(req);
-        console.log('GroupInvitationService::delete()/q:', q)
+        console.log('CdGeoLocationService::delete()/q:', q)
         const serviceInput = {
-            serviceModel: GroupInvitationModel,
-            docName: 'GroupInvitationService::delete',
+            serviceModel: CdGeoLocationModel,
+            docName: 'CdGeoLocationService::delete',
             cmd: {
                 action: 'delete',
                 query: q
@@ -822,6 +691,26 @@ export class GroupInvitationService extends CdService {
         }
 
         this.b.delete$(req, res, serviceInput)
+            .subscribe((ret) => {
+                this.b.cdResp.data = ret;
+                this.b.respond(req, res)
+            })
+    }
+
+    deleteSL(req, res) {
+        const q = this.b.getQuery(req);
+        console.log('CdGeoLocationService::deleteSL()/q:', q)
+        const serviceInput = {
+            serviceModel: CdGeoLocationModel,
+            docName: 'CdGeoLocationService::deleteSL',
+            cmd: {
+                action: 'delete',
+                query: q
+            },
+            dSource: 1
+        }
+
+        this.b.deleteSL$(req, res, serviceInput)
             .subscribe((ret) => {
                 this.b.cdResp.data = ret;
                 this.b.respond(req, res)

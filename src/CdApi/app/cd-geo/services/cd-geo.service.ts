@@ -24,8 +24,8 @@ export class CdGeoService extends CdService {
      * create rules
      */
     cRules: any = {
-        required: ['cd-geoName', 'cdGeoTypeId', 'cd-geoDateLabel'],
-        noDuplicate: ['cd-geoName', 'cd-geoDateLabel']
+        required: ['cd-geoName', 'cdGeoTypeId', 'cdGeoDateLabel'],
+        noDuplicate: ['cdGeoName', 'cdGeoDateLabel']
     };
     uRules: any[];
     dRules: any[];

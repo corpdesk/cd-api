@@ -63,14 +63,5 @@ export class CdGeoModel {
         }
     )
     docId?: number;
-
-    @Column(
-        {
-            name: 'cd_geo_count',
-            default: null
-        }
-    )
-    cdGeoCount?: number;
-
-
+    
 }

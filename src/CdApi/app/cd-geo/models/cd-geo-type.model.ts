@@ -64,13 +64,4 @@ export class CdGeoTypeModel {
     )
     docId?: number;
 
-    @Column(
-        {
-            name: 'cd_geo_type_count',
-            default: null
-        }
-    )
-    cdGeoTypeCount?: number;
-
-
 }
