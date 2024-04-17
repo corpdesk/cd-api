@@ -123,9 +123,9 @@ export default {
             methods: 'GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE',
             origin: [
                 'http://192.168.0.12:4500',
-                'http://emp-12:4407',
-                'http://emp-12:4402',
-                'http://emp-12:4401',
+                'http://192.168.0.12:4407',
+                'http://192.168.0.12:4402',
+                'http://192.168.0.12:4401',
             ],
             preflightContinue: false,
         }
