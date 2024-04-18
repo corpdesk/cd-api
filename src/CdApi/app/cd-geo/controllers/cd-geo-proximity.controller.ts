@@ -1,324 +1,250 @@
-import { BaseService } from '../../base/base.service';
-import { CdController } from '../../base/cd.controller';
-import { UserService } from '../services/user.service';
+import { BaseService } from '../../../sys/base/base.service';
+import { CdGeoProximityService } from '../services/cd-geo-proximity.service';
 
-export class UserController extends CdController {
+export class CdGeoProximityController {
+
     b: BaseService;
-    svUser: UserService;
+    svCdGeoProximity: CdGeoProximityService;
+
     constructor() {
-        super();
         this.b = new BaseService();
-        this.svUser = new UserService();
-    }
-
-    /**
-     * {
-            "ctx": "Sys",
-            "m": "User",
-            "c": "User",
-            "a": "Login",
-            "dat": {
-                "f_vals": [
-                    {
-                        "data": {
-                            "userName": "jondoo",
-                            "password": "iiii",
-                            "consumerGuid": "B0B3DA99-1859-A499-90F6-1E3F69575DCD"
-                        }
-                    }
-                ],
-                "token": ""
-            },
-            "args": null
-        }
-     * @param req
-     * @param res
-     */
-    async Login(req, res) {
-        console.log('starting Login()')
-        try {
-            await this.svUser.auth(req,res);
-        } catch (e) {
-            await this.b.serviceErr(req, res, e,'UserService:Login');
-        }
-    }
-
-    /**
-     * {
-            "ctx": "Sys",
-            "m": "User",
-            "c": "User",
-            "a": "Register",
-            "dat": {
-                "f_vals": [
-                    {
-                        "data":{
-                            "userName": "goremo05",
-                            "email":"goremo05@gmail.com",
-                            "password": "yrhuiak",
-                            "consumerGuid":"B0B3DA99-1859-A499-90F6-1E3F69575DCD" // all clients must have consumer guid which pegs them to a given company
-                        }
-                    }
-                ],
-                "token": ""
-            },
-            "args": {}
-        }
-     * @param req
-     * @param res
-     */
-    async Register(req, res) {
-        try {
-            await this.svUser.create(req, res);
-        } catch (e) {
-            await this.b.serviceErr(req, res, e,'UserService:Register');
-        }
-    }
+        this.svCdGeoProximity = new CdGeoProximityService();
 
 
-
-    // {
-    //     "ctx": "Sys",
-    //     "m": "User",
-    //     "c": "User",
-    //     "a": "Get",
-    //     "dat": {
-    //         "f_vals": [
-    //             {
-    //                 "query": {
-    //                     "where": {
-    //                         "userGuid": "86faa6df-358b-4e32-8a66-d133921da9fe"
-    //                     }
-    //                 }
-    //             }
-    //         ],
-    //         "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
-    //     },
-    //     "args": {}
-    // }
-    async Get(req, res) {
-        try {
-            await this.svUser.getUser(req, res);
-        } catch (e) {
-            await this.b.serviceErr(req, res, e, 'UserController:Get');
-        }
-    }
-
-    // {
-    //     "ctx": "Sys",
-    //     "m": "Moduleman",
-    //     "c": "User",
-    //     "a": "GetType",
-    //     "dat": {
-    //         "f_vals": [
-    //             {
-    //                 "query": {
-    //                     "where": {}
-    //                 }
-    //             }
-    //         ],
-    //         "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
-    //     },
-    //     "args": null
-    // }
-    // async GetType(req, res) {
-    //     try {
-    //         await this.svUser.getUserTypeCount(req, res);
-    //     } catch (e) {
-    //         this.b.serviceErr(req, res, e, 'UserController:Get');
-    //     }
-    // }
-
-    // {
-    //     "ctx": "Sys",
-    //     "m": "User",
-    //     "c": "User",
-    //     "a": "GetCount",
-    //     "dat": {
-    //         "f_vals": [
-    //             {
-    //                 "query": {
-    //                     "select": [
-    //                         "userName",
-    //                         "userGuid"
-    //                     ],
-    //                     "where": {},
-    //                     "take": 5,
-    //                     "skip": 0
-    //                 }
-    //             }
-    //         ],
-    //         "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
-    //     },
-    //     "args": null
-    // }
-    async GetCount(req, res) {
-        try {
-            await this.svUser.getUserCount(req, res);
-        } catch (e) {
-            await this.b.serviceErr(req, res, e, 'UserController:Get');
-        }
     }
 
     // /**
     //  * {
     //         "ctx": "Sys",
     //         "m": "Moduleman",
-    //         "c": "User",
-    //         "a": "Update",
+    //         "c": "CdGeoProximity",
+    //         "a": "Create",
     //         "dat": {
     //             "f_vals": [
     //                 {
-    //                     "query": {
-    //                         "update": {
-    //                             "consumer-resourceName": "/corp-deskv1.2.1.2/system/modules/comm/controllers"
-    //                         },
-    //                         "where": {
-    //                             "consumer-resourceId": 45762
-    //                         }
+    //                     "data": {
+    //                         "CdGeoProximityName": "/src/CdApi/sys/moduleman",
+    //                         "CdGeoProximityTypeId": "7ae902cd-5bc5-493b-a739-125f10ca0268",
+    //                         "parentModuleGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b"
     //                     }
     //                 }
     //             ],
-    //             "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+    //             "token": "3ffd785f-e885-4d37-addf-0e24379af338"
     //         },
     //         "args": {}
     //     }
     //  * @param req
     //  * @param res
     //  */
-    async Update(req, res) {
-        console.log('UserController::Update()/01');
+    async Create(req, res) {
         try {
-            console.log('UserController::Update()/02');
-            await this.svUser.update(req, res);
+            await this.svCdGeoProximity.create(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'UserController:Update');
+            await this.b.serviceErr(req, res, e, 'CdGeoProximityController:Create');
         }
     }
 
     /**
-     * To test regiser a new user as below the followed by the update of
-     * the password in the script that follows the one below:
-     * 
-     * /////////////////////////////////////////////////////////////////////////////////////////
-        // 1. create new user
-        /////////////////////////////////////////////////////////////////////////////////////////
-     * {
-            "ctx": "Sys",
-            "m": "User",
-            "c": "User",
-            "a": "Register",
-            "dat": {
-                "f_vals": [
-                    {
-                        "data": {
-                            "userName": "goremo05",
-                            "email": "goremo05@gmail.com",
-                            "password": "yrhuiak",
-                            "consumerGuid": "B0B3DA99-1859-A499-90F6-1E3F69575DCD" // all clients must have consumer guid which pegs them to a given company
-                        }
-                    }
-                ],
-                "token": ""
-            },
-            "args": {}
-        }
-                
-                
-        /////////////////////////////////////////////////////////////////////////////////////////
-        // 2. update password
-        /////////////////////////////////////////////////////////////////////////////////////////
-        There are circumstances that will require old password but in cases of 'forgotPassword',
-        some token can be sent to user securely process update without use of 'oldPassword'
-        {
-            "ctx": "Sys",
-            "m": "User",
-            "c": "User",
-            "a": "UpdatePassword",
-            "dat": {
-                "f_vals": [
-                    {
-                        "forgotPassword":false,
-                        "oldPassword": "yrhuiak",
-                        "query": {
-                            "update": {
-                                "password": "emj8a#jul"
-                            },
-                            "where": {
-                                "userId": 1500
-                            }
-                        }
-                    }
-                ],
-                "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
-            },
-            "args": {}
-        }
-
-        // see use case for 'forgotPassword'
-        {
-            "ctx": "Sys",
-            "m": "User",
-            "c": "User",
-            "a": "UpdatePassword",
-            "dat": {
-                "f_vals": [
-                    {
-                        "forgotPassword": true, // optional: used securely when oldPassword is not avialble (developer option...NOT end user) 
-                        "oldPassword": null, // can be set to oldPassword text or set to null by develper to use in case of forgotPassword === true;
-                        "query": {
-                            "update": {
-                                "password": "iiii"
-                            },
-                            "where": {
-                                "userId": 1003
-                            }
-                        }
-                    }
-                ],
-                "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
-            },
-            "args": {}
-        }
+     * CreateM, Create multiple
      * @param req 
      * @param res 
      */
-    async UpdatePassword(req, res) {
-        console.log('UserController::UpdatePassword()/01');
+    async CreateM(req, res) {
         try {
-            console.log('UserController::UpdatePassword()/02');
-            await this.svUser.updatePassword(req, res);
+            await this.svCdGeoProximity.createM(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'UserController:UpdatePassword');
+            await this.b.serviceErr(req, res, e, 'CdGeoProximityController:CreateM');
         }
     }
 
-    // /**
-    //  * {
-    //         "ctx": "Sys",
-    //         "m": "Moduleman",
-    //         "c": "User",
-    //         "a": "GetCount",
-    //         "dat": {
-    //             "f_vals": [
-    //                 {
-    //                     "query": {
-    //                         "where": {"consumer-resourceId": 45763}
-    //                     }
-    //                 }
-    //             ],
-    //             "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
-    //         },
-    //         "args": null
-    //     }
-    //  * @param req
-    //  * @param res
-    //  */
-    async Delete(req, res) {
+    async CreateSL(req, res) {
         try {
-            await this.svUser.delete(req, res);
+            await this.svCdGeoProximity.createSL(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'UserController:Update');
+            await this.b.serviceErr(req, res, e, 'CdGeoProximityController:CreateSL');
         }
     }
+
+    
+
+    /**
+     * {
+            "ctx": "App",
+            "m": "CdGeoProximitys",
+            "c": "CdGeoProximity",
+            "a": "Get",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "where": {"cd-geo-proximityName": "Kenya"}
+                        }
+                    }
+                ],
+                "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+            },
+            "args": null
+        }
+
+        curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App", "m": "CdGeoProximitys","c": "CdGeoProximity","a": "Get","dat": {"f_vals": [{"query": {"where": {"cd-geo-proximityName": "Kenya"}}}],"token":"08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
+     * @param req
+     * @param res
+     */
+    async Get(req, res) {
+        try {
+            await this.svCdGeoProximity.getCdGeoProximity(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'CdGeoProximityController:Get');
+        }
+    }
+
+    async GetSL(req, res) {
+        try {
+            await this.svCdGeoProximity.getCdGeoProximitySL(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'CdGeoProximityController:GetSL');
+        }
+    }
+
+    
+
+    /** Pageable request:
+     * {
+            "ctx": "App",
+            "m": "CdGeoProximitys",
+            "c": "CdGeoProximity",
+            "a": "GetPaged",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "select":["cd-geo-proximityId","cd-geo-proximityGuid"],
+                            "where": {},
+                            "take": 5,
+                            "skip": 1
+                            }
+                    }
+                ],
+                "token": "29947F3F-FF52-9659-F24C-90D716BC77B2"
+            },
+            "args": null
+        }
+
+     curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdGeoProximitys","c": "CdGeoProximity","a": "GetPaged","dat": {"f_vals": [{"query": {"select":["cd-geo-proximityId","cd-geo-proximityGuid"],"where": {}, "take":5,"skip": 1}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
+
+     * @param req
+     * @param res
+     */
+    async GetPaged(req, res) {
+        try {
+            await this.svCdGeoProximity.getCdGeoProximityPaged(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'ModuleController:Get');
+        }
+    }
+
+    async GetPagedSL(req, res) {
+        try {
+            await this.svCdGeoProximity.getPagedSL(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'CdGeoProximityController:GetSL');
+        }
+    }
+
+    /**
+     * {
+            "ctx": "App",
+            "m": "CdGeoProximitys",
+            "c": "CdGeoProximity",
+            "a": "Update",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "update": {
+                                "cd-geo-proximityAssets": null
+                            },
+                            "where": {
+                                "cd-geo-proximityId": 1
+                            }
+                        }
+                    }
+                ],
+                "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+            },
+            "args": {}
+        }
+
+     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdGeoProximitys","c": "CdGeoProximity","a": "Update","dat": {"f_vals": [{"query": {"update": {"cd-geo-proximityAssets": null},"where": {"cd-geo-proximityId": 1}}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": {}}' http://localhost:3001 -v  | jq '.'
+     * @param req
+     * @param res
+     */
+    async Update(req, res) {
+        console.log('CdGeoProximityController::Update()/01');
+        try {
+            console.log('CdGeoProximityController::Update()/02');
+            await this.svCdGeoProximity.update(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'ModuleController:Update');
+        }
+    }
+
+    async UpdateSL(req, res) {
+        console.log('CdGeoProximityController::UpdateSL()/01');
+        try {
+            console.log('CdGeoProximityController::UpdateSL()/02');
+            await this.svCdGeoProximity.updateSL(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'CdGeoProximityController:UpdateSL');
+        }
+    }
+
+    /**
+     * {
+            "ctx": "App",
+            "m": "CdGeoProximitys",
+            "c": "CdGeoProximity",
+            "a": "Delete",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "where": {"cd-geo-proximityId": 69}
+                        }
+                    }
+                ],
+                "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+            },
+            "args": null
+        }
+     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdGeoProximitys","c": "CdGeoProximity","a": "Delete","dat": {"f_vals": [{"query": {"where": {"cd-geo-proximityId": 69}}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": {}}' http://localhost:3001 -v  | jq '.'
+     * @param req
+     * @param res
+     */
+    async Delete(req, res) {
+        try {
+            await this.svCdGeoProximity.delete(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'ModuleController:Update');
+        }
+    }
+
+    async DeleteSL(req, res) {
+        try {
+            await this.svCdGeoProximity.deleteSL(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'BillController:DeleteSL');
+        }
+    }
+
+    
+
+    async GetStats(req, res) {
+        try {
+            await this.svCdGeoProximity.getCdGeoProximityStats(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'CdGeoProximityController:Get');
+        }
+    }
+
 }

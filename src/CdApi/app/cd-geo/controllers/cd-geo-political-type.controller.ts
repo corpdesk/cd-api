@@ -1,30 +1,30 @@
-import { BaseService } from '../../base/base.service';
-import { CdController } from '../../base/cd.controller';
-import { GroupMemberModel } from '../models/group-member.model';
-import { GroupMemberService } from '../services/group-member.service';
+import { BaseService } from '../../../sys/base/base.service';
+import { CdGeoPoliticalTypeService } from '../services/cd-geo-political-type.service';
 
-export class GroupMemberController extends CdController {
+export class CdGeoPoliticalTypeController {
+
     b: BaseService;
-    svGroupMember: GroupMemberService;
+    svCdGeoPoliticalType: CdGeoPoliticalTypeService;
 
     constructor() {
-        super();
         this.b = new BaseService();
-        this.svGroupMember = new GroupMemberService();
+        this.svCdGeoPoliticalType = new CdGeoPoliticalTypeService();
+
+
     }
 
     // /**
     //  * {
     //         "ctx": "Sys",
     //         "m": "Moduleman",
-    //         "c": "GroupMember",
+    //         "c": "CdGeoPoliticalType",
     //         "a": "Create",
     //         "dat": {
     //             "f_vals": [
     //                 {
     //                     "data": {
-    //                         "companyName": "/src/CdApi/sys/moduleman",
-    //                         "companyTypeGuid": "7ae902cd-5bc5-493b-a739-125f10ca0268",
+    //                         "CdGeoPoliticalTypeName": "/src/CdApi/sys/moduleman",
+    //                         "CdGeoPoliticalTypeTypeId": "7ae902cd-5bc5-493b-a739-125f10ca0268",
     //                         "parentModuleGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b"
     //                     }
     //                 }
@@ -38,143 +38,212 @@ export class GroupMemberController extends CdController {
     //  */
     async Create(req, res) {
         try {
-            await this.svGroupMember.create(req, res);
+            await this.svCdGeoPoliticalType.create(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'GroupMemberController:Create');
+            await this.b.serviceErr(req, res, e, 'CdGeoPoliticalTypeController:Create');
         }
     }
 
-    // /**
-    //  * {
-    //         "ctx": "Sys",
-    //         "m": "Moduleman",
-    //         "c": "GroupMember",
-    //         "a": "Get",
-    //         "dat": {
-    //             "f_vals": [
-    //                 {
-    //                     "query": {
-    //                         "where": {"companyId": 45763}
-    //                     }
-    //                 }
-    //             ],
-    //             "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
-    //         },
-    //         "args": null
-    //     }
-    //  * @param req
-    //  * @param res
-    //  */
+    /**
+     * CreateM, Create multiple
+     * @param req 
+     * @param res 
+     */
+    async CreateM(req, res) {
+        try {
+            await this.svCdGeoPoliticalType.createM(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'CdGeoPoliticalTypeController:CreateM');
+        }
+    }
+
+    async CreateSL(req, res) {
+        try {
+            await this.svCdGeoPoliticalType.createSL(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'CdGeoPoliticalTypeController:CreateSL');
+        }
+    }
+
+    
+
+    /**
+     * {
+            "ctx": "App",
+            "m": "CdGeoPoliticalTypes",
+            "c": "CdGeoPoliticalType",
+            "a": "Get",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "where": {"cd-geo-political-typeName": "Kenya"}
+                        }
+                    }
+                ],
+                "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+            },
+            "args": null
+        }
+
+        curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App", "m": "CdGeoPoliticalTypes","c": "CdGeoPoliticalType","a": "Get","dat": {"f_vals": [{"query": {"where": {"cd-geo-political-typeName": "Kenya"}}}],"token":"08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
+     * @param req
+     * @param res
+     */
     async Get(req, res) {
         try {
-            await this.svGroupMember.getGroupMember(req, res);
+            await this.svCdGeoPoliticalType.getCdGeoPoliticalType(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'GroupMemberController:Get');
+            await this.b.serviceErr(req, res, e, 'CdGeoPoliticalTypeController:Get');
         }
     }
 
-    // async GetType(req, res) {
-    //     try {
-    //         await this.svGroupMember.getGroupMemberTypeCount(req, res);
-    //     } catch (e) {
-    //         this.b.serviceErr(req, res, e, 'GroupMemberController:Get');
-    //     }
-    // }
-
-    // /** Pageable request:
-    //  * {
-    //         "ctx": "Sys",
-    //         "m": "Moduleman",
-    //         "c": "Module",
-    //         "a": "GetCount",
-    //         "dat": {
-    //             "f_vals": [
-    //                 {
-    //                     "query": {
-    //                         "select":["moduleId","moduleGuid"],
-    //                         "where": {},
-    //                         "take": 5,
-    //                         "skip": 1
-    //                         }
-    //                 }
-    //             ],
-    //             "token": "29947F3F-FF52-9659-F24C-90D716BC77B2"
-    //         },
-    //         "args": null
-    //     }
-    //  * @param req
-    //  * @param res
-    //  */
-    async GetCount(req, res) {
+    async GetSL(req, res) {
         try {
-            await this.svGroupMember.getGroupMemberCount(req, res);
+            await this.svCdGeoPoliticalType.getCdGeoPoliticalTypeSL(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'CdGeoPoliticalTypeController:GetSL');
+        }
+    }
+
+    
+
+    /** Pageable request:
+     * {
+            "ctx": "App",
+            "m": "CdGeoPoliticalTypes",
+            "c": "CdGeoPoliticalType",
+            "a": "GetPaged",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "select":["cd-geo-political-typeId","cd-geo-political-typeGuid"],
+                            "where": {},
+                            "take": 5,
+                            "skip": 1
+                            }
+                    }
+                ],
+                "token": "29947F3F-FF52-9659-F24C-90D716BC77B2"
+            },
+            "args": null
+        }
+
+     curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdGeoPoliticalTypes","c": "CdGeoPoliticalType","a": "GetPaged","dat": {"f_vals": [{"query": {"select":["cd-geo-political-typeId","cd-geo-political-typeGuid"],"where": {}, "take":5,"skip": 1}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
+
+     * @param req
+     * @param res
+     */
+    async GetPaged(req, res) {
+        try {
+            await this.svCdGeoPoliticalType.getCdGeoPoliticalTypePaged(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'ModuleController:Get');
         }
     }
 
-    // /**
-    //  * {
-    //         "ctx": "Sys",
-    //         "m": "Moduleman",
-    //         "c": "GroupMember",
-    //         "a": "Update",
-    //         "dat": {
-    //             "f_vals": [
-    //                 {
-    //                     "query": {
-    //                         "update": {
-    //                             "companyName": "/corp-deskv1.2.1.2/system/modules/comm/controllers"
-    //                         },
-    //                         "where": {
-    //                             "companyId": 45762
-    //                         }
-    //                     }
-    //                 }
-    //             ],
-    //             "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
-    //         },
-    //         "args": {}
-    //     }
-    //  * @param req
-    //  * @param res
-    //  */
-    async Update(req, res) {
-        console.log('GroupMemberController::Update()/01');
+    async GetPagedSL(req, res) {
         try {
-            console.log('GroupMemberController::Update()/02');
-            await this.svGroupMember.update(req, res);
+            await this.svCdGeoPoliticalType.getPagedSL(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'CdGeoPoliticalTypeController:GetSL');
+        }
+    }
+
+    /**
+     * {
+            "ctx": "App",
+            "m": "CdGeoPoliticalTypes",
+            "c": "CdGeoPoliticalType",
+            "a": "Update",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "update": {
+                                "cd-geo-political-typeAssets": null
+                            },
+                            "where": {
+                                "cd-geo-political-typeId": 1
+                            }
+                        }
+                    }
+                ],
+                "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+            },
+            "args": {}
+        }
+
+     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdGeoPoliticalTypes","c": "CdGeoPoliticalType","a": "Update","dat": {"f_vals": [{"query": {"update": {"cd-geo-political-typeAssets": null},"where": {"cd-geo-political-typeId": 1}}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": {}}' http://localhost:3001 -v  | jq '.'
+     * @param req
+     * @param res
+     */
+    async Update(req, res) {
+        console.log('CdGeoPoliticalTypeController::Update()/01');
+        try {
+            console.log('CdGeoPoliticalTypeController::Update()/02');
+            await this.svCdGeoPoliticalType.update(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'ModuleController:Update');
         }
     }
 
-    // /**
-    //  * {
-    //         "ctx": "Sys",
-    //         "m": "Moduleman",
-    //         "c": "GroupMember",
-    //         "a": "GetCount",
-    //         "dat": {
-    //             "f_vals": [
-    //                 {
-    //                     "query": {
-    //                         "where": {"companyId": 45763}
-    //                     }
-    //                 }
-    //             ],
-    //             "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
-    //         },
-    //         "args": null
-    //     }
-    //  * @param req
-    //  * @param res
-    //  */
+    async UpdateSL(req, res) {
+        console.log('CdGeoPoliticalTypeController::UpdateSL()/01');
+        try {
+            console.log('CdGeoPoliticalTypeController::UpdateSL()/02');
+            await this.svCdGeoPoliticalType.updateSL(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'CdGeoPoliticalTypeController:UpdateSL');
+        }
+    }
+
+    /**
+     * {
+            "ctx": "App",
+            "m": "CdGeoPoliticalTypes",
+            "c": "CdGeoPoliticalType",
+            "a": "Delete",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "where": {"cd-geo-political-typeId": 69}
+                        }
+                    }
+                ],
+                "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+            },
+            "args": null
+        }
+     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdGeoPoliticalTypes","c": "CdGeoPoliticalType","a": "Delete","dat": {"f_vals": [{"query": {"where": {"cd-geo-political-typeId": 69}}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": {}}' http://localhost:3001 -v  | jq '.'
+     * @param req
+     * @param res
+     */
     async Delete(req, res) {
         try {
-            await this.svGroupMember.delete(req, res);
+            await this.svCdGeoPoliticalType.delete(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'ModuleController:Update');
+        }
+    }
+
+    async DeleteSL(req, res) {
+        try {
+            await this.svCdGeoPoliticalType.deleteSL(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'BillController:DeleteSL');
+        }
+    }
+
+    
+
+    async GetStats(req, res) {
+        try {
+            await this.svCdGeoPoliticalType.getCdGeoPoliticalTypeStats(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'CdGeoPoliticalTypeController:Get');
         }
     }
 

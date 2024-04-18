@@ -605,12 +605,12 @@ export class CdGeoService extends CdService {
      * @param req 
      * @param res 
      */
-    getCdGeoCount(req, res) {
+    getCdGeoPaged(req, res) {
         const q = this.b.getQuery(req);
-        console.log('CdGeoService::getCdGeoCount/q:', q);
+        console.log('CdGeoService::getCdGeoPaged/q:', q);
         const serviceInput = {
             serviceModel: CdGeoViewModel,
-            docName: 'CdGeoService::getCdGeoCount$',
+            docName: 'CdGeoService::getCdGeoPaged$',
             cmd: {
                 action: 'find',
                 query: q
@@ -631,10 +631,10 @@ export class CdGeoService extends CdService {
 
     getPagedSL(req, res) {
         const q = this.b.getQuery(req);
-        console.log('CdGeoService::getCdGeoCount()/q:', q);
+        console.log('CdGeoService::getCdGeoPaged()/q:', q);
         const serviceInput = {
             serviceModel: CdGeoModel,
-            docName: 'CdGeoService::getCdGeoCount',
+            docName: 'CdGeoService::getCdGeoPaged',
             cmd: {
                 action: 'find',
                 query: q
@@ -656,10 +656,10 @@ export class CdGeoService extends CdService {
 
     getCdGeoTypeCount(req, res) {
         const q = this.b.getQuery(req);
-        console.log('CdGeoService::getCdGeoCount/q:', q);
+        console.log('CdGeoService::getCdGeoPaged/q:', q);
         const serviceInput = {
             serviceModel: CdGeoTypeModel,
-            docName: 'CdGeoService::getCdGeoCount$',
+            docName: 'CdGeoService::getCdGeoPaged$',
             cmd: {
                 action: 'find',
                 query: q

@@ -599,34 +599,34 @@ export class CdGeoProximityService extends CdService {
     //     }
     // }
 
-    // /**
-    //  * 
-    //  * @param req 
-    //  * @param res 
-    //  */
-    // getCdGeoProximityCount(req, res) {
-    //     const q = this.b.getQuery(req);
-    //     console.log('CdGeoProximityService::getCdGeoProximityCount/q:', q);
-    //     const serviceInput = {
-    //         serviceModel: CdGeoProximityViewModel,
-    //         docName: 'CdGeoProximityService::getCdGeoProximityCount$',
-    //         cmd: {
-    //             action: 'find',
-    //             query: q
-    //         },
-    //         dSource: 1
-    //     }
-    //     this.b.readCount$(req, res, serviceInput)
-    //         .subscribe((r) => {
-    //             this.b.i.code = 'CdGeoProximityController::Get';
-    //             const svSess = new SessionService();
-    //             svSess.sessResp.cd_token = req.post.dat.token;
-    //             svSess.sessResp.ttl = svSess.getTtl();
-    //             this.b.setAppState(true, this.b.i, svSess.sessResp);
-    //             this.b.cdResp.data = r;
-    //             this.b.respond(req, res)
-    //         })
-    // }
+    /**
+     * 
+     * @param req 
+     * @param res 
+     */
+    getCdGeoProximityPaged(req, res) {
+        const q = this.b.getQuery(req);
+        console.log('CdGeoProximityService::getCdGeoProximity/q:', q);
+        const serviceInput = {
+            serviceModel: CdGeoProximityModel,
+            docName: 'CdGeoProximityService::getCdGeoProximity$',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        this.b.readCount$(req, res, serviceInput)
+            .subscribe((r) => {
+                this.b.i.code = 'CdGeoProximityController::Get';
+                const svSess = new SessionService();
+                svSess.sessResp.cd_token = req.post.dat.token;
+                svSess.sessResp.ttl = svSess.getTtl();
+                this.b.setAppState(true, this.b.i, svSess.sessResp);
+                this.b.cdResp.data = r;
+                this.b.respond(req, res)
+            })
+    }
 
     getPagedSL(req, res) {
         const q = this.b.getQuery(req);

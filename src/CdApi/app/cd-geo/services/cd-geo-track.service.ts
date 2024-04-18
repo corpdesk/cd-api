@@ -599,34 +599,34 @@ export class CdGeoTrackService extends CdService {
     //     }
     // }
 
-    // /**
-    //  * 
-    //  * @param req 
-    //  * @param res 
-    //  */
-    // getCdGeoTrackCount(req, res) {
-    //     const q = this.b.getQuery(req);
-    //     console.log('CdGeoTrackService::getCdGeoTrackCount/q:', q);
-    //     const serviceInput = {
-    //         serviceModel: CdGeoTrackViewModel,
-    //         docName: 'CdGeoTrackService::getCdGeoTrackCount$',
-    //         cmd: {
-    //             action: 'find',
-    //             query: q
-    //         },
-    //         dSource: 1
-    //     }
-    //     this.b.readCount$(req, res, serviceInput)
-    //         .subscribe((r) => {
-    //             this.b.i.code = 'CdGeoTrackController::Get';
-    //             const svSess = new SessionService();
-    //             svSess.sessResp.cd_token = req.post.dat.token;
-    //             svSess.sessResp.ttl = svSess.getTtl();
-    //             this.b.setAppState(true, this.b.i, svSess.sessResp);
-    //             this.b.cdResp.data = r;
-    //             this.b.respond(req, res)
-    //         })
-    // }
+    /**
+     * 
+     * @param req 
+     * @param res 
+     */
+    getCdGeoTrackPaged(req, res) {
+        const q = this.b.getQuery(req);
+        console.log('CdGeoTrackService::getCdGeoTrack/q:', q);
+        const serviceInput = {
+            serviceModel: CdGeoTrackModel,
+            docName: 'CdGeoTrackService::getCdGeoTrack$',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        this.b.readCount$(req, res, serviceInput)
+            .subscribe((r) => {
+                this.b.i.code = 'CdGeoTrackController::Get';
+                const svSess = new SessionService();
+                svSess.sessResp.cd_token = req.post.dat.token;
+                svSess.sessResp.ttl = svSess.getTtl();
+                this.b.setAppState(true, this.b.i, svSess.sessResp);
+                this.b.cdResp.data = r;
+                this.b.respond(req, res)
+            })
+    }
 
     getPagedSL(req, res) {
         const q = this.b.getQuery(req);

@@ -1,33 +1,31 @@
-import { BaseService } from '../../base/base.service';
-import { CdController } from '../../base/cd.controller';
-import { CreateIParams } from '../../base/IBase';
-import { ConsumerService } from '../../moduleman/services/consumer.service';
-import { GroupService } from '../services/group.service';
-import { SessionService } from '../services/session.service';
+import { BaseService } from '../../../sys/base/base.service';
+import { CdGeoLocationService } from '../services/cd-geo-location.service';
 
-export class GroupController extends CdController {
+export class CdGeoLocationController {
+
     b: BaseService;
-    svGroup: GroupService;
+    svCdGeoLocation: CdGeoLocationService;
 
     constructor() {
-        super();
         this.b = new BaseService();
-        this.svGroup = new GroupService();
+        this.svCdGeoLocation = new CdGeoLocationService();
+
+
     }
 
     // /**
     //  * {
     //         "ctx": "Sys",
-    //         "m": "User",
-    //         "c": "Group",
+    //         "m": "Moduleman",
+    //         "c": "CdGeoLocation",
     //         "a": "Create",
     //         "dat": {
     //             "f_vals": [
     //                 {
     //                     "data": {
-    //                         "groupName": "/src/CdApi/sys/moduleman",
-    //                         "groupTypeGuid": "7ae902cd-5bc5-493b-a739-125f10ca0268",
-    //                         "parentGroupGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b"
+    //                         "CdGeoLocationName": "/src/CdApi/sys/moduleman",
+    //                         "CdGeoLocationTypeId": "7ae902cd-5bc5-493b-a739-125f10ca0268",
+    //                         "parentModuleGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b"
     //                     }
     //                 }
     //             ],
@@ -40,143 +38,213 @@ export class GroupController extends CdController {
     //  */
     async Create(req, res) {
         try {
-            await this.svGroup.create(req, res);
+            await this.svCdGeoLocation.create(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'GroupController:Create');
+            await this.b.serviceErr(req, res, e, 'CdGeoLocationController:Create');
         }
     }
 
-    // /**
-    //  * {
-    //         "ctx": "Sys",
-    //         "m": "User",
-    //         "c": "Group",
-    //         "a": "Get",
-    //         "dat": {
-    //             "f_vals": [
-    //                 {
-    //                     "query": {
-    //                         "where": {"groupId": 45763}
-    //                     }
-    //                 }
-    //             ],
-    //             "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
-    //         },
-    //         "args": null
-    //     }
-    //  * @param req
-    //  * @param res
-    //  */
+    /**
+     * CreateM, Create multiple
+     * @param req 
+     * @param res 
+     */
+    async CreateM(req, res) {
+        try {
+            await this.svCdGeoLocation.createM(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'CdGeoLocationController:CreateM');
+        }
+    }
+
+    async CreateSL(req, res) {
+        try {
+            await this.svCdGeoLocation.createSL(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'CdGeoLocationController:CreateSL');
+        }
+    }
+
+    
+
+    /**
+     * {
+            "ctx": "App",
+            "m": "CdGeoLocations",
+            "c": "CdGeoLocation",
+            "a": "Get",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "where": {"cd-geo-locationName": "Kenya"}
+                        }
+                    }
+                ],
+                "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+            },
+            "args": null
+        }
+
+        curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App", "m": "CdGeoLocations","c": "CdGeoLocation","a": "Get","dat": {"f_vals": [{"query": {"where": {"cd-geo-locationName": "Kenya"}}}],"token":"08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
+     * @param req
+     * @param res
+     */
     async Get(req, res) {
         try {
-            await this.svGroup.getGroup(req, res);
+            await this.svCdGeoLocation.getCdGeoLocation(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'GroupController:Get');
+            await this.b.serviceErr(req, res, e, 'CdGeoLocationController:Get');
         }
     }
 
-    async GetType(req, res) {
+    async GetSL(req, res) {
         try {
-            await this.svGroup.getGroupTypeCount(req, res);
+            await this.svCdGeoLocation.getCdGeoLocationSL(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'GroupController:Get');
+            await this.b.serviceErr(req, res, e, 'CdGeoLocationController:GetSL');
         }
     }
 
-    // /** Pageable request:
-    //  * {
-    //         "ctx": "Sys",
-    //         "m": "User",
-    //         "c": "Group",
-    //         "a": "GetCount",
-    //         "dat": {
-    //             "f_vals": [
-    //                 {
-    //                     "query": {
-    //                         "select":["moduleId","moduleGuid"],
-    //                         "where": {},
-    //                         "take": 5,
-    //                         "skip": 1
-    //                         }
-    //                 }
-    //             ],
-    //             "token": "29947F3F-FF52-9659-F24C-90D716BC77B2"
-    //         },
-    //         "args": null
-    //     }
-    //  * @param req
-    //  * @param res
-    //  */
-    async GetCount(req, res) {
+    
+
+    /** Pageable request:
+     * {
+            "ctx": "App",
+            "m": "CdGeoLocations",
+            "c": "CdGeoLocation",
+            "a": "GetPaged",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "select":["cd-geo-locationId","cd-geo-locationGuid"],
+                            "where": {},
+                            "take": 5,
+                            "skip": 1
+                            }
+                    }
+                ],
+                "token": "29947F3F-FF52-9659-F24C-90D716BC77B2"
+            },
+            "args": null
+        }
+
+     curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdGeoLocations","c": "CdGeoLocation","a": "GetPaged","dat": {"f_vals": [{"query": {"select":["cd-geo-locationId","cd-geo-locationGuid"],"where": {}, "take":5,"skip": 1}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
+
+     * @param req
+     * @param res
+     */
+    async GetPaged(req, res) {
         try {
-            await this.svGroup.getGroupCount(req, res);
+            await this.svCdGeoLocation.getCdGeoLocationPaged(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'GroupController:Get');
+            await this.b.serviceErr(req, res, e, 'ModuleController:Get');
         }
     }
 
-    // /**
-    //  * {
-    //         "ctx": "Sys",
-    //         "m": "User",
-    //         "c": "Group",
-    //         "a": "Update",
-    //         "dat": {
-    //             "f_vals": [
-    //                 {
-    //                     "query": {
-    //                         "update": {
-    //                             "groupName": "/corp-deskv1.2.1.2/system/modules/comm/controllers"
-    //                         },
-    //                         "where": {
-    //                             "groupId": 45762
-    //                         }
-    //                     }
-    //                 }
-    //             ],
-    //             "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
-    //         },
-    //         "args": {}
-    //     }
-    //  * @param req
-    //  * @param res
-    //  */
+    async GetPagedSL(req, res) {
+        try {
+            await this.svCdGeoLocation.getPagedSL(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'CdGeoLocationController:GetSL');
+        }
+    }
+
+    /**
+     * {
+            "ctx": "App",
+            "m": "CdGeoLocations",
+            "c": "CdGeoLocation",
+            "a": "Update",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "update": {
+                                "cd-geo-locationAssets": null
+                            },
+                            "where": {
+                                "cd-geo-locationId": 1
+                            }
+                        }
+                    }
+                ],
+                "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+            },
+            "args": {}
+        }
+
+     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdGeoLocations","c": "CdGeoLocation","a": "Update","dat": {"f_vals": [{"query": {"update": {"cd-geo-locationAssets": null},"where": {"cd-geo-locationId": 1}}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": {}}' http://localhost:3001 -v  | jq '.'
+     * @param req
+     * @param res
+     */
     async Update(req, res) {
-        console.log('GroupController::Update()/01');
+        console.log('CdGeoLocationController::Update()/01');
         try {
-            console.log('GroupController::Update()/02');
-            await this.svGroup.update(req, res);
+            console.log('CdGeoLocationController::Update()/02');
+            await this.svCdGeoLocation.update(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'GroupController:Update');
+            await this.b.serviceErr(req, res, e, 'ModuleController:Update');
         }
     }
 
-    // /**
-    //  * {
-    //         "ctx": "Sys",
-    //         "m": "User",
-    //         "c": "Group",
-    //         "a": "GetCount",
-    //         "dat": {
-    //             "f_vals": [
-    //                 {
-    //                     "query": {
-    //                         "where": {"groupId": 45763}
-    //                     }
-    //                 }
-    //             ],
-    //             "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
-    //         },
-    //         "args": null
-    //     }
-    //  * @param req
-    //  * @param res
-    //  */
+    async UpdateSL(req, res) {
+        console.log('CdGeoLocationController::UpdateSL()/01');
+        try {
+            console.log('CdGeoLocationController::UpdateSL()/02');
+            await this.svCdGeoLocation.updateSL(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'CdGeoLocationController:UpdateSL');
+        }
+    }
+
+    /**
+     * {
+            "ctx": "App",
+            "m": "CdGeoLocations",
+            "c": "CdGeoLocation",
+            "a": "Delete",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "where": {"cd-geo-locationId": 69}
+                        }
+                    }
+                ],
+                "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+            },
+            "args": null
+        }
+     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdGeoLocations","c": "CdGeoLocation","a": "Delete","dat": {"f_vals": [{"query": {"where": {"cd-geo-locationId": 69}}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": {}}' http://localhost:3001 -v  | jq '.'
+     * @param req
+     * @param res
+     */
     async Delete(req, res) {
         try {
-            await this.svGroup.delete(req, res);
+            await this.svCdGeoLocation.delete(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'GroupController:Update');
+            await this.b.serviceErr(req, res, e, 'ModuleController:Update');
         }
     }
+
+    async DeleteSL(req, res) {
+        try {
+            await this.svCdGeoLocation.deleteSL(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'BillController:DeleteSL');
+        }
+    }
+
+    
+
+    async GetStats(req, res) {
+        try {
+            await this.svCdGeoLocation.getCdGeoLocationStats(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'CdGeoLocationController:Get');
+        }
+    }
+
 }

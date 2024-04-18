@@ -605,12 +605,12 @@ export class CoopService extends CdService {
      * @param req 
      * @param res 
      */
-    getCoopCount(req, res) {
+    getCoopPaged(req, res) {
         const q = this.b.getQuery(req);
-        console.log('CoopService::getCoopCount/q:', q);
+        console.log('CoopService::getCoopPaged/q:', q);
         const serviceInput = {
             serviceModel: CoopViewModel,
-            docName: 'CoopService::getCoopCount$',
+            docName: 'CoopService::getCoopPaged$',
             cmd: {
                 action: 'find',
                 query: q
@@ -631,10 +631,10 @@ export class CoopService extends CdService {
 
     getPagedSL(req, res) {
         const q = this.b.getQuery(req);
-        console.log('CoopService::getCoopCount()/q:', q);
+        console.log('CoopService::getCoopPaged()/q:', q);
         const serviceInput = {
             serviceModel: CoopModel,
-            docName: 'CoopService::getCoopCount',
+            docName: 'CoopService::getCoopPaged',
             cmd: {
                 action: 'find',
                 query: q
@@ -656,10 +656,10 @@ export class CoopService extends CdService {
 
     getCoopTypeCount(req, res) {
         const q = this.b.getQuery(req);
-        console.log('CoopService::getCoopCount/q:', q);
+        console.log('CoopService::getCoopPaged/q:', q);
         const serviceInput = {
             serviceModel: CoopTypeModel,
-            docName: 'CoopService::getCoopCount$',
+            docName: 'CoopService::getCoopPaged$',
             cmd: {
                 action: 'find',
                 query: q

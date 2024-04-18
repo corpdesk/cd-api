@@ -1,33 +1,31 @@
-import { BaseService } from '../../base/base.service';
-import { CdController } from '../../base/cd.controller';
-import { CreateIParams } from '../../base/IBase';
-import { ConsumerService } from '../../moduleman/services/consumer.service';
-import { GroupInvitationService } from '../services/group-invitation.service';
-import { SessionService } from '../services/session.service';
+import { BaseService } from '../../../sys/base/base.service';
+import { CdGeoPhysicalTypeService } from '../services/cd-geo-physical-type.service';
 
-export class GroupInvitationController extends CdController {
+export class CdGeoPhysicalTypeController {
+
     b: BaseService;
-    svGroupInvitation: GroupInvitationService;
+    svCdGeoPhysicalType: CdGeoPhysicalTypeService;
 
     constructor() {
-        super();
         this.b = new BaseService();
-        this.svGroupInvitation = new GroupInvitationService();
+        this.svCdGeoPhysicalType = new CdGeoPhysicalTypeService();
+
+
     }
 
     // /**
     //  * {
     //         "ctx": "Sys",
-    //         "m": "User",
-    //         "c": "GroupInvitation",
+    //         "m": "Moduleman",
+    //         "c": "CdGeoPhysicalType",
     //         "a": "Create",
     //         "dat": {
     //             "f_vals": [
     //                 {
     //                     "data": {
-    //                         "groupName": "/src/CdApi/sys/moduleman",
-    //                         "groupTypeGuid": "7ae902cd-5bc5-493b-a739-125f10ca0268",
-    //                         "parentGroupInvitationGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b"
+    //                         "CdGeoPhysicalTypeName": "/src/CdApi/sys/moduleman",
+    //                         "CdGeoPhysicalTypeTypeId": "7ae902cd-5bc5-493b-a739-125f10ca0268",
+    //                         "parentModuleGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b"
     //                     }
     //                 }
     //             ],
@@ -40,91 +38,87 @@ export class GroupInvitationController extends CdController {
     //  */
     async Create(req, res) {
         try {
-            await this.svGroupInvitation.create(req, res);
+            await this.svCdGeoPhysicalType.create(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'GroupInvitationController:Create');
+            await this.b.serviceErr(req, res, e, 'CdGeoPhysicalTypeController:Create');
         }
     }
 
     /**
-     * {
-            "ctx": "Sys",
-            "m": "User",
-            "c": "GroupInvitation",
-            "a": "Accept",
-            "dat": {
-                "f_vals": [
-                    {
-                        "data": {
-                            "groupInvitationId": 1431
-                        }
-                    }
-                ],
-                "token": "415cc20f-33d4-4641-9fa2-ab35f9dcc8df"
-            },
-            "args": {}
-        }
-     * @param req
-     * @param res
+     * CreateM, Create multiple
+     * @param req 
+     * @param res 
      */
-    async Accept(req, res) {
+    async CreateM(req, res) {
         try {
-            console.log('GroupInvitationController::Accept()/01')
-            await this.svGroupInvitation.accept(req, res);
+            await this.svCdGeoPhysicalType.createM(req, res);
         } catch (e) {
-            console.log('GroupInvitationController::Accept()/02')
-            await this.b.serviceErr(req, res, e, 'GroupInvitationController:Create');
+            await this.b.serviceErr(req, res, e, 'CdGeoPhysicalTypeController:CreateM');
         }
     }
 
+    async CreateSL(req, res) {
+        try {
+            await this.svCdGeoPhysicalType.createSL(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'CdGeoPhysicalTypeController:CreateSL');
+        }
+    }
+
+    
+
     /**
      * {
-            "ctx": "Sys",
-            "m": "User",
-            "c": "GroupInvitation",
+            "ctx": "App",
+            "m": "CdGeoPhysicalTypes",
+            "c": "CdGeoPhysicalType",
             "a": "Get",
             "dat": {
                 "f_vals": [
                     {
                         "query": {
-                            "where": {"hostUser": 1003}
+                            "where": {"cd-geo-physical-typeName": "Kenya"}
                         }
                     }
                 ],
-                "token": "415cc20f-33d4-4641-9fa2-ab35f9dcc8df"
+                "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
             },
             "args": null
         }
+
+        curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App", "m": "CdGeoPhysicalTypes","c": "CdGeoPhysicalType","a": "Get","dat": {"f_vals": [{"query": {"where": {"cd-geo-physical-typeName": "Kenya"}}}],"token":"08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
      * @param req
      * @param res
      */
     async Get(req, res) {
         try {
-            await this.svGroupInvitation.getGroupInvitation(req, res);
+            await this.svCdGeoPhysicalType.getCdGeoPhysicalType(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'GroupInvitationController:Get');
+            await this.b.serviceErr(req, res, e, 'CdGeoPhysicalTypeController:Get');
         }
     }
 
-    async GetType(req, res) {
+    async GetSL(req, res) {
         try {
-            await this.svGroupInvitation.getGroupInvitationTypeCount(req, res);
+            await this.svCdGeoPhysicalType.getCdGeoPhysicalTypeSL(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'GroupInvitationController:Get');
+            await this.b.serviceErr(req, res, e, 'CdGeoPhysicalTypeController:GetSL');
         }
     }
+
+    
 
     /** Pageable request:
      * {
-            "ctx": "Sys",
-            "m": "User",
-            "c": "GroupInvitation",
+            "ctx": "App",
+            "m": "CdGeoPhysicalTypes",
+            "c": "CdGeoPhysicalType",
             "a": "GetPaged",
             "dat": {
                 "f_vals": [
                     {
                         "query": {
-                            "select":["moduleId","moduleGuid"],
+                            "select":["cd-geo-physical-typeId","cd-geo-physical-typeGuid"],
                             "where": {},
                             "take": 5,
                             "skip": 1
@@ -135,79 +129,122 @@ export class GroupInvitationController extends CdController {
             },
             "args": null
         }
+
+     curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdGeoPhysicalTypes","c": "CdGeoPhysicalType","a": "GetPaged","dat": {"f_vals": [{"query": {"select":["cd-geo-physical-typeId","cd-geo-physical-typeGuid"],"where": {}, "take":5,"skip": 1}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
+
      * @param req
      * @param res
      */
     async GetPaged(req, res) {
         try {
-            await this.svGroupInvitation.getPaged(req, res);
+            await this.svCdGeoPhysicalType.getCdGeoPhysicalTypePaged(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'GroupInvitationController:GetPaged');
+            await this.b.serviceErr(req, res, e, 'ModuleController:Get');
         }
     }
 
-    // /**
-    //  * {
-    //         "ctx": "Sys",
-    //         "m": "User",
-    //         "c": "GroupInvitation",
-    //         "a": "Update",
-    //         "dat": {
-    //             "f_vals": [
-    //                 {
-    //                     "query": {
-    //                         "update": {
-    //                             "groupName": "/corp-deskv1.2.1.2/system/modules/comm/controllers"
-    //                         },
-    //                         "where": {
-    //                             "groupId": 45762
-    //                         }
-    //                     }
-    //                 }
-    //             ],
-    //             "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
-    //         },
-    //         "args": {}
-    //     }
-    //  * @param req
-    //  * @param res
-    //  */
-    async Update(req, res) {
-        console.log('GroupInvitationController::Update()/01');
+    async GetPagedSL(req, res) {
         try {
-            console.log('GroupInvitationController::Update()/02');
-            await this.svGroupInvitation.update(req, res);
+            await this.svCdGeoPhysicalType.getPagedSL(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'GroupInvitationController:Update');
+            await this.b.serviceErr(req, res, e, 'CdGeoPhysicalTypeController:GetSL');
         }
     }
 
-    // /**
-    //  * {
-    //         "ctx": "Sys",
-    //         "m": "User",
-    //         "c": "GroupInvitation",
-    //         "a": "GetCount",
-    //         "dat": {
-    //             "f_vals": [
-    //                 {
-    //                     "query": {
-    //                         "where": {"groupId": 45763}
-    //                     }
-    //                 }
-    //             ],
-    //             "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
-    //         },
-    //         "args": null
-    //     }
-    //  * @param req
-    //  * @param res
-    //  */
+    /**
+     * {
+            "ctx": "App",
+            "m": "CdGeoPhysicalTypes",
+            "c": "CdGeoPhysicalType",
+            "a": "Update",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "update": {
+                                "cd-geo-physical-typeAssets": null
+                            },
+                            "where": {
+                                "cd-geo-physical-typeId": 1
+                            }
+                        }
+                    }
+                ],
+                "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+            },
+            "args": {}
+        }
+
+     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdGeoPhysicalTypes","c": "CdGeoPhysicalType","a": "Update","dat": {"f_vals": [{"query": {"update": {"cd-geo-physical-typeAssets": null},"where": {"cd-geo-physical-typeId": 1}}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": {}}' http://localhost:3001 -v  | jq '.'
+     * @param req
+     * @param res
+     */
+    async Update(req, res) {
+        console.log('CdGeoPhysicalTypeController::Update()/01');
+        try {
+            console.log('CdGeoPhysicalTypeController::Update()/02');
+            await this.svCdGeoPhysicalType.update(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'ModuleController:Update');
+        }
+    }
+
+    async UpdateSL(req, res) {
+        console.log('CdGeoPhysicalTypeController::UpdateSL()/01');
+        try {
+            console.log('CdGeoPhysicalTypeController::UpdateSL()/02');
+            await this.svCdGeoPhysicalType.updateSL(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'CdGeoPhysicalTypeController:UpdateSL');
+        }
+    }
+
+    /**
+     * {
+            "ctx": "App",
+            "m": "CdGeoPhysicalTypes",
+            "c": "CdGeoPhysicalType",
+            "a": "Delete",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "where": {"cd-geo-physical-typeId": 69}
+                        }
+                    }
+                ],
+                "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+            },
+            "args": null
+        }
+     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdGeoPhysicalTypes","c": "CdGeoPhysicalType","a": "Delete","dat": {"f_vals": [{"query": {"where": {"cd-geo-physical-typeId": 69}}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": {}}' http://localhost:3001 -v  | jq '.'
+     * @param req
+     * @param res
+     */
     async Delete(req, res) {
         try {
-            await this.svGroupInvitation.delete(req, res);
+            await this.svCdGeoPhysicalType.delete(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'GroupInvitationController:Update');
+            await this.b.serviceErr(req, res, e, 'ModuleController:Update');
         }
     }
+
+    async DeleteSL(req, res) {
+        try {
+            await this.svCdGeoPhysicalType.deleteSL(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'BillController:DeleteSL');
+        }
+    }
+
+    
+
+    async GetStats(req, res) {
+        try {
+            await this.svCdGeoPhysicalType.getCdGeoPhysicalTypeStats(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'CdGeoPhysicalTypeController:Get');
+        }
+    }
+
 }

@@ -207,6 +207,20 @@ export interface IServiceInput {
     extraInfo?: boolean;
     modelName?: string;
     modelPath?: string;
+    fetchInput?: IFetchInput;
+}
+
+export interface IFetchInput{
+    url: string;
+    optins?:{
+        method?: string;
+        body?: string,
+        headers?: {
+            'Content-Type'?: string;
+            'X-Parse-Application-Id'?: string;
+            'X-Parse-REST-API-Key'?:string;
+        }
+    }
 }
 
 export interface Cmd {

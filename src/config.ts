@@ -110,6 +110,11 @@ const END_POINT = `${process.env.API_URL}:${API_PORT}`;
 export default {
     apiPort: process.env.API_PORT,
     endPoint: END_POINT,
+    back4app: {
+        url: process.env.B4A_URL,
+        appId: process.env.X_Parse_Application_Id,
+        apiKey: process.env.X_Parse_REST_API_Key
+    },
     Cors: {
         options: {
             allowedHeaders: [

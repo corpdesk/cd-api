@@ -1,18 +1,19 @@
 
+import fetch from 'node-fetch';
 import { v4 as uuidv4 } from 'uuid';
 // import { color, log, red, green, cyan, cyanBright, blue, yellow } from 'console-log-colors';
 // import { bold, white, gray } from 'console-log-colors';
 import * as Lá from 'lodash';
 import { CreateIParams, ICdRequest, ICdResponse, IControllerContext, IQuery, IRespInfo, IServiceInput, ISessResp, ObjectItem, CacheData, IQbInput } from './IBase';
-import { 
-    EntityMetadata, 
+import {
+    EntityMetadata,
     Repository,
     Like,
-    getConnection, 
-    createConnection, 
-    ConnectionOptions, 
-    getConnectionManager, 
-    Connection, 
+    getConnection,
+    createConnection,
+    ConnectionOptions,
+    getConnectionManager,
+    Connection,
 } from 'typeorm';
 import { Observable, from } from 'rxjs';
 import moment from 'moment';
@@ -600,8 +601,8 @@ export class BaseService {
         }
     }
 
-    async getEntityPropertyMap(req, res,model) {
-        await this.init(req,res)
+    async getEntityPropertyMap(req, res, model) {
+        await this.init(req, res)
         // console.log('BaseService::getEntityPropertyMap()/model:', model)
         const entityMetadata: EntityMetadata = await getConnection().getMetadata(model);
         // console.log('BaseService::getEntityPropertyMap()/entityMetadata:', entityMetadata)
@@ -651,7 +652,7 @@ export class BaseService {
         // const baseRepository: any = await this.repo(req, res, params.model)
         // const baseRepository: any = await this.repo
         // get model properties
-        const propMap = await this.getEntityPropertyMap(req, res,params.model).then((result) => {
+        const propMap = await this.getEntityPropertyMap(req, res, params.model).then((result) => {
             // console.log('validateUnique()/result:', result)
             return result;
         });
@@ -892,7 +893,7 @@ export class BaseService {
                     const serviceData = await this.getServiceData(req, serviceInput);
                     console.log('BaseService::create()/10')
                     console.log('BaseService::create()/serviceData:', serviceData);
-                    modelInstance = await this.setEntity(req, res,serviceInput, serviceData);
+                    modelInstance = await this.setEntity(req, res, serviceInput, serviceData);
                     console.log('BaseService::create()/11')
                     return await serviceRepository.save(await modelInstance);
                 }
@@ -1125,8 +1126,8 @@ export class BaseService {
         }
     }
 
-    async setPropertyMapArr(req, res,serviceInput) {
-        const propMap = await this.getEntityPropertyMap(req, res,serviceInput.serviceModel);
+    async setPropertyMapArr(req, res, serviceInput) {
+        const propMap = await this.getEntityPropertyMap(req, res, serviceInput.serviceModel);
         console.log('BaseService::setPropertyMapArr()/propMap:', propMap)
         const propMapArr = [];
         await propMap.forEach(async (field: any) => {
@@ -1141,10 +1142,10 @@ export class BaseService {
         return propMapArr;
     }
 
-    async setEntity(req, res,serviceInput: IServiceInput, serviceData: any): Promise<any> {
+    async setEntity(req, res, serviceInput: IServiceInput, serviceData: any): Promise<any> {
         console.log('BaseService::setEntity()/serviceInput:', serviceInput)
         console.log('BaseService::setEntity()/serviceData:', serviceData)
-        const propMapArr = await this.setPropertyMapArr(req, res,serviceInput);
+        const propMapArr = await this.setPropertyMapArr(req, res, serviceInput);
         console.log('BaseService::setEntity()/propMapArr:', propMapArr)
         const serviceInstance = serviceInput.serviceModelInstance;
         console.log('BaseService::setEntity()/serviceInstance1:', serviceInstance)
@@ -1187,7 +1188,7 @@ export class BaseService {
         console.log('BaseService::read()/02')
         console.log('BaseService::read()/serviceInput:', serviceInput)
         // const repo: any = await this.repo(req, res, serviceInput.serviceModel);
-        
+
         await this.setRepo(serviceInput)
         // const init = async (event) => {
         // const AppDataSource = await getDataSource();
@@ -1986,6 +1987,27 @@ export class BaseService {
         this.cdResp.data = [];
     }
 
+    async fetch(req, res, serviceInput: IServiceInput) {
+        try {
+            console.log('BaseService::fetch()/01')
+
+            const response = await fetch(serviceInput.fetchInput.url, serviceInput.fetchInput.optins);
+            const data = await response.json();
+            // console.log(JSON.stringify(data, null, 2));
+            return data
+        } catch (e) {
+            this.err.push(e.toString());
+            const i = {
+                messages: this.err,
+                code: 'BaseService:update',
+                app_msg: ''
+            };
+            // await this.setAppState(false, i, null);
+            await this.serviceErr(req, res, e, i.code)
+            return this.cdResp;
+        }
+    }
+
     //////////////////////////////////////////////////
 
     async validateInputRefernce(msg: string, validationResponse: any[], svSess: SessionService): Promise<boolean> {
@@ -2122,7 +2144,7 @@ export class BaseService {
         //     this.ds = await AppDataSource.initialize();
         //     this.repo = this.ds.getRepository(serviceInput.serviceModel);
         // }
-        
+
     }
 
     async all(request: Request, response: Response, next: NextFunction) {

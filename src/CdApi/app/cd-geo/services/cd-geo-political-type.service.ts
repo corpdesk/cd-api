@@ -599,34 +599,34 @@ export class CdGeoPoliticalTypeService extends CdService {
     //     }
     // }
 
-    // /**
-    //  * 
-    //  * @param req 
-    //  * @param res 
-    //  */
-    // getCdGeoPoliticalTypeCount(req, res) {
-    //     const q = this.b.getQuery(req);
-    //     console.log('CdGeoPoliticalTypeService::getCdGeoPoliticalTypeCount/q:', q);
-    //     const serviceInput = {
-    //         serviceModel: CdGeoPoliticalTypeViewModel,
-    //         docName: 'CdGeoPoliticalTypeService::getCdGeoPoliticalTypeCount$',
-    //         cmd: {
-    //             action: 'find',
-    //             query: q
-    //         },
-    //         dSource: 1
-    //     }
-    //     this.b.readCount$(req, res, serviceInput)
-    //         .subscribe((r) => {
-    //             this.b.i.code = 'CdGeoPoliticalTypeController::Get';
-    //             const svSess = new SessionService();
-    //             svSess.sessResp.cd_token = req.post.dat.token;
-    //             svSess.sessResp.ttl = svSess.getTtl();
-    //             this.b.setAppState(true, this.b.i, svSess.sessResp);
-    //             this.b.cdResp.data = r;
-    //             this.b.respond(req, res)
-    //         })
-    // }
+    /**
+     * 
+     * @param req 
+     * @param res 
+     */
+    getCdGeoPoliticalTypePaged(req, res) {
+        const q = this.b.getQuery(req);
+        console.log('CdGeoPoliticalTypeService::getCdGeoPoliticalType/q:', q);
+        const serviceInput = {
+            serviceModel: CdGeoPoliticalTypeModel,
+            docName: 'CdGeoPoliticalTypeService::getCdGeoPoliticalType$',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        this.b.readCount$(req, res, serviceInput)
+            .subscribe((r) => {
+                this.b.i.code = 'CdGeoPoliticalTypeController::Get';
+                const svSess = new SessionService();
+                svSess.sessResp.cd_token = req.post.dat.token;
+                svSess.sessResp.ttl = svSess.getTtl();
+                this.b.setAppState(true, this.b.i, svSess.sessResp);
+                this.b.cdResp.data = r;
+                this.b.respond(req, res)
+            })
+    }
 
     getPagedSL(req, res) {
         const q = this.b.getQuery(req);
