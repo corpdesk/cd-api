@@ -247,4 +247,48 @@ export class CdGeoLocationController {
         }
     }
 
+    
+    /**
+     * connect to https://www.back4app.com api
+     * and fetch country by objectId
+     * @param req 
+     * @param res 
+     */
+    async GetCountryByObjId(req, res){
+        try {
+            await this.svCdGeoLocation.GetCountryByObjId(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'GetCountryByObjId:Create');
+        }
+    }
+
+    /**
+     * connect to https://www.back4app.com api
+     * and fetch country by objectId
+     * @param req 
+     * @param res 
+     */
+    async GetCountry(req, res){
+        try {
+            await this.svCdGeoLocation.GetCountry(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'GetCountryByObjId:Create');
+        }
+    }
+
+
+    /**
+     * connect to https://www.back4app.com api
+     * and fetch Subdivisions, States and Provinces
+     * @param req 
+     * @param res 
+     */
+    async SubdivisionStatesProvinces(req, res){
+        try {
+            await this.svCdGeoLocation.SubdivisionStatesProvinces(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'SubdivisionStatesProvinces:Create');
+        }
+    }
+
 }

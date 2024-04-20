@@ -1,4 +1,3 @@
-import fetch from 'node-fetch';
 import { BaseService } from '../../../sys/base/base.service';
 import { CdService } from '../../../sys/base/cd.service';
 import { SessionService } from '../../../sys/user/services/session.service';
@@ -37,38 +36,25 @@ export class CdGeoLocationService extends CdService {
         this.serviceModel = new CdGeoLocationModel();
     }
 
-    async SubdivisionStatesProvinces(req, res) {
-        // const url = "https://parseapi.back4app.com/classes/Continentscountriescities_Subdivisions_States_Provinces?limit=10&order=country";
-        // const H = {
-        //     'X-Parse-Application-Id': 'NATJ7yoIptkLcNkFmtDID6WXzpnbrhAeyPKu9Gw8', // This is your app's application id
-        //     'X-Parse-REST-API-Key': 'egoi5uSuqGhUcA6Hp5Aw5OdQsY0nxS1HjmWndUQ9', // This is your app's REST API key
-        // };
-
-        // (async () => {
-        //     const response = await fetch(
-        //         url,
-        //         {
-        //             headers: H
-        //         }
-        //     );
-        //     const data = await response.json(); // Here you have the data that you need
-        //     console.log(JSON.stringify(data, null, 2));
-        // })();
-        // //////////////////////////////////
-
-        // const response = await fetch(url,{headers: H});
-        // const data = await response.json();
-        // console.log(JSON.stringify(data, null, 2));
-        //////////////////////////////////////////////////////////
+    async GetCountryByObjId(req, res) {
+        // const q: IQuery = this.b.getQuery(req);
+        // let queryStr = `/classes/${q.class}?where=${JSON.stringify(q.where)}&skip=${q.skip}&limit=${q.take}&order=${q.orderBy}`
+        const pl = this.b.getPlData(req);
+        let queryStr = `/Continentscountriescities_Country/${pl.back4appObectId}`
+        console.log('cd-geo-location/Continentscountriescities_Country()/queryStr:', queryStr)
         const fi: IFetchInput = {
-            url: config.back4app.url,
-            optins:{
+            url: config.back4app.url + queryStr,
+            optins: {
                 headers: {
-                    'X-Parse-Application-Id': config.back4app.appId, // This is your app's application id
-                    'X-Parse-REST-API-Key': config.back4app.apiKey, // This is your app's REST API key
+                    'X-Parse-Application-Id': config.back4app.appId, 
+                    'X-Parse-REST-API-Key': config.back4app.apiKey, 
                 }
             }
         }
+        
+        console.log('cd-geo-location/SubdivisionStatesProvinces()/01')
+
+        const svSess = new SessionService();
         const serviceInput: IServiceInput = {
             serviceModel: CdGeoLocationModel,
             modelName: "CdGeoLocationModel",
@@ -77,7 +63,85 @@ export class CdGeoLocationService extends CdService {
             dSource: 1,
             fetchInput: fi
         }
-        this.b.fetch(req,res)
+        const respData = this.b.bFetch(req, res, serviceInput)
+        this.b.i.app_msg = `fetched data from ${fi.url} `;
+        this.b.setAppState(true, this.b.i, svSess.sessResp);
+        this.b.cdResp.data = await respData;
+        const r = await this.b.respond(req, res);
+    }
+
+    async GetCountry(req, res) {
+        const q: IQuery = this.b.getQuery(req);
+        let queryStr = `/classes/${q.class}?where=${JSON.stringify(q.where)}&skip=${q.skip}&limit=${q.take}&order=${q.orderBy}`
+        // let queryStr = `/Continentscountriescities_Country/${pl.back4appObectId}`
+        console.log('cd-geo-location/Continentscountriescities_Country()/queryStr:', queryStr)
+        const fi: IFetchInput = {
+            url: config.back4app.url + queryStr,
+            optins: {
+                headers: {
+                    'X-Parse-Application-Id': config.back4app.appId, 
+                    'X-Parse-REST-API-Key': config.back4app.apiKey, 
+                }
+            }
+        }
+        
+        console.log('cd-geo-location/SubdivisionStatesProvinces()/01')
+
+        const svSess = new SessionService();
+        const serviceInput: IServiceInput = {
+            serviceModel: CdGeoLocationModel,
+            modelName: "CdGeoLocationModel",
+            serviceModelInstance: this.serviceModel,
+            docName: 'Create CdGeoLocation',
+            dSource: 1,
+            fetchInput: fi
+        }
+        const respData = this.b.bFetch(req, res, serviceInput)
+        this.b.i.app_msg = `fetched data from ${fi.url} `;
+        this.b.setAppState(true, this.b.i, svSess.sessResp);
+        this.b.cdResp.data = await respData;
+        const r = await this.b.respond(req, res);
+    }
+
+    async SubdivisionStatesProvinces(req, res) {
+        const q: IQuery = this.b.getQuery(req);
+        let queryStr = `/classes/${q.class}?where=${JSON.stringify(q.where)}&skip=${q.skip}&limit=${q.take}&order=${q.orderBy}`
+        console.log('cd-geo-location/SubdivisionStatesProvinces()/queryStr:', queryStr)
+        const fi: IFetchInput = {
+            url: config.back4app.url + queryStr,
+            optins: {
+                headers: {
+                    'X-Parse-Application-Id': config.back4app.appId, 
+                    'X-Parse-REST-API-Key': config.back4app.apiKey, 
+                }
+            }
+        }
+        // const serviceInput: IServiceInput = {
+        //     serviceModel: CdGeoLocationModel,
+        //     modelName: "CdGeoLocationModel",
+        //     serviceModelInstance: this.serviceModel,
+        //     docName: 'Create CdGeoLocation',
+        //     dSource: 1,
+        //     fetchInput: fi
+        // }
+        // this.b.bFetch(req, res, serviceInput)
+        ////////////////////////////
+        console.log('cd-geo-location/SubdivisionStatesProvinces()/01')
+
+        const svSess = new SessionService();
+        const serviceInput: IServiceInput = {
+            serviceModel: CdGeoLocationModel,
+            modelName: "CdGeoLocationModel",
+            serviceModelInstance: this.serviceModel,
+            docName: 'Create CdGeoLocation',
+            dSource: 1,
+            fetchInput: fi
+        }
+        const respData = this.b.bFetch(req, res, serviceInput)
+        this.b.i.app_msg = `fetched data from ${fi.url} `;
+        this.b.setAppState(true, this.b.i, svSess.sessResp);
+        this.b.cdResp.data = await respData;
+        const r = await this.b.respond(req, res);
     }
 
     /**

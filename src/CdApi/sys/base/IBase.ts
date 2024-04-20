@@ -337,6 +337,8 @@ export interface IQuery {
     take?: number;
     skip?: number;
     jFilters?: IJFilter[];
+    orderBy?:string;
+    class?:string;
 }
 
 // query builder filter

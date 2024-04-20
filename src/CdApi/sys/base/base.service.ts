@@ -1,5 +1,5 @@
 
-import fetch from 'node-fetch';
+// import fetch from 'node-fetch';
 import { v4 as uuidv4 } from 'uuid';
 // import { color, log, red, green, cyan, cyanBright, blue, yellow } from 'console-log-colors';
 // import { bold, white, gray } from 'console-log-colors';
@@ -1987,7 +1987,7 @@ export class BaseService {
         this.cdResp.data = [];
     }
 
-    async fetch(req, res, serviceInput: IServiceInput) {
+    async bFetch(req, res, serviceInput: IServiceInput) {
         try {
             console.log('BaseService::fetch()/01')
 

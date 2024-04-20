@@ -1,0 +1,27 @@
+Insert cd-geo-political-types:
+  - Continent
+  - Continental region
+  - Country
+
+  Country-sub-division types:
+  - Province
+  - District
+  - County
+  - Canton
+  - Division
+  - Region
+
+  Business Centers:
+  - City
+  - Administrative Capital City
+  - Business Capital City
+  - Town
+
+Insert Country:
+- geo-location-name, geo-political-type-id, geo-political-type-parent-id
+
+Insert Country Division:
+- geo-location-name, geo-political-type-id, geo-political-type-parent-id
+
+
+
