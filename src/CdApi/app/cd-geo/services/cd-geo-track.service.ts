@@ -242,14 +242,14 @@ export class CdGeoTrackService extends CdService {
     }
 
     async beforeCreate(req, res): Promise<any> {
-        this.b.setPlData(req, { key: 'CdGeoTrackGuid', value: this.b.getGuid() });
-        this.b.setPlData(req, { key: 'CdGeoTrackEnabled', value: true });
+        this.b.setPlData(req, { key: 'cdGeoTrackGuid', value: this.b.getGuid() });
+        this.b.setPlData(req, { key: 'cdGeoTrackEnabled', value: true });
         return true;
     }
 
     async beforeCreateSL(req, res): Promise<any> {
-        this.b.setPlData(req, { key: 'CdGeoTrackGuid', value: this.b.getGuid() });
-        this.b.setPlData(req, { key: 'CdGeoTrackEnabled', value: true });
+        this.b.setPlData(req, { key: 'cdGeoTrackGuid', value: this.b.getGuid() });
+        this.b.setPlData(req, { key: 'cdGeoTrackEnabled', value: true });
         return true;
     }
 

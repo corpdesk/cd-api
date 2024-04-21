@@ -2,19 +2,10 @@ import {
     Entity,
     PrimaryGeneratedColumn,
     Column,
+    Unique,
 } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
-import { IQuery } from '../../../sys/base/IBase';
 
-
-
-// ALTER TABLE cd_geo_location ADD COLUMN cd_geo_locataion_code varchar(4) DEFAULT NULL;
-// ALTER TABLE cd_geo_location ADD COLUMN cd_geo_locataion_icon varchar(10) DEFAULT NULL;
-// ALTER TABLE cd_geo_location ADD COLUMN back4app_obectId varchar(10) DEFAULT NULL;
-// ALTER TABLE cd_geo_location ADD COLUMN cd_geo_political_type_id int DEFAULT NULL;
-// ALTER TABLE cd_geo_location ADD COLUMN cd_geo_political_parent_id int DEFAULT NULL;
-// ALTER TABLE cd_geo_location DROP COLUMN cd_geo_political_type_guid;
-// ALTER TABLE cd_geo_location DROP COLUMN cd_geo_political_parent;
 
 @Entity(
     {
@@ -22,6 +13,7 @@ import { IQuery } from '../../../sys/base/IBase';
         synchronize: false
     }
 )
+@Unique(['cdGeoLocationName', 'cdGeoLocationCode']) 
 export class CdGeoLocationModel {
     @PrimaryGeneratedColumn(
         {
@@ -62,13 +54,13 @@ export class CdGeoLocationModel {
     )
     docId?: number;
 
-    @Column(
-        {
-            name: 'cd_geo_location_type_id',
-            default: null
-        }
-    )
-    cdGeoLocationTypeId?: number;
+    // @Column(
+    //     {
+    //         name: 'cd_geo_location_type_id',
+    //         default: null
+    //     }
+    // )
+    // cdGeoLocationTypeId?: number;
 
     @Column(
         {
@@ -88,24 +80,24 @@ export class CdGeoLocationModel {
 
     @Column(
         {
-        name: 'cd_geo_location_guid',
+        name: 'cd_geo_boundary_data',
         type: 'json'
     })
-    cd_geo_boundary_data?: string;
+    cdGeoBoundaryData?: string;
 
     @Column({
-        name: 'cd_geo_locataion_code',
-        length: 4,
-        default: null
-    })
-    cdGeoLocataionCode?: string;
-
-    @Column({
-        name: 'cd_geo_locataion_icon',
+        name: 'cd_geo_location_code',
         length: 10,
         default: null
     })
-    cdGeoLocataionIcon?: string;
+    cdGeoLocationCode: string;
+
+    @Column({
+        name: 'cd_geo_location_icon',
+        type: 'json',
+        default: null
+    })
+    cdGeoLocationIcon?: string;
 
     @Column({
         name: 'back4app_obectId',
@@ -129,5 +121,34 @@ export class CdGeoLocationModel {
         }
     )
     cdGeoPoliticalParentId?: number;
+
+    
+    @Column(
+        {
+            name: 'cd_geo_location_name_alt',
+            type: 'json',
+            default: null
+        }
+    )
+    cdGeoLocationNameAlt?: string;
+
+    //cd_geo_location_assoc
+    @Column(
+        {
+            name: 'cd_geo_location_assoc',
+            type: 'json',
+            default: null
+        }
+    )
+    cdGeoLocationAssoc?: string;
+
+    // CdGeoLocationEnabled
+    @Column(
+        {
+            name: 'cd_geo_location_enabled',
+            default: null
+        }
+    )
+    cdGeoLocationEnabled?: boolean;
 
 }

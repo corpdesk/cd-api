@@ -1,0 +1,5 @@
+[
+    "/CdApi/app/cd-accts/models/*.model.ts",
+    "/CdApi/app/coops/models/*.model.ts",
+    "/CdApi/app/cd-geo/models/*.model.ts"
+]

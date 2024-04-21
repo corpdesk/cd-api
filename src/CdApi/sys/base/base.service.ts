@@ -542,6 +542,22 @@ export class BaseService {
     }
 
     /**
+     * 
+     * @param req 
+     * @param item 
+     * @param extData 
+     */
+    async setPlDataM(req, data:any, item: ObjectItem, extData: string = null): Promise<void> {
+        console.log('BaseService::setPlDataM()/item:', item);
+        if (extData) {
+            console.log('BaseService::setPlDataM()/extData:', extData);
+            console.log('BaseService::setPlDataM()/data:', data[extData]);
+            data[extData][item.key] = item.value;
+        } 
+        console.log('BaseService::setPlDataM()/data:', data);
+    }
+
+    /**
      * prevent a situation where either
      * 'data' property is missing or
      * extData property is missing
@@ -1143,17 +1159,17 @@ export class BaseService {
     }
 
     async setEntity(req, res, serviceInput: IServiceInput, serviceData: any): Promise<any> {
-        console.log('BaseService::setEntity()/serviceInput:', serviceInput)
-        console.log('BaseService::setEntity()/serviceData:', serviceData)
+        // console.log('BaseService::setEntity()/serviceInput:', serviceInput)
+        // console.log('BaseService::setEntity()/serviceData:', serviceData)
         const propMapArr = await this.setPropertyMapArr(req, res, serviceInput);
-        console.log('BaseService::setEntity()/propMapArr:', propMapArr)
+        // console.log('BaseService::setEntity()/propMapArr:', propMapArr)
         const serviceInstance = serviceInput.serviceModelInstance;
-        console.log('BaseService::setEntity()/serviceInstance1:', serviceInstance)
+        // console.log('BaseService::setEntity()/serviceInstance1:', serviceInstance)
         propMapArr.forEach(async (field: any, i) => {
-            console.log('BaseService::setEntity()/forEach/field:', field)
+            // console.log('BaseService::setEntity()/forEach/field:', field)
             serviceInstance[field.alias] = serviceData[field.alias];
         });
-        console.log('BaseService::setEntity()/serviceInstance2:', serviceInstance)
+        // console.log('BaseService::setEntity()/serviceInstance2:', serviceInstance)
         return await serviceInstance;
     }
 
@@ -2185,6 +2201,22 @@ export class BaseService {
     }
 
     //////////////////////////////////////////////////////////////
+
+    isEmptyObject(obj: any): boolean {
+        return Object.keys(obj).length === 0;
+    }
+
+    siGet(q: IQuery, cls: any):IServiceInput {
+        return {
+            serviceModel: cls.serviceModel,
+            docName: `${cls.modelName}::siGet`,
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+    }
 
 }
 

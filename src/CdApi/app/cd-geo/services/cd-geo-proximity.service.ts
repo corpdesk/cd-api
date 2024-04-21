@@ -242,14 +242,14 @@ export class CdGeoProximityService extends CdService {
     }
 
     async beforeCreate(req, res): Promise<any> {
-        this.b.setPlData(req, { key: 'CdGeoProximityGuid', value: this.b.getGuid() });
-        this.b.setPlData(req, { key: 'CdGeoProximityEnabled', value: true });
+        this.b.setPlData(req, { key: 'cdGeoProximityGuid', value: this.b.getGuid() });
+        this.b.setPlData(req, { key: 'cdGeoProximityEnabled', value: true });
         return true;
     }
 
     async beforeCreateSL(req, res): Promise<any> {
-        this.b.setPlData(req, { key: 'CdGeoProximityGuid', value: this.b.getGuid() });
-        this.b.setPlData(req, { key: 'CdGeoProximityEnabled', value: true });
+        this.b.setPlData(req, { key: 'cdGeoProximityGuid', value: this.b.getGuid() });
+        this.b.setPlData(req, { key: 'cdGeoProximityEnabled', value: true });
         return true;
     }
 

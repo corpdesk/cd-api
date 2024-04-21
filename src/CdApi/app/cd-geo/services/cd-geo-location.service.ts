@@ -24,8 +24,8 @@ export class CdGeoLocationService extends CdService {
      * create rules
      */
     cRules: any = {
-        required: ['cd-geo-locationName', 'CdGeoLocationTypeId', 'cd-geo-locationDateLabel'],
-        noDuplicate: ['cd-geo-locationName', 'cd-geo-locationDateLabel']
+        required: ['cdGeoLocationName', 'cdGeoPoliticalTypeId'],
+        noDuplicate: ['cdGeoLocationName', 'cdGeoPoliticalTypeId']
     };
     uRules: any[];
     dRules: any[];
@@ -36,113 +36,7 @@ export class CdGeoLocationService extends CdService {
         this.serviceModel = new CdGeoLocationModel();
     }
 
-    async GetCountryByObjId(req, res) {
-        // const q: IQuery = this.b.getQuery(req);
-        // let queryStr = `/classes/${q.class}?where=${JSON.stringify(q.where)}&skip=${q.skip}&limit=${q.take}&order=${q.orderBy}`
-        const pl = this.b.getPlData(req);
-        let queryStr = `/Continentscountriescities_Country/${pl.back4appObectId}`
-        console.log('cd-geo-location/Continentscountriescities_Country()/queryStr:', queryStr)
-        const fi: IFetchInput = {
-            url: config.back4app.url + queryStr,
-            optins: {
-                headers: {
-                    'X-Parse-Application-Id': config.back4app.appId, 
-                    'X-Parse-REST-API-Key': config.back4app.apiKey, 
-                }
-            }
-        }
-        
-        console.log('cd-geo-location/SubdivisionStatesProvinces()/01')
-
-        const svSess = new SessionService();
-        const serviceInput: IServiceInput = {
-            serviceModel: CdGeoLocationModel,
-            modelName: "CdGeoLocationModel",
-            serviceModelInstance: this.serviceModel,
-            docName: 'Create CdGeoLocation',
-            dSource: 1,
-            fetchInput: fi
-        }
-        const respData = this.b.bFetch(req, res, serviceInput)
-        this.b.i.app_msg = `fetched data from ${fi.url} `;
-        this.b.setAppState(true, this.b.i, svSess.sessResp);
-        this.b.cdResp.data = await respData;
-        const r = await this.b.respond(req, res);
-    }
-
-    async GetCountry(req, res) {
-        const q: IQuery = this.b.getQuery(req);
-        let queryStr = `/classes/${q.class}?where=${JSON.stringify(q.where)}&skip=${q.skip}&limit=${q.take}&order=${q.orderBy}`
-        // let queryStr = `/Continentscountriescities_Country/${pl.back4appObectId}`
-        console.log('cd-geo-location/Continentscountriescities_Country()/queryStr:', queryStr)
-        const fi: IFetchInput = {
-            url: config.back4app.url + queryStr,
-            optins: {
-                headers: {
-                    'X-Parse-Application-Id': config.back4app.appId, 
-                    'X-Parse-REST-API-Key': config.back4app.apiKey, 
-                }
-            }
-        }
-        
-        console.log('cd-geo-location/SubdivisionStatesProvinces()/01')
-
-        const svSess = new SessionService();
-        const serviceInput: IServiceInput = {
-            serviceModel: CdGeoLocationModel,
-            modelName: "CdGeoLocationModel",
-            serviceModelInstance: this.serviceModel,
-            docName: 'Create CdGeoLocation',
-            dSource: 1,
-            fetchInput: fi
-        }
-        const respData = this.b.bFetch(req, res, serviceInput)
-        this.b.i.app_msg = `fetched data from ${fi.url} `;
-        this.b.setAppState(true, this.b.i, svSess.sessResp);
-        this.b.cdResp.data = await respData;
-        const r = await this.b.respond(req, res);
-    }
-
-    async SubdivisionStatesProvinces(req, res) {
-        const q: IQuery = this.b.getQuery(req);
-        let queryStr = `/classes/${q.class}?where=${JSON.stringify(q.where)}&skip=${q.skip}&limit=${q.take}&order=${q.orderBy}`
-        console.log('cd-geo-location/SubdivisionStatesProvinces()/queryStr:', queryStr)
-        const fi: IFetchInput = {
-            url: config.back4app.url + queryStr,
-            optins: {
-                headers: {
-                    'X-Parse-Application-Id': config.back4app.appId, 
-                    'X-Parse-REST-API-Key': config.back4app.apiKey, 
-                }
-            }
-        }
-        // const serviceInput: IServiceInput = {
-        //     serviceModel: CdGeoLocationModel,
-        //     modelName: "CdGeoLocationModel",
-        //     serviceModelInstance: this.serviceModel,
-        //     docName: 'Create CdGeoLocation',
-        //     dSource: 1,
-        //     fetchInput: fi
-        // }
-        // this.b.bFetch(req, res, serviceInput)
-        ////////////////////////////
-        console.log('cd-geo-location/SubdivisionStatesProvinces()/01')
-
-        const svSess = new SessionService();
-        const serviceInput: IServiceInput = {
-            serviceModel: CdGeoLocationModel,
-            modelName: "CdGeoLocationModel",
-            serviceModelInstance: this.serviceModel,
-            docName: 'Create CdGeoLocation',
-            dSource: 1,
-            fetchInput: fi
-        }
-        const respData = this.b.bFetch(req, res, serviceInput)
-        this.b.i.app_msg = `fetched data from ${fi.url} `;
-        this.b.setAppState(true, this.b.i, svSess.sessResp);
-        this.b.cdResp.data = await respData;
-        const r = await this.b.respond(req, res);
-    }
+    
 
     /**
     * {
@@ -305,6 +199,9 @@ export class CdGeoLocationService extends CdService {
             console.log('CdGeoLocationData', CdGeoLocationData)
             const CdGeoLocationQuery: CdGeoLocationModel = CdGeoLocationData;
             const svCdGeoLocation = new CdGeoLocationService();
+            // this.b.setPlDataM(req,CdGeoLocationData, { key: 'cdGeoLocationGuid', value: this.b.getGuid() });
+            CdGeoLocationData.cdGeoLocationGuid = this.b.getGuid()
+
             const si = {
                 serviceInstance: svCdGeoLocation,
                 serviceModel: CdGeoLocationModel,
@@ -316,6 +213,7 @@ export class CdGeoLocationService extends CdService {
                 serviceInput: si,
                 controllerData: CdGeoLocationQuery
             }
+            
             let ret = await this.createI(req, res, createIParams)
             console.log('CdGeoLocationService::createM()/forLoop/ret:', ret)
         }
@@ -325,13 +223,12 @@ export class CdGeoLocationService extends CdService {
         // producation can be tailored to requrement 
         // and the query can be set from the client side.
         let q = {
-            // "select": [
-            //     "cd-geo-locationName",
-            //     "cd-geo-locationDescription"
-            // ],
-            "where": {},
-            "take": 5,
-            "skip": 0
+            where: {},
+            take: 6,
+            skip: 0,
+            order: {
+                'cdGeoLocationId': 'DESC',
+              }
         }
         this.getCdGeoLocation(req, res, q)
     }
@@ -351,14 +248,14 @@ export class CdGeoLocationService extends CdService {
     }
 
     async beforeCreate(req, res): Promise<any> {
-        this.b.setPlData(req, { key: 'CdGeoLocationGuid', value: this.b.getGuid() });
-        this.b.setPlData(req, { key: 'CdGeoLocationEnabled', value: true });
+        this.b.setPlData(req, { key: 'cdGeoLocationGuid', value: this.b.getGuid() });
+        this.b.setPlData(req, { key: 'cdGeoLocationEnabled', value: true });
         return true;
     }
 
     async beforeCreateSL(req, res): Promise<any> {
-        this.b.setPlData(req, { key: 'CdGeoLocationGuid', value: this.b.getGuid() });
-        this.b.setPlData(req, { key: 'CdGeoLocationEnabled', value: true });
+        this.b.setPlData(req, { key: 'cdGeoLocationGuid', value: this.b.getGuid() });
+        this.b.setPlData(req, { key: 'cdGeoLocationEnabled', value: true });
         return true;
     }
 
@@ -582,7 +479,12 @@ export class CdGeoLocationService extends CdService {
             q = this.b.getQuery(req);
         }
         console.log('CdGeoLocationService::getCdGeoLocation/f:', q);
-        const serviceInput = siGet(q, this)
+        console.log('CdGeoLocationService::this.serviceModel:', this.serviceModel);
+        this.serviceModel = new CdGeoLocationModel();
+        const serviceInput: IServiceInput = this.b.siGet(q, this)
+        serviceInput.serviceModelInstance = this.serviceModel
+        serviceInput.serviceModel = CdGeoLocationModel
+        console.log('CdGeoLocationService::serviceInput:', this.serviceModel);
         try {
             const r = await this.b.read(req, res, serviceInput)
             this.b.successResponse(req, res, r)
@@ -824,5 +726,139 @@ export class CdGeoLocationService extends CdService {
                 this.b.cdResp.data = ret;
                 this.b.respond(req, res)
             })
+    }
+
+    /**
+     * 
+     * test GetCountry via curl:
+     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdGeo","c": "CdGeoLocation","a": "GetContinent","dat": {"f_vals": [{"query": {"class":"Continentscountriescities_Continent","where": {},"skip": 0,"take": 20,"orderBy": "name"}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": {} }' http://localhost:3001 -v  | jq '.'
+     * @param req 
+     * @param res 
+     */
+    async GetContinent(req, res) {
+        const q: IQuery = this.b.getQuery(req);
+        let queryStr = ""
+        if(this.b.isEmptyObject(q.where)){
+            queryStr = `/classes/${q.class}?skip=${q.skip}&limit=${q.take}&order=${q.orderBy}`
+        } else {
+            queryStr = `/classes/${q.class}?where=${JSON.stringify(q.where)}&skip=${q.skip}&limit=${q.take}&order=${q.orderBy}`
+        }
+        
+        // let queryStr = `/Continentscountriescities_Country/${pl.back4appObectId}`
+        console.log('cd-geo-location/Continentscountriescities_Country()/queryStr:', queryStr)
+        const fi: IFetchInput = {
+            url: config.back4app.url + queryStr,
+            optins: {
+                headers: {
+                    'X-Parse-Application-Id': config.back4app.appId, 
+                    'X-Parse-REST-API-Key': config.back4app.apiKey, 
+                }
+            }
+        }
+        
+        console.log('cd-geo-location/SubdivisionStatesProvinces()/01')
+
+        const svSess = new SessionService();
+        const serviceInput: IServiceInput = {
+            serviceModel: CdGeoLocationModel,
+            modelName: "CdGeoLocationModel",
+            serviceModelInstance: this.serviceModel,
+            docName: 'Create CdGeoLocation',
+            dSource: 1,
+            fetchInput: fi
+        }
+        const respData = this.b.bFetch(req, res, serviceInput)
+        this.b.i.app_msg = `fetched data from ${fi.url} `;
+        this.b.setAppState(true, this.b.i, svSess.sessResp);
+        this.b.cdResp.data = await respData;
+        const r = await this.b.respond(req, res);
+    }
+
+    /**
+     * 
+     * test GetCountry via curl:
+     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdGeo","c": "CdGeoLocation","a": "GetCountry","dat": {"f_vals": [{"query": {"class":"Continentscountriescities_Country","where": {"name":"Swaziland"},"skip": 0,"take": 20,"orderBy": "name"}}],,"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": {} }' http://localhost:3001 -v  | jq '.'
+     * @param req 
+     * @param res 
+     */
+    async GetCountry(req, res) {
+        const q: IQuery = this.b.getQuery(req);
+        let queryStr = `/classes/${q.class}?where=${JSON.stringify(q.where)}&skip=${q.skip}&limit=${q.take}&order=${q.orderBy}`
+        // let queryStr = `/Continentscountriescities_Country/${pl.back4appObectId}`
+        console.log('cd-geo-location/Continentscountriescities_Country()/queryStr:', queryStr)
+        const fi: IFetchInput = {
+            url: config.back4app.url + queryStr,
+            optins: {
+                headers: {
+                    'X-Parse-Application-Id': config.back4app.appId, 
+                    'X-Parse-REST-API-Key': config.back4app.apiKey, 
+                }
+            }
+        }
+        
+        console.log('cd-geo-location/SubdivisionStatesProvinces()/01')
+
+        const svSess = new SessionService();
+        const serviceInput: IServiceInput = {
+            serviceModel: CdGeoLocationModel,
+            modelName: "CdGeoLocationModel",
+            serviceModelInstance: this.serviceModel,
+            docName: 'Create CdGeoLocation',
+            dSource: 1,
+            fetchInput: fi
+        }
+        const respData = this.b.bFetch(req, res, serviceInput)
+        this.b.i.app_msg = `fetched data from ${fi.url} `;
+        this.b.setAppState(true, this.b.i, svSess.sessResp);
+        this.b.cdResp.data = await respData;
+        const r = await this.b.respond(req, res);
+    }
+
+    /**
+     * 
+     * test SubdivisionStatesProvinces via curl:
+     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdGeo","c": "CdGeoLocation","a": "SubdivisionStatesProvinces","dat": {"f_vals": [{"query": {"class":"Continentscountriescities_Subdivisions_States_Provinces","where": {"Country_Code":"KE"},"skip": 0,"take": 20,"orderBy": "country"}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": {} }' http://localhost:3001 -v  | jq '.'
+     * @param req 
+     * @param res 
+     */
+    async SubdivisionStatesProvinces(req, res) {
+        const q: IQuery = this.b.getQuery(req);
+        let queryStr = `/classes/${q.class}?where=${JSON.stringify(q.where)}&skip=${q.skip}&limit=${q.take}&order=${q.orderBy}`
+        console.log('cd-geo-location/SubdivisionStatesProvinces()/queryStr:', queryStr)
+        const fi: IFetchInput = {
+            url: config.back4app.url + queryStr,
+            optins: {
+                headers: {
+                    'X-Parse-Application-Id': config.back4app.appId, 
+                    'X-Parse-REST-API-Key': config.back4app.apiKey, 
+                }
+            }
+        }
+        // const serviceInput: IServiceInput = {
+        //     serviceModel: CdGeoLocationModel,
+        //     modelName: "CdGeoLocationModel",
+        //     serviceModelInstance: this.serviceModel,
+        //     docName: 'Create CdGeoLocation',
+        //     dSource: 1,
+        //     fetchInput: fi
+        // }
+        // this.b.bFetch(req, res, serviceInput)
+        ////////////////////////////
+        console.log('cd-geo-location/SubdivisionStatesProvinces()/01')
+
+        const svSess = new SessionService();
+        const serviceInput: IServiceInput = {
+            serviceModel: CdGeoLocationModel,
+            modelName: "CdGeoLocationModel",
+            serviceModelInstance: this.serviceModel,
+            docName: 'Create CdGeoLocation',
+            dSource: 1,
+            fetchInput: fi
+        }
+        const respData = this.b.bFetch(req, res, serviceInput)
+        this.b.i.app_msg = `fetched data from ${fi.url} `;
+        this.b.setAppState(true, this.b.i, svSess.sessResp);
+        this.b.cdResp.data = await respData;
+        const r = await this.b.respond(req, res);
     }
 }

@@ -242,14 +242,14 @@ export class CdGeoPhysicalTypeService extends CdService {
     }
 
     async beforeCreate(req, res): Promise<any> {
-        this.b.setPlData(req, { key: 'CdGeoPhysicalTypeGuid', value: this.b.getGuid() });
-        this.b.setPlData(req, { key: 'CdGeoPhysicalTypeEnabled', value: true });
+        this.b.setPlData(req, { key: 'cdGeoPhysicalTypeGuid', value: this.b.getGuid() });
+        this.b.setPlData(req, { key: 'cdGeoPhysicalTypeEnabled', value: true });
         return true;
     }
 
     async beforeCreateSL(req, res): Promise<any> {
-        this.b.setPlData(req, { key: 'CdGeoPhysicalTypeGuid', value: this.b.getGuid() });
-        this.b.setPlData(req, { key: 'CdGeoPhysicalTypeEnabled', value: true });
+        this.b.setPlData(req, { key: 'cdGeoPhysicalTypeGuid', value: this.b.getGuid() });
+        this.b.setPlData(req, { key: 'cdGeoPhysicalTypeEnabled', value: true });
         return true;
     }
 

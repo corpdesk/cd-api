@@ -337,7 +337,7 @@ export interface IQuery {
     take?: number;
     skip?: number;
     jFilters?: IJFilter[];
-    orderBy?:string;
+    orderBy?:any;
     class?:string;
 }
 

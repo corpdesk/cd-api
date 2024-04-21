@@ -1,8 +1,20 @@
 import mysql from 'mysql2';
+import * as fs from 'fs';
 import * as dotenv from 'dotenv';
 import "reflect-metadata";
 import { DataSource, DatabaseType } from 'typeorm';
 dotenv.config();
+
+const ENTITIES = [
+    __dirname + '/CdApi/sys/user/models/*.model.ts',
+    __dirname + '/CdApi/sys/moduleman/models/*.model.ts',
+    __dirname + '/CdApi/sys/comm/models/*.model.ts',
+    __dirname + '/CdApi/sys/scheduler/models/*.model.ts',
+    __dirname + '/CdApi/app/cd-accts/models/*.model.ts',
+    __dirname + '/CdApi/app/coops/models/*.model.ts',
+    __dirname + '/CdApi/app/cd-geo/models/*.model.ts',
+]
+
 
 export const AppDataSource = new DataSource({
     name: 'conn2',
@@ -15,14 +27,7 @@ export const AppDataSource = new DataSource({
     synchronize: false,
     logging: false,
     // entities: [UserModel],
-    entities: [
-        __dirname + '/CdApi/sys/user/models/*.model.ts',
-        __dirname + '/CdApi/sys/moduleman/models/*.model.ts',
-        __dirname + '/CdApi/sys/comm/models/*.model.ts',
-        __dirname + '/CdApi/sys/scheduler/models/*.model.ts',
-        __dirname + '/CdApi/app/cd-accts/models/*.model.ts',
-        __dirname + '/CdApi/app/coops/models/*.model.ts',
-    ],
+    entities: ENTITIES,
     migrations: [],
     subscribers: [],
 })
@@ -37,14 +42,7 @@ const mysqlConfig = {
     database: process.env.DB_NAME,
     password: process.env.DB_PWD,
     // keepConnectionAlive: true,
-    entities: [
-        __dirname + '/CdApi/sys/user/models/*.model.ts',
-        __dirname + '/CdApi/sys/moduleman/models/*.model.ts',
-        __dirname + '/CdApi/sys/comm/models/*.model.ts',
-        __dirname + '/CdApi/sys/scheduler/models/*.model.ts',
-        __dirname + '/CdApi/app/cd-accts/models/*.model.ts',
-        __dirname + '/CdApi/app/coops/models/*.model.ts',
-    ],
+    entities: ENTITIES,
     /**
      * LOGGING OPTIONS
      * query - logs all queries.
@@ -75,14 +73,7 @@ const mysqlConfig2 = {
     password: process.env.DB_PWD,
     synchronize: true,
     logging: false,
-    entities: [
-        __dirname + '/CdApi/sys/user/models/*.model.ts',
-        __dirname + '/CdApi/sys/moduleman/models/*.model.ts',
-        __dirname + '/CdApi/sys/comm/models/*.model.ts',
-        __dirname + '/CdApi/sys/scheduler/models/*.model.ts',
-        __dirname + '/CdApi/app/cd-accts/models/*.model.ts',
-        __dirname + '/CdApi/app/coops/models/*.model.ts',
-    ],
+    entities: ENTITIES,
     migrations: [],
     subscribers: [],
 }
@@ -95,10 +86,7 @@ export async function sqliteConfig(connName): Promise<any> {
         synchronize: false,
         // keepConnectionAlive: true,
         logging: false,
-        entities: [
-            __dirname + '/CdApi/app/accts/models/*.model.ts',
-            __dirname + '/CdApi/sys/moduleman/models/company.model.ts'
-        ],
+        entities: ENTITIES,
     };
 }
 

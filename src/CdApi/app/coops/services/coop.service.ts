@@ -243,14 +243,14 @@ export class CoopService extends CdService {
     }
 
     async beforeCreate(req, res): Promise<any> {
-        this.b.setPlData(req, { key: 'CoopGuid', value: this.b.getGuid() });
-        this.b.setPlData(req, { key: 'CoopEnabled', value: true });
+        this.b.setPlData(req, { key: 'coopGuid', value: this.b.getGuid() });
+        this.b.setPlData(req, { key: 'coopEnabled', value: true });
         return true;
     }
 
     async beforeCreateSL(req, res): Promise<any> {
-        this.b.setPlData(req, { key: 'CoopGuid', value: this.b.getGuid() });
-        this.b.setPlData(req, { key: 'CoopEnabled', value: true });
+        this.b.setPlData(req, { key: 'coopGuid', value: this.b.getGuid() });
+        this.b.setPlData(req, { key: 'coopEnabled', value: true });
         return true;
     }
 

@@ -242,14 +242,14 @@ export class CdGeoPoliticalTypeService extends CdService {
     }
 
     async beforeCreate(req, res): Promise<any> {
-        this.b.setPlData(req, { key: 'CdGeoPoliticalTypeGuid', value: this.b.getGuid() });
-        this.b.setPlData(req, { key: 'CdGeoPoliticalTypeEnabled', value: true });
+        this.b.setPlData(req, { key: 'cdGeoPoliticalTypeGuid', value: this.b.getGuid() });
+        this.b.setPlData(req, { key: 'cdGeoPoliticalTypeEnabled', value: true });
         return true;
     }
 
     async beforeCreateSL(req, res): Promise<any> {
-        this.b.setPlData(req, { key: 'CdGeoPoliticalTypeGuid', value: this.b.getGuid() });
-        this.b.setPlData(req, { key: 'CdGeoPoliticalTypeEnabled', value: true });
+        this.b.setPlData(req, { key: 'cdGeoPoliticalTypeGuid', value: this.b.getGuid() });
+        this.b.setPlData(req, { key: 'cdGeoPoliticalTypeEnabled', value: true });
         return true;
     }
 

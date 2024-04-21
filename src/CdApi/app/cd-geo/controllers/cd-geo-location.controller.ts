@@ -247,18 +247,18 @@ export class CdGeoLocationController {
         }
     }
 
-    
+    // GetContinent
     /**
      * connect to https://www.back4app.com api
-     * and fetch country by objectId
+     * and fetch continent by objectId
      * @param req 
      * @param res 
      */
-    async GetCountryByObjId(req, res){
+    async GetContinent(req, res){
         try {
-            await this.svCdGeoLocation.GetCountryByObjId(req, res);
+            await this.svCdGeoLocation.GetContinent(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'GetCountryByObjId:Create');
+            await this.b.serviceErr(req, res, e, 'GetContinent:Create');
         }
     }
 
@@ -272,7 +272,7 @@ export class CdGeoLocationController {
         try {
             await this.svCdGeoLocation.GetCountry(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'GetCountryByObjId:Create');
+            await this.b.serviceErr(req, res, e, 'GetCountry:Create');
         }
     }
 
