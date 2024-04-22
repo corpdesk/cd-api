@@ -474,7 +474,11 @@ export class CoopService extends CdService {
             q = this.b.getQuery(req);
         }
         console.log('CoopService::getCoop/f:', q);
-        const serviceInput = siGet(q,this)
+        // const serviceInput = siGet(q,this)
+        this.serviceModel = new CoopModel();
+        const serviceInput: IServiceInput = this.b.siGet(q, this)
+        serviceInput.serviceModelInstance = this.serviceModel
+        serviceInput.serviceModel = CoopModel
         try {
             const r = await this.b.read(req, res, serviceInput)
             this.b.successResponse(req, res, r)
