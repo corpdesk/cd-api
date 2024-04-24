@@ -861,4 +861,28 @@ export class CdGeoLocationService extends CdService {
         this.b.cdResp.data = await respData;
         const r = await this.b.respond(req, res);
     }
+
+    async getGeoLocationI(req, res, q: IQuery = null): Promise<any> {
+        if (q === null) {
+            q = this.b.getQuery(req);
+        }
+        console.log('CoopService::getCoopI/q:', q);
+        let serviceModel = new CdGeoLocationModel();
+        const serviceInput: IServiceInput = this.b.siGet(q, this)
+        serviceInput.serviceModelInstance = serviceModel
+        serviceInput.serviceModel = CdGeoLocationModel
+        try {
+            let respData = await this.b.read(req, res, serviceInput)
+            return { data: respData, error: null }
+        } catch (e) {
+            console.log('CoopService::read()/e:', e)
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'BaseService:update',
+                app_msg: ''
+            };
+            return { data: null, error: e }
+        }
+    }
 }

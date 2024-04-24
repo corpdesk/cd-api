@@ -8,6 +8,7 @@ import { CoopModel } from '../models/coop.model';
 import { CoopTypeModel } from '../models/coop-type.model';
 import { CoopViewModel } from '../models/coop-view.model';
 import { siGet } from '../../../sys/base/base.model';
+import { CdGeoLocationService } from '../../cd-geo/services/cd-geo-location.service';
 
 export class CoopService extends CdService {
     b: any; // instance of BaseService
@@ -36,43 +37,43 @@ export class CoopService extends CdService {
         this.serviceModel = new CoopModel();
     }
 
-     /**
-     * {
-        "ctx": "App",
-        "m": "Coops",
-        "c": "Coop",
-        "a": "Create",
-        "dat": {
-            "f_vals": [
-            {
-                "data": {
-                    "coopGuid":"",
-                    "coopName": "Benin", 
-                    "coopDescription":"2005",
-                    "cdGeoLocationId":null,
-                    "coopWoccu": false,
-                    "coopCount": null,
-                    "coopMembersCount": 881232, 
-                    "coopSavesShares":56429394,
-                    "coopLoans":45011150,
-                    "coopReserves":null, 
-                    "coopAssets": null,
-                    "coopMemberPenetration":20.95,
-                    "coopDateLabel": "2005-12-31 23:59:59",
-                    "coopRefId":null
-	            }
-            }
-            ],
-            "token": "3ffd785f-e885-4d37-addf-0e24379af338"
-        },
-        "args": {}
-        }
-     * @param req
-     * @param res
-     */
+    /**
+    * {
+       "ctx": "App",
+       "m": "Coops",
+       "c": "Coop",
+       "a": "Create",
+       "dat": {
+           "f_vals": [
+           {
+               "data": {
+                   "coopGuid":"",
+                   "coopName": "Benin", 
+                   "coopDescription":"2005",
+                   "cdGeoLocationId":null,
+                   "coopWoccu": false,
+                   "coopCount": null,
+                   "coopMembersCount": 881232, 
+                   "coopSavesShares":56429394,
+                   "coopLoans":45011150,
+                   "coopReserves":null, 
+                   "coopAssets": null,
+                   "coopMemberPenetration":20.95,
+                   "coopDateLabel": "2005-12-31 23:59:59",
+                   "coopRefId":null
+               }
+           }
+           ],
+           "token": "3ffd785f-e885-4d37-addf-0e24379af338"
+       },
+       "args": {}
+       }
+    * @param req
+    * @param res
+    */
     async create(req, res) {
         console.log('coop/create::validateCreate()/01')
-        
+
         const svSess = new SessionService();
         if (await this.validateCreate(req, res)) {
             await this.beforeCreate(req, res);
@@ -225,7 +226,7 @@ export class CoopService extends CdService {
             "take": 5,
             "skip": 0
         }
-        this.getCoop(req, res,q)
+        this.getCoop(req, res, q)
     }
 
     async CoopExists(req, res, params): Promise<boolean> {
@@ -469,7 +470,7 @@ export class CoopService extends CdService {
      * @param q 
      */
     async getCoop(req, res, q: IQuery = null): Promise<any> {
-        
+
         if (q === null) {
             q = this.b.getQuery(req);
         }
@@ -511,8 +512,8 @@ export class CoopService extends CdService {
         if (q === null) {
             q = this.b.getQuery(req);
         }
-        console.log('CoopService::getCoop/f:', q);
-        const serviceInput = siGet(q,this)
+        console.log('CoopService::getCoopStats/q:', q);
+        const serviceInput = siGet(q, this)
         try {
             const r = await this.b.read(req, res, serviceInput)
             this.b.successResponse(req, res, r)
@@ -533,7 +534,7 @@ export class CoopService extends CdService {
         await this.b.initSqlite(req, res)
         const q = this.b.getQuery(req);
         console.log('CoopService::getCoop/q:', q);
-        const serviceInput = siGet(q,this)
+        const serviceInput = siGet(q, this)
         try {
             this.b.readSL$(req, res, serviceInput)
                 .subscribe((r) => {
@@ -720,5 +721,59 @@ export class CoopService extends CdService {
                 this.b.cdResp.data = ret;
                 this.b.respond(req, res)
             })
+    }
+
+    /**
+     * This method is used internally by other methods in data agregation
+     * @param req 
+     * @param res 
+     * @param q 
+     * @returns 
+     */
+    async getCoopI(req, res, q: IQuery = null): Promise<any> {
+        if (q === null) {
+            q = this.b.getQuery(req);
+        }
+        console.log('CoopService::getCoopI/q:', q);
+        let serviceModel = new CoopViewModel();
+        const serviceInput: IServiceInput = this.b.siGet(q, this)
+        serviceInput.serviceModelInstance = serviceModel
+        serviceInput.serviceModel = CoopViewModel
+        try {
+            let respData = await this.b.read(req, res, serviceInput)
+            return { data: respData, error: null }
+        } catch (e) {
+            console.log('CoopService::read()/e:', e)
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'BaseService:update',
+                app_msg: ''
+            };
+            return { data: null, error: e }
+        }
+    }
+
+    /**
+     * get data by geo-location
+     * 1. get data from n selected locations
+     * 2. list countries queried
+     * 3. derive polulation data from geoLocation data
+     * @param req 
+     * @param res 
+     */
+    async statsByGeoLocation(req, res) {
+        let q = {
+            where: [{ cdGeoLocationName: 119 }, { cdGeoLocationName: 111 }]
+        }
+        let cData = await this.getCoopI(req, res, q)
+        let svCdGeoLocationService = new CdGeoLocationService()
+        let gData = await svCdGeoLocationService.getGeoLocationI(req, res, q)
+        let ret = {
+            geoLocationData: gData,
+            coopData: cData,
+        }
+        this.b.cdResp.data = ret;
+        this.b.respond(req, res)
     }
 }

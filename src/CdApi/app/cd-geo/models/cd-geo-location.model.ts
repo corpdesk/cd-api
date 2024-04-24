@@ -142,6 +142,16 @@ export class CdGeoLocationModel {
     )
     cdGeoLocationAssoc?: string;
 
+
+    @Column(
+        {
+            name: 'cd_geo_location_name_population',
+            type: 'json',
+            default: null
+        }
+    )
+    cdGeoLocationNamePopulation?: string;
+
     // CdGeoLocationEnabled
     @Column(
         {

@@ -29,5 +29,17 @@ Insert Country:
 Insert Country Division:
 - geo-location-name, geo-political-type-id, geo-political-type-parent-id
 
+Hierarchial data:
+- get summary of selected countries data
+  - list of countries considered
+  - select a given country to show details
+  - total and averages for all countries considered
+- when a country is selected, show list of subdivisions
+  - select a given sub-division to show details
+  - total and averages for all sub-divisions considered
+
+Cross countries Comparison:
+- select a coop-data-field and get cross countries comparison; change year or countries selections
+
 
 
