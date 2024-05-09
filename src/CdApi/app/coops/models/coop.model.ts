@@ -152,5 +152,23 @@ export class CoopModel {
     )
     coopRefId?: number;
 
+    @Column(
+        'boolean',
+        {
+            name: 'coop_enabled',
+            default: null
+        }
+    )
+    coopEnabled?: boolean;
+
+    @Column(
+        'boolean',
+        {
+            name: 'coop_display',
+            default: null
+        }
+    )
+    coopDisplay?: boolean;
+
 
 }

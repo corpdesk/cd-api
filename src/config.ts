@@ -115,10 +115,10 @@ export default {
             credentials: true,
             methods: 'GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE',
             origin: [
-                'http://192.168.0.12:4500',
-                'http://192.168.0.12:4407',
-                'http://192.168.0.12:4402',
-                'http://192.168.0.12:4401',
+                'http://146.190.157.42:4500',
+                'http://146.190.157.42:4407',
+                'http://146.190.157.42:4402',
+                'http://146.190.157.42:4401',
             ],
             preflightContinue: false,
         }
@@ -138,7 +138,7 @@ export default {
         startupNodes: [
             {
                 port: 6380,
-                host: 'cd-aip-92'
+                host: process.env.REDIS_HOST
             },
             {
                 port: 6381,
@@ -150,8 +150,8 @@ export default {
          */
         sentinalOptions: {
             sentinels: [
-                { host: 'cd-api-92', port: 26379 },
-                { host: 'cd-sio-93', port: 26379 }
+                { host: process.env.REDIS_HOST, port: process.env.REDIS_PORT },
+                { host: 'cd-sio-93', port: process.env.REDIS_PORT }
             ],
             name: 'master01'
         }

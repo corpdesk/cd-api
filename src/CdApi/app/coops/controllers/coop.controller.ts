@@ -350,7 +350,15 @@ export class CoopController {
         try {
             await this.svCoop.getCoopStats(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'CoopController:Get');
+            await this.b.serviceErr(req, res, e, 'CoopController:GetStats');
+        }
+    }
+
+    async StatsByGeoLocation(req, res) {
+        try {
+            await this.svCoop.StatsByGeoLocation(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'CoopController:StatsByGeoLocation');
         }
     }
 

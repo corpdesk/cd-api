@@ -145,14 +145,14 @@ export class CdGeoLocationModel {
 
     @Column(
         {
-            name: 'cd_geo_location_name_population',
+            name: 'cd_geo_location_population',
             type: 'json',
             default: null
         }
     )
-    cdGeoLocationNamePopulation?: string;
+    cdGeoLocationPopulation?: string;
 
-    // CdGeoLocationEnabled
+    
     @Column(
         {
             name: 'cd_geo_location_enabled',
@@ -160,5 +160,13 @@ export class CdGeoLocationModel {
         }
     )
     cdGeoLocationEnabled?: boolean;
+
+    @Column(
+        {
+            name: 'cd_geo_location_display',
+            default: null
+        }
+    )
+    cdGeoLocationDisplay?: boolean;
 
 }

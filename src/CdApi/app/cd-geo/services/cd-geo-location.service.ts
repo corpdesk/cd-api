@@ -739,9 +739,9 @@ export class CdGeoLocationService extends CdService {
         const q: IQuery = this.b.getQuery(req);
         let queryStr = ""
         if(this.b.isEmptyObject(q.where)){
-            queryStr = `/classes/${q.class}?skip=${q.skip}&limit=${q.take}&order=${q.orderBy}`
+            queryStr = `/classes/${q.class}?skip=${q.skip}&limit=${q.take}&order=${q.order}`
         } else {
-            queryStr = `/classes/${q.class}?where=${JSON.stringify(q.where)}&skip=${q.skip}&limit=${q.take}&order=${q.orderBy}`
+            queryStr = `/classes/${q.class}?where=${JSON.stringify(q.where)}&skip=${q.skip}&limit=${q.take}&order=${q.order}`
         }
         
         // let queryStr = `/Continentscountriescities_Country/${pl.back4appObectId}`
@@ -783,7 +783,7 @@ export class CdGeoLocationService extends CdService {
      */
     async GetCountry(req, res) {
         const q: IQuery = this.b.getQuery(req);
-        let queryStr = `/classes/${q.class}?where=${JSON.stringify(q.where)}&skip=${q.skip}&limit=${q.take}&order=${q.orderBy}`
+        let queryStr = `/classes/${q.class}?where=${JSON.stringify(q.where)}&skip=${q.skip}&limit=${q.take}&order=${q.order}`
         // let queryStr = `/Continentscountriescities_Country/${pl.back4appObectId}`
         console.log('cd-geo-location/Continentscountriescities_Country()/queryStr:', queryStr)
         const fi: IFetchInput = {
@@ -823,7 +823,7 @@ export class CdGeoLocationService extends CdService {
      */
     async SubdivisionStatesProvinces(req, res) {
         const q: IQuery = this.b.getQuery(req);
-        let queryStr = `/classes/${q.class}?where=${JSON.stringify(q.where)}&skip=${q.skip}&limit=${q.take}&order=${q.orderBy}`
+        let queryStr = `/classes/${q.class}?where=${JSON.stringify(q.where)}&skip=${q.skip}&limit=${q.take}&order=${q.order}`
         console.log('cd-geo-location/SubdivisionStatesProvinces()/queryStr:', queryStr)
         const fi: IFetchInput = {
             url: config.back4app.url + queryStr,

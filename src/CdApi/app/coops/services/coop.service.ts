@@ -762,18 +762,23 @@ export class CoopService extends CdService {
      * @param req 
      * @param res 
      */
-    async statsByGeoLocation(req, res) {
-        let q = {
-            where: [{ cdGeoLocationName: 119 }, { cdGeoLocationName: 111 }]
+    async StatsByGeoLocation(req, res, q: IQuery = null) {
+        if (q === null) {
+            q = this.b.getQuery(req);
         }
-        let cData = await this.getCoopI(req, res, q)
+        
         let svCdGeoLocationService = new CdGeoLocationService()
         let gData = await svCdGeoLocationService.getGeoLocationI(req, res, q)
+        
+        // ,"order": {"coopDateLabel": "ASC"}
+        q.order = {"coopDateLabel": "ASC"}
+        let cData = await this.getCoopI(req, res, q)
         let ret = {
-            geoLocationData: gData,
-            coopData: cData,
+            geoLocationData: gData.data,
+            coopData: cData.data,
         }
-        this.b.cdResp.data = ret;
+        console.log('CoopService::StatsByGeoLocation()/ret:', ret)
+        this.b.cdResp.data = await ret;
         this.b.respond(req, res)
     }
 }

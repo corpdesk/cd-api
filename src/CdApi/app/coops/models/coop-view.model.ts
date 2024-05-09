@@ -37,6 +37,8 @@ export function siGet(q: IQuery) {
     'coop'.'coop_reserves' AS 'coop_reserves', 
     'coop_type'.'parent_guid' AS 'parent_guid', 
     'coop_type'.'coop_type_name' AS 'coop_type_name',
+    'coop'.'coop_enabled' AS 'coop_enabled', 
+    'coop'.'coop_display' AS 'coop_display', 
     'cd_geo_location'.'cd_geo_location_name' AS 'cd_geo_location_name',
     'cd_geo_location'.'cd_geo_political_type_id' AS 'cd_geo_political_type_id'
     from 
@@ -95,7 +97,87 @@ export class CoopViewModel {
             name: 'coop_description'
         }
     )
-    coop_description: string;
+    coopDescription: string;
+
+
+    @ViewColumn(
+        {
+            name: 'coop_type_id'
+        }
+    )
+    coopTypeId: number;
+
+    @ViewColumn(
+        {
+            name: 'cd_geo_location_id'
+        }
+    )
+    cdGeoLocationId: number;
+
+    @ViewColumn(
+        {
+            name: 'coop_count'
+        }
+    )
+    coopCount: number;
+
+    @ViewColumn(
+        {
+            name: 'coop_members_count'
+        }
+    )
+    coopMembersCount: number;
+
+    @ViewColumn(
+        {
+            name: 'coop_saves_shares'
+        }
+    )
+    coopSavesShares: number;
+
+    @ViewColumn(
+        {
+            name: 'coop_loans'
+        }
+    )
+    coopLoans: number;
+
+    @ViewColumn(
+        {
+            name: 'coop_assets'
+        }
+    )
+    coopAssets: number;
+
+    @ViewColumn(
+        {
+            name: 'coop_member_penetration'
+        }
+    )
+    coopMemberPenetration: number;
+
+    @ViewColumn(
+        {
+            name: 'coop_date_label'
+        }
+    )
+    coopDateLabel: number;
+
+    @ViewColumn(
+        {
+            name: 'coop_woccu'
+        }
+    )
+    coopWoccu: boolean;
+
+    @ViewColumn(
+        {
+            name: 'coop_reserves'
+        }
+    )
+    coopReserves: number;
+
+
 
     @ViewColumn(
         {
@@ -104,7 +186,7 @@ export class CoopViewModel {
     )
     parentGuid: string;
 
-    
+
     @ViewColumn(
         {
             name: 'cd_geo_location_name'
@@ -112,12 +194,40 @@ export class CoopViewModel {
     )
     cdGeoLocationName: string;
 
-    
+
     @ViewColumn(
         {
             name: 'cd_geo_political_type_id'
         }
     )
     cdGeoPoliticalTypeId: string;
+
+    @ViewColumn(
+        {
+            name: 'coop_enabled'
+        }
+    )
+    coopEnabled: boolean;
+
+    @ViewColumn(
+        {
+            name: 'coop_display'
+        }
+    )
+    coopDisplay: boolean;
+
+    @ViewColumn(
+        {
+            name: 'cd_geo_location_enabled'
+        }
+    )
+    cdGeoLocationEnabled: boolean;
+
+    @ViewColumn(
+        {
+            name: 'cd_geo_location_display'
+        }
+    )
+    cdGeoLocationDisplay: boolean;
 
 }
