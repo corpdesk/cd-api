@@ -115,7 +115,7 @@ export default {
             credentials: true,
             methods: 'GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE',
             origin: [
-                'http://146.190.157.42:4500',
+                'http://146.190.157.42:80',
                 'http://146.190.157.42:4407',
                 'http://146.190.157.42:4402',
                 'http://146.190.157.42:4401',
@@ -128,7 +128,7 @@ export default {
     sqlite: sqliteConfig,
     push: {
         mode: process.env.PUSH_BASIC,
-        serverHost: 'http://cd-sio-93',
+        serverHost: 'http://127.0.0.1',
         serverPort: process.env.SIO_PORT,
         redisHost: process.env.REDIS_HOST,
         redisPort: process.env.REDIS_PORT,
