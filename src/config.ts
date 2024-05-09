@@ -150,8 +150,8 @@ export default {
          */
         sentinalOptions: {
             sentinels: [
-                { host: process.env.REDIS_HOST, port: process.env.REDIS_PORT },
-                { host: 'cd-sio-93', port: process.env.REDIS_PORT }
+                { host: process.env.REDIS_HOST, port: Number(process.env.REDIS_PORT) },
+                { host: 'cd-sio-93', port: Number(process.env.REDIS_PORT) }
             ],
             name: 'master01'
         }
