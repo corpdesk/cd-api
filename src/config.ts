@@ -116,9 +116,9 @@ export default {
             methods: 'GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE',
             origin: [
                 'http://146.190.157.42:80',
-                'http://146.190.157.42:4407',
-                'http://146.190.157.42:4402',
-                'http://146.190.157.42:4401',
+                // 'http://146.190.157.42:4407',
+                // 'http://146.190.157.42:4402',
+                // 'http://146.190.157.42:4401',
             ],
             preflightContinue: false,
         }
@@ -128,7 +128,7 @@ export default {
     sqlite: sqliteConfig,
     push: {
         mode: process.env.PUSH_BASIC,
-        serverHost: 'http://127.0.0.1',
+        serverHost: 'http://146.190.157.42',
         serverPort: process.env.SIO_PORT,
         redisHost: process.env.REDIS_HOST,
         redisPort: process.env.REDIS_PORT,
@@ -142,7 +142,7 @@ export default {
             },
             {
                 port: 6381,
-                host: 'cd-sio-93'
+                host: '146.190.157.42'
             }
         ],
         /**
@@ -151,7 +151,7 @@ export default {
         sentinalOptions: {
             sentinels: [
                 { host: process.env.REDIS_HOST, port: Number(process.env.REDIS_PORT) },
-                { host: 'cd-sio-93', port: Number(process.env.REDIS_PORT) }
+                { host: 'cd-shell.asdap-01', port: Number(process.env.REDIS_PORT) }
             ],
             name: 'master01'
         }
