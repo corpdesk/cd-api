@@ -116,6 +116,8 @@ export default {
             methods: 'GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE',
             origin: [
                 'http://146.190.157.42:80',
+                'http://localhost:80',
+                'http://127.0.0.1:80',
                 // 'http://146.190.157.42:4407',
                 // 'http://146.190.157.42:4402',
                 // 'http://146.190.157.42:4401',
