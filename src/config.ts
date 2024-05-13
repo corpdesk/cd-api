@@ -115,12 +115,12 @@ export default {
             credentials: true,
             methods: 'GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE',
             origin: [
-                'http://146.190.157.42:80',
-                'http://localhost:80',
-                'http://127.0.0.1:80',
-                // 'http://146.190.157.42:4407',
-                // 'http://146.190.157.42:4402',
-                // 'http://146.190.157.42:4401',
+                'https://146.190.157.42:80',
+                'https://localhost:80',
+                'https://127.0.0.1:80',
+                // 'https://146.190.157.42:4407',
+                // 'https://146.190.157.42:4402',
+                // 'https://146.190.157.42:4401',
             ],
             preflightContinue: false,
         }
@@ -130,7 +130,7 @@ export default {
     sqlite: sqliteConfig,
     push: {
         mode: process.env.PUSH_BASIC,
-        serverHost: 'http://146.190.157.42',
+        serverHost: 'https://146.190.157.42',
         serverPort: process.env.SIO_PORT,
         redisHost: process.env.REDIS_HOST,
         redisPort: process.env.REDIS_PORT,
