@@ -7,8 +7,10 @@ import { CdGeoPhysicalTypeModel } from '../models/cd-geo-physical-type.model';
 // import { CdGeoPhysicalTypeViewModel, siGet } from '../models/cd-geo-physical-type-view.model';
 // import { CdGeoPhysicalTypeViewModel } from '../models/cd-geo-physical-type-view.model';
 import { siGet } from '../../../sys/base/base.model';
+import { Logging } from '../../../sys/base/winston.log';
 
 export class CdGeoPhysicalTypeService extends CdService {
+    logger: Logging;
     b: any; // instance of BaseService
     cdToken: string;
     srvSess: SessionService;
@@ -32,6 +34,7 @@ export class CdGeoPhysicalTypeService extends CdService {
     constructor() {
         super()
         this.b = new BaseService();
+        this.logger = new Logging();
         this.serviceModel = new CdGeoPhysicalTypeModel();
     }
 
@@ -70,7 +73,7 @@ export class CdGeoPhysicalTypeService extends CdService {
      * @param res
      */
     async create(req, res) {
-        console.log('cd-geo-physical-type/create::validateCreate()/01')
+        this.logger.logInfo('cd-geo-physical-type/create::validateCreate()/01')
         
         const svSess = new SessionService();
         if (await this.validateCreate(req, res)) {
@@ -82,14 +85,14 @@ export class CdGeoPhysicalTypeService extends CdService {
                 docName: 'Create CdGeoPhysicalType',
                 dSource: 1,
             }
-            console.log('CdGeoPhysicalTypeService::create()/serviceInput:', serviceInput)
+            this.logger.logInfo('CdGeoPhysicalTypeService::create()/serviceInput:', serviceInput)
             const respData = await this.b.create(req, res, serviceInput);
             this.b.i.app_msg = 'new CdGeoPhysicalType created';
             this.b.setAppState(true, this.b.i, svSess.sessResp);
             this.b.cdResp.data = await respData;
             const r = await this.b.respond(req, res);
         } else {
-            console.log('cd-geo-physical-type/create::validateCreate()/02')
+            this.logger.logInfo('cd-geo-physical-type/create::validateCreate()/02')
             const r = await this.b.respond(req, res);
         }
     }
@@ -186,14 +189,14 @@ export class CdGeoPhysicalTypeService extends CdService {
      * @param res 
      */
     async createM(req, res) {
-        console.log('CdGeoPhysicalTypeService::createM()/01')
+        this.logger.logInfo('CdGeoPhysicalTypeService::createM()/01')
         let data = req.post.dat.f_vals[0].data
-        console.log('CdGeoPhysicalTypeService::createM()/data:', data)
+        this.logger.logInfo('CdGeoPhysicalTypeService::createM()/data:', data)
         // this.b.models.push(CdGeoPhysicalTypeModel)
         // this.b.init(req, res)
 
         for (var CdGeoPhysicalTypeData of data) {
-            console.log('CdGeoPhysicalTypeData', CdGeoPhysicalTypeData)
+            this.logger.logInfo('CdGeoPhysicalTypeData', CdGeoPhysicalTypeData)
             const CdGeoPhysicalTypeQuery: CdGeoPhysicalTypeModel = CdGeoPhysicalTypeData;
             const svCdGeoPhysicalType = new CdGeoPhysicalTypeService();
             const si = {
@@ -208,7 +211,7 @@ export class CdGeoPhysicalTypeService extends CdService {
                 controllerData: CdGeoPhysicalTypeQuery
             }
             let ret = await this.createI(req, res, createIParams)
-            console.log('CdGeoPhysicalTypeService::createM()/forLoop/ret:', ret)
+            this.logger.logInfo('CdGeoPhysicalTypeService::createM()/forLoop/ret:', {ret: ret})
         }
         // return current sample data
         // eg first 5
@@ -270,11 +273,11 @@ export class CdGeoPhysicalTypeService extends CdService {
     async readSL(req, res, serviceInput: IServiceInput): Promise<any> {
         await this.b.initSqlite(req, res)
         const q = this.b.getQuery(req);
-        console.log('CdGeoPhysicalTypeService::getCdGeoPhysicalType/q:', q);
+        this.logger.logInfo('CdGeoPhysicalTypeService::getCdGeoPhysicalType/q:', q);
         try {
             this.b.readSL$(req, res, serviceInput)
                 .subscribe((r) => {
-                    // console.log('CdGeoPhysicalTypeService::read$()/r:', r)
+                    // this.logger.logInfo('CdGeoPhysicalTypeService::read$()/r:', r)
                     this.b.i.code = 'CdGeoPhysicalTypeService::Get';
                     const svSess = new SessionService();
                     svSess.sessResp.cd_token = req.post.dat.token;
@@ -285,7 +288,7 @@ export class CdGeoPhysicalTypeService extends CdService {
                     this.b.respond(req, res)
                 })
         } catch (e) {
-            console.log('CdGeoPhysicalTypeService::read$()/e:', e)
+            this.logger.logInfo('CdGeoPhysicalTypeService::read$()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
@@ -298,7 +301,7 @@ export class CdGeoPhysicalTypeService extends CdService {
     }
 
     update(req, res) {
-        // console.log('CdGeoPhysicalTypeService::update()/01');
+        // this.logger.logInfo('CdGeoPhysicalTypeService::update()/01');
         let q = this.b.getQuery(req);
         q = this.beforeUpdate(q);
         const serviceInput = {
@@ -310,7 +313,7 @@ export class CdGeoPhysicalTypeService extends CdService {
             },
             dSource: 1
         }
-        // console.log('CdGeoPhysicalTypeService::update()/02')
+        // this.logger.logInfo('CdGeoPhysicalTypeService::update()/02')
         this.b.update$(req, res, serviceInput)
             .subscribe((ret) => {
                 this.b.cdResp.data = ret;
@@ -319,7 +322,7 @@ export class CdGeoPhysicalTypeService extends CdService {
     }
 
     updateSL(req, res) {
-        console.log('CdGeoPhysicalTypeService::update()/01');
+        this.logger.logInfo('CdGeoPhysicalTypeService::update()/01');
         let q = this.b.getQuery(req);
         q = this.beforeUpdateSL(q);
         const serviceInput = {
@@ -331,7 +334,7 @@ export class CdGeoPhysicalTypeService extends CdService {
             },
             dSource: 1
         }
-        console.log('CdGeoPhysicalTypeService::update()/02')
+        this.logger.logInfo('CdGeoPhysicalTypeService::update()/02')
         this.b.updateSL$(req, res, serviceInput)
             .subscribe((ret) => {
                 this.b.cdResp.data = ret;
@@ -380,7 +383,7 @@ export class CdGeoPhysicalTypeService extends CdService {
     }
 
     async validateCreate(req, res) {
-        console.log('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/01')
+        this.logger.logInfo('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/01')
         const svSess = new SessionService();
         ///////////////////////////////////////////////////////////////////
         // 1. Validate against duplication
@@ -391,31 +394,31 @@ export class CdGeoPhysicalTypeService extends CdService {
         this.b.i.code = 'CdGeoPhysicalTypeService::validateCreate';
         let ret = false;
         if (await this.b.validateUnique(req, res, params)) {
-            console.log('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/02')
+            this.logger.logInfo('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/02')
             if (await this.b.validateRequired(req, res, this.cRules)) {
-                console.log('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/03')
+                this.logger.logInfo('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/03')
                 ret = true;
             } else {
-                console.log('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/04')
+                this.logger.logInfo('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/04')
                 ret = false;
                 this.b.i.app_msg = `the required fields ${this.b.isInvalidFields.join(', ')} is missing`;
                 this.b.err.push(this.b.i.app_msg);
                 this.b.setAppState(false, this.b.i, svSess.sessResp);
             }
         } else {
-            console.log('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/05')
+            this.logger.logInfo('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/05')
             ret = false;
             this.b.i.app_msg = `duplicate for ${this.cRules.noDuplicate.join(', ')} is not allowed`;
             this.b.err.push(this.b.i.app_msg);
             this.b.setAppState(false, this.b.i, svSess.sessResp);
         }
-        console.log('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/06')
+        this.logger.logInfo('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/06')
         ///////////////////////////////////////////////////////////////////
         // 2. confirm the CdGeoPhysicalTypeTypeId referenced exists
         // const pl: CdGeoPhysicalTypeModel = this.b.getPlData(req);
         // if ('CdGeoPhysicalTypeTypeId' in pl) {
-        //     console.log('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/07')
-        //     console.log('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/pl:', pl)
+        //     this.logger.logInfo('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/07')
+        //     this.logger.logInfo('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/pl:', pl)
         //     const serviceInput = {
         //         serviceModel: CdGeoPhysicalTypeTypeModel,
         //         docName: 'CdGeoPhysicalTypeService::validateCreate',
@@ -425,21 +428,21 @@ export class CdGeoPhysicalTypeService extends CdService {
         //         },
         //         dSource: 1
         //     }
-        //     console.log('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/serviceInput:', JSON.stringify(serviceInput))
+        //     this.logger.logInfo('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/serviceInput:', JSON.stringify(serviceInput))
         //     const r: any = await this.b.read(req, res, serviceInput)
-        //     console.log('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/r:', r)
+        //     this.logger.logInfo('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/r:', r)
         //     if (r.length > 0) {
-        //         console.log('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/08')
+        //         this.logger.logInfo('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/08')
         //         ret = true;
         //     } else {
-        //         console.log('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/10')
+        //         this.logger.logInfo('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/10')
         //         ret = false;
         //         this.b.i.app_msg = `CdGeoPhysicalType type reference is invalid`;
         //         this.b.err.push(this.b.i.app_msg);
         //         this.b.setAppState(false, this.b.i, svSess.sessResp);
         //     }
         // } else {
-        //     console.log('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/11')
+        //     this.logger.logInfo('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/11')
         //     // this.b.i.app_msg = `parentModuleGuid is missing in payload`;
         //     // this.b.err.push(this.b.i.app_msg);
         //     //////////////////
@@ -447,9 +450,9 @@ export class CdGeoPhysicalTypeService extends CdService {
         //     this.b.err.push(this.b.i.app_msg);
         //     this.b.setAppState(false, this.b.i, svSess.sessResp);
         // }
-        console.log('CdGeoPhysicalTypeService::getCdGeoPhysicalType/12');
+        this.logger.logInfo('CdGeoPhysicalTypeService::getCdGeoPhysicalType/12');
         if (this.b.err.length > 0) {
-            console.log('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/13')
+            this.logger.logInfo('cd-geo-physical-type/CdGeoPhysicalTypeService::validateCreate()/13')
             ret = false;
         }
         return ret;
@@ -472,13 +475,13 @@ export class CdGeoPhysicalTypeService extends CdService {
         if (q === null) {
             q = this.b.getQuery(req);
         }
-        console.log('CdGeoPhysicalTypeService::getCdGeoPhysicalType/f:', q);
+        this.logger.logInfo('CdGeoPhysicalTypeService::getCdGeoPhysicalType/f:', q);
         const serviceInput = siGet(q,this)
         try {
             const r = await this.b.read(req, res, serviceInput)
             this.b.successResponse(req, res, r)
         } catch (e) {
-            console.log('CdGeoPhysicalTypeService::read$()/e:', e)
+            this.logger.logInfo('CdGeoPhysicalTypeService::read$()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
@@ -506,13 +509,13 @@ export class CdGeoPhysicalTypeService extends CdService {
         if (q === null) {
             q = this.b.getQuery(req);
         }
-        console.log('CdGeoPhysicalTypeService::getCdGeoPhysicalType/f:', q);
+        this.logger.logInfo('CdGeoPhysicalTypeService::getCdGeoPhysicalType/f:', q);
         const serviceInput = siGet(q,this)
         try {
             const r = await this.b.read(req, res, serviceInput)
             this.b.successResponse(req, res, r)
         } catch (e) {
-            console.log('CdGeoPhysicalTypeService::read$()/e:', e)
+            this.logger.logInfo('CdGeoPhysicalTypeService::read$()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
@@ -527,12 +530,12 @@ export class CdGeoPhysicalTypeService extends CdService {
     async getCdGeoPhysicalTypeSL(req, res) {
         await this.b.initSqlite(req, res)
         const q = this.b.getQuery(req);
-        console.log('CdGeoPhysicalTypeService::getCdGeoPhysicalType/q:', q);
+        this.logger.logInfo('CdGeoPhysicalTypeService::getCdGeoPhysicalType/q:', q);
         const serviceInput = siGet(q,this)
         try {
             this.b.readSL$(req, res, serviceInput)
                 .subscribe((r) => {
-                    // console.log('CdGeoPhysicalTypeService::read$()/r:', r)
+                    // this.logger.logInfo('CdGeoPhysicalTypeService::read$()/r:', r)
                     this.b.i.code = 'CdGeoPhysicalTypeService::Get';
                     const svSess = new SessionService();
                     svSess.sessResp.cd_token = req.post.dat.token;
@@ -543,7 +546,7 @@ export class CdGeoPhysicalTypeService extends CdService {
                     this.b.respond(req, res)
                 })
         } catch (e) {
-            console.log('CdGeoPhysicalTypeService::read$()/e:', e)
+            this.logger.logInfo('CdGeoPhysicalTypeService::read$()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
@@ -564,7 +567,7 @@ export class CdGeoPhysicalTypeService extends CdService {
     //  */
     // getCdGeoPhysicalTypeType(req, res) {
     //     const q = this.b.getQuery(req);
-    //     console.log('CdGeoPhysicalTypeService::getCdGeoPhysicalType/f:', q);
+    //     this.logger.logInfo('CdGeoPhysicalTypeService::getCdGeoPhysicalType/f:', q);
     //     const serviceInput = {
     //         serviceModel: CdGeoPhysicalTypeTypeModel,
     //         docName: 'CdGeoPhysicalTypeService::getCdGeoPhysicalTypeType$',
@@ -577,7 +580,7 @@ export class CdGeoPhysicalTypeService extends CdService {
     //     try {
     //         this.b.read$(req, res, serviceInput)
     //             .subscribe((r) => {
-    //                 // console.log('CdGeoPhysicalTypeService::read$()/r:', r)
+    //                 // this.logger.logInfo('CdGeoPhysicalTypeService::read$()/r:', r)
     //                 this.b.i.code = 'CdGeoPhysicalTypeController::Get';
     //                 const svSess = new SessionService();
     //                 svSess.sessResp.cd_token = req.post.dat.token;
@@ -587,7 +590,7 @@ export class CdGeoPhysicalTypeService extends CdService {
     //                 this.b.respond(req, res)
     //             })
     //     } catch (e) {
-    //         console.log('CdGeoPhysicalTypeService::read$()/e:', e)
+    //         this.logger.logInfo('CdGeoPhysicalTypeService::read$()/e:', e)
     //         this.b.err.push(e.toString());
     //         const i = {
     //             messages: this.b.err,
@@ -606,7 +609,7 @@ export class CdGeoPhysicalTypeService extends CdService {
      */
     getCdGeoPhysicalTypePaged(req, res) {
         const q = this.b.getQuery(req);
-        console.log('CdGeoPhysicalTypeService::getCdGeoPhysicalType/q:', q);
+        this.logger.logInfo('CdGeoPhysicalTypeService::getCdGeoPhysicalType/q:', q);
         const serviceInput = {
             serviceModel: CdGeoPhysicalTypeModel,
             docName: 'CdGeoPhysicalTypeService::getCdGeoPhysicalType$',
@@ -630,7 +633,7 @@ export class CdGeoPhysicalTypeService extends CdService {
 
     getPagedSL(req, res) {
         const q = this.b.getQuery(req);
-        console.log('CdGeoPhysicalTypeService::getCdGeoPhysicalTypeCount()/q:', q);
+        this.logger.logInfo('CdGeoPhysicalTypeService::getCdGeoPhysicalTypeCount()/q:', q);
         const serviceInput = {
             serviceModel: CdGeoPhysicalTypeModel,
             docName: 'CdGeoPhysicalTypeService::getCdGeoPhysicalTypeCount',
@@ -655,7 +658,7 @@ export class CdGeoPhysicalTypeService extends CdService {
 
     // getCdGeoPhysicalTypeTypeCount(req, res) {
     //     const q = this.b.getQuery(req);
-    //     console.log('CdGeoPhysicalTypeService::getCdGeoPhysicalTypeCount/q:', q);
+    //     this.logger.logInfo('CdGeoPhysicalTypeService::getCdGeoPhysicalTypeCount/q:', q);
     //     const serviceInput = {
     //         serviceModel: CdGeoPhysicalTypeTypeModel,
     //         docName: 'CdGeoPhysicalTypeService::getCdGeoPhysicalTypeCount$',
@@ -679,7 +682,7 @@ export class CdGeoPhysicalTypeService extends CdService {
 
     delete(req, res) {
         const q = this.b.getQuery(req);
-        console.log('CdGeoPhysicalTypeService::delete()/q:', q)
+        this.logger.logInfo('CdGeoPhysicalTypeService::delete()/q:', q)
         const serviceInput = {
             serviceModel: CdGeoPhysicalTypeModel,
             docName: 'CdGeoPhysicalTypeService::delete',
@@ -699,7 +702,7 @@ export class CdGeoPhysicalTypeService extends CdService {
 
     deleteSL(req, res) {
         const q = this.b.getQuery(req);
-        console.log('CdGeoPhysicalTypeService::deleteSL()/q:', q)
+        this.logger.logInfo('CdGeoPhysicalTypeService::deleteSL()/q:', q)
         const serviceInput = {
             serviceModel: CdGeoPhysicalTypeModel,
             docName: 'CdGeoPhysicalTypeService::deleteSL',

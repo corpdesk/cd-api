@@ -8,8 +8,10 @@ import { CdGeoModel } from '../models/cd-geo.model';
 import { CdGeoTypeModel } from '../models/cd-geo-type.model';
 import { CdGeoViewModel } from '../models/cd-geo-view.model';
 import { siGet } from '../../../sys/base/base.model';
+import { Logging } from '../../../sys/base/winston.log';
 
 export class CdGeoService extends CdService {
+    logger: Logging;
     b: any; // instance of BaseService
     cdToken: string;
     srvSess: SessionService;

@@ -8,8 +8,10 @@ import { CdGeoLocationModel } from '../models/cd-geo-location.model';
 // import { CdGeoLocationViewModel } from '../models/cd-geo-location-view.model';
 import { siGet } from '../../../sys/base/base.model';
 import config from '../../../../config';
+import { Logging } from '../../../sys/base/winston.log';
 
 export class CdGeoLocationService extends CdService {
+    logger: Logging;
     b: any; // instance of BaseService
     cdToken: string;
     srvSess: SessionService;
@@ -33,6 +35,7 @@ export class CdGeoLocationService extends CdService {
     constructor() {
         super()
         this.b = new BaseService();
+        this.logger = new Logging();
         this.serviceModel = new CdGeoLocationModel();
     }
 
@@ -73,7 +76,7 @@ export class CdGeoLocationService extends CdService {
     * @param res
     */
     async create(req, res) {
-        console.log('cd-geo-location/create::validateCreate()/01')
+        this.logger.logInfo('cd-geo-location/create::validateCreate()/01')
 
         const svSess = new SessionService();
         if (await this.validateCreate(req, res)) {
@@ -85,14 +88,14 @@ export class CdGeoLocationService extends CdService {
                 docName: 'Create CdGeoLocation',
                 dSource: 1,
             }
-            console.log('CdGeoLocationService::create()/serviceInput:', serviceInput)
+            this.logger.logInfo('CdGeoLocationService::create()/serviceInput:', serviceInput)
             const respData = await this.b.create(req, res, serviceInput);
             this.b.i.app_msg = 'new CdGeoLocation created';
             this.b.setAppState(true, this.b.i, svSess.sessResp);
             this.b.cdResp.data = await respData;
             const r = await this.b.respond(req, res);
         } else {
-            console.log('cd-geo-location/create::validateCreate()/02')
+            this.logger.logInfo('cd-geo-location/create::validateCreate()/02')
             const r = await this.b.respond(req, res);
         }
     }
@@ -189,14 +192,14 @@ export class CdGeoLocationService extends CdService {
      * @param res 
      */
     async createM(req, res) {
-        console.log('CdGeoLocationService::createM()/01')
+        this.logger.logInfo('CdGeoLocationService::createM()/01')
         let data = req.post.dat.f_vals[0].data
-        console.log('CdGeoLocationService::createM()/data:', data)
+        this.logger.logInfo('CdGeoLocationService::createM()/data:', data)
         // this.b.models.push(CdGeoLocationModel)
         // this.b.init(req, res)
 
         for (var CdGeoLocationData of data) {
-            console.log('CdGeoLocationData', CdGeoLocationData)
+            this.logger.logInfo('CdGeoLocationData', CdGeoLocationData)
             const CdGeoLocationQuery: CdGeoLocationModel = CdGeoLocationData;
             const svCdGeoLocation = new CdGeoLocationService();
             // this.b.setPlDataM(req,CdGeoLocationData, { key: 'cdGeoLocationGuid', value: this.b.getGuid() });
@@ -215,7 +218,7 @@ export class CdGeoLocationService extends CdService {
             }
             
             let ret = await this.createI(req, res, createIParams)
-            console.log('CdGeoLocationService::createM()/forLoop/ret:', ret)
+            this.logger.logInfo('CdGeoLocationService::createM()/forLoop/ret:', {ret: ret})
         }
         // return current sample data
         // eg first 5
@@ -276,11 +279,11 @@ export class CdGeoLocationService extends CdService {
     async readSL(req, res, serviceInput: IServiceInput): Promise<any> {
         await this.b.initSqlite(req, res)
         const q = this.b.getQuery(req);
-        console.log('CdGeoLocationService::getCdGeoLocation/q:', q);
+        this.logger.logInfo('CdGeoLocationService::getCdGeoLocation/q:', q);
         try {
             this.b.readSL$(req, res, serviceInput)
                 .subscribe((r) => {
-                    // console.log('CdGeoLocationService::read$()/r:', r)
+                    // this.logger.logInfo('CdGeoLocationService::read$()/r:', r)
                     this.b.i.code = 'CdGeoLocationService::Get';
                     const svSess = new SessionService();
                     svSess.sessResp.cd_token = req.post.dat.token;
@@ -291,7 +294,7 @@ export class CdGeoLocationService extends CdService {
                     this.b.respond(req, res)
                 })
         } catch (e) {
-            console.log('CdGeoLocationService::read$()/e:', e)
+            this.logger.logInfo('CdGeoLocationService::read$()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
@@ -304,7 +307,7 @@ export class CdGeoLocationService extends CdService {
     }
 
     update(req, res) {
-        // console.log('CdGeoLocationService::update()/01');
+        // this.logger.logInfo('CdGeoLocationService::update()/01');
         let q = this.b.getQuery(req);
         q = this.beforeUpdate(q);
         const serviceInput = {
@@ -316,7 +319,7 @@ export class CdGeoLocationService extends CdService {
             },
             dSource: 1
         }
-        // console.log('CdGeoLocationService::update()/02')
+        // this.logger.logInfo('CdGeoLocationService::update()/02')
         this.b.update$(req, res, serviceInput)
             .subscribe((ret) => {
                 this.b.cdResp.data = ret;
@@ -325,7 +328,7 @@ export class CdGeoLocationService extends CdService {
     }
 
     updateSL(req, res) {
-        console.log('CdGeoLocationService::update()/01');
+        this.logger.logInfo('CdGeoLocationService::update()/01');
         let q = this.b.getQuery(req);
         q = this.beforeUpdateSL(q);
         const serviceInput = {
@@ -337,7 +340,7 @@ export class CdGeoLocationService extends CdService {
             },
             dSource: 1
         }
-        console.log('CdGeoLocationService::update()/02')
+        this.logger.logInfo('CdGeoLocationService::update()/02')
         this.b.updateSL$(req, res, serviceInput)
             .subscribe((ret) => {
                 this.b.cdResp.data = ret;
@@ -386,7 +389,7 @@ export class CdGeoLocationService extends CdService {
     }
 
     async validateCreate(req, res) {
-        console.log('cd-geo-location/CdGeoLocationService::validateCreate()/01')
+        this.logger.logInfo('cd-geo-location/CdGeoLocationService::validateCreate()/01')
         const svSess = new SessionService();
         ///////////////////////////////////////////////////////////////////
         // 1. Validate against duplication
@@ -397,31 +400,31 @@ export class CdGeoLocationService extends CdService {
         this.b.i.code = 'CdGeoLocationService::validateCreate';
         let ret = false;
         if (await this.b.validateUnique(req, res, params)) {
-            console.log('cd-geo-location/CdGeoLocationService::validateCreate()/02')
+            this.logger.logInfo('cd-geo-location/CdGeoLocationService::validateCreate()/02')
             if (await this.b.validateRequired(req, res, this.cRules)) {
-                console.log('cd-geo-location/CdGeoLocationService::validateCreate()/03')
+                this.logger.logInfo('cd-geo-location/CdGeoLocationService::validateCreate()/03')
                 ret = true;
             } else {
-                console.log('cd-geo-location/CdGeoLocationService::validateCreate()/04')
+                this.logger.logInfo('cd-geo-location/CdGeoLocationService::validateCreate()/04')
                 ret = false;
                 this.b.i.app_msg = `the required fields ${this.b.isInvalidFields.join(', ')} is missing`;
                 this.b.err.push(this.b.i.app_msg);
                 this.b.setAppState(false, this.b.i, svSess.sessResp);
             }
         } else {
-            console.log('cd-geo-location/CdGeoLocationService::validateCreate()/05')
+            this.logger.logInfo('cd-geo-location/CdGeoLocationService::validateCreate()/05')
             ret = false;
             this.b.i.app_msg = `duplicate for ${this.cRules.noDuplicate.join(', ')} is not allowed`;
             this.b.err.push(this.b.i.app_msg);
             this.b.setAppState(false, this.b.i, svSess.sessResp);
         }
-        console.log('cd-geo-location/CdGeoLocationService::validateCreate()/06')
+        this.logger.logInfo('cd-geo-location/CdGeoLocationService::validateCreate()/06')
         ///////////////////////////////////////////////////////////////////
         // 2. confirm the CdGeoLocationTypeId referenced exists
         // const pl: CdGeoLocationModel = this.b.getPlData(req);
         // if ('CdGeoLocationTypeId' in pl) {
-        //     console.log('cd-geo-location/CdGeoLocationService::validateCreate()/07')
-        //     console.log('cd-geo-location/CdGeoLocationService::validateCreate()/pl:', pl)
+        //     this.logger.logInfo('cd-geo-location/CdGeoLocationService::validateCreate()/07')
+        //     this.logger.logInfo('cd-geo-location/CdGeoLocationService::validateCreate()/pl:', pl)
         //     const serviceInput = {
         //         serviceModel: CdGeoLocationTypeModel,
         //         docName: 'CdGeoLocationService::validateCreate',
@@ -431,21 +434,21 @@ export class CdGeoLocationService extends CdService {
         //         },
         //         dSource: 1
         //     }
-        //     console.log('cd-geo-location/CdGeoLocationService::validateCreate()/serviceInput:', JSON.stringify(serviceInput))
+        //     this.logger.logInfo('cd-geo-location/CdGeoLocationService::validateCreate()/serviceInput:', JSON.stringify(serviceInput))
         //     const r: any = await this.b.read(req, res, serviceInput)
-        //     console.log('cd-geo-location/CdGeoLocationService::validateCreate()/r:', r)
+        //     this.logger.logInfo('cd-geo-location/CdGeoLocationService::validateCreate()/r:', r)
         //     if (r.length > 0) {
-        //         console.log('cd-geo-location/CdGeoLocationService::validateCreate()/08')
+        //         this.logger.logInfo('cd-geo-location/CdGeoLocationService::validateCreate()/08')
         //         ret = true;
         //     } else {
-        //         console.log('cd-geo-location/CdGeoLocationService::validateCreate()/10')
+        //         this.logger.logInfo('cd-geo-location/CdGeoLocationService::validateCreate()/10')
         //         ret = false;
         //         this.b.i.app_msg = `CdGeoLocation type reference is invalid`;
         //         this.b.err.push(this.b.i.app_msg);
         //         this.b.setAppState(false, this.b.i, svSess.sessResp);
         //     }
         // } else {
-        //     console.log('cd-geo-location/CdGeoLocationService::validateCreate()/11')
+        //     this.logger.logInfo('cd-geo-location/CdGeoLocationService::validateCreate()/11')
         //     // this.b.i.app_msg = `parentModuleGuid is missing in payload`;
         //     // this.b.err.push(this.b.i.app_msg);
         //     //////////////////
@@ -453,9 +456,9 @@ export class CdGeoLocationService extends CdService {
         //     this.b.err.push(this.b.i.app_msg);
         //     this.b.setAppState(false, this.b.i, svSess.sessResp);
         // }
-        console.log('CdGeoLocationService::getCdGeoLocation/12');
+        this.logger.logInfo('CdGeoLocationService::getCdGeoLocation/12');
         if (this.b.err.length > 0) {
-            console.log('cd-geo-location/CdGeoLocationService::validateCreate()/13')
+            this.logger.logInfo('cd-geo-location/CdGeoLocationService::validateCreate()/13')
             ret = false;
         }
         return ret;
@@ -478,18 +481,18 @@ export class CdGeoLocationService extends CdService {
         if (q === null) {
             q = this.b.getQuery(req);
         }
-        console.log('CdGeoLocationService::getCdGeoLocation/f:', q);
-        console.log('CdGeoLocationService::this.serviceModel:', this.serviceModel);
+        this.logger.logInfo('CdGeoLocationService::getCdGeoLocation/f:', q);
+        this.logger.logInfo('CdGeoLocationService::this.serviceModel:', this.serviceModel);
         this.serviceModel = new CdGeoLocationModel();
         const serviceInput: IServiceInput = this.b.siGet(q, this)
         serviceInput.serviceModelInstance = this.serviceModel
         serviceInput.serviceModel = CdGeoLocationModel
-        console.log('CdGeoLocationService::serviceInput:', this.serviceModel);
+        this.logger.logInfo('CdGeoLocationService::serviceInput:', this.serviceModel);
         try {
             const r = await this.b.read(req, res, serviceInput)
             this.b.successResponse(req, res, r)
         } catch (e) {
-            console.log('CdGeoLocationService::read$()/e:', e)
+            this.logger.logInfo('CdGeoLocationService::read$()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
@@ -517,13 +520,13 @@ export class CdGeoLocationService extends CdService {
         if (q === null) {
             q = this.b.getQuery(req);
         }
-        console.log('CdGeoLocationService::getCdGeoLocation/f:', q);
+        this.logger.logInfo('CdGeoLocationService::getCdGeoLocation/f:', q);
         const serviceInput = siGet(q, this)
         try {
             const r = await this.b.read(req, res, serviceInput)
             this.b.successResponse(req, res, r)
         } catch (e) {
-            console.log('CdGeoLocationService::read$()/e:', e)
+            this.logger.logInfo('CdGeoLocationService::read$()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
@@ -538,12 +541,12 @@ export class CdGeoLocationService extends CdService {
     async getCdGeoLocationSL(req, res) {
         await this.b.initSqlite(req, res)
         const q = this.b.getQuery(req);
-        console.log('CdGeoLocationService::getCdGeoLocation/q:', q);
+        this.logger.logInfo('CdGeoLocationService::getCdGeoLocation/q:', q);
         const serviceInput = siGet(q, this)
         try {
             this.b.readSL$(req, res, serviceInput)
                 .subscribe((r) => {
-                    // console.log('CdGeoLocationService::read$()/r:', r)
+                    // this.logger.logInfo('CdGeoLocationService::read$()/r:', r)
                     this.b.i.code = 'CdGeoLocationService::Get';
                     const svSess = new SessionService();
                     svSess.sessResp.cd_token = req.post.dat.token;
@@ -554,7 +557,7 @@ export class CdGeoLocationService extends CdService {
                     this.b.respond(req, res)
                 })
         } catch (e) {
-            console.log('CdGeoLocationService::read$()/e:', e)
+            this.logger.logInfo('CdGeoLocationService::read$()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
@@ -575,7 +578,7 @@ export class CdGeoLocationService extends CdService {
     //  */
     // getCdGeoLocationType(req, res) {
     //     const q = this.b.getQuery(req);
-    //     console.log('CdGeoLocationService::getCdGeoLocation/f:', q);
+    //     this.logger.logInfo('CdGeoLocationService::getCdGeoLocation/f:', q);
     //     const serviceInput = {
     //         serviceModel: CdGeoLocationTypeModel,
     //         docName: 'CdGeoLocationService::getCdGeoLocationType$',
@@ -588,7 +591,7 @@ export class CdGeoLocationService extends CdService {
     //     try {
     //         this.b.read$(req, res, serviceInput)
     //             .subscribe((r) => {
-    //                 // console.log('CdGeoLocationService::read$()/r:', r)
+    //                 // this.logger.logInfo('CdGeoLocationService::read$()/r:', r)
     //                 this.b.i.code = 'CdGeoLocationController::Get';
     //                 const svSess = new SessionService();
     //                 svSess.sessResp.cd_token = req.post.dat.token;
@@ -598,7 +601,7 @@ export class CdGeoLocationService extends CdService {
     //                 this.b.respond(req, res)
     //             })
     //     } catch (e) {
-    //         console.log('CdGeoLocationService::read$()/e:', e)
+    //         this.logger.logInfo('CdGeoLocationService::read$()/e:', e)
     //         this.b.err.push(e.toString());
     //         const i = {
     //             messages: this.b.err,
@@ -617,7 +620,7 @@ export class CdGeoLocationService extends CdService {
      */
     getCdGeoLocationPaged(req, res) {
         const q = this.b.getQuery(req);
-        console.log('CdGeoLocationService::getCdGeoLocation/q:', q);
+        this.logger.logInfo('CdGeoLocationService::getCdGeoLocation/q:', q);
         const serviceInput = {
             serviceModel: CdGeoLocationModel,
             docName: 'CdGeoLocationService::getCdGeoLocation$',
@@ -641,7 +644,7 @@ export class CdGeoLocationService extends CdService {
 
     getPagedSL(req, res) {
         const q = this.b.getQuery(req);
-        console.log('CdGeoLocationService::getCdGeoLocationCount()/q:', q);
+        this.logger.logInfo('CdGeoLocationService::getCdGeoLocationCount()/q:', q);
         const serviceInput = {
             serviceModel: CdGeoLocationModel,
             docName: 'CdGeoLocationService::getCdGeoLocationCount',
@@ -666,7 +669,7 @@ export class CdGeoLocationService extends CdService {
 
     // getCdGeoLocationTypeCount(req, res) {
     //     const q = this.b.getQuery(req);
-    //     console.log('CdGeoLocationService::getCdGeoLocationCount/q:', q);
+    //     this.logger.logInfo('CdGeoLocationService::getCdGeoLocationCount/q:', q);
     //     const serviceInput = {
     //         serviceModel: CdGeoLocationTypeModel,
     //         docName: 'CdGeoLocationService::getCdGeoLocationCount$',
@@ -690,7 +693,7 @@ export class CdGeoLocationService extends CdService {
 
     delete(req, res) {
         const q = this.b.getQuery(req);
-        console.log('CdGeoLocationService::delete()/q:', q)
+        this.logger.logInfo('CdGeoLocationService::delete()/q:', q)
         const serviceInput = {
             serviceModel: CdGeoLocationModel,
             docName: 'CdGeoLocationService::delete',
@@ -710,7 +713,7 @@ export class CdGeoLocationService extends CdService {
 
     deleteSL(req, res) {
         const q = this.b.getQuery(req);
-        console.log('CdGeoLocationService::deleteSL()/q:', q)
+        this.logger.logInfo('CdGeoLocationService::deleteSL()/q:', q)
         const serviceInput = {
             serviceModel: CdGeoLocationModel,
             docName: 'CdGeoLocationService::deleteSL',
@@ -745,7 +748,7 @@ export class CdGeoLocationService extends CdService {
         }
         
         // let queryStr = `/Continentscountriescities_Country/${pl.back4appObectId}`
-        console.log('cd-geo-location/Continentscountriescities_Country()/queryStr:', queryStr)
+        this.logger.logInfo('cd-geo-location/Continentscountriescities_Country()/queryStr:', {queryStr: queryStr})
         const fi: IFetchInput = {
             url: config.back4app.url + queryStr,
             optins: {
@@ -756,7 +759,7 @@ export class CdGeoLocationService extends CdService {
             }
         }
         
-        console.log('cd-geo-location/SubdivisionStatesProvinces()/01')
+        this.logger.logInfo('cd-geo-location/SubdivisionStatesProvinces()/01')
 
         const svSess = new SessionService();
         const serviceInput: IServiceInput = {
@@ -785,7 +788,7 @@ export class CdGeoLocationService extends CdService {
         const q: IQuery = this.b.getQuery(req);
         let queryStr = `/classes/${q.class}?where=${JSON.stringify(q.where)}&skip=${q.skip}&limit=${q.take}&order=${q.order}`
         // let queryStr = `/Continentscountriescities_Country/${pl.back4appObectId}`
-        console.log('cd-geo-location/Continentscountriescities_Country()/queryStr:', queryStr)
+        this.logger.logInfo('cd-geo-location/Continentscountriescities_Country()/queryStr:', {queryStr: queryStr})
         const fi: IFetchInput = {
             url: config.back4app.url + queryStr,
             optins: {
@@ -796,7 +799,7 @@ export class CdGeoLocationService extends CdService {
             }
         }
         
-        console.log('cd-geo-location/SubdivisionStatesProvinces()/01')
+        this.logger.logInfo('cd-geo-location/SubdivisionStatesProvinces()/01')
 
         const svSess = new SessionService();
         const serviceInput: IServiceInput = {
@@ -824,7 +827,7 @@ export class CdGeoLocationService extends CdService {
     async SubdivisionStatesProvinces(req, res) {
         const q: IQuery = this.b.getQuery(req);
         let queryStr = `/classes/${q.class}?where=${JSON.stringify(q.where)}&skip=${q.skip}&limit=${q.take}&order=${q.order}`
-        console.log('cd-geo-location/SubdivisionStatesProvinces()/queryStr:', queryStr)
+        this.logger.logInfo('cd-geo-location/SubdivisionStatesProvinces()/queryStr:', {queryStr: queryStr})
         const fi: IFetchInput = {
             url: config.back4app.url + queryStr,
             optins: {
@@ -844,7 +847,7 @@ export class CdGeoLocationService extends CdService {
         // }
         // this.b.bFetch(req, res, serviceInput)
         ////////////////////////////
-        console.log('cd-geo-location/SubdivisionStatesProvinces()/01')
+        this.logger.logInfo('cd-geo-location/SubdivisionStatesProvinces()/01')
 
         const svSess = new SessionService();
         const serviceInput: IServiceInput = {
@@ -866,7 +869,7 @@ export class CdGeoLocationService extends CdService {
         if (q === null) {
             q = this.b.getQuery(req);
         }
-        console.log('CoopService::getCoopI/q:', q);
+        this.logger.logInfo('CoopService::getCoopI/q:', q);
         let serviceModel = new CdGeoLocationModel();
         const serviceInput: IServiceInput = this.b.siGet(q, this)
         serviceInput.serviceModelInstance = serviceModel
@@ -875,7 +878,7 @@ export class CdGeoLocationService extends CdService {
             let respData = await this.b.read(req, res, serviceInput)
             return { data: respData, error: null }
         } catch (e) {
-            console.log('CoopService::read()/e:', e)
+            this.logger.logInfo('CoopService::read()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,

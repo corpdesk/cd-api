@@ -7,10 +7,12 @@ import { CoopTypeModel } from '../models/coop-type.model';
 // import { CoopViewModel, siGet } from '../models/coop-view.model';
 import { CoopViewModel } from '../models/coop-view.model';
 import { siGet } from '../../../sys/base/base.model';
+import { Logging } from '../../../sys/base/winston.log';
 
 
 
 export class CoopTypeService extends CdService {
+    logger: Logging;
     b: any; // instance of BaseService
     cdToken: string;
     srvSess: SessionService;
@@ -34,6 +36,7 @@ export class CoopTypeService extends CdService {
     constructor() {
         super()
         this.b = new BaseService();
+        this.logger = new Logging();
         this.serviceModel = new CoopTypeModel();
     }
 
@@ -72,7 +75,7 @@ export class CoopTypeService extends CdService {
      * @param res
      */
     async create(req, res) {
-        console.log('CoopTypecreate::validateCreate()/01')
+        this.logger.logInfo('CoopTypecreate::validateCreate()/01')
         
         const svSess = new SessionService();
         if (await this.validateCreate(req, res)) {
@@ -84,14 +87,14 @@ export class CoopTypeService extends CdService {
                 docName: 'Create Coop',
                 dSource: 1,
             }
-            console.log('CoopTypeService::create()/serviceInput:', serviceInput)
+            this.logger.logInfo('CoopTypeService::create()/serviceInput:', serviceInput)
             const respData = await this.b.create(req, res, serviceInput);
             this.b.i.app_msg = 'new Coop created';
             this.b.setAppState(true, this.b.i, svSess.sessResp);
             this.b.cdResp.data = await respData;
             const r = await this.b.respond(req, res);
         } else {
-            console.log('CoopTypecreate::validateCreate()/02')
+            this.logger.logInfo('CoopTypecreate::validateCreate()/02')
             const r = await this.b.respond(req, res);
         }
     }
@@ -188,14 +191,14 @@ export class CoopTypeService extends CdService {
      * @param res 
      */
     async createM(req, res) {
-        console.log('CoopTypeService::createM()/01')
+        this.logger.logInfo('CoopTypeService::createM()/01')
         let data = req.post.dat.f_vals[0].data
-        console.log('CoopTypeService::createM()/data:', data)
+        this.logger.logInfo('CoopTypeService::createM()/data:', data)
         // this.b.models.push(CoopTypeModel)
         // this.b.init(req, res)
 
         for (var coopData of data) {
-            console.log('coopData', coopData)
+            this.logger.logInfo('coopData', coopData)
             const coopQuery: CoopTypeModel = coopData;
             const svCoop = new CoopTypeService();
             const si = {
@@ -210,7 +213,7 @@ export class CoopTypeService extends CdService {
                 controllerData: coopQuery
             }
             let ret = await this.createI(req, res, createIParams)
-            console.log('CoopTypeService::createM()/forLoop/ret:', ret)
+            this.logger.logInfo('CoopTypeService::createM()/forLoop/ret:', {ret: ret})
         }
         // return current sample data
         // eg first 5
@@ -272,11 +275,11 @@ export class CoopTypeService extends CdService {
     async readSL(req, res, serviceInput: IServiceInput): Promise<any> {
         await this.b.initSqlite(req, res)
         const q = this.b.getQuery(req);
-        console.log('CoopTypeService::getCoopTypeq:', q);
+        this.logger.logInfo('CoopTypeService::getCoopTypeq:', q);
         try {
             this.b.readSL$(req, res, serviceInput)
                 .subscribe((r) => {
-                    // console.log('CoopTypeService::read$()/r:', r)
+                    // this.logger.logInfo('CoopTypeService::read$()/r:', r)
                     this.b.i.code = 'CoopTypeService::Get';
                     const svSess = new SessionService();
                     svSess.sessResp.cd_token = req.post.dat.token;
@@ -287,7 +290,7 @@ export class CoopTypeService extends CdService {
                     this.b.respond(req, res)
                 })
         } catch (e) {
-            console.log('CoopTypeService::read$()/e:', e)
+            this.logger.logInfo('CoopTypeService::read$()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
@@ -300,7 +303,7 @@ export class CoopTypeService extends CdService {
     }
 
     update(req, res) {
-        // console.log('CoopTypeService::update()/01');
+        // this.logger.logInfo('CoopTypeService::update()/01');
         let q = this.b.getQuery(req);
         q = this.beforeUpdate(q);
         const serviceInput = {
@@ -312,7 +315,7 @@ export class CoopTypeService extends CdService {
             },
             dSource: 1
         }
-        // console.log('CoopTypeService::update()/02')
+        // this.logger.logInfo('CoopTypeService::update()/02')
         this.b.update$(req, res, serviceInput)
             .subscribe((ret) => {
                 this.b.cdResp.data = ret;
@@ -321,7 +324,7 @@ export class CoopTypeService extends CdService {
     }
 
     updateSL(req, res) {
-        console.log('CoopTypeService::update()/01');
+        this.logger.logInfo('CoopTypeService::update()/01');
         let q = this.b.getQuery(req);
         q = this.beforeUpdateSL(q);
         const serviceInput = {
@@ -333,7 +336,7 @@ export class CoopTypeService extends CdService {
             },
             dSource: 1
         }
-        console.log('CoopTypeService::update()/02')
+        this.logger.logInfo('CoopTypeService::update()/02')
         this.b.updateSL$(req, res, serviceInput)
             .subscribe((ret) => {
                 this.b.cdResp.data = ret;
@@ -382,7 +385,7 @@ export class CoopTypeService extends CdService {
     }
 
     async validateCreate(req, res) {
-        console.log('CoopTypeCoopTypeService::validateCreate()/01')
+        this.logger.logInfo('CoopTypeCoopTypeService::validateCreate()/01')
         const svSess = new SessionService();
         ///////////////////////////////////////////////////////////////////
         // 1. Validate against duplication
@@ -393,31 +396,31 @@ export class CoopTypeService extends CdService {
         this.b.i.code = 'CoopTypeService::validateCreate';
         let ret = false;
         if (await this.b.validateUnique(req, res, params)) {
-            console.log('CoopTypeCoopTypeService::validateCreate()/02')
+            this.logger.logInfo('CoopTypeCoopTypeService::validateCreate()/02')
             if (await this.b.validateRequired(req, res, this.cRules)) {
-                console.log('CoopTypeCoopTypeService::validateCreate()/03')
+                this.logger.logInfo('CoopTypeCoopTypeService::validateCreate()/03')
                 ret = true;
             } else {
-                console.log('CoopTypeCoopTypeService::validateCreate()/04')
+                this.logger.logInfo('CoopTypeCoopTypeService::validateCreate()/04')
                 ret = false;
                 this.b.i.app_msg = `the required fields ${this.b.isInvalidFields.join(', ')} is missing`;
                 this.b.err.push(this.b.i.app_msg);
                 this.b.setAppState(false, this.b.i, svSess.sessResp);
             }
         } else {
-            console.log('CoopTypeCoopTypeService::validateCreate()/05')
+            this.logger.logInfo('CoopTypeCoopTypeService::validateCreate()/05')
             ret = false;
             this.b.i.app_msg = `duplicate for ${this.cRules.noDuplicate.join(', ')} is not allowed`;
             this.b.err.push(this.b.i.app_msg);
             this.b.setAppState(false, this.b.i, svSess.sessResp);
         }
-        console.log('CoopTypeCoopTypeService::validateCreate()/06')
+        this.logger.logInfo('CoopTypeCoopTypeService::validateCreate()/06')
         ///////////////////////////////////////////////////////////////////
         // 2. confirm the coopTypeId referenced exists
         // const pl: CoopTypeModel = this.b.getPlData(req);
         // if ('coopTypeId' in pl) {
-        //     console.log('CoopTypeCoopTypeService::validateCreate()/07')
-        //     console.log('CoopTypeCoopTypeService::validateCreate()/pl:', pl)
+        //     this.logger.logInfo('CoopTypeCoopTypeService::validateCreate()/07')
+        //     this.logger.logInfo('CoopTypeCoopTypeService::validateCreate()/pl:', pl)
         //     const serviceInput = {
         //         serviceModel: CoopTypeModel,
         //         docName: 'CoopTypeService::validateCreate',
@@ -427,21 +430,21 @@ export class CoopTypeService extends CdService {
         //         },
         //         dSource: 1
         //     }
-        //     console.log('CoopTypeCoopTypeService::validateCreate()/serviceInput:', JSON.stringify(serviceInput))
+        //     this.logger.logInfo('CoopTypeCoopTypeService::validateCreate()/serviceInput:', JSON.stringify(serviceInput))
         //     const r: any = await this.b.read(req, res, serviceInput)
-        //     console.log('CoopTypeCoopTypeService::validateCreate()/r:', r)
+        //     this.logger.logInfo('CoopTypeCoopTypeService::validateCreate()/r:', r)
         //     if (r.length > 0) {
-        //         console.log('CoopTypeCoopTypeService::validateCreate()/08')
+        //         this.logger.logInfo('CoopTypeCoopTypeService::validateCreate()/08')
         //         ret = true;
         //     } else {
-        //         console.log('CoopTypeCoopTypeService::validateCreate()/10')
+        //         this.logger.logInfo('CoopTypeCoopTypeService::validateCreate()/10')
         //         ret = false;
         //         this.b.i.app_msg = `Coop type reference is invalid`;
         //         this.b.err.push(this.b.i.app_msg);
         //         this.b.setAppState(false, this.b.i, svSess.sessResp);
         //     }
         // } else {
-        //     console.log('CoopTypeCoopTypeService::validateCreate()/11')
+        //     this.logger.logInfo('CoopTypeCoopTypeService::validateCreate()/11')
         //     // this.b.i.app_msg = `parentModuleGuid is missing in payload`;
         //     // this.b.err.push(this.b.i.app_msg);
         //     //////////////////
@@ -449,9 +452,9 @@ export class CoopTypeService extends CdService {
         //     this.b.err.push(this.b.i.app_msg);
         //     this.b.setAppState(false, this.b.i, svSess.sessResp);
         // }
-        console.log('CoopTypeService::getCoopType12');
+        this.logger.logInfo('CoopTypeService::getCoopType12');
         if (this.b.err.length > 0) {
-            console.log('CoopTypeCoopTypeService::validateCreate()/13')
+            this.logger.logInfo('CoopTypeCoopTypeService::validateCreate()/13')
             ret = false;
         }
         return ret;
@@ -473,13 +476,13 @@ export class CoopTypeService extends CdService {
         if (q === null) {
             q = this.b.getQuery(req);
         }
-        console.log('CoopTypeService::getCoopTypef:', q);
+        this.logger.logInfo('CoopTypeService::getCoopTypef:', q);
         const serviceInput = siGet(q,this)
         try {
             const r = await this.b.read(req, res, serviceInput)
             this.b.successResponse(req, res, r)
         } catch (e) {
-            console.log('CoopTypeService::read$()/e:', e)
+            this.logger.logInfo('CoopTypeService::read$()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
@@ -494,12 +497,12 @@ export class CoopTypeService extends CdService {
     async getCoopSL(req, res) {
         await this.b.initSqlite(req, res)
         const q = this.b.getQuery(req);
-        console.log('CoopTypeService::getCoopTypeq:', q);
+        this.logger.logInfo('CoopTypeService::getCoopTypeq:', q);
         const serviceInput = siGet(q,this)
         try {
             this.b.readSL$(req, res, serviceInput)
                 .subscribe((r) => {
-                    // console.log('CoopTypeService::read$()/r:', r)
+                    // this.logger.logInfo('CoopTypeService::read$()/r:', r)
                     this.b.i.code = 'CoopTypeService::Get';
                     const svSess = new SessionService();
                     svSess.sessResp.cd_token = req.post.dat.token;
@@ -510,7 +513,7 @@ export class CoopTypeService extends CdService {
                     this.b.respond(req, res)
                 })
         } catch (e) {
-            console.log('CoopTypeService::read$()/e:', e)
+            this.logger.logInfo('CoopTypeService::read$()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
@@ -531,7 +534,7 @@ export class CoopTypeService extends CdService {
      */
     getCoopType(req, res) {
         const q = this.b.getQuery(req);
-        console.log('CoopTypeService::getCoopTypef:', q);
+        this.logger.logInfo('CoopTypeService::getCoopTypef:', q);
         const serviceInput = {
             serviceModel: CoopTypeModel,
             docName: 'CoopTypeService::getCoopType$',
@@ -544,7 +547,7 @@ export class CoopTypeService extends CdService {
         try {
             this.b.read$(req, res, serviceInput)
                 .subscribe((r) => {
-                    // console.log('CoopTypeService::read$()/r:', r)
+                    // this.logger.logInfo('CoopTypeService::read$()/r:', r)
                     this.b.i.code = 'CoopController::Get';
                     const svSess = new SessionService();
                     svSess.sessResp.cd_token = req.post.dat.token;
@@ -554,7 +557,7 @@ export class CoopTypeService extends CdService {
                     this.b.respond(req, res)
                 })
         } catch (e) {
-            console.log('CoopTypeService::read$()/e:', e)
+            this.logger.logInfo('CoopTypeService::read$()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
@@ -573,7 +576,7 @@ export class CoopTypeService extends CdService {
      */
     getCoopCount(req, res) {
         const q = this.b.getQuery(req);
-        console.log('CoopTypeService::getCoopCount/q:', q);
+        this.logger.logInfo('CoopTypeService::getCoopCount/q:', q);
         const serviceInput = {
             serviceModel: CoopViewModel,
             docName: 'CoopTypeService::getCoopCount$',
@@ -597,7 +600,7 @@ export class CoopTypeService extends CdService {
 
     getPagedSL(req, res) {
         const q = this.b.getQuery(req);
-        console.log('CoopTypeService::getCoopCount()/q:', q);
+        this.logger.logInfo('CoopTypeService::getCoopCount()/q:', q);
         const serviceInput = {
             serviceModel: CoopTypeModel,
             docName: 'CoopTypeService::getCoopCount',
@@ -622,7 +625,7 @@ export class CoopTypeService extends CdService {
 
     getCoopTypeCount(req, res) {
         const q = this.b.getQuery(req);
-        console.log('CoopTypeService::getCoopCount/q:', q);
+        this.logger.logInfo('CoopTypeService::getCoopCount/q:', q);
         const serviceInput = {
             serviceModel: CoopTypeModel,
             docName: 'CoopTypeService::getCoopCount$',
@@ -646,7 +649,7 @@ export class CoopTypeService extends CdService {
 
     delete(req, res) {
         const q = this.b.getQuery(req);
-        console.log('CoopTypeService::delete()/q:', q)
+        this.logger.logInfo('CoopTypeService::delete()/q:', q)
         const serviceInput = {
             serviceModel: CoopTypeModel,
             docName: 'CoopTypeService::delete',
@@ -666,7 +669,7 @@ export class CoopTypeService extends CdService {
 
     deleteSL(req, res) {
         const q = this.b.getQuery(req);
-        console.log('CoopTypeService::deleteSL()/q:', q)
+        this.logger.logInfo('CoopTypeService::deleteSL()/q:', q)
         const serviceInput = {
             serviceModel: CoopTypeModel,
             docName: 'CoopTypeService::deleteSL',
