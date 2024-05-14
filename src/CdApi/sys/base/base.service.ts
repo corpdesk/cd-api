@@ -33,6 +33,7 @@ import { NextFunction, Request, Response } from "express"
 import { UserModel } from "../user/models/user.model"
 
 import { getDataSource } from "./data-source";
+import { Logging } from './winston.log';
 
 
 const USER_ANON = 1000;
@@ -63,9 +64,11 @@ export class BaseService {
     isInvalidFields = [];
     isRegRequest = false;
     redisClient;
+    logger: Logging;
     constructor() {
         // this.redisInit();
         this.cdResp = this.initCdResp();
+        this.logger = new Logging();
     }
     models = [];
     sqliteModels = [];
