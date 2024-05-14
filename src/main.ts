@@ -93,7 +93,7 @@ export class Main {
         // start api server
         httpServer.listen(config.apiPort, () => {
             // console.log(`cd-api server is listening on ${config.apiPort}`);
-            this.logger.logInfo(`cd-api server is listening on ${config.apiPort}`)
+            this.logger.logInfo(`cd-api server is listening on:`, {port:`${config.apiPort}`})
         })
             .on('error', (e) => {
                 this.logger.logError(`cd-api server: listen()/Error:${e}`)

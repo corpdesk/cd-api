@@ -16,8 +16,10 @@ import { ModuleModel } from '../models/module.model';
 import { CreateIParams, IAclCtx, IRespInfo, IServiceInput, ObjectItem } from '../../base/IBase';
 import { ModuleViewModel } from '../models/module-view.model';
 import { CdService } from '../../base/cd.service';
+import { Logging } from '../../base/winston.log';
 
 export class ModuleService extends CdService {
+    logger: Logging;
     cdToken;
     serviceModel;
     b: BaseService;
@@ -49,6 +51,7 @@ export class ModuleService extends CdService {
     constructor() {
         super();
         this.b = new BaseService();
+        this.logger = new Logging();
         this.serviceModel = new ModuleModel();
     }
 
@@ -118,7 +121,7 @@ export class ModuleService extends CdService {
         this.srvMenu = new MenuService();
         this.srvAcl = new AclService();
         const cguid = this.srvConsumer.getConsumerGuid(req);
-        // console.log("ModuleService::getModulesUserData$/02/cguid:", cguid)
+        // this.logger.logInfo("ModuleService::getModulesUserData$/02/cguid:", cguid)
         const clientConsumer$ = this.srvConsumer.getConsumerByGuid$(req, res, cguid);
         const allowedModules$ = this.getAclModule$(req, res, { currentUser: cUser, consumerGuid: cguid });
         const menuData$ = allowedModules$
@@ -126,7 +129,7 @@ export class ModuleService extends CdService {
                 mergeMap(
                     (am: any[]) => iif(
                         () => {
-                            // console.log('ModuleService::getModulesUserData$/am:', am)
+                            // this.logger.logInfo('ModuleService::getModulesUserData$/am:', am)
                             return am.length > 0
                         },
                         this.srvMenu.getAclMenu$(req, res, { modules$: allowedModules$, modulesCount: am.length }),
@@ -168,8 +171,8 @@ export class ModuleService extends CdService {
     getAclModule$(req, res, params): Observable<any> {
         // this.b.logTimeStamp('ModuleService::getAclModule$/01')
         this.consumerGuid = params.consumerGuid;
-        // console.log('ModuleService::getAclModule$()/params:', params)
-        // console.log('ModuleService::getAclModule$()/01:');
+        // this.logger.logInfo('ModuleService::getAclModule$()/params:', params)
+        // this.logger.logInfo('ModuleService::getAclModule$()/01:');
         return forkJoin({
             // unfilteredModules: this.getAll$(req, res).pipe(map((m) => { return m })), // for isRoot
             userRoles: this.srvAcl.aclUser$(req, res, params).pipe(map((m) => { return m })),
@@ -179,7 +182,7 @@ export class ModuleService extends CdService {
             .pipe(
                 map((acl: any) => {
                     // this.b.logTimeStamp('ModuleService::getModulesUserData$/02')
-                    // console.log('ModuleService::getAclModule$()/acl:', acl)
+                    // this.logger.logInfo('ModuleService::getAclModule$()/acl:', acl)
                     // Based on acl result, return appropirate modules
                     const publicModules = acl.consumerModules.filter(m => m.moduleIsPublic);
                     if (acl.userRoles.isConsumerRoot.length > 0) { // if userIsConsumerRoot then return all consumerModules
@@ -188,15 +191,15 @@ export class ModuleService extends CdService {
                     }
                     else if (acl.userRoles.isConsumerUser.length > 0) { // if user is registered as consumer user then filter consumer modules
                         // this.b.logTimeStamp('ModuleService::getModulesUserData$/04')
-                        // console.log('ModuleService::getModulesUserData$/acl.userRoles.isConsumerUser:', acl.userRoles.isConsumerUser);
-                        // console.log('ModuleService::getModulesUserData$/acl.moduleParents:', acl.moduleParents);
-                        // console.log('ModuleService::getModulesUserData$/acl.consumerModules:', acl.consumerModules);
+                        // this.logger.logInfo('ModuleService::getModulesUserData$/acl.userRoles.isConsumerUser:', acl.userRoles.isConsumerUser);
+                        // this.logger.logInfo('ModuleService::getModulesUserData$/acl.moduleParents:', acl.moduleParents);
+                        // this.logger.logInfo('ModuleService::getModulesUserData$/acl.consumerModules:', acl.consumerModules);
                         const userModules = this.b.intersect(acl.consumerModules, acl.moduleParents, 'moduleGuid');
-                        // console.log('ModuleService::getModulesUserData$/userModules:', userModules);
+                        // this.logger.logInfo('ModuleService::getModulesUserData$/userModules:', userModules);
                         return userModules.concat(publicModules); // return user modules and public modules
                     }
                     else {  // if is neither of the above, return zero modules
-                        // console.log('ModuleService::getAclModule$()/publicModules:', publicModules)
+                        // this.logger.logInfo('ModuleService::getAclModule$()/publicModules:', publicModules)
                         return publicModules; // return only public modules
                     }
                 })
@@ -227,7 +230,7 @@ export class ModuleService extends CdService {
     //  */
     getModule(req, res) {
         const f = this.b.getQuery(req);
-        // console.log('ModuleService::getModule/f:', f);
+        // this.logger.logInfo('ModuleService::getModule/f:', f);
         const serviceInput = {
             serviceModel: ModuleViewModel,
             docName: 'MenuService::getModuleMenu$',
@@ -251,7 +254,7 @@ export class ModuleService extends CdService {
 
     getModuleCount(req, res) {
         const q = this.b.getQuery(req);
-        console.log('ModuleService::getModuleCount/q:', q);
+        this.logger.logInfo('ModuleService::getModuleCount/q:', q);
         const serviceInput = {
             serviceModel: ModuleViewModel,
             docName: 'MenuService::getModuleCount$',
@@ -298,7 +301,7 @@ export class ModuleService extends CdService {
     }
 
     remove(req, res): Promise<void> {
-        // console.log(`starting SessionService::remove()`);
+        // this.logger.logInfo(`starting SessionService::remove()`);
         return null;
     }
 

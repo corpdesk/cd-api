@@ -6,9 +6,11 @@ import { DocModel } from '../../moduleman/models/doc.model';
 import { SessionModel } from '../models/session.model';
 import { UserModel } from '../models/user.model';
 import { UserService } from './user.service';
+import { Logging } from '../../base/winston.log';
 
 
 export class SessionService {
+    logger: Logging;
     b: BaseService;
     sessModel: SessionModel;
     sessIsSet = false;
@@ -27,11 +29,12 @@ export class SessionService {
     };
     constructor() {
         this.b = new BaseService();
+        this.logger = new Logging();
         this.sessModel = new SessionModel();
     }
 
     async create(req, res, guest) {
-        console.log('starting SessionService::create(req, res, guest)');
+        this.logger.logInfo('starting SessionService::create(req, res, guest)');
         try {
             // const session = new SessionModel();
             await this.setSession(req, guest);
@@ -44,7 +47,7 @@ export class SessionService {
                 data: this.sessModel
             }
             const ret = await this.b.create(req, res, serviceInput);
-            console.log('SessionService::create/02/ret:', ret);
+            this.logger.logInfo('SessionService::create/02/ret:', ret);
             return ret;
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'SessionService:create');
@@ -52,15 +55,15 @@ export class SessionService {
     }
 
     read() {
-        console.log(`starting SessionService::read()`);
+        this.logger.logInfo(`starting SessionService::read()`);
     }
 
     update() {
-        console.log(`starting SessionService::update()`);
+        this.logger.logInfo(`starting SessionService::update()`);
     }
 
     remove() {
-        console.log(`starting SessionService::remove()`);
+        this.logger.logInfo(`starting SessionService::remove()`);
     }
 
     async setSession(req, guest: UserModel) {
@@ -82,9 +85,9 @@ export class SessionService {
     }
 
     async getSession(req, res): Promise<SessionModel[]> {
-        console.log('starting SessionService::getSession()')
-        // console.log('SessionService::getSession()/req.post:', req.post)
-        // console.log('SessionService::getSession()/req.post.dat.token:', req.post.dat.token)
+        this.logger.logInfo('starting SessionService::getSession()')
+        // this.logger.logInfo('SessionService::getSession()/req.post:', req.post)
+        // this.logger.logInfo('SessionService::getSession()/req.post.dat.token:', req.post.dat.token)
         const serviceInput = {
             serviceInstance: this,
             serviceModel: SessionModel,

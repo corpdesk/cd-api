@@ -10,7 +10,7 @@ export class CdExec {
         this.logger = new Logging();
     }
     async exec(req, res, ds=null) {
-        this.logger.logDebug('CdExec::exec()/01');
+        this.logger.logInfo('CdExec::exec()/01');
         if (await this.b.valid(req, res)) {
             this.logger.logInfo('CdExec::exec()/02');
             try {
@@ -25,7 +25,7 @@ export class CdExec {
                 // this.logger.logInfo('CdExec::exec()/clsCtx:', clsCtx)
                 await this.b.resolveCls(req, res, clsCtx);
             } catch (e) {
-                this.logger.logDebug('CdExec::exec()/03');
+                this.logger.logInfo('CdExec::exec()/03');
                 const i: IRespInfo = {
                     messages: e,
                     code: 'CdExec:exec:01',
@@ -34,7 +34,7 @@ export class CdExec {
                 await this.b.returnErr(req, res, i);
             }
         } else {
-            this.logger.logDebug('CdExec::exec()/04');
+            this.logger.logInfo('CdExec::exec()/04');
             this.b.err.push('invalid request');
             const i: IRespInfo = {
                 messages: this.b.err,

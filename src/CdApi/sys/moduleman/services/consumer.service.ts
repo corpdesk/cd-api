@@ -18,9 +18,11 @@ import { ConsumerResourceViewModel } from '../models/consumer-resource-view.mode
 import { CompanyViewModel } from '../models/company-view.model';
 import { CompanyModel } from '../models/company.model';
 import { CompanyService } from './company.service';
+import { Logging } from '../../base/winston.log';
 // import { ConsumerViewModel } from '../models/consumer-view.model';
 
 export class ConsumerService extends CdService {
+    logger: Logging;
     b: any; // instance of BaseService
     cdToken: string;
     srvSess: SessionService;
@@ -44,6 +46,7 @@ export class ConsumerService extends CdService {
     constructor() {
         super()
         this.b = new BaseService();
+        this.logger = new Logging();
         this.serviceModel = new ConsumerModel();
         // this.moduleModel = new ModuleModel();
     }
@@ -70,7 +73,7 @@ export class ConsumerService extends CdService {
     //  * @param res
     //  */
     async create(req, res) {
-        console.log('moduleman/create::validateCreate()/01')
+        this.logger.logInfo('moduleman/create::validateCreate()/01')
         const svSess = new SessionService();
         if (await this.validateCreate(req, res)) {
             await this.beforeCreate(req, res);
@@ -80,14 +83,14 @@ export class ConsumerService extends CdService {
                 docName: 'Create consumer',
                 dSource: 1,
             }
-            console.log('ConsumerService::create()/serviceInput:', serviceInput)
+            this.logger.logInfo('ConsumerService::create()/serviceInput:', serviceInput)
             const respData = await this.b.create(req, res, serviceInput);
             this.b.i.app_msg = 'new consumer created';
             this.b.setAppState(true, this.b.i, svSess.sessResp);
             this.b.cdResp.data = await respData;
             const r = await this.b.respond(req, res);
         } else {
-            console.log('moduleman/create::validateCreate()/02')
+            this.logger.logInfo('moduleman/create::validateCreate()/02')
             const r = await this.b.respond(req, res);
         }
     }
@@ -112,7 +115,7 @@ export class ConsumerService extends CdService {
 
     async beforeCreate(req, res): Promise<any> {
         const pl: ConsumerModel = this.b.getPlData(req, res);
-        console.log('moduleman/create::beforeCreate()/this.company:', this.company);
+        this.logger.logInfo('moduleman/create::beforeCreate()/this.company:', this.company);
         this.b.setPlData(req, { key: 'consumerName', value: this.company.companyName });
         this.b.setPlData(req, { key: 'companyId', value: this.company.companyId });
         this.b.setPlData(req, { key: 'companyGuid', value: pl.companyGuid });
@@ -122,7 +125,7 @@ export class ConsumerService extends CdService {
     }
 
     getCompanyData(req, res, coGuid: string): Promise<CompanyModel[]> {
-        console.log('moduleman/create::getCompanyData()/coGuid:', coGuid);
+        this.logger.logInfo('moduleman/create::getCompanyData()/coGuid:', {coGuid:coGuid});
         const serviceInput: IServiceInput = {
             serviceInstance: this,
             serviceModel: ConsumerModel,
@@ -141,7 +144,7 @@ export class ConsumerService extends CdService {
     }
 
     update(req, res) {
-        // console.log('ConsumerService::update()/01');
+        // this.logger.logInfo('ConsumerService::update()/01');
         let q = this.b.getQuery(req);
         q = this.beforeUpdate(q);
         const serviceInput = {
@@ -153,7 +156,7 @@ export class ConsumerService extends CdService {
             },
             dSource: 1
         }
-        // console.log('ConsumerService::update()/02')
+        // this.logger.logInfo('ConsumerService::update()/02')
         this.b.update$(req, res, serviceInput)
             .subscribe((ret) => {
                 this.b.cdResp.data = ret;
@@ -194,7 +197,7 @@ export class ConsumerService extends CdService {
     }
 
     async validateCreate(req, res) {
-        console.log('moduleman/ConsumerService::validateCreate()/01')
+        this.logger.logInfo('moduleman/ConsumerService::validateCreate()/01')
         const svSess = new SessionService();
         ///////////////////////////////////////////////////////////////////
         // 1. Validate against duplication
@@ -205,32 +208,32 @@ export class ConsumerService extends CdService {
         this.b.i.code = 'ConsumerService::validateCreate';
         let ret = false;
         if (await this.b.validateUnique(req, res, params)) {
-            console.log('moduleman/ConsumerService::validateCreate()/02')
+            this.logger.logInfo('moduleman/ConsumerService::validateCreate()/02')
             if (await this.b.validateRequired(req, res, this.cRules)) {
-                console.log('moduleman/ConsumerService::validateCreate()/03')
+                this.logger.logInfo('moduleman/ConsumerService::validateCreate()/03')
                 ret = true;
             } else {
-                console.log('moduleman/ConsumerService::validateCreate()/04')
+                this.logger.logInfo('moduleman/ConsumerService::validateCreate()/04')
                 ret = false;
                 this.b.i.app_msg = `the required fields ${this.b.isInvalidFields.join(', ')} is missing`;
                 this.b.err.push(this.b.i.app_msg);
                 this.b.setAppState(false, this.b.i, svSess.sessResp);
             }
         } else {
-            console.log('moduleman/ConsumerService::validateCreate()/05')
+            this.logger.logInfo('moduleman/ConsumerService::validateCreate()/05')
             ret = false;
             this.b.i.app_msg = `duplicate for ${this.cRules.noDuplicate.join(', ')} is not allowed`;
             this.b.err.push(this.b.i.app_msg);
             this.b.setAppState(false, this.b.i, svSess.sessResp);
         }
-        console.log('moduleman/ConsumerService::validateCreate()/06')
+        this.logger.logInfo('moduleman/ConsumerService::validateCreate()/06')
         ///////////////////////////////////////////////////////////////////
         // // 2. confirm the consumerTypeGuid referenced exists
         const pl: ConsumerModel = this.b.getPlData(req);
-        console.log('moduleman/ConsumerService::validateCreate()/pl:', pl)
+        this.logger.logInfo('moduleman/ConsumerService::validateCreate()/pl:', pl)
         if ('companyGuid' in pl) {
-            console.log('moduleman/ConsumerService::validateCreate()/07')
-            console.log('moduleman/ConsumerService::validateCreate()/pl:', pl)
+            this.logger.logInfo('moduleman/ConsumerService::validateCreate()/07')
+            this.logger.logInfo('moduleman/ConsumerService::validateCreate()/pl:', pl)
             const serviceInput = {
                 serviceModel: CompanyModel,
                 docName: 'ConsumerService::validateCreate',
@@ -240,22 +243,22 @@ export class ConsumerService extends CdService {
                 },
                 dSource: 1
             }
-            console.log('moduleman/ConsumerService::validateCreate()/serviceInput:', JSON.stringify(serviceInput))
+            this.logger.logInfo('moduleman/ConsumerService::validateCreate()/serviceInput:', serviceInput)
             const r: any = await this.b.read(req, res, serviceInput)
             this.company = r[0];
-            console.log('moduleman/ConsumerService::validateCreate()/r:', r)
+            this.logger.logInfo('moduleman/ConsumerService::validateCreate()/r:', r)
             if (r.length > 0) {
-                console.log('moduleman/ConsumerService::validateCreate()/08')
+                this.logger.logInfo('moduleman/ConsumerService::validateCreate()/08')
                 ret = true;
             } else {
-                console.log('moduleman/ConsumerService::validateCreate()/10')
+                this.logger.logInfo('moduleman/ConsumerService::validateCreate()/10')
                 ret = false;
                 this.b.i.app_msg = `company reference is invalid`;
                 this.b.err.push(this.b.i.app_msg);
                 this.b.setAppState(false, this.b.i, svSess.sessResp);
             }
         } else {
-            console.log('moduleman/ConsumerService::validateCreate()/11')
+            this.logger.logInfo('moduleman/ConsumerService::validateCreate()/11')
             // this.b.i.app_msg = `parentModuleGuid is missing in payload`;
             // this.b.err.push(this.b.i.app_msg);
             //////////////////
@@ -263,9 +266,9 @@ export class ConsumerService extends CdService {
             this.b.err.push(this.b.i.app_msg);
             this.b.setAppState(false, this.b.i, svSess.sessResp);
         }
-        console.log('ConsumerService::getConsumer/12');
+        this.logger.logInfo('ConsumerService::getConsumer/12');
         if (this.b.err.length > 0) {
-            console.log('moduleman/ConsumerService::validateCreate()/13')
+            this.logger.logInfo('moduleman/ConsumerService::validateCreate()/13')
             ret = false;
         }
         return ret;
@@ -273,7 +276,7 @@ export class ConsumerService extends CdService {
 
     async getConsumer(req, res) {
         const q = this.b.getQuery(req);
-        console.log('ConsumerService::getConsumer/f:', q);
+        this.logger.logInfo('ConsumerService::getConsumer/f:', q);
         const serviceInput = {
             serviceModel: ConsumerViewModel,
             docName: 'ConsumerService::getConsumer$',
@@ -286,7 +289,7 @@ export class ConsumerService extends CdService {
         try {
             this.b.read$(req, res, serviceInput)
                 .subscribe((r) => {
-                    console.log('ConsumerService::read$()/r:', r)
+                    this.logger.logInfo('ConsumerService::read$()/r:', r)
                     this.b.i.code = 'ConsumerController::Get';
                     const svSess = new SessionService();
                     svSess.sessResp.cd_token = req.post.dat.token;
@@ -296,7 +299,7 @@ export class ConsumerService extends CdService {
                     this.b.respond(req, res)
                 })
         } catch (e) {
-            console.log('ConsumerService::read$()/e:', e)
+            this.logger.logInfo('ConsumerService::read$()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
@@ -310,7 +313,7 @@ export class ConsumerService extends CdService {
 
     async getConsumerType(req, res) {
         const q = this.b.getQuery(req);
-        console.log('ConsumerService::getConsumer/f:', q);
+        this.logger.logInfo('ConsumerService::getConsumer/f:', q);
         const serviceInput = {
             serviceModel: ConsumerTypeModel,
             docName: 'ConsumerService::getConsumerType$',
@@ -323,7 +326,7 @@ export class ConsumerService extends CdService {
         try {
             this.b.read$(req, res, serviceInput)
                 .subscribe((r) => {
-                    console.log('ConsumerService::read$()/r:', r)
+                    this.logger.logInfo('ConsumerService::read$()/r:', r)
                     this.b.i.code = 'ConsumerController::Get';
                     const svSess = new SessionService();
                     svSess.sessResp.cd_token = req.post.dat.token;
@@ -333,7 +336,7 @@ export class ConsumerService extends CdService {
                     this.b.respond(req, res)
                 })
         } catch (e) {
-            console.log('ConsumerService::read$()/e:', e)
+            this.logger.logInfo('ConsumerService::read$()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
@@ -347,7 +350,7 @@ export class ConsumerService extends CdService {
 
     getConsumerCount(req, res) {
         const q = this.b.getQuery(req);
-        console.log('ConsumerService::getConsumerCount/q:', q);
+        this.logger.logInfo('ConsumerService::getConsumerCount/q:', q);
         const serviceInput = {
             serviceModel: ConsumerViewModel,
             docName: 'ConsumerService::getConsumerCount$',
@@ -371,7 +374,7 @@ export class ConsumerService extends CdService {
 
     getConsumerTypeCount(req, res) {
         const q = this.b.getQuery(req);
-        console.log('ConsumerService::getConsumerCount/q:', q);
+        this.logger.logInfo('ConsumerService::getConsumerCount/q:', q);
         const serviceInput = {
             serviceModel: ConsumerTypeModel,
             docName: 'ConsumerService::getConsumerCount$',
@@ -395,7 +398,7 @@ export class ConsumerService extends CdService {
 
     delete(req, res) {
         const q = this.b.getQuery(req);
-        console.log('ConsumerService::delete()/q:', q)
+        this.logger.logInfo('ConsumerService::delete()/q:', q)
         const serviceInput = {
             serviceModel: ConsumerModel,
             docName: 'ConsumerService::delete',
@@ -414,7 +417,7 @@ export class ConsumerService extends CdService {
     }
 
     getConsumerByGuid$(req, res, consmGuid): Observable<ConsumerModel[]> {
-        // console.log('starting getConsumerByGuid(req, res, consmGuid)');
+        // this.logger.logInfo('starting getConsumerByGuid(req, res, consmGuid)');
         const serviceInput: IServiceInput = {
             serviceInstance: this,
             serviceModel: ConsumerModel,
@@ -429,7 +432,7 @@ export class ConsumerService extends CdService {
     }
 
     async getConsumerByGuid(req, res, consmGuid): Promise<any> {
-        // console.log('starting getConsumerByGuid(req, res, consmGuid)');
+        // this.logger.logInfo('starting getConsumerByGuid(req, res, consmGuid)');
         const serviceInput: IServiceInput = {
             serviceInstance: this,
             serviceModel: ConsumerModel,
@@ -467,28 +470,28 @@ export class ConsumerService extends CdService {
     }
 
     getConsumerGuid(req) {
-        console.log('ConsumerService::getConsumerGuid()/req.post', JSON.stringify(req.post))
+        this.logger.logInfo('ConsumerService::getConsumerGuid()/req.post', req.post)
         return req.post.dat.f_vals[0].data.consumerGuid;
     }
 
     async consumerGuidIsValid(req, res, consumerGuid: string = null): Promise<boolean> {
-        console.log('ConsumerService::consumerGuidIsValid()/01')
+        this.logger.logInfo('ConsumerService::consumerGuidIsValid()/01')
         const svConsumer = new ConsumerService()
         let consGuid = null
         if (consumerGuid) {
-            console.log('ConsumerService::consumerGuidIsValid()/02')
+            this.logger.logInfo('ConsumerService::consumerGuidIsValid()/02')
             const plData = await this.b.getPlData(req)
             consGuid = plData.consumerGuid
         } else {
-            console.log('ConsumerService::consumerGuidIsValid()/03')
+            this.logger.logInfo('ConsumerService::consumerGuidIsValid()/03')
             consGuid = this.b.getReqToken(req)
         }
         const consumerData: ConsumerModel[] = await svConsumer.getConsumerByGuid(req, res, consGuid)
         if (consumerData.length > 0) {
-            console.log('ConsumerService::consumerGuidIsValid()/04')
+            this.logger.logInfo('ConsumerService::consumerGuidIsValid()/04')
             return true;
         } else {
-            console.log('ConsumerService::consumerGuidIsValid()/05')
+            this.logger.logInfo('ConsumerService::consumerGuidIsValid()/05')
             return false;
         }
     }
@@ -499,12 +502,12 @@ export class ConsumerService extends CdService {
         const svCompany = new CompanyService();
         const svSess = new SessionService();
         const consumerData: ConsumerModel[] = await this.getConsumerGuidByToken(req, res);
-        console.log('ConsumerService::activeCompany()/consumerData:', consumerData)
+        this.logger.logInfo('ConsumerService::activeCompany()/consumerData:', consumerData)
         let companyData = [];
         let companyGuid = null;
         let coId = null;
         if (consumerData.length > 0) {
-            console.log('ConsumerService::activeCompany()/consumerData[0].companyId:', consumerData[0].companyId)
+            this.logger.logInfo('ConsumerService::activeCompany()/consumerData[0].companyId:', {companyId: consumerData[0].companyId})
             coId = consumerData[0].companyId;
             return await svCompany.getCompany(req, res, { where: { companyId: coId } })
         } else {
@@ -518,12 +521,12 @@ export class ConsumerService extends CdService {
         const svCompany = new CompanyService();
         const svSess = new SessionService();
         const consumerData: ConsumerModel[] = await this.getConsumerGuidByToken(req, res);
-        console.log('ConsumerService::activeCompany()/consumerData:', consumerData)
+        this.logger.logInfo('ConsumerService::activeCompany()/consumerData:', consumerData)
         let companyData = [];
         let companyGuid = null;
         let coId = null;
         if (consumerData.length > 0) {
-            console.log('ConsumerService::activeCompany()/consumerData[0].companyId:', consumerData[0].companyId)
+            this.logger.logInfo('ConsumerService::activeCompany()/consumerData[0].companyId:', {companyId:consumerData[0].companyId})
             return consumerData
         } else {
             return Promise.resolve([])

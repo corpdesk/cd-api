@@ -16,8 +16,10 @@ import { DocModel } from '../models/doc.model';
 import { DocTypeModel } from '../models/doc-type.model';
 import { getConnection } from 'typeorm';
 import { ModuleService } from './module.service';
+import { Logging } from '../../base/winston.log';
 
 export class DocService extends CdService {
+    logger: Logging;
     cdToken;
     docModel;
     b: BaseService;
@@ -52,6 +54,7 @@ export class DocService extends CdService {
     constructor() {
         super();
         this.b = new BaseService();
+        this.logger = new Logging();
         this.docModel = new DocModel();
     }
 
@@ -115,22 +118,22 @@ export class DocService extends CdService {
         const m = req.post.m;
         const c = req.post.c;
         const a = req.post.a;
-        console.log('DocService::getDocTypeId()/01')
+        this.logger.logInfo('DocService::getDocTypeId()/01')
         const result: DocTypeModel[] = await this.getDocTypeByName(req, res, `${c}_${a}`)
-        console.log('DocService::getDocTypeId()/02')
-        console.log('DocService::getDocTypeId()/result:', result);
+        this.logger.logInfo('DocService::getDocTypeId()/02')
+        this.logger.logInfo('DocService::getDocTypeId()/result:', result);
         if (result.length > 0) {
-            console.log('DocService::getDocTypeId()/03')
+            this.logger.logInfo('DocService::getDocTypeId()/03')
             ret = result[0].docTypeId;
         } else {
-            console.log('DocService::getDocTypeId()/04')
+            this.logger.logInfo('DocService::getDocTypeId()/04')
             const r = await this.createDocType(req, res);
-            console.log('DocService::getDocTypeId()/05')
-            console.log('DocService::getDocTypeId()/r:', r)
+            this.logger.logInfo('DocService::getDocTypeId()/05')
+            this.logger.logInfo('DocService::getDocTypeId()/r:', r)
             ret = r[0].docTypeId;
         }
-        console.log('DocService::getDocTypeId()/06')
-        console.log('DocService::getDocTypeId()/ret:', ret)
+        this.logger.logInfo('DocService::getDocTypeId()/06')
+        this.logger.logInfo('DocService::getDocTypeId()/ret:', {ret:ret})
         return await ret;
     }
 

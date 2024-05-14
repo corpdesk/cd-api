@@ -16,7 +16,7 @@ export enum LogLevel {
 // @injectable() // Coming from inversify
 export class Logging {
     private _logger: winston.Logger;
-    private static _appName = 'ApplicationName';
+    private static _appName = 'corpdesk';
 
     constructor() {
         this._logger = this._initializeWinston();
@@ -77,6 +77,7 @@ export class Logging {
 
     private static _getFileTransport() {
         return new DailyRotateFile({
+            level: 'verbose',
             filename: `${Logging._appName}-%DATE%.log`,
             zippedArchive: true, // Compress gzip
             maxSize: '10m', // Rotate after 10MB

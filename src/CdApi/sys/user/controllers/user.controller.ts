@@ -1,14 +1,18 @@
 import { BaseService } from '../../base/base.service';
 import { CdController } from '../../base/cd.controller';
+import { Logging } from '../../base/winston.log';
 import { UserService } from '../services/user.service';
 
 export class UserController extends CdController {
+    logger: Logging;
     b: BaseService;
     svUser: UserService;
     constructor() {
         super();
+        
         this.b = new BaseService();
         this.svUser = new UserService();
+        this.logger = new Logging();
     }
 
     /**
@@ -35,7 +39,7 @@ export class UserController extends CdController {
      * @param res
      */
     async Login(req, res) {
-        console.log('starting Login()')
+        this.logger.logInfo('starting Login()')
         try {
             await this.svUser.auth(req,res);
         } catch (e) {

@@ -78,34 +78,34 @@ export class BaseService {
     ds: any = null;
 
     async init(req, res) {
-        console.log("BaseService::init()/01:")
+        this.logger.logInfo("BaseService::init()/01:")
         if (!this.db) {
             const db = await new Database();
             // client expected to input the required models
             this.models.forEach(async (model) => {
-                console.log("BaseService::init()/forEach/model:", model)
+                this.logger.logInfo("BaseService::init()/forEach/model:", model)
                 await db.setConnEntity(model);
             });
             await db.getConnection();
         }
-        console.log("BaseService::init()/this.models:", this.models)
+        this.logger.logInfo("BaseService::init()/this.models:", this.models)
     }
 
     async initSqlite(req, res) {
         const iMax = 5;
         const i = 1;
         try {
-            console.log('BaseService::initSqlite()/01')
+            this.logger.logInfo('BaseService::initSqlite()/01')
             if (this.sqliteConn) {
-                console.log('BaseService::initSqlite()/02')
+                this.logger.logInfo('BaseService::initSqlite()/02')
             } else {
-                console.log('BaseService::initSqlite()/03')
+                this.logger.logInfo('BaseService::initSqlite()/03')
                 // await this.setSLConn(i)
                 this.sqliteConn = await this.connectDatabase(i)
             }
         } catch (e) {
-            console.log('BaseService::initSqlite()/04')
-            console.log('initSqlite()/Error:', e)
+            this.logger.logInfo('BaseService::initSqlite()/04')
+            this.logger.logInfo('initSqlite()/Error:', e)
             // const p = e.toString().search('AlreadyHasActiveConnectionError');
             // if (p === -1 && i < iMax) {
             //     i++;
@@ -132,47 +132,47 @@ export class BaseService {
     }
 
     async connectDatabase(i: number = 1): Promise<Connection> {
-        console.log('connectDatabase()/01')
+        this.logger.logInfo('connectDatabase()/01')
         const opts: ConnectionOptions = await sqliteConfig(`sqlite${i.toString()}`);
         let connection: Connection | undefined
         try {
-            console.log('connectDatabase()/02')
+            this.logger.logInfo('connectDatabase()/02')
             const connectionManager = getConnectionManager()
-            console.log('connectDatabase()/03')
+            this.logger.logInfo('connectDatabase()/03')
             // calling connection.close() doesn't actually delete it from the map, so "has" will still be true;
             // so if this is anything but the first attempt, try to create the connection again
             if (connectionManager.has(opts.name) && i === 1) {
-                console.log('connectDatabase()/04')
+                this.logger.logInfo('connectDatabase()/04')
                 // using a connection already connected (note this is a simplified version for lambda environment ...
                 // see also: https://github.com/typeorm/typeorm/issues/3427
                 connection = await connectionManager.get(`sqlite${i.toString()}`)
-                console.log('connectDatabase()/05')
+                this.logger.logInfo('connectDatabase()/05')
                 if (!connection.isConnected) {
-                    console.log('connectDatabase()/06')
+                    this.logger.logInfo('connectDatabase()/06')
                     throw new Error('Existing connection found but is not really connected')
                 }
-                console.log('connectDatabase()/07')
+                this.logger.logInfo('connectDatabase()/07')
             } else {
-                console.log('connectDatabase()/08')
+                this.logger.logInfo('connectDatabase()/08')
                 connection = await connectionManager.create(opts)
-                console.log('connectDatabase()/09')
+                this.logger.logInfo('connectDatabase()/09')
                 await connection.connect()
             }
-            console.log('connectDatabase()/10')
+            this.logger.logInfo('connectDatabase()/10')
             return await connection
         } catch (e) {
             i++;
-            console.log('connectDatabase()/11')
+            this.logger.logInfo('connectDatabase()/11')
             if (i >= 5) {
                 console.error('Giving up after too many connection attempts, throwing error')
                 throw e
             }
-            console.log('connectDatabase()/12')
+            this.logger.logInfo('connectDatabase()/12')
             if (connection
                 || connection.isConnected
                 || connection.close()
             ) {
-                console.log('connectDatabase()/13')
+                this.logger.logInfo('connectDatabase()/13')
                 const delayInMilliseconds = 200 * i;
                 await setTimeout(async () => {
                     // connection.close();
@@ -256,14 +256,14 @@ export class BaseService {
      */
     async resolveCls(req, res, clsCtx) {
         try {
-            console.log('BaseService::resolveCls()/01:')
+            this.logger.logInfo('BaseService::resolveCls()/01:')
             const eImport = await import(clsCtx.path);
-            console.log('BaseService::resolveCls()/02:')
+            this.logger.logInfo('BaseService::resolveCls()/02:')
             const eCls = eImport[clsCtx.clsName];
-            console.log('BaseService::resolveCls()/03:')
+            this.logger.logInfo('BaseService::resolveCls()/03:')
             const cls = new eCls();
             this.ds = clsCtx.dataSource;
-            console.log('BaseService::resolveCls()/04:')
+            this.logger.logInfo('BaseService::resolveCls()/04:')
             if (this.sess) {
                 // set sessData in req so it is available thoughout the bootstrap
                 req.post.sessData = this.sess;
@@ -334,7 +334,7 @@ export class BaseService {
     }
 
     async noToken(req, res) {
-        console.log('BaseService::noToken()/01')
+        this.logger.logInfo('BaseService::noToken()/01')
         const pl = req.post;
         const ctx = pl.ctx;
         const m = pl.m;
@@ -345,9 +345,9 @@ export class BaseService {
             this.setInvalidRequest(req, res, 'BaseService:noTocken:01');
         }
         if (m === 'User' && (a === 'Login' || a === 'Register')) {
-            console.log('BaseService::noToken()/02')
+            this.logger.logInfo('BaseService::noToken()/02')
             if (m === 'User' && a === 'Register') {
-                console.log('BaseService::noToken()/03')
+                this.logger.logInfo('BaseService::noToken()/03')
                 this.isRegRequest = true;
             }
             ret = true;
@@ -364,7 +364,7 @@ export class BaseService {
         if ('MSISDN' in pl) {
             ret = true;
         }
-        console.log('BaseService::noToken()/returning ret:', ret)
+        this.logger.logInfo('BaseService::noToken()/returning ret:', { return: ret })
         return ret;
     }
 
@@ -460,12 +460,12 @@ export class BaseService {
     }
 
     async respond(req, res) {
-        console.log('**********starting respond(res)*********');
+        this.logger.logInfo('**********starting respond(res)*********');
         // res.status(200).json(this.cdResp);
         let ret;
         try {
-            console.log('BaseService::respond(res)/this.pl:', JSON.stringify(req.post));
-            console.log('BaseService::respond(res)/this.cdResp:', JSON.stringify(this.cdResp));
+            this.logger.logInfo('BaseService::respond(res)/this.pl:', {post: JSON.stringify(req.post)});
+            this.logger.logInfo('BaseService::respond(res)/this.cdResp:', {cdResp: JSON.stringify(this.cdResp)});
             ret = res.status(200).json(this.cdResp);
         } catch (e) {
             this.err.push(e.toString())
@@ -500,27 +500,27 @@ export class BaseService {
      * @returns 
      */
     getPlData(req, extData: string | null = null, fValsIndex: number | null = null) {
-        console.log('BaseService::setPlData()/01');
+        this.logger.logInfo('BaseService::setPlData()/01');
         let ret = null;
         const svSess = new SessionService()
         if (this.validatePlData(req, extData)) {
             try {
                 if (extData) {
-                    console.log('BaseService::setPlData()/02')
+                    this.logger.logInfo('BaseService::setPlData()/02')
                     if (fValsIndex) {
                         ret = req.post.dat.f_vals[fValsIndex][extData];
                     } else {
                         ret = req.post.dat.f_vals[0][extData];
                     }
                 } else {
-                    console.log('BaseService::setPlData()/03');
+                    this.logger.logInfo('BaseService::setPlData()/03');
                     if (fValsIndex) {
                         ret = req.post.dat.f_vals[fValsIndex].data;
                     } else {
                         ret = req.post.dat.f_vals[0].data;
                     }
                 }
-                console.log('BaseService::setPlData()/04');
+                this.logger.logInfo('BaseService::setPlData()/04');
                 return ret;
             } catch (e) {
                 this.setAlertMessage(e.toString(), svSess, false)
@@ -533,15 +533,15 @@ export class BaseService {
     }
 
     async setPlData(req, item: ObjectItem, extData: string = null): Promise<void> {
-        console.log('BaseService::setPlData()/item:', item);
+        this.logger.logInfo('BaseService::setPlData()/item:', item);
         if (extData) {
-            console.log('BaseService::setPlData()/extData:', extData);
-            console.log('BaseService::setPlData()/req.post.dat.f_vals[0][extData]:', req.post.dat.f_vals[0][extData]);
+            this.logger.logInfo('BaseService::setPlData()/extData:', { extData: extData });
+            this.logger.logInfo('BaseService::setPlData()/req.post.dat.f_vals[0][extData]:', req.post.dat.f_vals[0][extData]);
             req.post.dat.f_vals[0][extData][item.key] = item.value;
         } else {
             req.post.dat.f_vals[0].data[item.key] = item.value;
         }
-        console.log('BaseService::setPlData()/req.post.dat.f_vals[0]:', req.post.dat.f_vals[0]);
+        this.logger.logInfo('BaseService::setPlData()/req.post.dat.f_vals[0]:', req.post.dat.f_vals[0]);
     }
 
     /**
@@ -550,14 +550,14 @@ export class BaseService {
      * @param item 
      * @param extData 
      */
-    async setPlDataM(req, data:any, item: ObjectItem, extData: string = null): Promise<void> {
-        console.log('BaseService::setPlDataM()/item:', item);
+    async setPlDataM(req, data: any, item: ObjectItem, extData: string = null): Promise<void> {
+        this.logger.logInfo('BaseService::setPlDataM()/item:', item);
         if (extData) {
-            console.log('BaseService::setPlDataM()/extData:', extData);
+            console.log('BaseService::setPlDataM()/extData:', { context: extData });
             console.log('BaseService::setPlDataM()/data:', data[extData]);
             data[extData][item.key] = item.value;
-        } 
-        console.log('BaseService::setPlDataM()/data:', data);
+        }
+        this.logger.logInfo('BaseService::setPlDataM()/data:', data);
     }
 
     /**
@@ -608,10 +608,10 @@ export class BaseService {
     }
 
     getQuery(req) {
-        console.log('BaseService::getQuery()/01')
-        console.log(`BaseService::getQuery()/req.post.dat.f_vals[0].query:${JSON.stringify(req.post.dat.f_vals[0].query)}`)
+        this.logger.logInfo('BaseService::getQuery()/01')
+        this.logger.logInfo(`BaseService::getQuery()/req.post.dat.f_vals[0].query:${JSON.stringify(req.post.dat.f_vals[0].query)}`)
         const q = req.post.dat.f_vals[0].query;
-        console.log(`BaseService::getQuery()/q:${q}`)
+        this.logger.logInfo(`BaseService::getQuery()/q:${q}`)
         this.pl = req.post;
         if (q) {
             return q;
@@ -648,26 +648,26 @@ export class BaseService {
                 databaseNameWithoutPrefixes: await col.databaseNameWithoutPrefixes,
                 type: await col.type
             };
-            console.log('getEntityPropertyMapSL()/ret:', ret);
+            // console.log('getEntityPropertyMapSL()/ret:', {ret: JSON.stringify(ret)});
             colsFiltdArr.push(ret);
             return ret;
         });
-        console.log('BaseService::getEntityPropertyMapSL()/colsFiltd:', await colsFiltd)
-        console.log('BaseService::getEntityPropertyMapSL()/colsFiltdArr:', await colsFiltdArr)
+        // console.log('BaseService::getEntityPropertyMapSL()/colsFiltd:', await colsFiltd)
+        // console.log('BaseService::getEntityPropertyMapSL()/colsFiltdArr:', await colsFiltdArr)
         return colsFiltdArr;
     }
 
     async validateUnique(req, res, params) {
-        console.log('BaseService::validateUnique()/01')
-        console.log('BaseService::validateUnique()/req.post:', JSON.stringify(req.post))
-        console.log('BaseService::validateUnique()/req.post.dat.f_vals[0]:', JSON.stringify(req.post.dat.f_vals[0]))
-        console.log('BaseService::validateUnique()/params:', params)
+        this.logger.logDebug('BaseService::validateUnique()/01')
+        this.logger.logDebug('BaseService::validateUnique()/req.post:', {reqPost: JSON.stringify(req.post)})
+        // console.log('BaseService::validateUnique()/req.post.dat.f_vals[0]:', req.post.dat.f_vals[0])
+        this.logger.logDebug('BaseService::validateUnique()/params:', params)
         await this.init(req, res);
         // assign payload data to this.userModel
         //** */ params.controllerInstance.userModel = this.getPlData(req);
         // set connection
         const baseRepository = getConnection().getRepository(params.model);
-        console.log('BaseService::validateUnique()/repo/model:', params.model)
+        this.logger.logDebug('BaseService::validateUnique()/repo/model:', {model: params.model})
         // const baseRepository: any = await this.repo(req, res, params.model)
         // const baseRepository: any = await this.repo
         // get model properties
@@ -678,7 +678,7 @@ export class BaseService {
         // console.log('validateUnique()/propMap:', await propMap)
         // const strQueryItems = await this.getQueryItems(req, propMap, params)
         const strQueryItems = await this.getQueryItems(req, params)
-        console.log('BaseService::validateUnique()/strQueryItems:', strQueryItems)
+        this.logger.logDebug('BaseService::validateUnique()/strQueryItems:', strQueryItems)
         // convert the string items into JSON objects
         // const arrQueryItems = await strQueryItems.map(async (item) => {
         //     console.log('validateUnique()/item:', await item)
@@ -688,12 +688,12 @@ export class BaseService {
         // console.log('validateUnique()/arrQueryItems:', arrQueryItems)
         // const filterItems = await JSON.parse(strQueryItems)
         const filterItems = await strQueryItems
-        console.log('BaseService::validateUnique()/filterItems:', filterItems)
+        this.logger.logDebug('BaseService::validateUnique()/filterItems:', filterItems)
         // execute the query
         const results = await baseRepository.count({
             where: await filterItems
         });
-        console.log('BaseService::validateUnique()/results:', results)
+        this.logger.logDebug('BaseService::validateUnique()/results:', { result: results })
         // return boolean result
         let ret = false;
         if (results === 0) {
@@ -708,15 +708,15 @@ export class BaseService {
             };
             await this.setAppState(false, i, null);
         }
-        console.log('BaseService::validateUnique()/ret:', ret)
+        this.logger.logDebug('BaseService::validateUnique()/ret:', {return: ret})
         return ret;
     }
 
     // async getQueryItems(req, propMap: any[], params: any) {
     async getQueryItems(req, params, fields = null) {
         ////////////////////////////////////////////////
-        console.log('BaseService::getQueryItems()/params:', params)
-        console.log('BaseService::getQueryItems()/req.post.dat.f_vals[0].data:', req.post.dat.f_vals[0].data)
+        this.logger.logDebug('BaseService::getQueryItems()/params:', params)
+        this.logger.logDebug('BaseService::getQueryItems()/req.post.dat.f_vals[0].data:', req.post.dat.f_vals[0].data)
         if (fields === null) {
             fields = req.post.dat.f_vals[0].data
         }
@@ -798,16 +798,16 @@ export class BaseService {
     }
 
     async validateUniqueI(req, res, params) {
-        console.log('BaseService::validateUnique()/01')
-        console.log('BaseService::validateUnique()/req.post:', JSON.stringify(req.post))
-        console.log('BaseService::validateUnique()/req.post.dat.f_vals[0]:', JSON.stringify(req.post.dat.f_vals[0]))
-        console.log('BaseService::validateUnique()/params:', params)
+        this.logger.logDebug('BaseService::validateUnique()/01')
+        this.logger.logDebug('BaseService::validateUnique()/req.post:', req.post)
+        this.logger.logDebug('BaseService::validateUnique()/req.post.dat.f_vals[0]:', req.post.dat.f_vals[0])
+        this.logger.logDebug('BaseService::validateUnique()/params:', params)
         await this.init(req, res);
         // assign payload data to this.userModel
         //** */ params.controllerInstance.userModel = this.getPlData(req);
         // set connection
         // const baseRepository = getConnection().getRepository(params.model);
-        console.log('BaseService::validateUnique()/repo/model:', params.model)
+        this.logger.logDebug('BaseService::validateUnique()/repo/model:', params.model)
         const baseRepository: any = await this.repo(req, res, params.model)
         // get model properties
         const propMap = await this.getEntityPropertyMap(req, res, params.model).then((result) => {
@@ -817,7 +817,7 @@ export class BaseService {
         // console.log('validateUnique()/propMap:', await propMap)
         // const strQueryItems = await this.getQueryItems(req, propMap, params)
         const strQueryItems = await this.getQueryItems(req, params)
-        console.log('BaseService::validateUnique()/strQueryItems:', strQueryItems)
+        this.logger.logDebug('BaseService::validateUnique()/strQueryItems:', strQueryItems)
         // convert the string items into JSON objects
         // const arrQueryItems = await strQueryItems.map(async (item) => {
         //     console.log('validateUnique()/item:', await item)
@@ -827,12 +827,12 @@ export class BaseService {
         // console.log('validateUnique()/arrQueryItems:', arrQueryItems)
         // const filterItems = await JSON.parse(strQueryItems)
         const filterItems = await strQueryItems
-        console.log('BaseService::validateUnique()/filterItems:', filterItems)
+        this.logger.logDebug('BaseService::validateUnique()/filterItems:', filterItems)
         // execute the query
         const results = await baseRepository.count({
             where: await filterItems
         });
-        console.log('BaseService::validateUnique()/results:', results)
+        this.logger.logDebug('BaseService::validateUnique()/results:', results)
         // return boolean result
         let ret = false;
         if (results === 0) {
@@ -847,7 +847,7 @@ export class BaseService {
             };
             await this.setAppState(false, i, null);
         }
-        console.log('BaseService::validateUnique()/ret:', ret)
+        this.logger.logDebug('BaseService::validateUnique()/ret:', {return: ret})
         return ret;
     }
 
@@ -863,31 +863,31 @@ export class BaseService {
      * @returns
      */
     async create(req, res, serviceInput: IServiceInput) {
-        console.log('BaseService::create()/01')
+        this.logger.logDebug('BaseService::create()/01')
         await this.init(req, res);
         this.setRepo(serviceInput);
         let newDocData;
         try {
-            console.log('BaseService::create()/02')
-            console.log('BaseService::create()/serviceInput0:', serviceInput)
-            console.log('BaseService::create()/021')
+            this.logger.logDebug('BaseService::create()/02')
+            this.logger.logDebug('BaseService::create()/serviceInput0:', serviceInput)
+            this.logger.logDebug('BaseService::create()/021')
             newDocData = await this.saveDoc(req, res, serviceInput);
-            console.log('BaseService::create()/022/newDocData:', newDocData)
+            this.logger.logDebug('BaseService::create()/022/newDocData:', newDocData)
         } catch (e) {
-            console.log('BaseService::create()/03:Error', e)
+            this.logger.logDebug('BaseService::create()/03:Error', e)
             this.serviceErr(req, res, e, 'BaseService:create/savDoc')
         }
         let serviceRepository = null;
         try {
-            console.log('BaseService::create()/04')
-            console.log('BaseService::create()/serviceInput1:', serviceInput)
+            this.logger.logDebug('BaseService::create()/04')
+            this.logger.logDebug('BaseService::create()/serviceInput1:', serviceInput)
             // serviceRepository = await getConnection().getRepository(serviceInput.serviceModel);
-            console.log('BaseService::create()/repo/model:', serviceInput.serviceModel)
+            this.logger.logDebug('BaseService::create()/repo/model:', serviceInput.serviceModel)
             // serviceRepository = await this.repo(req, res, serviceInput.serviceModel)
             serviceRepository = await this.repo
         } catch (e) {
-            console.log('BaseService::create()/serviceInput2:', serviceInput)
-            console.log('BaseService::create()/05')
+            this.logger.logDebug('BaseService::create()/serviceInput2:', serviceInput)
+            this.logger.logDebug('BaseService::create()/05')
             this.err.push(e.toString());
             const i = {
                 messages: this.err,
@@ -899,29 +899,29 @@ export class BaseService {
         }
 
         try {
-            console.log('BaseService::create()/06')
+            this.logger.logDebug('BaseService::create()/06')
             let modelInstance = serviceInput.serviceModelInstance;
             if ('dSource' in serviceInput) {
                 console.log('BaseService::create()/07')
                 if (serviceInput.dSource === 1) { // data source is provided by the req...data.
                     // req.post.dat.f_vals[0].data.doc_id = await newDocData.docId;
-                    console.log('BaseService::create()/08')
-                    console.log('BaseService::create()/newDocData:', newDocData)
+                    this.logger.logDebug('BaseService::create()/08')
+                    this.logger.logDebug('BaseService::create()/newDocData:', newDocData)
                     await this.setPlData(req, { key: 'docId', value: await newDocData.docId }) // set docId
-                    console.log('BaseService::create()/09')
+                    this.logger.logDebug('BaseService::create()/09')
                     const serviceData = await this.getServiceData(req, serviceInput);
-                    console.log('BaseService::create()/10')
-                    console.log('BaseService::create()/serviceData:', serviceData);
+                    this.logger.logDebug('BaseService::create()/10')
+                    this.logger.logDebug('BaseService::create()/serviceData:', serviceData);
                     modelInstance = await this.setEntity(req, res, serviceInput, serviceData);
-                    console.log('BaseService::create()/11')
+                    this.logger.logDebug('BaseService::create()/11')
                     return await serviceRepository.save(await modelInstance);
                 }
-                console.log('BaseService::create()/12')
+                this.logger.logDebug('BaseService::create()/12')
             }
         } catch (e) {
-            console.log('BaseService::create()/13')
+            this.logger.logDebug('BaseService::create()/13')
             this.err.push(e.toString());
-            console.log('BaseService::create()/Error:', e.toString())
+            this.logger.logDebug('BaseService::create()/Error:', e.toString())
             const i = {
                 messages: this.err,
                 code: 'BaseService:create',
@@ -961,61 +961,61 @@ export class BaseService {
      * @param createIParams
      */
     async createI(req, res, createIParams: CreateIParams): Promise<any> {
-        console.log('BaseService::createI()/01')
+        this.logger.logDebug('BaseService::createI()/01')
         await this.init(req, res);
         let newDocData;
         let ret: any;
         try {
-            console.log('BaseService::createI()/02')
+            this.logger.logDebug('BaseService::createI()/02')
             newDocData = await this.saveDoc(req, res, createIParams.serviceInput);
             // console.log('BaseService::createI()/newDocData:', newDocData)
         } catch (e) {
-            console.log('BaseService::createI()/03')
+            this.logger.logDebug('BaseService::createI()/03')
             this.serviceErr(req, res, e, 'BaseService:createI()/savDoc')
         }
         let serviceRepository = null;
         try {
-            console.log('BaseService::createI()/04')
+            this.logger.logDebug('BaseService::createI()/04')
             serviceRepository = await getConnection().getRepository(createIParams.serviceInput.serviceModel);
-            console.log('BaseService::createI()/repo/model:', createIParams.serviceInput.serviceModel)
+            this.logger.logDebug('BaseService::createI()/repo/model:', createIParams.serviceInput.serviceModel)
         } catch (e) {
-            console.log('BaseService::createI()/05')
-            console.log('BaseService::createI()/Error/01')
+            this.logger.logDebug('BaseService::createI()/05')
+            this.logger.logDebug('BaseService::createI()/Error/01')
             this.err.push(e.toString());
             const i = {
                 messages: this.err,
                 code: 'BaseService:create/getConnection',
                 app_msg: 'problem creating connection'
             };
-            console.log('BaseService::createI()/06')
+            this.logger.logDebug('BaseService::createI()/06')
             await this.serviceErr(req, res, e, 'BaseService:create/getConnection')
             return this.cdResp;
         }
 
         try {
-            console.log('BaseService::createI()/07')
+            this.logger.logDebug('BaseService::createI()/07')
             let modelInstance = createIParams.serviceInput.serviceModelInstance;
             if ('dSource' in createIParams.serviceInput) {
-                console.log('BaseService::createI()/08')
+                this.logger.logDebug('BaseService::createI()/08')
                 if (createIParams.serviceInput.dSource === 1) {
-                    console.log('BaseService::createI()/09')
-                    console.log('BaseService::createI()/newDocData:', newDocData)
-                    console.log('BaseService::createI()/createIParams:', createIParams)
-                    console.log('BaseService::createI()/createIParams.controllerData:', createIParams.controllerData)
+                    this.logger.logDebug('BaseService::createI()/09')
+                    this.logger.logDebug('BaseService::createI()/newDocData:', newDocData)
+                    this.logger.logDebug('BaseService::createI()/createIParams:', createIParams)
+                    this.logger.logDebug('BaseService::createI()/createIParams.controllerData:', createIParams.controllerData)
                     createIParams.controllerData = await this.setCreateIData(req, createIParams.controllerData, { key: 'docId', value: await newDocData.docId })
-                    console.log('BaseService::createI()/091')
+                    this.logger.logDebug('BaseService::createI()/091')
                     const serviceData = createIParams.controllerData;
-                    console.log('BaseService::createI()/092')
+                    this.logger.logDebug('BaseService::createI()/092')
                     modelInstance = await this.setEntity(req, res, createIParams.serviceInput, serviceData);
                     // modelInstance = createIParams.serviceInput.serviceModelInstance
-                    console.log('BaseService::createI()/093')
+                    this.logger.logDebug('BaseService::createI()/093')
                     // serviceRepository = await this.repo
-                    console.log('BaseService::createI()/094')
+                    this.logger.logDebug('BaseService::createI()/094')
                     ret = await serviceRepository.save(await modelInstance);
                 }
             }
         } catch (e) {
-            console.log('BaseService::createI()/10')
+            this.logger.logDebug('BaseService::createI()/10')
             this.err.push(e.toString());
             const i = {
                 messages: this.err,
@@ -1025,7 +1025,7 @@ export class BaseService {
             await this.serviceErr(req, res, e, 'BaseService:createI')
             ret = false;
         }
-        console.log('BaseService::createI()/11')
+        this.logger.logDebug('BaseService::createI()/11')
         return await ret;
     }
 
@@ -1033,15 +1033,15 @@ export class BaseService {
     async saveDoc(req, res, serviceInput: IServiceInput) {
         await this.init(req, res);
 
-        console.log('BaseService::saveDoc()/01')
+        this.logger.logDebug('BaseService::saveDoc()/01')
         // const docRepository: any = await getConnection().getRepository(DocModel);
-        console.log('BaseService::saveDoc()/repo/model:', DocModel)
+        this.logger.logDebug('BaseService::saveDoc()/repo/model:', DocModel)
         // const docRepository: any = await this.repo(req, res, DocModel)
 
-        console.log('BaseService::saveDoc()/02')
+        this.logger.logDebug('BaseService::saveDoc()/02')
         const doc = await this.setDoc(req, res, serviceInput);
-        console.log('BaseService::saveDoc()/03/dod:', doc)
-        console.log('BaseService::saveDoc()/doc:', JSON.stringify(doc))
+        this.logger.logDebug('BaseService::saveDoc()/03/dod:', doc)
+        this.logger.logDebug('BaseService::saveDoc()/doc:', doc)
         // await this.setRepo(serviceInput)
 
         // const docRepository: any = this.repo
@@ -1053,54 +1053,54 @@ export class BaseService {
     }
 
     async setDoc(req, res, serviceInput) {
-        console.log('BaseService::setDoc()/01')
+        this.logger.logDebug('BaseService::setDoc()/01')
         if (!this.cdToken) {
-            console.log('BaseService::setDoc()/02')
+            this.logger.logDebug('BaseService::setDoc()/02')
             await this.setSess(req, res);
         }
-        console.log('BaseService::setDoc()/03')
+        this.logger.logDebug('BaseService::setDoc()/03')
         const dm: DocModel = new DocModel();
         const iDoc = new DocService();
         dm.docFrom = this.cuid;
         dm.docName = serviceInput.docName;
-        console.log('BaseService::setDoc()/04')
+        this.logger.logDebug('BaseService::setDoc()/04')
         dm.docTypeId = await iDoc.getDocTypeId(req, res);
-        console.log('BaseService::setDoc()/05')
+        this.logger.logDebug('BaseService::setDoc()/05')
         dm.docDate = await this.mysqlNow();
-        console.log('BaseService::setDoc()/06')
+        this.logger.logDebug('BaseService::setDoc()/06')
         const AppDataSource = await getDataSource();
         this.docRepository = AppDataSource.getRepository(DocModel);
         return await dm;
     }
 
     async setSess(req, res) {
-        console.log('BaseService::setSess()/01')
+        this.logger.logDebug('BaseService::setSess()/01')
         this.svSess = new SessionService();
         if (await !this.cdToken) {
-            console.log('BaseService::setSess()/02')
+            this.logger.logDebug('BaseService::setSess()/02')
             try {
-                console.log('BaseService::setSess()/req.post:', req.post)
+                this.logger.logDebug('BaseService::setSess()/req.post:', req.post)
                 if ('sessData' in req.post) {
-                    console.log('BaseService::setSess()/021')
-                    console.log('BaseService::setSess()/req.post.sessData:', req.post.sessData)
+                    this.logger.logDebug('BaseService::setSess()/021')
+                    this.logger.logDebug('BaseService::setSess()/req.post.sessData:', req.post.sessData)
                     this.sess = [req.post.sessData]
                 } else {
-                    console.log('BaseService::setSess()/022')
+                    this.logger.logDebug('BaseService::setSess()/022')
                     this.sess = await this.svSess.getSession(req, res);
                 }
-                console.log('BaseService::setSess()/03')
-                console.log('BaseService::setSess()/this.sess:', this.sess)
+                this.logger.logDebug('BaseService::setSess()/03')
+                this.logger.logDebug('BaseService::setSess()/this.sess:', this.sess)
                 if (this.sess) {
-                    console.log('BaseService::setSess()/04')
+                    this.logger.logDebug('BaseService::setSess()/04')
                     if (this.sess.length > 0) {
-                        console.log('BaseService::setSess()/05')
-                        console.log('this.sess:', this.sess);
+                        this.logger.logDebug('BaseService::setSess()/05')
+                        this.logger.logDebug('this.sess:', this.sess);
                         this.setCuid(this.sess[0].currentUserId);
                         this.cdToken = await this.sess[0].cdToken;
                     } else {
-                        console.log('BaseService::setSess()/06')
+                        this.logger.logDebug('BaseService::setSess()/06')
                         const noToken = await this.noToken(req, res)
-                        console.log('BaseService::setSess()/noToken:', noToken)
+                        this.logger.logDebug('BaseService::setSess()/noToken:', {noToken: noToken})
                         if (noToken === false) {
                             this.i = {
                                 messages: this.err,
@@ -1113,7 +1113,7 @@ export class BaseService {
                         }
                     }
                 } else {
-                    console.log('BaseService::setSess()/07')
+                    this.logger.logDebug('BaseService::setSess()/07')
                     this.i = {
                         messages: this.err,
                         code: 'BaseService:setSess2',
@@ -1123,7 +1123,7 @@ export class BaseService {
                     this.respond(req, res);
                 }
             } catch (e) {
-                console.log('BaseService::setSess()/08')
+                this.logger.logDebug('BaseService::setSess()/08')
                 this.i = {
                     messages: this.err,
                     code: 'BaseService:setSess3',
@@ -1147,7 +1147,7 @@ export class BaseService {
 
     async setPropertyMapArr(req, res, serviceInput) {
         const propMap = await this.getEntityPropertyMap(req, res, serviceInput.serviceModel);
-        console.log('BaseService::setPropertyMapArr()/propMap:', propMap)
+        this.logger.logDebug('BaseService::setPropertyMapArr()/propMap:', propMap)
         const propMapArr = [];
         await propMap.forEach(async (field: any) => {
             // console.log('BaseService::setPropertyMapArr()/forEach/field:', field)
@@ -1177,15 +1177,15 @@ export class BaseService {
     }
 
     async mysqlNow() {
-        console.log('BaseService::mysqlNow()/01')
+        this.logger.logDebug('BaseService::mysqlNow()/01')
         const now = new Date();
         const date = await moment(
             now,
             'ddd MMM DD YYYY HH:mm:ss'
         );
-        console.log('BaseService::mysqlNow()/02')
+        this.logger.logDebug('BaseService::mysqlNow()/02')
         const ret = await date.format('YYYY-MM-DD HH:mm:ss'); // convert to mysql date
-        console.log('BaseService::mysqlNow()/03')
+        this.logger.logDebug('BaseService::mysqlNow()/03')
         return ret;
     }
 
@@ -1202,10 +1202,10 @@ export class BaseService {
     }
 
     async read(req, res, serviceInput: IServiceInput): Promise<any> {
-        console.log('BaseService::read()/01')
+        this.logger.logDebug('BaseService::read()/01')
         await this.init(req, res);
-        console.log('BaseService::read()/02')
-        console.log('BaseService::read()/serviceInput:', serviceInput)
+        this.logger.logDebug('BaseService::read()/02')
+        this.logger.logDebug('BaseService::read()/serviceInput:', serviceInput)
         // const repo: any = await this.repo(req, res, serviceInput.serviceModel);
 
         await this.setRepo(serviceInput)
@@ -1230,39 +1230,39 @@ export class BaseService {
         // };
         // this.repo = MysqlDataSource.getRepository(serviceInput.serviceModel)
         // const repo: any = this.repo;
-        console.log('BaseService::read()/03')
+        this.logger.logDebug('BaseService::read()/03')
         let r: any = null;
         switch (serviceInput.cmd.action) {
             case 'find':
                 try {
-                    console.log('BaseService::read()/031')
-                    console.log('BaseService::read()/04/serviceInput.serviceModel:', serviceInput.serviceModel)
-                    console.log('BaseService::read()/04/serviceInput.modelName:', serviceInput.modelName)
+                    this.logger.logDebug('BaseService::read()/031')
+                    this.logger.logDebug('BaseService::read()/04/serviceInput.serviceModel:', serviceInput.serviceModel)
+                    this.logger.logDebug('BaseService::read()/04/serviceInput.modelName:', {modelName:serviceInput.modelName})
                     await this.setRepo(serviceInput)
-                    console.log('BaseService::read()/041')
-                    console.log('BaseService::read()/this.repo:', this.repo)
+                    this.logger.logDebug('BaseService::read()/041')
+                    this.logger.logDebug('BaseService::read()/this.repo:', this.repo)
                     r = await this.repo.find(serviceInput.cmd.query);
-                    console.log('BaseService::read()/04/r:', r)
+                    this.logger.logDebug('BaseService::read()/04/r:', r)
                     if (serviceInput.extraInfo) {
-                        console.log('BaseService::read()/05')
+                        this.logger.logDebug('BaseService::read()/05')
                         return {
                             result: r,
                             fieldMap: await this.feildMap(serviceInput)
                         }
                     } else {
-                        console.log('BaseService::read()/06')
+                        this.logger.logDebug('BaseService::read()/06')
                         return await r;
                     }
                 }
                 catch (err) {
-                    console.log('BaseService::read()/07')
+                    this.logger.logDebug('BaseService::read()/07')
                     return await this.serviceErr(req, res, err, 'BaseService:read');
                 }
                 break;
             case 'count':
                 try {
                     r = await this.repo.count(serviceInput.cmd.query);
-                    console.log('BaseService::read()/r:', r)
+                    this.logger.logDebug('BaseService::read()/r:', r)
                     return r;
                 }
                 catch (err) {
@@ -1282,8 +1282,8 @@ export class BaseService {
     async readCount(req, res, serviceInput): Promise<any> {
         await this.init(req, res);
         // const repo = getConnection().getRepository(serviceInput.serviceModel);
-        console.log('BaseService::readCount()/repo/model:', serviceInput.serviceModel)
-        console.log(`BaseService::readCount()/repo/model:${serviceInput.serviceModel}`)
+        this.logger.logDebug('BaseService::readCount()/repo/model:', serviceInput.serviceModel)
+        this.logger.logDebug(`BaseService::readCount()/repo/model:${serviceInput.serviceModel}`)
         // const repo: any = await this.repo(req, res, serviceInput.serviceModel)
         await this.setRepo(serviceInput)
         // this.setRepo(serviceInput.serviceModel)
@@ -1303,14 +1303,14 @@ export class BaseService {
     }
 
     readCount$(req, res, serviceInput): Observable<any> {
-        console.log('BaseService::readCount$()/serviceInput:', serviceInput)
+        this.logger.logDebug('BaseService::readCount$()/serviceInput:', serviceInput)
         return from(this.readCount(req, res, serviceInput));
     }
 
     async readPaged(req, res, serviceInput): Promise<any> {
         await this.init(req, res);
         // const repo = getConnection().getRepository(serviceInput.serviceModel);
-        console.log('BaseService::readPaged()/repo/model:', serviceInput.serviceModel)
+        this.logger.logDebug('BaseService::readPaged()/repo/model:', serviceInput.serviceModel)
         // const repo: any = await this.repo(req, res, serviceInput.serviceModel)
         await this.setRepo(serviceInput)
         // this.setRepo(serviceInput.serviceModel)
@@ -1369,7 +1369,7 @@ export class BaseService {
     async feildMapSL(req, res, serviceInput: IServiceInput) {
         await this.initSqlite(req, res);
         // console.log('BaseService::feildMapSL()/this.sqliteConn:', this.sqliteConn)
-        console.log('BaseService::feildMapSL()/serviceInput:', serviceInput.serviceModel)
+        this.logger.logDebug('BaseService::feildMapSL()/serviceInput:', serviceInput.serviceModel)
         const meta = await this.sqliteConn.getMetadata(serviceInput.serviceModel).columns;
         return await meta.map(async (c) => {
             return { propertyPath: await c.propertyPath, givenDatabaseName: await c.givenDatabaseName, dType: await c.type };
@@ -1377,7 +1377,7 @@ export class BaseService {
     }
 
     async get(req, res, serviceInput: IServiceInput, q: IQuery): Promise<any> {
-        console.log('BaseService::get/q:', q);
+        this.logger.logDebug('BaseService::get/q:', q);
         // console.log('BaseService::get/model:', model);
         // const serviceInput: IServiceInput = {
         //     serviceModel: model,
@@ -1392,7 +1392,7 @@ export class BaseService {
         try {
             return await this.read(req, res, serviceInput)
         } catch (e) {
-            console.log('BaseService::get()/e:', e)
+            this.logger.logDebug('BaseService::get()/e:', e)
             this.err.push(e.toString());
             const i = {
                 messages: this.err,
@@ -1407,7 +1407,7 @@ export class BaseService {
     }
 
     get$(req, res, serviceInput: IServiceInput, q: IQuery): Observable<any> {
-        console.log('BaseService::get$/q:', q);
+        this.logger.logDebug('BaseService::get$/q:', q);
         // const serviceInput: IServiceInput = {
         //     serviceModel: model,
         //     docName: 'BaseService::get',
@@ -1417,11 +1417,11 @@ export class BaseService {
         //     },
         //     dSource: 1
         // }
-        console.log('BaseService::get$/serviceInput:', serviceInput);
+        this.logger.logDebug('BaseService::get$/serviceInput:', serviceInput);
         try {
             return this.read$(req, res, serviceInput)
         } catch (e) {
-            console.log('BaseService::read$()/e:', e)
+            this.logger.logDebug('BaseService::read$()/e:', e)
             this.err.push(e.toString());
             const i = {
                 messages: this.err,
@@ -1470,7 +1470,7 @@ export class BaseService {
                 case 'count':
                     try {
                         r = await repo.count(serviceInput.cmd.query);
-                        console.log('BillService::read()/r:', r)
+                        this.logger.logDebug('BillService::read()/r:', r)
                         return r;
                     }
                     catch (err) {
@@ -1495,7 +1495,7 @@ export class BaseService {
             // await this.setRepo(serviceInput.serviceModel)
             await this.setRepo(serviceInput)
             // const serviceRepository = await getConnection().getRepository(serviceInput.serviceModel);
-            console.log('BaseService::update()/repo/model:', serviceInput.serviceModel)
+            this.logger.logDebug('BaseService::update()/repo/model:', serviceInput.serviceModel)
             // const serviceRepository: any = await this.repo(req, res, serviceInput.serviceModel)
             const serviceRepository: any = this.repo
             const result = await serviceRepository.update(
@@ -1532,7 +1532,7 @@ export class BaseService {
     }
 
     async updateSL(req, res, serviceInput: IServiceInput) {
-        console.log('BillService::updateSL()/01')
+        this.logger.logDebug('BillService::updateSL()/01')
         await this.initSqlite(req, res);
         const svSess = new SessionService();
         // const repo: any = await this.sqliteConn.getRepository(serviceInput.serviceModel);
@@ -1543,7 +1543,7 @@ export class BaseService {
             serviceInput.cmd.query.where,
             await this.fieldsAdaptorSL(req, res, serviceInput.cmd.query.update, serviceInput)
         );
-        console.log('result:', result)
+        this.logger.logDebug('result:', result)
         // this.cdResp.data = ret;
         svSess.sessResp.ttl = svSess.getTtl();
         this.setAppState(true, this.i, svSess.sessResp);
@@ -1638,13 +1638,13 @@ export class BaseService {
     }
 
     async delete(req, res, serviceInput) {
-        console.log('BaseService::delete()/01')
+        this.logger.logDebug('BaseService::delete()/01')
         let ret: any = [];
         await this.init(req, res);
         await this.setRepo(serviceInput)
         // await this.setRepo(serviceInput.serviceModel)
         // const serviceRepository = await getConnection().getRepository(serviceInput.serviceModel);
-        console.log('BaseService::delete()/repo/model:', serviceInput.serviceModel)
+        this.logger.logDebug('BaseService::delete()/repo/model:', serviceInput.serviceModel)
         // const serviceRepository: any = await this.repo(req, res, serviceInput.serviceModel)
         const serviceRepository: any = this.repo
         const result = await serviceRepository.delete(
@@ -1670,14 +1670,14 @@ export class BaseService {
     }
 
     async deleteSL(req, res, serviceInput: IServiceInput) {
-        console.log('BillService::updateSL()/01')
+        this.logger.logDebug('BillService::updateSL()/01')
         let ret: any = [];
         await this.initSqlite(req, res);
         const repo = await this.sqliteConn.getRepository(serviceInput.serviceModel);
         const result = await repo.delete(
             serviceInput.cmd.query.where
         )
-        console.log('BaseService::deleteSL()/result:', result)
+        this.logger.logDebug('BaseService::deleteSL()/result:', result)
         if ('affected' in result) {
             this.cdResp.app_state.success = true;
             this.cdResp.app_state.info.app_msg = `${result.affected} record/s deleted`;
@@ -1757,23 +1757,23 @@ export class BaseService {
     //     .where(`user.address ::jsonb @> \'{"state":"${query.location}"}\'`)
 
     async readJSON(req, res, serviceInput: IServiceInput): Promise<any> {
-        console.log('BaseService::readJSON()/01')
+        this.logger.logDebug('BaseService::readJSON()/01')
         await this.init(req, res);
         // await this.setRepo(serviceInput.serviceModel)
         await this.setRepo(serviceInput)
-        console.log('BaseService::readJSON()/02')
-        console.log('BaseService::readJSON()/repo/model:', JSON.stringify(serviceInput.serviceModel))
+        this.logger.logDebug('BaseService::readJSON()/02')
+        this.logger.logDebug('BaseService::readJSON()/repo/model:', {serviceModel:serviceInput.serviceModel})
         // const repo: any = await this.repo(req, res, serviceInput.serviceModel);
         const repo: any = this.repo;
-        console.log('BaseService::readJSON()/03')
+        this.logger.logDebug('BaseService::readJSON()/03')
         let r: any = null;
         const q = serviceInput.cmd.query
         switch (serviceInput.cmd.action) {
             case 'find':
                 try {
-                    console.log('BaseService::readJSON()/031')
+                    this.logger.logDebug('BaseService::readJSON()/031')
                     // r = await repo.find(serviceInput.cmd.query);
-                    console.log('BaseService::readJSON()/q:', q)
+                    this.logger.logDebug('BaseService::readJSON()/q:', q)
                     // working- option 1:
                     // r = await repo.query('SELECT * FROM `inte_ract_pub` WHERE j_val->"$.domain.group.doc_id" = 11091;');
 
@@ -1791,27 +1791,27 @@ export class BaseService {
                         .select()
                         .where(`${this.getQbFilter(<IQbInput>q)}`)
                         .getMany()
-                    console.log('BaseService::readJSON()/04')
+                        this.logger.logDebug('BaseService::readJSON()/04')
                     if (serviceInput.extraInfo) {
-                        console.log('BaseService::readJSON()/05')
+                        this.logger.logDebug('BaseService::readJSON()/05')
                         return {
                             result: r,
                             fieldMap: await this.feildMap(serviceInput)
                         }
                     } else {
-                        console.log('BaseService::readJSON()/06')
+                        this.logger.logDebug('BaseService::readJSON()/06')
                         return await r;
                     }
                 }
                 catch (err) {
-                    console.log('BaseService::readJSON()/07')
+                    this.logger.logDebug('BaseService::readJSON()/07')
                     return await this.serviceErr(req, res, err, 'BaseService:read');
                 }
                 break;
             case 'count':
                 try {
                     r = await repo.count(serviceInput.cmd.query);
-                    console.log('BaseService::readJSON()/r:', r)
+                    this.logger.logDebug('BaseService::readJSON()/r:', r)
                     return r;
                 }
                 catch (err) {
@@ -1849,7 +1849,7 @@ export class BaseService {
     async redisInit(req, res) {
         this.redisClient = createClient();
         this.redisClient.on('error', async (err) => {
-            console.log('BaseService::redisCreate()/02')
+            this.logger.logDebug('BaseService::redisCreate()/02')
             this.err.push(err.toString());
             const i = {
                 messages: this.err,
@@ -1866,7 +1866,7 @@ export class BaseService {
     async wsRedisInit() {
         this.redisClient = createClient();
         this.redisClient.on('error', async (err) => {
-            console.log('BaseService::redisCreate()/02')
+            this.logger.logDebug('BaseService::redisCreate()/02')
             this.err.push(err.toString());
             const i = {
                 messages: this.err,
@@ -1881,20 +1881,20 @@ export class BaseService {
 
     async redisCreate(req, res) {
         await this.redisInit(req, res);
-        console.log('BaseService::redisCreate()/01')
+        this.logger.logDebug('BaseService::redisCreate()/01')
         const pl: CacheData = await this.getPlData(req);
-        console.log('BaseService::redisCreate()/pl:', pl)
+        this.logger.logDebug('BaseService::redisCreate()/pl:', pl)
         try {
             const setRet = await this.redisClient.set(pl.key, pl.value);
-            console.log('BaseService::redisCreate()/setRet:', setRet)
+            this.logger.logDebug('BaseService::redisCreate()/setRet:', setRet)
             const readBack = await this.redisClient.get(pl.key);
-            console.log('BaseService::redisCreate()/readBack:', readBack)
+            this.logger.logDebug('BaseService::redisCreate()/readBack:', readBack)
             return {
                 status: setRet,
                 saved: readBack,
             };
         } catch (e) {
-            console.log('BaseService::redisCreate()/04')
+            this.logger.logDebug('BaseService::redisCreate()/04')
             this.err.push(e.toString());
             const i = {
                 messages: this.err,
@@ -1911,15 +1911,15 @@ export class BaseService {
         await this.wsRedisInit();
         try {
             const setRet = await this.redisClient.set(k, v);
-            console.log(`BaseService::wsRedisCreate()/setRet:${JSON.stringify(setRet)}`)
+            this.logger.logDebug(`BaseService::wsRedisCreate()/setRet:${JSON.stringify(setRet)}`)
             const readBack = await this.redisClient.get(k);
-            console.log(`BaseService::wsRedisCreate()/readBack:${JSON.stringify(readBack)}`)
+            this.logger.logDebug(`BaseService::wsRedisCreate()/readBack:${JSON.stringify(readBack)}`)
             return {
                 status: setRet,
                 saved: readBack,
             };
         } catch (e) {
-            console.log('BaseService::wsRedisCreate()/04')
+            this.logger.logDebug('BaseService::wsRedisCreate()/04')
             this.err.push(e.toString());
             const i = {
                 messages: this.err,
@@ -1933,15 +1933,15 @@ export class BaseService {
 
     async redisRead(req, res, serviceInput: IServiceInput) {
         await this.redisInit(req, res);
-        console.log('BaseService::redisRead()/01')
+        this.logger.logDebug('BaseService::redisRead()/01')
         const pl: CacheData = await this.getPlData(req);
-        console.log('BaseService::redisRead()/pl:', pl)
+        this.logger.logDebug('BaseService::redisRead()/pl:', pl)
         try {
             const getRet = await this.redisClient.get(pl.key);
-            console.log('BaseService::redisRead()/getRet:', getRet)
+            this.logger.logDebug('BaseService::redisRead()/getRet:', getRet)
             return getRet
         } catch (e) {
-            console.log('BaseService::redisRead()/04')
+            this.logger.logDebug('BaseService::redisRead()/04')
             this.err.push(e.toString());
             const i = {
                 messages: this.err,
@@ -1957,10 +1957,10 @@ export class BaseService {
         await this.wsRedisInit();
         try {
             const getRet = await this.redisClient.get(k);
-            console.log('BaseService::redisRead()/getRet:', getRet)
+            this.logger.logDebug('BaseService::redisRead()/getRet:', getRet)
             return getRet
         } catch (e) {
-            console.log('BaseService::redisRead()/04')
+            this.logger.logDebug('BaseService::redisRead()/04')
             this.err.push(e.toString());
             const i = {
                 messages: this.err,
@@ -1975,7 +1975,7 @@ export class BaseService {
     redisDelete(req, res, serviceInput: IServiceInput) {
         this.redisClient.del('foo', (err, reply) => {
             if (err) throw err;
-            console.log(reply);
+            this.logger.logDebug(reply);
         });
     }
 
@@ -1991,7 +1991,7 @@ export class BaseService {
     }
 
     async wsServiceErr(e, eCode, cdToken = null) {
-        console.log(`Error as BaseService::wsServiceErr, e: ${e.toString()} `)
+        this.logger.logDebug(`Error as BaseService::wsServiceErr, e: ${e.toString()} `)
         const svSess = new SessionService();
         svSess.sessResp.cd_token = cdToken;
         svSess.sessResp.ttl = svSess.getTtl();
@@ -2008,7 +2008,7 @@ export class BaseService {
 
     async bFetch(req, res, serviceInput: IServiceInput) {
         try {
-            console.log('BaseService::fetch()/01')
+            this.logger.logDebug('BaseService::fetch()/01')
 
             const response = await fetch(serviceInput.fetchInput.url, serviceInput.fetchInput.optins);
             const data = await response.json();
@@ -2031,7 +2031,7 @@ export class BaseService {
 
     async validateInputRefernce(msg: string, validationResponse: any[], svSess: SessionService): Promise<boolean> {
         if (validationResponse.length > 0) {
-            console.log('BaseService::validateCreate()/1')
+            this.logger.logDebug('BaseService::validateCreate()/1')
             return true;
         } else {
             // console.log('BaseService::validateCreate()/2')
@@ -2209,7 +2209,7 @@ export class BaseService {
         return Object.keys(obj).length === 0;
     }
 
-    siGet(q: IQuery, cls: any):IServiceInput {
+    siGet(q: IQuery, cls: any): IServiceInput {
         return {
             serviceModel: cls.serviceModel,
             docName: `${cls.modelName}::siGet`,
