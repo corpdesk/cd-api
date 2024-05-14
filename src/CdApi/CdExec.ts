@@ -1,15 +1,18 @@
 import { BaseService } from './sys/base/base.service';
 import { IRespInfo } from './sys/base/IBase';
+import { Logging } from './sys/base/winston.log';
 
 export class CdExec {
     b: BaseService;
+    logger: Logging;
     constructor() {
         this.b = new BaseService();
+        this.logger = new Logging();
     }
     async exec(req, res, ds=null) {
-        console.log('CdExec::exec()/01');
+        this.logger.logDebug('CdExec::exec()/01');
         if (await this.b.valid(req, res)) {
-            console.log('CdExec::exec()/02');
+            this.logger.logInfo('CdExec::exec()/02');
             try {
                 const pl = req.post; // payload;
                 const ePath = this.b.entryPath(pl);
@@ -19,10 +22,10 @@ export class CdExec {
                     action: pl.a,
                     dataSource: ds
                 }
-                // console.log('CdExec::exec()/clsCtx:', clsCtx)
+                // this.logger.logInfo('CdExec::exec()/clsCtx:', clsCtx)
                 await this.b.resolveCls(req, res, clsCtx);
             } catch (e) {
-                console.log('CdExec::exec()/03');
+                this.logger.logDebug('CdExec::exec()/03');
                 const i: IRespInfo = {
                     messages: e,
                     code: 'CdExec:exec:01',
@@ -31,7 +34,7 @@ export class CdExec {
                 await this.b.returnErr(req, res, i);
             }
         } else {
-            console.log('CdExec::exec()/04');
+            this.logger.logDebug('CdExec::exec()/04');
             this.b.err.push('invalid request');
             const i: IRespInfo = {
                 messages: this.b.err,

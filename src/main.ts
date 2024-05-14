@@ -18,10 +18,15 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import Redis from "ioredis";
 import { SioService } from './CdApi/sys/cd-push/services/sio.service';
+import { Logging } from './CdApi/sys/base/winston.log';
 
 
 
 export class Main {
+    logger: Logging;
+    constructor() {
+        this.logger = new Logging();
+    }
     async run() {
 
         // basic settings
@@ -87,10 +92,11 @@ export class Main {
 
         // start api server
         httpServer.listen(config.apiPort, () => {
-            console.log(`cd-api server is listening on ${config.apiPort}`);
+            // console.log(`cd-api server is listening on ${config.apiPort}`);
+            this.logger.logInfo(`cd-api server is listening on ${config.apiPort}`)
         })
             .on('error', (e) => {
-                console.log(`cd-api server: listen()/Error:${e}`);
+                this.logger.logError(`cd-api server: listen()/Error:${e}`)
             });
 
 

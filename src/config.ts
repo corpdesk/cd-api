@@ -153,7 +153,7 @@ export default {
         sentinalOptions: {
             sentinels: [
                 { host: process.env.REDIS_HOST, port: Number(process.env.REDIS_PORT) },
-                { host: 'cd-shell.asdap-01', port: Number(process.env.REDIS_PORT) }
+                { host: 'cd-shell.asdap.africa', port: Number(process.env.REDIS_PORT) }
             ],
             name: 'master01'
         }
