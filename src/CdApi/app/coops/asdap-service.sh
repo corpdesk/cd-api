@@ -6,6 +6,7 @@ chmod +x /home/devops/cd-api/src/app.ts
 chmod +x /home/devops/cd-sio/src/app.ts
 sudo cp /home/devops/cd-api/src/CdApi/app/coops/asdap.service /etc/systemd/system/
 sudo cp /home/devops/cd-api/src/CdApi/app/coops/asdap-sio.service /etc/systemd/system/
+sudo rm -f /usr/bin/node
 bash -c 'sudo ln -s /usr/bin/nodejs /usr/bin/node'
 sudo systemctl daemon-reload
 sudo systemctl start asdap
