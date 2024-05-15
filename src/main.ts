@@ -45,7 +45,7 @@ export class Main {
         // const sio = new SioService()
         // sio.init()
 
-        // app.use(cors(options));
+        app.use(cors(options));
         const httpServer = createServer(app);
         // const httpServer = createServer();
         const corsOpts = {
@@ -53,7 +53,25 @@ export class Main {
                 origin: config.Cors.options.origin
             }
         }
-        const io = new Server(httpServer, corsOpts);
+        // const io = new Server(httpServer, corsOpts);
+
+        /////////////////////////////
+        // const server = http.createServer();
+        const io = new Server(httpServer, {
+            cors: {
+                origin: (origin, callback) => {
+                    const allowedOrigins = ["https://cd-shell.asdap.africa", "https://146.190.157.42"];
+
+                    if (origin && allowedOrigins.includes(origin)) {
+                        callback(null, true);
+                    } else {
+                        callback(new Error("Not allowed by CORS"));
+                    }
+                },
+                methods: ["GET", "POST"],
+            },
+        });
+        ///////////////////////////////////////////
 
         let pubClient;
         let subClient;
@@ -93,7 +111,7 @@ export class Main {
         // start api server
         httpServer.listen(config.apiPort, () => {
             // console.log(`cd-api server is listening on ${config.apiPort}`);
-            this.logger.logInfo(`cd-api server is listening on:`, {port:`${config.apiPort}`})
+            this.logger.logInfo(`cd-api server is listening on:`, { port: `${config.apiPort}` })
         })
             .on('error', (e) => {
                 this.logger.logError(`cd-api server: listen()/Error:${e}`)
