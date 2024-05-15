@@ -1,0 +1,20 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": ".c3e8b47dbc072dc760f9854906b962910dc1e421-audit.json",
+    "files": [
+        {
+            "date": 1715700953337,
+            "name": "corpdesk-2024-05-14.log",
+            "hash": "b2e43177c4d72938c2b7e66fe38899c0e23d5552a3f1cf59c375a2784b517396"
+        },
+        {
+            "date": 1715726740506,
+            "name": "corpdesk-2024-05-15.log",
+            "hash": "bf6cbb04c8ff0d2917f13f4937f4479aaa95bf2ddc32c7302ea5491cecf81f59"
+        }
+    ],
+    "hashType": "sha256"
+}

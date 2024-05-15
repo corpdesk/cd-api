@@ -1,7 +1,9 @@
 1. SSL
 3. Continous running of corpdesk
+    - run as system daemon
+        - auto restart
     - monitor status
-    - view logs
+        - view logs
     - auto restart (nodemon, forever)
     - run via sysdemon
 
