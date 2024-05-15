@@ -16,7 +16,7 @@ sudo systemctl enable asdap
 sudo systemctl enable asdap-sio
 # sudo journalctl -u asdap
 # sudo journalctl -u asdap-sio
-# sudo journalctl --unit=masdap -n 30 --no-pager
+# sudo journalctl --unit=asdap -n 30 --no-pager
 
 
 
