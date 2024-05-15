@@ -13,6 +13,12 @@ export enum LogLevel {
     ERROR = 'error',
 }
 
+const timezoned = () => {
+    return new Date().toLocaleString('en-US', {
+        timeZone: process.env.TZ
+    });
+}
+
 // @injectable() // Coming from inversify
 export class Logging {
     private _logger: winston.Logger;
@@ -62,9 +68,10 @@ export class Logging {
         return transports;
     }
 
+    // format:format.combine(format.timestamp({ format: timezoned }),format.prettyPrint()),
     private static _getFormatForConsole() {
         return format.combine(
-            format.timestamp(),
+            format.timestamp({ format: timezoned }),
             format.printf(
                 info =>
                     `[${info.timestamp}] [${info.level.toUpperCase()}]: ${info.message
@@ -77,13 +84,13 @@ export class Logging {
 
     private static _getFileTransport() {
         return new DailyRotateFile({
-            level: 'verbose',
+            level: process.env.LOG_LEVEL || 'info',
             filename: `${Logging._appName}-%DATE%.log`,
             zippedArchive: true, // Compress gzip
             maxSize: '10m', // Rotate after 10MB
             maxFiles: '14d', // Only keep last 14 days
             format: format.combine(
-                format.timestamp(),
+                format.timestamp({ format: timezoned }),
                 format(info => {
                     console.log(info);
                     info.app = this._appName;
