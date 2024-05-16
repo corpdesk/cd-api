@@ -53,24 +53,24 @@ export class Main {
                 origin: config.Cors.options.origin
             }
         }
-        // const io = new Server(httpServer, corsOpts);
+        const io = new Server(httpServer, corsOpts);
 
         /////////////////////////////
         // const server = http.createServer();
-        const io = new Server(httpServer, {
-            cors: {
-                origin: (origin, callback) => {
-                    const allowedOrigins = ["https://cd-shell.asdap.africa", "https://146.190.157.42"];
+        // const io = new Server(httpServer, {
+        //     cors: {
+        //         origin: (origin, callback) => {
+        //             const allowedOrigins = ["https://cd-shell.asdap.africa", "https://146.190.157.42"];
 
-                    if (origin && allowedOrigins.includes(origin)) {
-                        callback(null, true);
-                    } else {
-                        callback(new Error("Not allowed by CORS"));
-                    }
-                },
-                methods: ["GET", "POST"],
-            },
-        });
+        //             if (origin && allowedOrigins.includes(origin)) {
+        //                 callback(null, true);
+        //             } else {
+        //                 callback(new Error("Not allowed by CORS"));
+        //             }
+        //         },
+        //         methods: ["GET", "POST"],
+        //     },
+        // });
         ///////////////////////////////////////////
 
         let pubClient;
@@ -103,7 +103,7 @@ export class Main {
 
 
         // set api entry point
-        app.post('/', async (req: any, res: any) => {
+        app.post('/api', async (req: any, res: any) => {
             res.setHeader('Content-Type', 'application/json');
             CdInit(req, res, ds);
         });

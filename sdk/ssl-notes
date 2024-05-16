@@ -1,0 +1,273 @@
+https://www.learnwithjason.dev/blog/deploy-nodejs-ssl-digitalocean/
+
+https://www.namecheap.com/support/knowledgebase/article.aspx/9705/33/installing-an-ssl-certificate-on-nodejs/
+
+https://medium.com/developer-rants/implementing-https-and-wss-support-in-express-with-typescript-of-course-f36006c77bab
+
+
+nginx:
+https://blog.logrocket.com/how-to-run-node-js-server-nginx/
+
+
+cert info:
+/etc/letsencrypt/
+cert = /etc/letsencrypt/live/cd-shell.asdap.africa/cert.pem
+privkey = /etc/letsencrypt/live/cd-shell.asdap.africa/privkey.pem
+
+/////////////////////////////////////////////
+Describe how one can set up nginx with the following details: 
+1. set up nginx to run as a reverse proxy for a node.js application
+2. the node.js application is running on port 3001
+3. apache is already running in the same server on port 80 for http and 443 for https. So set nginx to run on port 8080 for http and 8181 for https
+4. set up the nginx run with ssl and all http to be directed to https
+5. the domain for the server is cd-shell.asdap.africa
+5. certificat path: /etc/letsencrypt/live/cd-shell.asdap.africa/cert.pem
+6. path for privkey: /etc/letsencrypt/live/cd-shell.asdap.africa/privkey.pem
+ChatGPT
+
+Setting up Nginx as a reverse proxy for a Node.js application while coexisting with Apache on the same server involves several steps. We'll configure Nginx to listen on ports 8080 (HTTP) and 8181 (HTTPS), set up SSL, and redirect HTTP traffic to HTTPS. Here's a step-by-step guide:
+1. Install Nginx
+
+If Nginx is not already installed, you can install it using the following commands:
+
+sh
+
+sudo apt update
+sudo apt install nginx
+
+2. Configure Nginx as a Reverse Proxy
+
+Create a new Nginx configuration file for your site in the /etc/nginx/sites-available directory:
+
+sh
+
+sudo nano /etc/nginx/sites-available/cd-shell.asdap.africa
+
+Add the following configuration to this file:
+
+nginx
+
+server {
+    listen 8080;
+    server_name cd-shell.asdap.africa;
+
+    # Redirect HTTP to HTTPS
+    return 301 https://$host:8181$request_uri;
+}
+
+server {
+    listen 8181 ssl;
+    server_name cd-shell.asdap.africa;
+
+    # SSL configuration
+    ssl_certificate /etc/letsencrypt/live/cd-shell.asdap.africa/cert.pem;
+    ssl_certificate_key /etc/letsencrypt/live/cd-shell.asdap.africa/privkey.pem;
+
+    # Proxy settings
+    location / {
+        proxy_pass http://localhost:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    # Optional: improve security with SSL settings
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256";
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 10m;
+
+    # Add HSTS (HTTP Strict Transport Security)
+    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+}
+
+3. Enable the Configuration
+
+Create a symbolic link from the configuration file to the sites-enabled directory:
+
+sh
+
+sudo ln -s /etc/nginx/sites-available/cd-shell.asdap.africa /etc/nginx/sites-enabled/
+
+4. Adjust Firewall Rules
+
+Ensure that the firewall allows traffic on ports 8080 and 8181:
+
+sh
+
+sudo ufw allow 8080
+sudo ufw allow 8181
+
+5. Test Nginx Configuration
+
+Check the Nginx configuration for syntax errors:
+
+sh
+
+sudo nginx -t
+
+6. Restart Nginx
+
+Restart Nginx to apply the new configuration:
+
+sh
+
+sudo systemctl restart nginx
+
+7. Verify the Setup
+
+Ensure your Node.js application is running on port 3001 and navigate to http://cd-shell.asdap.africa:8080 and https://cd-shell.asdap.africa:8181 in your browser to verify that the reverse proxy is working correctly and HTTP traffic is redirected to HTTPS.
+Summary
+
+This setup configures Nginx to act as a reverse proxy for your Node.js application running on port 3001. Nginx listens on ports 8080 for HTTP (redirecting to HTTPS) and 8181 for HTTPS, using SSL certificates from Let's Encrypt. Apache continues to handle traffic on ports 80 and 443.
+
+
+/////////////////////////////
+
+Describe how one can set up nginx with the following details: 
+1. set up nginx to run as a reverse proxy for two node.js applications
+2. the node.js application called cd-api is running on port 3001
+2. the node.js application called cd-sio is running on port 3002
+3. apache is already running in the same server on port 80 for http and 443 for https. So set nginx to run on ports starting 8080 progressively.
+4. set up the nginx run with ssl and all http to be directed to https
+5. the main domain for the server is cd-shell.asdap.africa
+5. certificat path: /etc/letsencrypt/live/cd-shell.asdap.africa/cert.pem
+6. path for privkey: /etc/letsencrypt/live/cd-shell.asdap.africa/privkey.pem
+7. Allow cors for origin https://cd-shell.asdap.africa to both cd-api and cd-sio
+ChatGPT
+
+To set up Nginx as a reverse proxy for two Node.js applications (cd-api running on port 3001 and cd-sio running on port 3002) while coexisting with Apache on ports 80 and 443, you'll configure Nginx to listen on ports 8080 for HTTP and 8181 for HTTPS. We'll also configure Nginx to handle SSL and redirect HTTP traffic to HTTPS, as well as enable CORS for the origin https://cd-shell.asdap.africa.
+1. Install Nginx
+
+If Nginx is not already installed, you can install it using the following commands:
+
+sh
+
+sudo apt update
+sudo apt install nginx
+
+2. Configure Nginx as a Reverse Proxy
+
+Create a new Nginx configuration file for your site in the /etc/nginx/sites-available directory:
+
+sh
+
+sudo nano /etc/nginx/sites-available/cd-shell.asdap.africa
+
+Add the following configuration to this file:
+
+nginx
+
+server {
+    listen 8080;
+    server_name cd-shell.asdap.africa;
+
+    # Redirect HTTP to HTTPS
+    return 301 https://$host:8181$request_uri;
+}
+
+server {
+    listen 8181 ssl;
+    server_name cd-shell.asdap.africa;
+
+    # SSL configuration
+    ssl_certificate /etc/letsencrypt/live/cd-shell.asdap.africa/cert.pem;
+    ssl_certificate_key /etc/letsencrypt/live/cd-shell.asdap.africa/privkey.pem;
+
+    # Add HSTS (HTTP Strict Transport Security)
+    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+
+    # Proxy settings for cd-api
+    location /api {
+        proxy_pass http://localhost:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        add_header Access-Control-Allow-Origin "https://cd-shell.asdap.africa";
+        add_header Access-Control-Allow-Credentials true;
+        add_header Access-Control-Allow-Methods "GET, POST, OPTIONS";
+        add_header Access-Control-Allow-Headers "Origin, Content-Type, Accept, Authorization";
+        if ($request_method = 'OPTIONS') {
+            add_header 'Access-Control-Allow-Origin' 'https://cd-shell.asdap.africa';
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+            add_header 'Access-Control-Allow-Headers' 'Origin, Content-Type, Accept, Authorization';
+            add_header 'Access-Control-Allow-Credentials' 'true';
+            return 204;
+        }
+    }
+
+    # Proxy settings for cd-sio
+    location /sio {
+        proxy_pass http://localhost:3002;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        add_header Access-Control-Allow-Origin "https://cd-shell.asdap.africa";
+        add_header Access-Control-Allow-Credentials true;
+        add_header Access-Control-Allow-Methods "GET, POST, OPTIONS";
+        add_header Access-Control-Allow-Headers "Origin, Content-Type, Accept, Authorization";
+        if ($request_method = 'OPTIONS') {
+            add_header 'Access-Control-Allow-Origin' 'https://cd-shell.asdap.africa';
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+            add_header 'Access-Control-Allow-Headers' 'Origin, Content-Type, Accept, Authorization';
+            add_header 'Access-Control-Allow-Credentials' 'true';
+            return 204;
+        }
+    }
+
+    # Optional: improve security with SSL settings
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256";
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 10m;
+}
+
+3. Enable the Configuration
+
+Create a symbolic link from the configuration file to the sites-enabled directory:
+
+sh
+
+sudo ln -s /etc/nginx/sites-available/cd-shell.asdap.africa /etc/nginx/sites-enabled/
+
+4. Adjust Firewall Rules
+
+Ensure that the firewall allows traffic on ports 8080 and 8181:
+
+sh
+
+sudo ufw allow 8080
+sudo ufw allow 8181
+
+5. Test Nginx Configuration
+
+Check the Nginx configuration for syntax errors:
+
+sh
+
+sudo nginx -t
+
+6. Restart Nginx
+
+Restart Nginx to apply the new configuration:
+
+sh
+
+sudo systemctl restart nginx
+
+Summary
+
+This setup configures Nginx to act as a reverse proxy for your two Node.js applications:
+
+    cd-api running on port 3001, accessible via the /api path.
+    cd-sio running on port 3002, accessible via the /sio path.
+
+Nginx listens on ports 8080 for HTTP (redirecting to HTTPS) and 8181 for HTTPS, using SSL certificates from Let's Encrypt. Additionally, it includes CORS headers to allow requests from https://cd-shell.asdap.africa to both Node.js applications. Apache continues to handle traffic on ports 80 and 443.
