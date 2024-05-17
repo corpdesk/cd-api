@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON POST Tester</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>JSON POST Tester</h1>
+        <div>
+            <label for="url">URL:</label>
+            <input type="text" id="url" placeholder="https://example.com/api">
+        </div>
+        <div>
+            <label for="json-input">JSON Input:</label>
+            <textarea id="json-input" placeholder='{"key": "value"}'></textarea>
+        </div>
+        <button id="send-btn">Send POST Request</button>
+        <div id="response-container">
+            <h2>Response</h2>
+            <pre id="response-output"></pre>
+        </div>
+        <div id="diagnostics-container">
+            <h2>Diagnostics</h2>
+            <pre id="diagnostics-output"></pre>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+
