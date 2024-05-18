@@ -335,6 +335,7 @@ export class BaseService {
 
     async noToken(req, res) {
         this.logger.logInfo('BaseService::noToken()/01')
+        this.logger.logInfo('req.post:', req.post)
         const pl = req.post;
         const ctx = pl.ctx;
         const m = pl.m;
