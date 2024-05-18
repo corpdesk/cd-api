@@ -316,6 +316,7 @@ export class BaseService {
 
     async valid(req, res): Promise<boolean> {
         const pl = req.post;
+        this.logger.logInfo('BaseService::valid()req.post:', { pl: JSON.stringify(req.post) })
         this.pl = pl;
         if (await this.noToken(req, res)) {
             return true;
@@ -335,7 +336,7 @@ export class BaseService {
 
     async noToken(req, res) {
         this.logger.logInfo('BaseService::noToken()/01')
-        this.logger.logInfo('req.post:', req.post)
+        this.logger.logInfo('BaseService::noToken()/req.post:', { pl: JSON.stringify(req.post) })
         const pl = req.post;
         const ctx = pl.ctx;
         const m = pl.m;
@@ -465,8 +466,8 @@ export class BaseService {
         // res.status(200).json(this.cdResp);
         let ret;
         try {
-            this.logger.logInfo('BaseService::respond(res)/this.pl:', {post: JSON.stringify(req.post)});
-            this.logger.logInfo('BaseService::respond(res)/this.cdResp:', {cdResp: JSON.stringify(this.cdResp)});
+            this.logger.logInfo('BaseService::respond(res)/this.pl:', { post: JSON.stringify(req.post) });
+            this.logger.logInfo('BaseService::respond(res)/this.cdResp:', { cdResp: JSON.stringify(this.cdResp) });
             ret = res.status(200).json(this.cdResp);
         } catch (e) {
             this.err.push(e.toString())
@@ -660,7 +661,7 @@ export class BaseService {
 
     async validateUnique(req, res, params) {
         this.logger.logDebug('BaseService::validateUnique()/01')
-        this.logger.logDebug('BaseService::validateUnique()/req.post:', {reqPost: JSON.stringify(req.post)})
+        this.logger.logDebug('BaseService::validateUnique()/req.post:', { reqPost: JSON.stringify(req.post) })
         // console.log('BaseService::validateUnique()/req.post.dat.f_vals[0]:', req.post.dat.f_vals[0])
         this.logger.logDebug('BaseService::validateUnique()/params:', params)
         await this.init(req, res);
@@ -668,7 +669,7 @@ export class BaseService {
         //** */ params.controllerInstance.userModel = this.getPlData(req);
         // set connection
         const baseRepository = getConnection().getRepository(params.model);
-        this.logger.logDebug('BaseService::validateUnique()/repo/model:', {model: params.model})
+        this.logger.logDebug('BaseService::validateUnique()/repo/model:', { model: params.model })
         // const baseRepository: any = await this.repo(req, res, params.model)
         // const baseRepository: any = await this.repo
         // get model properties
@@ -709,7 +710,7 @@ export class BaseService {
             };
             await this.setAppState(false, i, null);
         }
-        this.logger.logDebug('BaseService::validateUnique()/ret:', {return: ret})
+        this.logger.logDebug('BaseService::validateUnique()/ret:', { return: ret })
         return ret;
     }
 
@@ -848,7 +849,7 @@ export class BaseService {
             };
             await this.setAppState(false, i, null);
         }
-        this.logger.logDebug('BaseService::validateUnique()/ret:', {return: ret})
+        this.logger.logDebug('BaseService::validateUnique()/ret:', { return: ret })
         return ret;
     }
 
@@ -1101,7 +1102,7 @@ export class BaseService {
                     } else {
                         this.logger.logDebug('BaseService::setSess()/06')
                         const noToken = await this.noToken(req, res)
-                        this.logger.logDebug('BaseService::setSess()/noToken:', {noToken: noToken})
+                        this.logger.logDebug('BaseService::setSess()/noToken:', { noToken: noToken })
                         if (noToken === false) {
                             this.i = {
                                 messages: this.err,
@@ -1238,7 +1239,7 @@ export class BaseService {
                 try {
                     this.logger.logDebug('BaseService::read()/031')
                     this.logger.logDebug('BaseService::read()/04/serviceInput.serviceModel:', serviceInput.serviceModel)
-                    this.logger.logDebug('BaseService::read()/04/serviceInput.modelName:', {modelName:serviceInput.modelName})
+                    this.logger.logDebug('BaseService::read()/04/serviceInput.modelName:', { modelName: serviceInput.modelName })
                     await this.setRepo(serviceInput)
                     this.logger.logDebug('BaseService::read()/041')
                     this.logger.logDebug('BaseService::read()/this.repo:', this.repo)
@@ -1763,7 +1764,7 @@ export class BaseService {
         // await this.setRepo(serviceInput.serviceModel)
         await this.setRepo(serviceInput)
         this.logger.logDebug('BaseService::readJSON()/02')
-        this.logger.logDebug('BaseService::readJSON()/repo/model:', {serviceModel:serviceInput.serviceModel})
+        this.logger.logDebug('BaseService::readJSON()/repo/model:', { serviceModel: serviceInput.serviceModel })
         // const repo: any = await this.repo(req, res, serviceInput.serviceModel);
         const repo: any = this.repo;
         this.logger.logDebug('BaseService::readJSON()/03')
@@ -1792,7 +1793,7 @@ export class BaseService {
                         .select()
                         .where(`${this.getQbFilter(<IQbInput>q)}`)
                         .getMany()
-                        this.logger.logDebug('BaseService::readJSON()/04')
+                    this.logger.logDebug('BaseService::readJSON()/04')
                     if (serviceInput.extraInfo) {
                         this.logger.logDebug('BaseService::readJSON()/05')
                         return {
