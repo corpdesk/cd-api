@@ -55,6 +55,8 @@ export class Main {
                 origin: config.Cors.options.origin
             }
         }
+        
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
         const io = new Server(httpServer, corsOpts);
 
         /////////////////////////////
