@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as dotenv from 'dotenv';
 import "reflect-metadata";
 import { DataSource, DatabaseType } from 'typeorm';
+import path from 'path';
 dotenv.config();
 
 const ENTITIES = [
@@ -105,6 +106,8 @@ export default {
     },
     Cors: {
         options: {
+            key:fs.readFileSync(path.join(process.env.CERT_PATH)),
+            cert:fs.readFileSync(path.join(process.env.KEY_PATH)),
             allowedHeaders: [
                 'Origin',
                 'X-Requested-With',
@@ -115,9 +118,8 @@ export default {
             credentials: true,
             methods: 'GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE',
             origin: [
-                'https://146.190.157.42:443',
-                'https://146.190.157.42:*',
                 'https://146.190.157.42',
+                'http://146.190.157.42',
                 'https://localhost:443',
                 'https://127.0.0.1:443',
                 'http://localhost:80',
