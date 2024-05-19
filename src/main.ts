@@ -15,6 +15,8 @@ import { CdInit } from './CdApi/init';
 import { createClient, RedisClientOptions } from 'redis';
 import { createAdapter } from '@socket.io/redis-adapter';
 import { createServer } from 'http';
+import { createServer as createHttps } from 'https';
+const https = require('https');
 import { Server } from 'socket.io';
 import Redis from "ioredis";
 import { SioService } from './CdApi/sys/cd-push/services/sio.service';
@@ -38,7 +40,7 @@ export class Main {
         // });
         // const port = config.apiPort;
         const options: cors.CorsOptions = config.Cors.options;
-        app.use(cors());
+        // app.use(cors());
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // initialize socket.io push server
@@ -46,7 +48,7 @@ export class Main {
         // sio.init()
 
         app.use(cors(options));
-        const httpServer = createServer(app);
+        const httpServer = createHttps(app);
         // const httpServer = createServer();
         const corsOpts = {
             cors: {
