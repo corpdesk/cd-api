@@ -16,6 +16,7 @@ import { createClient, RedisClientOptions } from 'redis';
 import { createAdapter } from '@socket.io/redis-adapter';
 import { createServer } from 'http';
 import { createServer as createHttps } from 'https';
+import { createServer as createTls } from 'tls';
 const https = require('https');
 import { Server } from 'socket.io';
 import Redis from "ioredis";
@@ -56,7 +57,6 @@ export class Main {
             }
         }
         
-        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
         const io = new Server(httpServer, corsOpts);
 
         /////////////////////////////

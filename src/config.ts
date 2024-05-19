@@ -108,6 +108,7 @@ export default {
         options: {
             key:fs.readFileSync(path.join(process.env.CERT_PATH)),
             cert:fs.readFileSync(path.join(process.env.KEY_PATH)),
+            ca:fs.readFileSync(path.join(process.env.CA_PATH)),
             ecdhCurve: 'secp384r1',
             // ecdhCurve: 'auto',
             allowedHeaders: [
