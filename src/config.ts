@@ -106,13 +106,11 @@ export default {
     },
     Cors: {
         options: {
-            key:fs.readFileSync(path.join(process.env.CERT_PATH)),
-            cert:fs.readFileSync(path.join(process.env.KEY_PATH)),
-            ca:fs.readFileSync(path.join(process.env.CSR_PATH)),
-            requestCert: false,     
-            rejectUnauthorized: false,
-            // ecdhCurve: 'secp384r1',
-            // ecdhCurve: 'auto',
+            // key:fs.readFileSync(path.join(process.env.CERT_PATH)),
+            // cert:fs.readFileSync(path.join(process.env.KEY_PATH)),
+            // ca:fs.readFileSync(path.join(process.env.CSR_PATH)),
+            // requestCert: false,     
+            // rejectUnauthorized: false,
             allowedHeaders: [
                 'Origin',
                 'X-Requested-With',

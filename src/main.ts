@@ -49,8 +49,8 @@ export class Main {
         // sio.init()
 
         app.use(cors(options));
-        const httpServer = createHttps(app);
-        // const httpServer = createServer();
+        // const httpServer = createHttps(app);
+        const httpServer = createServer();
         const corsOpts = {
             cors: {
                 origin: config.Cors.options.origin
