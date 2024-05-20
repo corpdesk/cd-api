@@ -2,7 +2,7 @@
 
 import config from './config';
 import express from 'express';
-import cors from 'cors';
+// import cors from 'cors';
 import 'reflect-metadata';
 
 // database imports
@@ -40,15 +40,15 @@ export class Main {
         //     next();
         // });
         // const port = config.apiPort;
-        const options: cors.CorsOptions = config.Cors.options;
-        app.use(cors());
+        const options = config.Cors.options;
+        // app.use(cors());
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // initialize socket.io push server
         // const sio = new SioService()
         // sio.init()
 
-        app.use(cors(options));
+        // app.use(cors(options));
         // const httpServer = createHttps(app);
         const httpServer = createServer(app);
         const corsOpts = {
