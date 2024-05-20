@@ -15,8 +15,8 @@ import { CdInit } from './CdApi/init';
 import { createClient, RedisClientOptions } from 'redis';
 import { createAdapter } from '@socket.io/redis-adapter';
 import { createServer } from 'http';
-import { createServer as createHttps } from 'https';
-import { createServer as createTls } from 'tls';
+// import { createServer as createHttps } from 'https';
+// import { createServer as createTls } from 'tls';
 const https = require('https');
 import { Server } from 'socket.io';
 import Redis from "ioredis";
@@ -41,7 +41,7 @@ export class Main {
         // });
         // const port = config.apiPort;
         const options: cors.CorsOptions = config.Cors.options;
-        // app.use(cors());
+        app.use(cors());
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // initialize socket.io push server
