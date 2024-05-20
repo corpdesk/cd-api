@@ -128,7 +128,8 @@ export default {
                 'http://localhost:80',
                 'http://127.0.0.1:80',
                 'https://cd-shell.asdap.africa',
-                'http://64.23.145.54'
+                'http://64.23.145.54',
+                'https://www.cd-api.co.ke'
                 // 'https://146.190.157.42:4407',
                 // 'https://146.190.157.42:4402',
                 // 'https://146.190.157.42:4401',
