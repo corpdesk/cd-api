@@ -17,7 +17,7 @@ import { createAdapter } from '@socket.io/redis-adapter';
 import { createServer } from 'http';
 // import { createServer as createHttps } from 'https';
 // import { createServer as createTls } from 'tls';
-const https = require('https');
+// const https = require('https');
 import { Server } from 'socket.io';
 import Redis from "ioredis";
 import { SioService } from './CdApi/sys/cd-push/services/sio.service';
@@ -50,7 +50,7 @@ export class Main {
 
         app.use(cors(options));
         // const httpServer = createHttps(app);
-        const httpServer = createServer();
+        const httpServer = createServer(app);
         const corsOpts = {
             cors: {
                 origin: config.Cors.options.origin
@@ -108,6 +108,7 @@ export class Main {
 
         // set api entry point
         app.post('/api', async (req: any, res: any) => {
+            console.log("app.post/01")
             res.setHeader('Content-Type', 'application/json');
             CdInit(req, res, ds);
         });

@@ -1,6 +1,7 @@
 import qs from 'qs';
 import { DEFAULT_CD_REQUEST, DEFAULT_CD_RESPONSE } from '../base/IBase';
 export async function processPost(req, resp, callback) {
+    console.log('processPost/01');
     let queryData = '';
     let contentType;
     let jQueryData;
