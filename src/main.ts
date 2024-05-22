@@ -55,7 +55,7 @@ export class Main {
             cors: {
                 options: config.Cors.options.allowedHeaders,
                 // origin: config.Cors.options.origin,
-                origin: "*"
+                origin: null
             }
         }
 
