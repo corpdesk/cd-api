@@ -2,7 +2,13 @@
 Description=cd-sio application
 
 [Service]
-ExecStart=/home/devops/cd-sio/node_modules/.bin/ts-node /home/devops/cd-sio/src/app.ts
+# ExecStart=/home/devops/cd-sio/node_modules/.bin/ts-node /home/devops/cd-sio/src/app.ts
+ExecStart=sudo -H -u devops bash -c 'cd ~/cd-sio && ~/.nvm/versions/node/v16.20.1/bin/npm start'
+Restart=always
+User=devops
+# Note Debian/Ubuntu uses 'nogroup', RHEL/Fedora uses 'nobody'
+Group=nogroup
+Environment=PATH=/usr/bin:/usr/local/bin
 Restart=always
 User=devops
 # Note Debian/Ubuntu uses 'nogroup', RHEL/Fedora uses 'nobody'
