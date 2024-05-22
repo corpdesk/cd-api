@@ -121,7 +121,7 @@ export class Main {
 
 
         // set api entry point
-        app.post('/api', async (req: any, res: any) => {
+        app.post(config.apiRoute, async (req: any, res: any) => {
             console.log("app.post/01")
             res.setHeader('Content-Type', 'application/json');
             ////////////////////
