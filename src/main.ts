@@ -2,7 +2,7 @@
 
 import config from './config';
 import express from 'express';
-// import cors from 'cors';
+import cors from 'cors';
 import 'reflect-metadata';
 
 // database imports
@@ -48,11 +48,12 @@ export class Main {
         // const sio = new SioService()
         // sio.init()
 
-        // app.use(cors(options));
+        app.use(cors(options));
         // const httpServer = createHttps(app);
         const httpServer = createServer(app);
         const corsOpts = {
             cors: {
+                options: config.Cors.options.allowedHeaders,
                 origin: config.Cors.options.origin
             }
         }
