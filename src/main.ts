@@ -54,7 +54,8 @@ export class Main {
         const corsOpts = {
             cors: {
                 options: config.Cors.options.allowedHeaders,
-                origin: config.Cors.options.origin
+                // origin: config.Cors.options.origin,
+                origin: "*"
             }
         }
 
