@@ -17,7 +17,9 @@ import { createAdapter } from '@socket.io/redis-adapter';
 import { createServer } from 'http';
 // import { createServer as createHttps } from 'https';
 // import { createServer as createTls } from 'tls';
-// const https = require('https');
+import https from 'https';
+import fs from 'fs';
+import path from 'path';
 import { Server } from 'socket.io';
 import Redis from "ioredis";
 import { SioService } from './CdApi/sys/cd-push/services/sio.service';
@@ -34,6 +36,17 @@ export class Main {
 
         // basic settings
         const app = express();
+
+        const privateKey = fs.readFileSync('/etc/letsencrypt/live/cd-api.co.ke/privkey.pem', 'utf8');
+        const certificate = fs.readFileSync('/etc/letsencrypt/live/cd-api.co.ke/cert.pem', 'utf8');
+        const ca = fs.readFileSync('/etc/letsencrypt/live/cd-api.co.ke/chain.pem', 'utf8');
+
+        const credentials = {
+            key: privateKey,
+            cert: certificate,
+            ca: ca
+        };
+
         // app.all('/*', function (req, res, next) {
         //     res.header("Access-Control-Allow-Origin", "*");
         //     res.header("Access-Control-Allow-Headers", "X-Requested-With");
@@ -50,63 +63,89 @@ export class Main {
 
         // app.use(cors(options));
         // const httpServer = createHttps(app);
-        const httpServer = createServer(app);
-        const corsOpts = {
-            cors: {
-                options: config.Cors.options.allowedHeaders,
-                // origin: config.Cors.options.origin,
-                origin: null
+        let httpServer = null;
+        let corsOpts = null;
+
+        /**
+         * When run on sio mode in production,
+         * use SSL
+         * use cors
+         */
+        if (config.apiRoute === "/sio" && config.secure === "true") {
+            httpServer = https.createServer(credentials, app);
+            corsOpts = {
+                cors: {
+                    options: config.Cors.options.allowedHeaders,
+                    origin: config.Cors.options.origin,
+                    // origin: null
+                }
+            }
+
+            // const io = new Server(httpServer, corsOpts);
+            const io = new Server(httpServer);
+
+            /////////////////////////////
+            // const server = http.createServer();
+            // const io = new Server(httpServer, {
+            //     cors: {
+            //         origin: (origin, callback) => {
+            //             const allowedOrigins = ["https://cd-shell.asdap.africa", "https://146.190.157.42"];
+
+            //             if (origin && allowedOrigins.includes(origin)) {
+            //                 callback(null, true);
+            //             } else {
+            //                 callback(new Error("Not allowed by CORS"));
+            //             }
+            //         },
+            //         methods: ["GET", "POST"],
+            //     },
+            // });
+            ///////////////////////////////////////////
+
+            let pubClient;
+            let subClient;
+            switch (config.push.mode) {
+                case process.env.PUSH_BASIC:
+                    pubClient = createClient({ host: config.push.redisHost, port: config.push.redisPort, legacyMode: true } as RedisClientOptions);
+                    subClient = pubClient.duplicate();
+                    break;
+                case process.env.PUSH_CLUSTER:
+                    pubClient = new Redis.Cluster(config.push.startupNodes);
+                    subClient = pubClient.duplicate();
+                    break;
+                case process.env.PUSH_SENTINEL:
+                    pubClient = new Redis(config.push.sentinalOptions);
+                    subClient = pubClient.duplicate();
+                    break;
+                default:
+                    pubClient = createClient({ host: config.push.redisHost, port: config.push.redisPort } as RedisClientOptions);
+                    subClient = pubClient.duplicate();
+                    break;
+            }
+
+            Promise.all([pubClient, subClient])
+                .then(() => {
+                    const svSio = new SioService();
+                    svSio.run(io, pubClient, subClient)
+                });
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        }
+
+        /**
+         * When run on app mode in production,
+         * use without SSL...but behind nginx proxy server fitted with SSL
+         * do not use cors...but set it at nginx
+         */
+        if (config.apiRoute === "/app" && config.secure === "false") {
+            httpServer = createServer(app);
+            corsOpts = {
+                cors: {
+                    options: config.Cors.options.allowedHeaders,
+                    // origin: config.Cors.options.origin,
+                    origin: null
+                }
             }
         }
-
-        // const io = new Server(httpServer, corsOpts);
-        const io = new Server(httpServer);
-
-        /////////////////////////////
-        // const server = http.createServer();
-        // const io = new Server(httpServer, {
-        //     cors: {
-        //         origin: (origin, callback) => {
-        //             const allowedOrigins = ["https://cd-shell.asdap.africa", "https://146.190.157.42"];
-
-        //             if (origin && allowedOrigins.includes(origin)) {
-        //                 callback(null, true);
-        //             } else {
-        //                 callback(new Error("Not allowed by CORS"));
-        //             }
-        //         },
-        //         methods: ["GET", "POST"],
-        //     },
-        // });
-        ///////////////////////////////////////////
-
-        let pubClient;
-        let subClient;
-        switch (config.push.mode) {
-            case process.env.PUSH_BASIC:
-                pubClient = createClient({ host: config.push.redisHost, port: config.push.redisPort, legacyMode: true } as RedisClientOptions);
-                subClient = pubClient.duplicate();
-                break;
-            case process.env.PUSH_CLUSTER:
-                pubClient = new Redis.Cluster(config.push.startupNodes);
-                subClient = pubClient.duplicate();
-                break;
-            case process.env.PUSH_SENTINEL:
-                pubClient = new Redis(config.push.sentinalOptions);
-                subClient = pubClient.duplicate();
-                break;
-            default:
-                pubClient = createClient({ host: config.push.redisHost, port: config.push.redisPort } as RedisClientOptions);
-                subClient = pubClient.duplicate();
-                break;
-        }
-
-        Promise.all([pubClient, subClient])
-            .then(() => {
-                const svSio = new SioService();
-                svSio.run(io, pubClient, subClient)
-            });
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         app.all('*', function (req, res, next) {
             // res.header('Access-Control-Allow-Origin', 'URLs to trust of allow');

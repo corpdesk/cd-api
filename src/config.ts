@@ -92,12 +92,12 @@ export async function sqliteConfig(connName): Promise<any> {
 }
 
 
-
 const API_PORT = process.env.API_PORT;
 const API_ROUTE = process.env.API_ROUTE;
 const END_POINT = `${process.env.API_URL}:${API_PORT}`;
 
 export default {
+    secure: process.env.SECURE,
     apiPort: process.env.API_PORT,
     apiRoute: API_ROUTE,
     endPoint: END_POINT,
