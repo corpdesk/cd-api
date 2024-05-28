@@ -1,21 +1,17 @@
 [Unit]
 Description=cd-sio application
+After=network.target
 
 [Service]
-# ExecStart=/home/devops/cd-sio/node_modules/.bin/ts-node /home/devops/cd-sio/src/app.ts
+Type=simple
+User=devops
+Group=devops
 ExecStart=sudo -H -u devops bash -c 'cd ~/cd-sio && ~/.nvm/versions/node/v16.20.1/bin/npm start'
 Restart=always
-User=devops
-# Note Debian/Ubuntu uses 'nogroup', RHEL/Fedora uses 'nobody'
-Group=nogroup
-Environment=PATH=/usr/bin:/usr/local/bin
-Restart=always
-User=devops
-# Note Debian/Ubuntu uses 'nogroup', RHEL/Fedora uses 'nobody'
-Group=nogroup
 Environment=PATH=/usr/bin:/usr/local/bin
 Environment=NODE_ENV=production
 WorkingDirectory=/home/devops/cd-sio/
+Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
