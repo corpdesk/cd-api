@@ -33,18 +33,18 @@ export class Main {
         this.logger = new Logging();
     }
     async run() {
-
+        console.log("main/01")
         // basic settings
         const app = express();
 
-        const privateKey = fs.readFileSync('/etc/letsencrypt/live/cd-api.co.ke/privkey.pem', 'utf8');
-        const certificate = fs.readFileSync('/etc/letsencrypt/live/cd-api.co.ke/cert.pem', 'utf8');
-        const ca = fs.readFileSync('/etc/letsencrypt/live/cd-api.co.ke/chain.pem', 'utf8');
+        const privateKey = fs.readFileSync(config.keyPath, 'utf8');
+        const certificate = fs.readFileSync(config.certPath, 'utf8');
+        // const ca = fs.readFileSync(config.caPath, 'utf8');
 
         const credentials = {
             key: privateKey,
             cert: certificate,
-            ca: ca
+            // ca: ca
         };
 
         // app.all('/*', function (req, res, next) {
@@ -55,7 +55,7 @@ export class Main {
         // const port = config.apiPort;
         const options = config.Cors.options;
         // app.use(cors());
-
+        console.log("main/02")
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // initialize socket.io push server
         // const sio = new SioService()
@@ -72,6 +72,7 @@ export class Main {
          * use cors
          */
         if (config.apiRoute === "/sio" && config.secure === "true") {
+            console.log("main/01")
             httpServer = https.createServer(credentials, app);
             corsOpts = {
                 cors: {

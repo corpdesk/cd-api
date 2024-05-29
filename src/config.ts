@@ -98,6 +98,9 @@ const END_POINT = `${process.env.API_URL}:${API_PORT}`;
 
 export default {
     secure: process.env.SECURE,
+    keyPath: process.env.KEY_PATH,
+    certPath: process.env.CERT_PATH,
+    caPath: process.env.CA_PATH,
     apiPort: process.env.API_PORT,
     apiRoute: API_ROUTE,
     endPoint: END_POINT,
