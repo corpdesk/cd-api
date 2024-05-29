@@ -39,12 +39,12 @@ export class Main {
 
         const privateKey = fs.readFileSync(config.keyPath, 'utf8');
         const certificate = fs.readFileSync(config.certPath, 'utf8');
-        // const ca = fs.readFileSync(config.caPath, 'utf8');
+        const ca = fs.readFileSync(config.caPath, 'utf8');
 
         const credentials = {
             key: privateKey,
             cert: certificate,
-            // ca: ca
+            ca: ca
         };
 
         // app.all('/*', function (req, res, next) {
@@ -55,7 +55,6 @@ export class Main {
         // const port = config.apiPort;
         const options = config.Cors.options;
         // app.use(cors());
-        console.log("main/02")
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // initialize socket.io push server
         // const sio = new SioService()
@@ -72,18 +71,16 @@ export class Main {
          * use cors
          */
         if (config.apiRoute === "/sio" && config.secure === "true") {
-            console.log("main/01")
             httpServer = https.createServer(credentials, app);
             corsOpts = {
                 cors: {
                     options: config.Cors.options.allowedHeaders,
-                    origin: config.Cors.options.origin,
-                    // origin: null
+                    origin: config.Cors.options.origin
                 }
             }
 
-            // const io = new Server(httpServer, corsOpts);
-            const io = new Server(httpServer);
+            const io = new Server(httpServer, corsOpts);
+            // const io = new Server(httpServer);
 
             /////////////////////////////
             // const server = http.createServer();

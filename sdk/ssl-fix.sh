@@ -4,6 +4,7 @@
 sudo addgroup nodecert
 sudo adduser devops nodecert
 sudo adduser root nodecert
+sudo adduser www-data nodecert
 
 # Make the relevant letsencrypt folders owned by said group.
 sudo chgrp -R nodecert /etc/letsencrypt/live
