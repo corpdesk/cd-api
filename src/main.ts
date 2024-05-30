@@ -47,21 +47,9 @@ export class Main {
             ca: ca
         };
 
-        // app.all('/*', function (req, res, next) {
-        //     res.header("Access-Control-Allow-Origin", "*");
-        //     res.header("Access-Control-Allow-Headers", "X-Requested-With");
-        //     next();
-        // });
-        // const port = config.apiPort;
+        
         const options = config.Cors.options;
-        // app.use(cors());
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        // initialize socket.io push server
-        // const sio = new SioService()
-        // sio.init()
-
-        // app.use(cors(options));
-        // const httpServer = createHttps(app);
+        
         let httpServer = null;
         let corsOpts = null;
 
@@ -80,25 +68,7 @@ export class Main {
             }
 
             const io = new Server(httpServer, corsOpts);
-            // const io = new Server(httpServer);
-
-            /////////////////////////////
-            // const server = http.createServer();
-            // const io = new Server(httpServer, {
-            //     cors: {
-            //         origin: (origin, callback) => {
-            //             const allowedOrigins = ["https://cd-shell.asdap.africa", "https://146.190.157.42"];
-
-            //             if (origin && allowedOrigins.includes(origin)) {
-            //                 callback(null, true);
-            //             } else {
-            //                 callback(new Error("Not allowed by CORS"));
-            //             }
-            //         },
-            //         methods: ["GET", "POST"],
-            //     },
-            // });
-            ///////////////////////////////////////////
+            
 
             let pubClient;
             let subClient;
@@ -139,22 +109,21 @@ export class Main {
             corsOpts = {
                 cors: {
                     options: config.Cors.options.allowedHeaders,
-                    // origin: config.Cors.options.origin,
                     origin: null
                 }
             }
         }
 
-        app.all('*', function (req, res, next) {
-            // res.header('Access-Control-Allow-Origin', 'URLs to trust of allow');
-            res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-            res.header('Access-Control-Allow-Headers', 'Content-Type');
-            if ('OPTIONS' == req.method) {
-                res.sendStatus(200);
-            } else {
-                next();
-            }
-        });
+        // app.all('*', function (req, res, next) {
+        //     // res.header('Access-Control-Allow-Origin', 'URLs to trust of allow');
+        //     res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+        //     res.header('Access-Control-Allow-Headers', 'Content-Type');
+        //     if ('OPTIONS' == req.method) {
+        //         res.sendStatus(200);
+        //     } else {
+        //         next();
+        //     }
+        // });
 
 
         // set api entry point
