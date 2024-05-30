@@ -125,7 +125,7 @@ export class Main {
         //     }
         // });
 
-        app.post('/sio/p-reg', async (req: any, res: any) => {
+        app.post('/sio/p-reg/', async (req: any, res: any) => {
             res.setHeader('Content-Type', 'application/json');
             res.setHeader("Access-Control-Allow-Credentials", "true");
             res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
