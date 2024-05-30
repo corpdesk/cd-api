@@ -375,6 +375,13 @@ export interface CacheData {
     initTime?: string;
 }
 
+export interface JWT {
+    jwtToken: string;
+    checked: boolean;
+    checkTime: number;
+    authorized: boolean;
+}
+
 
 
 

@@ -97,6 +97,8 @@ const API_ROUTE = process.env.API_ROUTE;
 const END_POINT = `${process.env.API_URL}:${API_PORT}`;
 
 export default {
+    mode: process.env.MODE,
+    wssPort: process.env.WSS_PORT,
     secure: process.env.SECURE,
     keyPath: process.env.KEY_PATH,
     certPath: process.env.CERT_PATH,

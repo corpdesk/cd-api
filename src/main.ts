@@ -20,6 +20,8 @@ import { createServer } from 'http';
 import https from 'https';
 import fs from 'fs';
 import path from 'path';
+import * as WebSocket from 'ws';
+import { WebsocketService } from './CdApi/sys/cd-push/services/websocket.service';
 import { Server } from 'socket.io';
 import Redis from "ioredis";
 import { SioService } from './CdApi/sys/cd-push/services/sio.service';
@@ -47,9 +49,9 @@ export class Main {
             ca: ca
         };
 
-        
+
         const options = config.Cors.options;
-        
+
         let httpServer = null;
         let corsOpts = null;
 
@@ -68,7 +70,7 @@ export class Main {
             }
 
             const io = new Server(httpServer, corsOpts);
-            
+
 
             let pubClient;
             let subClient;
@@ -125,6 +127,14 @@ export class Main {
         //     }
         // });
 
+        app.post('/sio/p-reg', async (req: any, res: any) => {
+            res.setHeader('Content-Type', 'application/json');
+            res.setHeader("Access-Control-Allow-Credentials", "true");
+            res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+            res.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
+            CdInit(req, res);
+        });
+
 
         // set api entry point
         app.post(config.apiRoute, async (req: any, res: any) => {
@@ -146,6 +156,27 @@ export class Main {
             .on('error', (e) => {
                 this.logger.logError(`cd-api server: listen()/Error:${e}`)
             });
+
+        if (config.apiRoute === "/sio" && config.mode === "wss") {
+            const expressServer = app.listen(config.wssPort, () => {
+                console.log(`server is listening on ${config.wssPort}`);
+            })
+                .on('error', (e) => {
+                    console.log(`Error:${e}`);
+                });
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////
+            // Define the WebSocket server. Here, the server mounts to the `/ws`
+            // route of the Express JS server.
+            const wss = new WebSocket.Server({
+                server: expressServer,
+                path: '/ws'
+            });
+            /**
+             * run the websocket
+             */
+            const cdWs = new WebsocketService();
+            cdWs.run(wss);
+        }
 
 
     }
