@@ -122,6 +122,7 @@ export default {
                 'Origin',
                 'X-Requested-With',
                 'Content-Type',
+                'Authorization',
                 'Accept',
                 'X-Access-Token',
             ],
@@ -135,6 +136,9 @@ export default {
                 'http://localhost:80',
                 'http://127.0.0.1:80',
                 'https://cd-shell.asdap.africa',
+                'https://cd-user.asdap.africa',
+                'https://cd-comm.asdap.africa',
+                'https://cd-moduleman.asdap.africa',
                 'http://64.23.145.54',
                 'https://www.cd-api.co.ke'
                 // 'https://146.190.157.42:4407',
