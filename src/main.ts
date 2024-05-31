@@ -1,7 +1,8 @@
 // basic imports
 
 import config from './config';
-import express from 'express';
+// import express from 'express';
+import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import 'reflect-metadata';
 
@@ -19,7 +20,7 @@ import https from 'https';
 import fs from 'fs';
 import path from 'path';
 import * as WebSocket from 'ws';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import Redis from "ioredis";
 import { SioService } from './CdApi/sys/cd-push/services/sio.service';
 import { Logging } from './CdApi/sys/base/winston.log';
@@ -35,7 +36,7 @@ export class Main {
     async run() {
         console.log("main/01")
         // basic settings
-        const app = express();
+        const app: Application = express();
 
         const privateKey = fs.readFileSync(config.keyPath, 'utf8');
         const certificate = fs.readFileSync(config.certPath, 'utf8');
@@ -50,6 +51,15 @@ export class Main {
 
         const options = config.Cors.options;
 
+        ////////////////////////////////////////////////////////////////////////////////
+        const corsOptions = {
+            origin: 'https://cd-shell.asdap.africa', // Replace with your client URL
+            methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+            allowedHeaders: ['Content-Type', 'Authorization'],
+            credentials: true
+        };
+        ////////////////////////////////////////////////////////////////////////////////
+
         let httpServer = null;
         let corsOpts = null;
 
@@ -59,6 +69,13 @@ export class Main {
          * use cors
          */
         if (config.apiRoute === "/sio" && config.secure === "true") {
+
+            //////////////////////////////////////////////////////////////////////////////
+            app.use(cors(corsOptions));
+            app.use(express.json()); // For parsing application/json
+            app.options('*', cors(corsOptions)); // Enable pre-flight across-the-board
+            //////////////////////////////////////////////////////////////////////////////
+
             httpServer = https.createServer(credentials, app);
             corsOpts = {
                 cors: {
@@ -67,7 +84,16 @@ export class Main {
                 }
             }
 
-            const io = new Server(httpServer, corsOpts);
+            // const io = new Server(httpServer, corsOpts);
+            /////////////////////////////////////////////////////
+            const io = new Server(httpServer, {
+                cors: {
+                  origin: 'https://cd-shell.asdap.africa',
+                  methods: ['GET', 'POST'],
+                  credentials: true
+                }
+              });
+            /////////////////////////////////////////////////////
 
 
             let pubClient;
@@ -125,12 +151,18 @@ export class Main {
         //     }
         // });
 
-        app.post('/sio/p-reg/', async (req: any, res: any) => {
-            res.setHeader('Content-Type', 'application/json');
-            res.setHeader("Access-Control-Allow-Credentials", "true");
-            res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
-            res.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
-            CdInit(req, res);
+        // app.post('/sio/p-reg/', async (req: any, res: any) => {
+        //     res.setHeader('Content-Type', 'application/json');
+        //     res.setHeader("Access-Control-Allow-Credentials", "true");
+        //     res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+        //     res.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
+        //     CdInit(req, res);
+        // });
+        // Handle POST requests
+        app.post('/sio/p-reg', (req: Request, res: Response) => {
+            const { name, email } = req.body;
+            console.log(`Received registration: Name: ${name}, Email: ${email}`);
+            res.send({ message: 'Registration successful' });
         });
 
 
