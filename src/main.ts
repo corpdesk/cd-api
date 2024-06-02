@@ -17,9 +17,11 @@ import { createClient, RedisClientOptions } from 'redis';
 import { createAdapter } from '@socket.io/redis-adapter';
 import { createServer } from 'http';
 import https from 'https';
+import { createServer as createHttpsServer } from 'https';
 import fs from 'fs';
 import path from 'path';
 import * as WebSocket from 'ws';
+import { server as WebSocketServer } from 'websocket';
 import { Server, Socket } from 'socket.io';
 import Redis from "ioredis";
 import { SioService } from './CdApi/sys/cd-push/services/sio.service';
@@ -30,6 +32,7 @@ import { WebsocketService } from './CdApi/sys/cd-push/services/websocket.service
 
 export class Main {
     logger: Logging;
+    allowedOrigins = ["https://cd-shell.asdap.africa"];
     constructor() {
         this.logger = new Logging();
     }
@@ -88,11 +91,11 @@ export class Main {
             /////////////////////////////////////////////////////
             const io = new Server(httpServer, {
                 cors: {
-                  origin: 'https://cd-shell.asdap.africa',
-                  methods: ['GET', 'POST'],
-                  credentials: true
+                    origin: 'https://cd-shell.asdap.africa',
+                    methods: ['GET', 'POST'],
+                    credentials: true
                 }
-              });
+            });
             /////////////////////////////////////////////////////
 
 
@@ -178,16 +181,7 @@ export class Main {
             CdInit(req, res, ds);
         });
 
-        // start api server
-        httpServer.listen(config.apiPort, () => {
-            // console.log(`cd-api server is listening on ${config.apiPort}`);
-            this.logger.logInfo(`cd-api server is listening on:`, { port: `${config.apiPort}` })
-        })
-            .on('error', (e) => {
-                this.logger.logError(`cd-api server: listen()/Error:${e}`)
-            });
-
-        if (config.apiRoute === "/sio" && config.mode === "wss") {
+        if (config.mode === "wss") {
             const expressServer = app.listen(config.wssPort, () => {
                 console.log(`server is listening on ${config.wssPort}`);
             })
@@ -206,9 +200,54 @@ export class Main {
              */
             const cdWs = new WebsocketService();
             cdWs.run(wss);
-        }
 
+
+            // ///////////////////////////////////////////////////
+            // const server = createHttpsServer(credentials, app);
+            // const wsServer = new WebSocketServer({
+            //     httpServer: server,
+            //     autoAcceptConnections: false
+            // });
+
+
+            // wsServer.on('request', function (request) {
+            //     if (!this.originIsAllowed(request.origin)) {
+            //         request.reject();
+            //         console.log('Connection from origin ' + request.origin + ' rejected.');
+            //         return;
+            //     }
+
+            //     const connection = request.accept(null, request.origin);
+            //     console.log('Connection accepted.');
+
+            //     connection.on('message', function (message) {
+            //         if (message.type === 'utf8') {
+            //             console.log('Received Message: ' + message.utf8Data);
+            //             connection.sendUTF('Hello Client');
+            //         }
+            //     });
+
+            //     connection.on('close', function (reasonCode, description) {
+            //         console.log('Peer ' + connection.remoteAddress + ' disconnected.');
+            //     });
+            // });
+
+        } else {
+            // start server
+            httpServer.listen(config.apiPort, () => {
+                // console.log(`cd-api server is listening on ${config.apiPort}`);
+                this.logger.logInfo(`cd-api server is listening on:`, { port: `${config.apiPort}` })
+            })
+                .on('error', (e) => {
+                    this.logger.logError(`cd-api server: listen()/Error:${e}`)
+                });
+        }
 
     }
 
+    originIsAllowed(origin: string) {
+        return this.allowedOrigins.includes(origin);
+    }
+
 }
+

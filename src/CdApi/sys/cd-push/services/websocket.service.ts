@@ -11,6 +11,7 @@ import { CdPushSocketModel } from '../models/cd-push-socket.model';
 import { CdPushViewModel } from '../models/cd-push-view.model';
 import { CdPushTypeModel } from '../models/cd-push-type.model';
 import { UserModel } from '../../user/models/user.model';
+import { server as WebSocketServer } from 'websocket';
 import { JwtService } from '../../moduleman/services/jwt.service';
 
 const { sign, verify } = jwt;
