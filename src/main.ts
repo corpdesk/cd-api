@@ -72,7 +72,7 @@ export class Main {
          * use cors
          */
         if (config.apiRoute === "/sio" && config.secure === "true") {
-
+            console.log("main/02")
             //////////////////////////////////////////////////////////////////////////////
             app.use(cors(corsOptions));
             app.use(express.json()); // For parsing application/json
@@ -98,7 +98,8 @@ export class Main {
             });
             /////////////////////////////////////////////////////
 
-
+            console.log("main/03")
+            console.log("config.push.mode:", config.push.mode)
             let pubClient;
             let subClient;
             switch (config.push.mode) {
@@ -134,6 +135,7 @@ export class Main {
          * do not use cors...but set it at nginx
          */
         if (config.apiRoute === "/app" && config.secure === "false") {
+            console.log("main/04")
             httpServer = createServer(app);
             corsOpts = {
                 cors: {
@@ -154,19 +156,20 @@ export class Main {
         //     }
         // });
 
-        // app.post('/sio/p-reg/', async (req: any, res: any) => {
-        //     res.setHeader('Content-Type', 'application/json');
-        //     res.setHeader("Access-Control-Allow-Credentials", "true");
-        //     res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
-        //     res.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
-        //     CdInit(req, res);
-        // });
-        // Handle POST requests
-        app.post('/sio/p-reg', (req: Request, res: Response) => {
-            const { name, email } = req.body;
-            console.log(`Received registration: Name: ${name}, Email: ${email}`);
-            res.send({ message: 'Registration successful' });
+        app.post('/sio/p-reg/', async (req: any, res: any) => {
+            res.setHeader('Content-Type', 'application/json');
+            res.setHeader("Access-Control-Allow-Credentials", "true");
+            res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+            res.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
+            CdInit(req, res);
         });
+        
+        // Handle POST requests
+        // app.post('/sio/p-reg', (req: Request, res: Response) => {
+        //     const { name, email } = req.body;
+        //     console.log(`Received registration: Name: ${name}, Email: ${email}`);
+        //     res.send({ message: 'Registration successful' });
+        // });
 
 
         // set api entry point
@@ -182,6 +185,7 @@ export class Main {
         });
 
         if (config.mode === "wss") {
+            console.log("main/05")
             const expressServer = app.listen(config.wssPort, () => {
                 console.log(`server is listening on ${config.wssPort}`);
             })
