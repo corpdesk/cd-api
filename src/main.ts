@@ -37,7 +37,7 @@ export class Main {
         this.logger = new Logging();
     }
     async run() {
-        console.log("main/01")
+        this.logger.logInfo('Main::run()/01')
         // basic settings
         const app: Application = express();
 
@@ -72,7 +72,7 @@ export class Main {
          * use cors
          */
         if (config.apiRoute === "/sio" && config.secure === "true") {
-            console.log("main/02")
+            this.logger.logInfo('Main::run()/02')
             //////////////////////////////////////////////////////////////////////////////
             app.use(cors(corsOptions));
             app.use(express.json()); // For parsing application/json
@@ -98,8 +98,8 @@ export class Main {
             });
             /////////////////////////////////////////////////////
 
-            console.log("main/03")
-            console.log("config.push.mode:", config.push.mode)
+            this.logger.logInfo('Main::run()/03')
+            this.logger.logInfo('Main::run()/config.push.mode:', {mode: config.push.mode})
             let pubClient;
             let subClient;
             switch (config.push.mode) {
