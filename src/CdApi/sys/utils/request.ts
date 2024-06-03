@@ -16,6 +16,7 @@ export class CdRequest {
         if (req.method === 'POST') {
             this.logger.logInfo('CdRequest::processPost()/02')
             contentType = req.headers['content-type'];
+            this.logger.logInfo('CdRequest::processPost():', {contentType:contentType})
             req.on('data', (data) => {
                 this.logger.logInfo('CdRequest::processPost()/data:', data)
                 queryData += data;
