@@ -103,19 +103,23 @@ export class Main {
             let pubClient;
             let subClient;
             switch (config.push.mode) {
-                case process.env.PUSH_BASIC:
+                case "PUSH_BASIC":
+                    this.logger.logInfo('Main::run()/031')
                     pubClient = createClient({ host: config.push.redisHost, port: config.push.redisPort, legacyMode: true } as RedisClientOptions);
                     subClient = pubClient.duplicate();
                     break;
-                case process.env.PUSH_CLUSTER:
+                case "PUSH_CLUSTER":
+                    this.logger.logInfo('Main::run()/032')
                     pubClient = new Redis.Cluster(config.push.startupNodes);
                     subClient = pubClient.duplicate();
                     break;
-                case process.env.PUSH_SENTINEL:
+                case "PUSH_SENTINEL":
+                    this.logger.logInfo('Main::run()/033')
                     pubClient = new Redis(config.push.sentinalOptions);
                     subClient = pubClient.duplicate();
                     break;
                 default:
+                    this.logger.logInfo('Main::run()/034')
                     pubClient = createClient({ host: config.push.redisHost, port: config.push.redisPort } as RedisClientOptions);
                     subClient = pubClient.duplicate();
                     break;
@@ -123,6 +127,7 @@ export class Main {
 
             Promise.all([pubClient, subClient])
                 .then(() => {
+                    this.logger.logInfo('Main::run()/035')
                     const svSio = new SioService();
                     svSio.run(io, pubClient, subClient)
                 });
