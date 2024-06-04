@@ -27,6 +27,7 @@ import Redis from "ioredis";
 import { SioService } from './CdApi/sys/cd-push/services/sio.service';
 import { Logging } from './CdApi/sys/base/winston.log';
 import { WebsocketService } from './CdApi/sys/cd-push/services/websocket.service';
+import pusher from './CdApi/sys/cd-push/pusher';
 
 
 
@@ -71,7 +72,7 @@ export class Main {
          * use SSL
          * use cors
          */
-        if (config.apiRoute === "/sio" && config.secure === "true") {
+        if (config.pushService.sio.enabled) {
             this.logger.logInfo('Main::run()/02')
             //////////////////////////////////////////////////////////////////////////////
             app.use(cors(corsOptions));
@@ -99,7 +100,7 @@ export class Main {
             /////////////////////////////////////////////////////
 
             this.logger.logInfo('Main::run()/03')
-            this.logger.logInfo('Main::run()/config.push.mode:', {mode: config.push.mode})
+            this.logger.logInfo('Main::run()/config.push.mode:', { mode: config.push.mode })
             let pubClient;
             let subClient;
             switch (config.push.mode) {
@@ -168,7 +169,7 @@ export class Main {
             res.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
             CdInit(req, res);
         });
-        
+
         // Handle POST requests
         // app.post('/sio/p-reg', (req: Request, res: Response) => {
         //     const { name, email } = req.body;
@@ -189,7 +190,33 @@ export class Main {
             CdInit(req, res, ds);
         });
 
-        if (config.mode === "wss") {
+        if (config.pushService.pusher.enabled) {
+            app.post('/notify', (req: Request, res: Response) => {
+                const { message, channel, event } = req.body;
+                // this.logger.logInfo("message:", message)
+                pusher.trigger(channel, event, { message: "hello from server on '/notify'" } )
+                    .then(() => res.status(200).send("Notification sent from '/notify'"))
+                    .catch((err: Error) => res.status(500).send(`Error sending notification: ${err.message}`));
+            });
+
+            app.post('/notify-user', (req: Request, res: Response) => {
+                const { message, userId } = req.body;
+                const channel = `private-user-${userId}`;
+
+                pusher.trigger(channel, 'user-event', { message: "hello from server on '/notify-user'" })
+                    .then(() => res.status(200).send("Notification sent from '/notify'"))
+                    .catch((err: Error) => res.status(500).send(`Error sending notification: ${err.message}`));
+            });
+
+            app.post('/pusher/auth', (req: Request, res: Response) => {
+                const socketId = req.body.socket_id;
+                const channel = req.body.channel_name;
+                const auth = pusher.authenticate(socketId, channel);
+                res.send(auth);
+            });
+        }
+
+        if (config.pushService.wss.enabled) {
             console.log("main/05")
             const expressServer = app.listen(config.wssPort, () => {
                 console.log(`server is listening on ${config.wssPort}`);

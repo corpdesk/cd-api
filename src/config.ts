@@ -61,7 +61,7 @@ const mysqlConfig = {
     //     // 'info', 
     //     // 'log'
     // ],
-    logging: ["query", "error","warn","log"]
+    logging: ["query", "error", "warn", "log"]
     // logging: "all"
 };
 
@@ -97,7 +97,17 @@ const API_ROUTE = process.env.API_ROUTE;
 const END_POINT = `${process.env.API_URL}:${API_PORT}`;
 
 export default {
-    mode: process.env.MODE,
+    pushService: {
+        sio: {
+            enabled: true
+        },
+        wss: {
+            enabled: false
+        },
+        pusher: {
+            enabled: true
+        }
+    },
     wssPort: process.env.WSS_PORT,
     secure: process.env.SECURE,
     keyPath: process.env.KEY_PATH,
