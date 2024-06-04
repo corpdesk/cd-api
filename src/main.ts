@@ -192,14 +192,20 @@ export class Main {
 
         if (config.pushService.pusher.enabled) {
             app.post('/notify', (req: Request, res: Response) => {
+                res.setHeader("Access-Control-Allow-Credentials", "true");
+                res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+                res.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
                 const { message, channel, event } = req.body;
                 // this.logger.logInfo("message:", message)
-                pusher.trigger(channel, event, { message: "hello from server on '/notify'" } )
+                pusher.trigger(channel, event, { message: "hello from server on '/notify'" })
                     .then(() => res.status(200).send("Notification sent from '/notify'"))
                     .catch((err: Error) => res.status(500).send(`Error sending notification: ${err.message}`));
             });
 
             app.post('/notify-user', (req: Request, res: Response) => {
+                res.setHeader("Access-Control-Allow-Credentials", "true");
+                res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+                res.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
                 const { message, userId } = req.body;
                 const channel = `private-user-${userId}`;
 
@@ -209,6 +215,9 @@ export class Main {
             });
 
             app.post('/pusher/auth', (req: Request, res: Response) => {
+                res.setHeader("Access-Control-Allow-Credentials", "true");
+                res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+                res.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
                 const socketId = req.body.socket_id;
                 const channel = req.body.channel_name;
                 const auth = pusher.authenticate(socketId, channel);
@@ -217,6 +226,7 @@ export class Main {
         }
 
         if (config.pushService.wss.enabled) {
+            
             console.log("main/05")
             const expressServer = app.listen(config.wssPort, () => {
                 console.log(`server is listening on ${config.wssPort}`);
