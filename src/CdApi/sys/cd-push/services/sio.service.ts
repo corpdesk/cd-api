@@ -39,9 +39,9 @@ export class SioService {
     }
 
     run(io, pubClient, subClient) {
-        console.log("SioService::run()/io:", io)
-        console.log("SioService::run()/pubClient:", pubClient)
-        console.log("SioService::run()/subClient:", subClient)
+        // console.log("SioService::run()/io:", io)
+        // console.log("SioService::run()/pubClient:", pubClient)
+        // console.log("SioService::run()/subClient:", subClient)
         const port = config.push.serverPort;
         pubClient.on("error", (err) => {
             console.log(`pubClient error: ${JSON.stringify(err)}`);
