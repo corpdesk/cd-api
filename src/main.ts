@@ -27,7 +27,7 @@ import Redis from "ioredis";
 import { SioService } from './CdApi/sys/cd-push/services/sio.service';
 import { Logging } from './CdApi/sys/base/winston.log';
 import { WebsocketService } from './CdApi/sys/cd-push/services/websocket.service';
-import pusher from './CdApi/sys/cd-push/pusher';
+import pusher from './CdApi/sys/cd-push/services/pusher';
 
 
 
