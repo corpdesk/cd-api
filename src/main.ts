@@ -39,6 +39,9 @@ export class Main {
     }
     async run() {
         this.logger.logInfo('Main::run()/01')
+        this.logger.logInfo('Main::run()/config.keyPath', {keyPath: config.keyPath} )
+        this.logger.logInfo('Main::run()/config.certPath', {certPath: config.certPath} )
+        this.logger.logInfo('Main::run()/config.caPath', {caPath: config.caPath} )
         // basic settings
         const app: Application = express();
 
