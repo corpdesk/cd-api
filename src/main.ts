@@ -78,6 +78,21 @@ export class Main {
         let httpServer = null;
         let corsOpts = null;
 
+        //////////////////////////////////////////////////////////////////////////////
+        app.use(cors(corsOptions));
+        app.use(express.json()); // For parsing application/json
+        app.options('*', cors(corsOptions)); // Enable pre-flight across-the-board
+        //////////////////////////////////////////////////////////////////////////////
+
+        httpServer = https.createServer(credentials, app);
+        corsOpts = {
+            cors: {
+                options: config.Cors.options.allowedHeaders,
+                origin: config.Cors.options.origin
+            }
+        }
+
+
         /**
          * When run on sio mode in production,
          * use SSL
@@ -85,20 +100,7 @@ export class Main {
          */
         if (config.pushService.sio.enabled) {
             this.logger.logInfo('Main::run()/02')
-            //////////////////////////////////////////////////////////////////////////////
-            app.use(cors(corsOptions));
-            app.use(express.json()); // For parsing application/json
-            app.options('*', cors(corsOptions)); // Enable pre-flight across-the-board
-            //////////////////////////////////////////////////////////////////////////////
-
-            httpServer = https.createServer(credentials, app);
-            corsOpts = {
-                cors: {
-                    options: config.Cors.options.allowedHeaders,
-                    origin: config.Cors.options.origin
-                }
-            }
-
+            
             // const io = new Server(httpServer, corsOpts);
             /////////////////////////////////////////////////////
             const io = new Server(httpServer, {
