@@ -169,9 +169,11 @@ export class ModuleService extends CdService {
     }
 
     getAclModule$(req, res, params): Observable<any> {
-        // this.b.logTimeStamp('ModuleService::getAclModule$/01')
+        this.b.logTimeStamp('ModuleService::getAclModule$/01')
         this.consumerGuid = params.consumerGuid;
-        // this.logger.logInfo('ModuleService::getAclModule$()/params:', params)
+        this.srvAcl.consumerGuid = params.consumerGuid;
+        this.logger.logInfo('ModuleService::getAclModule$()/params:', params)
+        this.logger.logInfo('ModuleService::getAclModule$()/this.srvAcl.consumerGuid:', this.srvAcl.consumerGuid)
         // this.logger.logInfo('ModuleService::getAclModule$()/01:');
         return forkJoin({
             // unfilteredModules: this.getAll$(req, res).pipe(map((m) => { return m })), // for isRoot
@@ -181,11 +183,18 @@ export class ModuleService extends CdService {
         })
             .pipe(
                 map((acl: any) => {
-                    // this.b.logTimeStamp('ModuleService::getModulesUserData$/02')
-                    // this.logger.logInfo('ModuleService::getAclModule$()/acl:', acl)
-                    // Based on acl result, return appropirate modules
+                    this.b.logTimeStamp('ModuleService::getModulesUserData$/02')
+                    this.logger.logInfo('ModuleService::getAclModule$()/acl:', acl)
+                    /**
+                     * - Public modules are included withough acl filtering
+                     * - Based on acl result, return appropirate modules
+                     */
                     const publicModules = acl.consumerModules.filter(m => m.moduleIsPublic);
-                    if (acl.userRoles.isConsumerRoot.length > 0) { // if userIsConsumerRoot then return all consumerModules
+                    this.logger.logInfo('ModuleService::getAclModule$()/publicModules:', publicModules)
+                    /**
+                     * - if userIsConsumerRoot then return all consumerModules
+                     */
+                    if (acl.userRoles.isConsumerRoot.length > 0) {
                         // this.b.logTimeStamp('ModuleService::getModulesUserData$/03')
                         return acl.consumerModules;
                     }

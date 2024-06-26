@@ -1,0 +1,146 @@
+{
+    "userRoles": {
+      "isRoot": [],
+      "isConsumerRoot": [],
+      "isConsumerUser": [
+        {
+          "userId": 1010,
+          "userGuid": "fe5b1a9d-df45-4fce-a181-65289c48ea00",
+          "userName": "karl",
+          "userEnabled": 1,
+          "companyId": 85,
+          "userTypeId": 1,
+          "consumerId": 33,
+          "cdObjTypeId": null,
+          "cdObjId": 92534,
+          "objGuid": "fe5b1a9d-df45-4fce-a181-65289c48ea00",
+          "consumerGuid": "B0B3DA99-1859-A499-90F6-1E3F69575DCD",
+          "consumerResourceTypeId": 6
+        }
+      ]
+    },
+    "consumerModules": [
+      {
+        "moduleGuid": "8q3khu",
+        "moduleEnabled": 1,
+        "moduleIsPublic": null,
+        "moduleId": 44,
+        "moduleName": "comm",
+        "isSysModule": 1,
+        "moduleTypeId": 1,
+        "groupGuid": "bdd82014-50bf-4ecc-9f01-543246cb8e32"
+      },
+      {
+        "moduleGuid": "-dkkm6",
+        "moduleEnabled": 1,
+        "moduleIsPublic": 0,
+        "moduleId": 45,
+        "moduleName": "user",
+        "isSysModule": 1,
+        "moduleTypeId": 1,
+        "groupGuid": "-dkkm6"
+      },
+      {
+        "moduleGuid": "48753f8a-b262-471f-b175-1f0ec9e5206d",
+        "moduleEnabled": 1,
+        "moduleIsPublic": null,
+        "moduleId": 98,
+        "moduleName": "file_sys",
+        "isSysModule": 1,
+        "moduleTypeId": 1,
+        "groupGuid": "48753f8a-b262-471f-b175-1f0ec9e5206d"
+      },
+      {
+        "moduleGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b",
+        "moduleEnabled": 1,
+        "moduleIsPublic": null,
+        "moduleId": 99,
+        "moduleName": "moduleman",
+        "isSysModule": 1,
+        "moduleTypeId": 1,
+        "groupGuid": "48753f8a-b262-471f-b175-1f0ec9e5206d"
+      },
+      {
+        "moduleGuid": "A6874D4C-F30B-CC4E-072A-7C998CCC2608",
+        "moduleEnabled": 1,
+        "moduleIsPublic": 0,
+        "moduleId": 109,
+        "moduleName": "smart-pep",
+        "isSysModule": null,
+        "moduleTypeId": 1,
+        "groupGuid": null
+      },
+      {
+        "moduleGuid": "3C33747C-A25C-5FC3-07DD-21200B5B0384",
+        "moduleEnabled": 1,
+        "moduleIsPublic": 0,
+        "moduleId": 110,
+        "moduleName": "scheduler",
+        "isSysModule": null,
+        "moduleTypeId": 1,
+        "groupGuid": null
+      },
+      {
+        "moduleGuid": "05CCE4BE-8210-67C1-F377-0671A83E68CB",
+        "moduleEnabled": 1,
+        "moduleIsPublic": null,
+        "moduleId": 252,
+        "moduleName": "accts",
+        "isSysModule": null,
+        "moduleTypeId": 1,
+        "groupGuid": "5E35AB8B-1957-5996-D9CB-BE2251C911D1"
+      },
+      {
+        "moduleGuid": "04DBEDB5-3461-1265-9B00-CD3CAFF6EB0E",
+        "moduleEnabled": 1,
+        "moduleIsPublic": null,
+        "moduleId": 215,
+        "moduleName": "cd_hrm",
+        "isSysModule": null,
+        "moduleTypeId": 1,
+        "groupGuid": " \t13AF08E9-B50F-65DA-2666-2F3B85232DEB"
+      },
+      {
+        "moduleGuid": "C620F2D8-A0AE-0406-7DB7-7ECE806722AA",
+        "moduleEnabled": 1,
+        "moduleIsPublic": 1,
+        "moduleId": 195,
+        "moduleName": "cdgeo",
+        "isSysModule": 0,
+        "moduleTypeId": 1,
+        "groupGuid": "0C4E937A-B00B-A4E0-F6BC-48DC372E1AF8"
+      },
+      {
+        "moduleGuid": "BE1E6690-0DA0-F35B-1E93-7140CFD27C09",
+        "moduleEnabled": 1,
+        "moduleIsPublic": null,
+        "moduleId": 357,
+        "moduleName": "InteRact",
+        "isSysModule": 1,
+        "moduleTypeId": 1,
+        "groupGuid": "36C2CF24-65E5-8410-3E7C-8ACECC591BC2"
+      }
+    ],
+    "moduleParents": [
+      {
+        "moduleGuid": "48753f8a-b262-471f-b175-1f0ec9e5206d",
+        "moduleEnabled": 1,
+        "moduleIsPublic": null,
+        "moduleId": 98,
+        "moduleName": "file_sys",
+        "isSysModule": 1,
+        "moduleTypeId": 1,
+        "groupGuid": "48753f8a-b262-471f-b175-1f0ec9e5206d"
+      },
+      {
+        "moduleGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b",
+        "moduleEnabled": 1,
+        "moduleIsPublic": null,
+        "moduleId": 99,
+        "moduleName": "moduleman",
+        "isSysModule": 1,
+        "moduleTypeId": 1,
+        "groupGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b"
+      }
+    ]
+  }

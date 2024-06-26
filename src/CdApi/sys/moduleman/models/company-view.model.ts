@@ -12,6 +12,7 @@ import { ViewEntity, ViewColumn } from 'typeorm';
         company.company_name AS company_name,
         company.postal_address AS postal_address,
         company.phone AS phone,
+        company.mobile AS mobile,
         company.email AS email,
         company.website AS website,
         company.physical_location AS physical_location,
@@ -93,6 +94,13 @@ export class CompanyViewModel {
         }
     )
     phone: string;
+
+    @ViewColumn(
+        {
+            name: 'mobile'
+        }
+    )
+    mobile: string;
 
     @ViewColumn(
         {

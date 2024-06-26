@@ -1,0 +1,380 @@
+{
+    "_readableState": {
+        "state": 268310,
+        "highWaterMark": 16384,
+        "buffer": {
+            "head": null,
+            "tail": null,
+            "length": 0
+        },
+        "length": 0,
+        "pipes": [],
+        "flowing": true,
+        "errored": null,
+        "defaultEncoding": "utf8",
+        "awaitDrainWriters": null,
+        "decoder": null,
+        "encoding": null
+    },
+    "_events": {},
+    "_eventsCount": 0,
+    "socket": {
+        "_tlsOptions": {
+            "secureContext": {
+                "context": {}
+            },
+            "isServer": true,
+            "server": {
+                "requestTimeout": 300000,
+                "headersTimeout": 60000,
+                "keepAliveTimeout": 5000,
+                "connectionsCheckingInterval": 30000,
+                "rejectNonStandardBodyWrites": false,
+                "_contexts": [],
+                "requestCert": false,
+                "rejectUnauthorized": true,
+                "ALPNProtocols": {
+                    "type": "Buffer",
+                    "data": [
+                        8,
+                        104,
+                        116,
+                        116,
+                        112,
+                        47,
+                        49,
+                        46,
+                        49
+                    ]
+                },
+                "key": "-----BEGIN PRIVATE KEY-----\n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\nqgFaEREpvT1QvpHAAKN+QY2hRzXIb9g=\n-----END PRIVATE KEY-----\n",
+                "cert": "-----BEGIN CERTIFICATE-----\nMIIFnzCCA4egAwIBAgIUMiWC9BHtd6vmm5D4MMT/Dox7RHUwDQYJKoZIhvcNAQEL\nBQAwXzELMAkGA1UEBhMCS0UxDzANBgNVBAgMBktpc3VtdTEPMA0GA1UEBwwGS2lz\ndW11MQwwCgYDVQQKDANFTVAxDDAKBgNVBAsMA0xhYjESMBAGA1UEAwwJbG9jYWxo\nb3N0MB4XDTI0MDUyOTE4MjM1NFoXDTM0MDUyNzE4MjM1NFowXzELMAkGA1UEBhMC\nS0UxDzANBgNVBAgMBktpc3VtdTEPMA0GA1UEBwwGS2lzdW11MQwwCgYDVQQKDANF\nTVAxDDAKBgNVBAsMA0xhYjESMBAGA1UEAwwJbG9jYWxob3N0MIICIjANBgkqhkiG\n9w0BAQEFAAOCAg8AMIICCgKCAgEAuWM47kwgOvtudjPHvGfsiWN87x4y3fIH5vM5\nhC0v2GeX/iWxQ7LzUzUwUAZaKJJ2AkyADVraBvfu/8CqtmViWx2ZXKHERIVPwhKt\nCa9BYz7ISJ16z2S44286oEcMJTmIedvj37FhxO4vH/7SrL38izrSqJPkf91QyPjg\n9HevKI0ynSpYsTyiLcDnd7JuAAcPT0CGD1HnE8AeYzTLEHQupHy3DRQWB4Xsiln4\nUle0IHHwRO7xIpPG75EQuytV1EVB1OskLFf0w3ffggCVjh/VKu4A9H0OF+LyB7oV\nxSLHpLv8ZF7b42U4QfvZqd/p9Xwqewf/8GexJdW8X3m1caXHLHhSefoZUMy7tNQh\neiEO8cA753Gb5DGrdpTmlICCSRERlM46VUeTpKeyeC8Ocu+kvPDDakiLdPIfosp8\nFe7xBIuG3iGxl748cE0VuJQ1n7eJTaxVFrmuSg4MWLAb3sMhEpFiXVZ7chLvKSqo\n70a8bXfqGy4+fckQUeCMPlmmetjSrfY3ND/Fjr6IRNPJyqcPAyWrTdyAx5H3HEQj\nXKPLhfd6HhHYkSM/jTNk/4jX3mOh1FX94oNN7RvDLMIn/KU7dFWoBwXn2+s6RZc4\nWwGDk+bxMka+HJsBg7hHLjLO7Wwur0KIIdY590P1jv9Qxmrp/qds+pPi29c76ayk\nndhvLc8CAwEAAaNTMFEwHQYDVR0OBBYEFO0k6s3APu0MDFL0dXdeenqgOJ02MB8G\nA1UdIwQYMBaAFO0k6s3APu0MDFL0dXdeenqgOJ02MA8GA1UdEwEB/wQFMAMBAf8w\nDQYJKoZIhvcNAQELBQADggIBAGy9+QAZa1DPY7p55UYuNplxQaAyEbH7u92yXB5b\nSkmpzuwFiKKl4P0Kh4Gudsy/jnFK4S5rTBd+7po3gLddIcTe9yEBcv69XlFIREn8\ngmvR+of9JByUE7cwZFgG5LIOFH9Ov0XDs+St/9lCYYK+ePCx/mhNx0HvjaJOYHet\nHa4NpJIdxE8jkJIZAxMJpxn87H6tNNz4AceOvN1o0hG/99EBQPZCREsFZj+wdqIp\nvVY4CyEVfs+LIthJBqLze8Cz5ToofOTAKxmsAf/oDURE5gV4OubB53pEn0q2fG4N\nnR9HbM/vytIIp+1w//HYPRJ1DfdBTiSBH5m5+r/Qr+a9BJcIGCDTh/Ir3nSduWpJ\n5cw3zypnFmM+1HPfEgSMHCMEr6XDV9bGnbR7xKJ6ohA08rRFhi/kEwO6GM57QQJu\njIJIqeTyZNYxULiY03TGarqEpNaB64BPAWLvSASVmGaTLx/v/425V4bAjcA3BVtz\nRWaSf63WLZs2EpC9cH+5z/nLzOkwBI+OlLBY1TPpGJ8dv/Y8aAx1vLovzWLlPbcv\nAhK1SOnRGZ2YarqrDD9cj8bYn+IgagwcBGmtdUzU0U4KrA6Iu/qylGwFtvEgogJh\nMEBKlgDT7dVw41AWHk/x/WtgujYZhWLbkf55HSHDO3yvO0zFRrsb8iQASaJVkTbo\nhHba\n-----END CERTIFICATE-----\n",
+                "honorCipherOrder": true,
+                "sessionIdContext": "2a846c070412b09d7c588aafb99c1755",
+                "_events": {
+                    "listening": [
+                        null,
+                        null
+                    ]
+                },
+                "_eventsCount": 8,
+                "_connections": 1,
+                "_handle": {
+                    "reading": false
+                },
+                "_usingWorkers": false,
+                "_workers": [],
+                "_unref": false,
+                "allowHalfOpen": false,
+                "pauseOnConnect": false,
+                "noDelay": true,
+                "keepAlive": false,
+                "keepAliveInitialDelay": 0,
+                "highWaterMark": 16384,
+                "httpAllowHalfOpen": false,
+                "timeout": 0,
+                "maxHeadersCount": null,
+                "_connectionKey": "6::::3001"
+            },
+            "requestCert": false,
+            "rejectUnauthorized": true,
+            "handshakeTimeout": 120000,
+            "ALPNProtocols": {
+                "type": "Buffer",
+                "data": [
+                    8,
+                    104,
+                    116,
+                    116,
+                    112,
+                    47,
+                    49,
+                    46,
+                    49
+                ]
+            },
+            "pauseOnConnect": false
+        },
+        "_secureEstablished": true,
+        "_securePending": false,
+        "_newSessionPending": false,
+        "_controlReleased": true,
+        "secureConnecting": false,
+        "_SNICallback": null,
+        "servername": "localhost",
+        "alpnProtocol": "http/1.1",
+        "authorized": false,
+        "authorizationError": null,
+        "encrypted": true,
+        "_events": {
+            "close": [
+                null,
+                null,
+                null,
+                null
+            ],
+            "end": [
+                null,
+                null
+            ]
+        },
+        "_eventsCount": 11,
+        "connecting": false,
+        "_hadError": false,
+        "_parent": {
+            "connecting": false,
+            "_hadError": false,
+            "_parent": null,
+            "_host": null,
+            "_closeAfterHandlingError": false,
+            "_readableState": {
+                "state": 4184,
+                "highWaterMark": 16384,
+                "buffer": {
+                    "head": null,
+                    "tail": null,
+                    "length": 0
+                },
+                "length": 0,
+                "pipes": [],
+                "flowing": null,
+                "errored": null,
+                "defaultEncoding": "utf8",
+                "awaitDrainWriters": null,
+                "decoder": null,
+                "encoding": null
+            },
+            "_events": {},
+            "_eventsCount": 3,
+            "_writableState": {
+                "objectMode": false,
+                "highWaterMark": 16384,
+                "finalCalled": false,
+                "needDrain": false,
+                "ending": false,
+                "ended": false,
+                "finished": false,
+                "destroyed": false,
+                "decodeStrings": false,
+                "defaultEncoding": "utf8",
+                "length": 0,
+                "writing": false,
+                "corked": 0,
+                "sync": true,
+                "bufferProcessing": false,
+                "writecb": null,
+                "writelen": 0,
+                "afterWriteTickInfo": null,
+                "buffered": [],
+                "bufferedIndex": 0,
+                "allBuffers": true,
+                "allNoop": true,
+                "pendingcb": 0,
+                "constructed": true,
+                "prefinished": false,
+                "errorEmitted": false,
+                "emitClose": false,
+                "autoDestroy": true,
+                "errored": null,
+                "closed": false,
+                "closeEmitted": false
+            },
+            "allowHalfOpen": false,
+            "_sockname": null,
+            "_pendingData": null,
+            "_pendingEncoding": ""
+        },
+        "_host": null,
+        "_closeAfterHandlingError": false,
+        "_readableState": {
+            "state": 4184,
+            "highWaterMark": 16384,
+            "buffer": {
+                "head": null,
+                "tail": null,
+                "length": 0
+            },
+            "length": 0,
+            "pipes": [],
+            "flowing": true,
+            "errored": null,
+            "defaultEncoding": "utf8",
+            "awaitDrainWriters": null,
+            "decoder": null,
+            "encoding": null
+        },
+        "_writableState": {
+            "objectMode": false,
+            "highWaterMark": 16384,
+            "finalCalled": false,
+            "needDrain": false,
+            "ending": false,
+            "ended": false,
+            "finished": false,
+            "destroyed": false,
+            "decodeStrings": false,
+            "defaultEncoding": "utf8",
+            "length": 0,
+            "writing": false,
+            "corked": 0,
+            "sync": true,
+            "bufferProcessing": false,
+            "writecb": null,
+            "writelen": 0,
+            "afterWriteTickInfo": null,
+            "buffered": [],
+            "bufferedIndex": 0,
+            "allBuffers": true,
+            "allNoop": true,
+            "pendingcb": 0,
+            "constructed": true,
+            "prefinished": false,
+            "errorEmitted": false,
+            "emitClose": false,
+            "autoDestroy": true,
+            "errored": null,
+            "closed": false,
+            "closeEmitted": false
+        },
+        "allowHalfOpen": false,
+        "_sockname": null,
+        "_pendingData": null,
+        "_pendingEncoding": "",
+        "_server": null,
+        "ssl": {
+            "_parent": {
+                "reading": true,
+                "onconnection": null
+            },
+            "reading": true,
+            "lastHandshakeTime": 189756,
+            "handshakes": 0,
+            "_consumed": true
+        },
+        "_requestCert": false,
+        "_rejectUnauthorized": true,
+        "timeout": 0,
+        "parser": {
+            "0": null,
+            "_headers": [],
+            "_url": "",
+            "outgoing": null,
+            "maxHeaderPairs": 2000,
+            "_consumed": true,
+            "joinDuplicateHeaders": null
+        },
+        "_paused": false,
+        "_httpMessage": {
+            "_events": {},
+            "_eventsCount": 1,
+            "outputData": [],
+            "outputSize": 0,
+            "writable": true,
+            "destroyed": false,
+            "_last": false,
+            "chunkedEncoding": false,
+            "shouldKeepAlive": true,
+            "maxRequestsOnConnectionReached": false,
+            "_defaultKeepAlive": true,
+            "useChunkedEncodingByDefault": true,
+            "sendDate": true,
+            "_removedConnection": false,
+            "_removedContLen": false,
+            "_removedTE": false,
+            "strictContentLength": false,
+            "_contentLength": null,
+            "_hasBody": true,
+            "_trailer": "",
+            "finished": false,
+            "_headerSent": false,
+            "_closed": false,
+            "_header": null,
+            "_keepAliveTimeout": 5000,
+            "_sent100": false,
+            "_expect_continue": false,
+            "locals": {}
+        }
+    },
+    "httpVersionMajor": 1,
+    "httpVersionMinor": 1,
+    "httpVersion": "1.1",
+    "complete": true,
+    "rawHeaders": [
+        "Host",
+        "localhost:3001",
+        "User-Agent",
+        "curl/7.81.0",
+        "Accept",
+        "*/*",
+        "Content-Type",
+        "application/json",
+        "Content-Length",
+        "224"
+    ],
+    "rawTrailers": [],
+    "joinDuplicateHeaders": null,
+    "aborted": false,
+    "upgrade": false,
+    "url": "/api",
+    "method": "POST",
+    "statusCode": null,
+    "statusMessage": null,
+    "_consuming": true,
+    "_dumped": false,
+    "baseUrl": "",
+    "originalUrl": "/api",
+    "_parsedUrl": {
+        "protocol": null,
+        "slashes": null,
+        "auth": null,
+        "host": null,
+        "port": null,
+        "hostname": null,
+        "hash": null,
+        "search": null,
+        "query": null,
+        "pathname": "/api",
+        "path": "/api",
+        "href": "/api",
+        "_raw": "/api"
+    },
+    "params": {},
+    "query": {},
+    "body": {
+        "ctx": "Sys",
+        "m": "User",
+        "c": "User",
+        "a": "Login",
+        "dat": {
+            "f_vals": [
+                {
+                    "data": {
+                        "userName": "karl",
+                        "password": "secret",
+                        "consumerGuid": "B0B3DA99-1859-A499-90F6-1E3F69575DCD"
+                    }
+                }
+            ],
+            "token": null
+        },
+        "args": null
+    },
+    "_body": true,
+    "route": {
+        "path": "/api",
+        "stack": [
+            {
+                "name": "<anonymous>",
+                "keys": [],
+                "regexp": {
+                    "fast_star": false,
+                    "fast_slash": false
+                },
+                "method": "post"
+            }
+        ],
+        "methods": {
+            "post": true
+        }
+    }
+}

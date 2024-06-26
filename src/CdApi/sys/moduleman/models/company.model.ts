@@ -104,6 +104,7 @@ export class CompanyModel {
         }
     )
     phone: string;
+    
 
     @Column(
         {

@@ -17,10 +17,12 @@ import { CdObjService } from './cd-obj.service';
 import { size } from 'lodash';
 import { CdObjModel } from '../models/cd-obj.model';
 import { ModuleModel } from '../models/module.model';
+import { Logging } from '../../base/winston.log';
 
 const menuCache = new CacheContainer(new MemoryStorage())
 
 export class MenuService {
+    logger: Logging;
     b: BaseService;
     srvGroup: GroupService;
     srvGroupMember: GroupMemberService;
@@ -46,6 +48,7 @@ export class MenuService {
 
     constructor() {
         this.b = new BaseService();
+        this.logger = new Logging();
         this.srvGroupMember = new GroupMemberService();
         this.srvAcl = new AclService();
         this.serviceModel = new MenuModel();
@@ -184,7 +187,7 @@ export class MenuService {
 
     getMenu(req, res) {
         const f = this.b.getQuery(req);
-        // console.log('MenuService::getMenu/f:', f);
+        this.logger.logInfo('MenuService::getMenu/f:', f);
         const serviceInput: IServiceInput = {
             serviceModel: MenuViewModel,
             docName: 'MenuService::getMenu',
@@ -207,11 +210,13 @@ export class MenuService {
     }
 
     getAclMenu$(req, res, params: IAllowedModules): Observable<any> {
+        this.logger.logInfo('MenuService::getAclMenu$()/params:', params)
         return params.modules$
             .pipe(
                 mergeMap((m) => {
                     return m.map(mod => {
                         const moduleMenuData$ = this.getModuleMenu$(req, res, mod);
+                        this.logger.logInfo('MenuService::getAclMenu$()/moduleMenuData:', moduleMenuData$)
                         return forkJoin({
                             modules: params.modules$,
                             menu: this.buildNestedMenu(this.getRootMenuId(moduleMenuData$), moduleMenuData$),
@@ -234,6 +239,7 @@ export class MenuService {
     }
 
     getModuleMenu$(req, res, moduleData): Observable<MenuViewModel[]> {
+        this.logger.logInfo('MenuService::getModuleMenu$()/moduleData:', moduleData)
         const serviceInput: IServiceInput = {
             serviceInstance: this,
             serviceModel: MenuViewModel,
@@ -266,8 +272,7 @@ export class MenuService {
     //     isLayout?: boolean; // isLayout
     // }
     buildNestedMenu(menuId$: Observable<number>, moduleMenuData$: Observable<MenuViewModel[]>): Observable<any> {
-        // this.b.logTimeStamp('MenuService::buildNestedMenu$/01')
-        // console.log('MenuService::buildNestedMenu$/01:');
+        this.b.logTimeStamp('MenuService::buildNestedMenu$/01')
         return this.getMenuItem(menuId$, moduleMenuData$).pipe(
             map((sm: ISelectedMenu) => {
                 let ret: IMenuRelations = {
@@ -276,7 +281,7 @@ export class MenuService {
                 };
                 if (sm.selectedItem) {
                     const data = sm.selectedItem;
-                    // this.b.logTimeStamp('MenuService::buildNestedMenu$/02')
+                    this.b.logTimeStamp('MenuService::buildNestedMenu$/02')
                     ret = {
                         menuParent: {
                             menuLabel: data.menuLabel,
@@ -302,7 +307,7 @@ export class MenuService {
                 return ret;
             })
             , tap((m) => {
-                // this.b.logTimeStamp('MenuService::buildNestedMenu$/03')
+                this.b.logTimeStamp('MenuService::buildNestedMenu$/03')
             }),
             mergeMap(
                 (parentWithChildIds) => forkJoin(
@@ -313,17 +318,17 @@ export class MenuService {
                 )
             )
             , tap((m) => {
-                // this.b.logTimeStamp('MenuService::buildNestedMenu$/04')
+                this.b.logTimeStamp('MenuService::buildNestedMenu$/04')
             }),
             tap(([parent, ...children]) => {
-                // this.b.logTimeStamp('MenuService::buildNestedMenu$/05')
+                this.b.logTimeStamp('MenuService::buildNestedMenu$/05')
                 if (parent) {
                     parent.children = children;
                 }
             }),
             map(([parent,]) => parent)
             , tap((m) => {
-                // this.b.logTimeStamp('MenuService::buildNestedMenu$/06')
+                this.b.logTimeStamp('MenuService::buildNestedMenu$/06')
             }),
         );
     }
@@ -345,12 +350,13 @@ export class MenuService {
     }
 
     getMenuItem(menuId$: Observable<number>, moduleMenuData$: Observable<MenuViewModel[]>): Observable<ISelectedMenu> {
+        this.b.logTimeStamp('MenuService::getMenuItem$/01')
         return moduleMenuData$
             .pipe(
                 tap((m) => {
-                    // this.b.logTimeStamp('MenuService::getMenuItem$/01')
+                    this.b.logger.logInfo('MenuService::getMenuItem$/m:', m)
                     menuId$.pipe(map((mId) => {
-                        // this.b.logTimeStamp('MenuService::getMenuItem$/02')
+                        this.b.logTimeStamp('MenuService::getMenuItem$/02')
                         return mId;
                     }))
                 }),

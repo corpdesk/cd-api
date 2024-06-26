@@ -21,7 +21,7 @@ export class CompanyService extends CdService {
      * create rules
      */
     cRules: any = {
-        required: ['companyName', 'email', 'mobile', 'searchTags', 'companyTypeGuid'],
+        required: ['companyName', 'email', 'searchTags', 'companyTypeGuid'],
         noDuplicate: ['companyName', 'email']
     };
     uRules: any[];

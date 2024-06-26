@@ -12,8 +12,10 @@ import { ConsumerService } from './consumer.service';
 import { AclUserViewModel } from '../models/acluserview.model';
 import { AclModuleViewModel } from '../models/acl-module-view.model';
 import { AclModuleMemberViewModel } from '../models/acl-module-member-view.model';
+import { Logging } from '../../base/winston.log';
 
 export class AclService {
+    logger: Logging;
     b: BaseService;
     nestedMembers = [];
     aclRet;
@@ -44,6 +46,7 @@ export class AclService {
 
     constructor() {
         this.b = new BaseService();
+        this.logger = new Logging();
         this.srvSess = new SessionService();
         this.srvConsumer = new ConsumerService();
     }
@@ -51,6 +54,7 @@ export class AclService {
     async getAclModule(req, res, params) {
         this.b.logTimeStamp(`AclService::getAclModule/params:${JSON.stringify(params)}`)
         console.log('AclService::getAclModule(req, res,params)/params:', params)
+        console.log('AclService::getAclModule/this.consumerGuid:', this.consumerGuid)
         const result$ = of(
             this.aclUser$(req, res, { consumerGuid: params.consumerGuid }).pipe(map((u) => { return { useRoles: u } })),
             this.aclModule$(req, res).pipe(map((u) => { return { modules: u } })),
@@ -196,7 +200,8 @@ export class AclService {
      * @returns
      */
     aclModule$(req, res) {
-        // console.log('AclService::aclModule$()/this.consumerGuid:', this.consumerGuid)
+        // this.logger.logInfo('AclService::aclModule$()/req.post:', req.post)
+        this.logger.logInfo('AclService::aclModule$()/this.consumerGuid:', this.consumerGuid)
         // console.log('AclService::aclModule$()/01:');
         // this.b.logTimeStamp(':AclService::aclModule$()/01')
         const b = new BaseService();
@@ -209,7 +214,7 @@ export class AclService {
             docName: 'AclService::aclModule$',
             cmd: {
                 action: 'find',
-                query: { where: {} }
+                query: { where: { consumerGuid: this.consumerGuid } }
             },
             dSource: 1,
         }
@@ -273,7 +278,12 @@ export class AclService {
             docName: 'AclService::aclUser$',
             cmd: {
                 action: 'find',
-                query: { where: {} }
+                query: { 
+                    where: [
+                        { memberGuid: params.currentUser.userGuid, moduleEnabled: true, groupMemberEnabled:true }, 
+                        { moduleIsPublic: true }
+                    ] 
+                }
             },
             dSource: 1,
         }
