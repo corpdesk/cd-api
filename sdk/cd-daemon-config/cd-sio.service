@@ -6,7 +6,8 @@ After=network.target
 Type=simple
 User=devops
 Group=devops
-ExecStart=sudo -H -u devops bash -c 'cd /home/devops/cd-api && /home/devops/.nvm/versions/node/v16.20.2/bin/npm start'
+# ExecStart=sudo -H -u devops bash -c 'cd /home/devops/cd-sio && /home/devops/.nvm/versions/node/v16.20.2/bin/npm start'
+ExecStart=sudo -H -u devops bash -c 'sudo -H -u devops /home/devops/cd-sio/cd-daemon-config/start_cd_sio.sh'
 Restart=always
 Environment=PATH=/usr/bin:/usr/local/bin
 Environment=NODE_ENV=production

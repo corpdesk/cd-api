@@ -3,7 +3,8 @@ Description=cd-api application
 
 [Service]
 # ExecStart=/home/devops/cd-api/node_modules/.bin/ts-node /home/devops/cd-api/src/app.ts
-ExecStart=sudo -H -u devops bash -c 'cd /home/devops/cd-api && /home/devops/.nvm/versions/node/v16.20.2/bin/npm start'
+# ExecStart=sudo -H -u devops bash -c 'cd /home/devops/cd-api && /home/devops/.nvm/versions/node/v16.20.2/bin/npm start'
+ExecStart=sudo -H -u devops bash -c 'sudo -H -u devops /home/devops/cd-api/cd-daemon-config/start_cd_api.sh'
 Restart=always
 User=devops
 # Note Debian/Ubuntu uses 'nogroup', RHEL/Fedora uses 'nobody'
