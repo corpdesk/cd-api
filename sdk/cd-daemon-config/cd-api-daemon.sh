@@ -1,5 +1,5 @@
 # npm install -g npm i ts-node typescript
-# sudo -u devops chmod +x /home/devops/cd-api/cd-daemon-config/start_cd_api.sh
+# sudo -u devops chmod +x /home/devops/cd-api/sdk/cd-daemon-config/start_cd_api.sh
 # sudo rm -f /usr/bin/node
 # sudo ln -s /usr/bin/nodejs /usr/bin/node
 # chmod +x /home/devops/cd-api/src/app.ts
