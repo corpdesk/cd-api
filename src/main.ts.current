@@ -33,7 +33,7 @@ import pusher from './CdApi/sys/cd-push/services/pusher';
 
 export class Main {
     logger: Logging;
-    allowedOrigins = ["https://cd-shell.asdap.africa"];
+    allowedOrigins = ["https://asdap.net"];
     constructor() {
         this.logger = new Logging();
     }
@@ -68,7 +68,7 @@ export class Main {
 
         ////////////////////////////////////////////////////////////////////////////////
         const corsOptions = {
-            origin: 'https://cd-shell.asdap.africa', // Replace with your client URL
+            origin: 'https://asdap.net', // Replace with your client URL
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
             allowedHeaders: ['Content-Type', 'Authorization'],
             credentials: true
@@ -103,7 +103,7 @@ export class Main {
             /////////////////////////////////////////////////////
             const io = new Server(httpServer, {
                 cors: {
-                    origin: 'https://cd-shell.asdap.africa',
+                    origin: 'https://asdap.net',
                     methods: ['GET', 'POST'],
                     credentials: true
                 }

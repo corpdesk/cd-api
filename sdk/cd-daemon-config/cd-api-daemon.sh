@@ -7,7 +7,7 @@
 # sudo systemctl daemon-reload
 # sudo systemctl start cd-api
 # sudo systemctl enable cd-api
-# journalctl -fu cd-api
+# sudo journalctl -fu cd-api
 
 
 # sudo -H -u emp-12 bash -c 'cd ~/cd-projects/cd-api && /home/emp-12/.nvm/versions/node/v16.20.1/bin/npm start'

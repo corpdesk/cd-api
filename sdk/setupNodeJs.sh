@@ -1,6 +1,8 @@
 #!/bin/bash
 
-sudo apt update
-wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-su $USER
-nvm install --lts
+
+nodeVersion="v16.20.2"
+cd ~
+sudo apt install curl
+curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
+nvm install $nodeVersion
