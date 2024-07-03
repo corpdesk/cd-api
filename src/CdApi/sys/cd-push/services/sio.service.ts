@@ -146,7 +146,7 @@ export class SioService {
 
     runRegisteredEvents(socket, io, pubClient) {
         console.log('SioService::runRegisteredEvents(socket)/01');
-        console.log('SioService::runRegisteredEvents(socket)/socket:', socket);
+        // console.log('SioService::runRegisteredEvents(socket)/socket:', socket);
         // listen to registered events
         this.getRegisteredEvents().forEach((e) => {
 
