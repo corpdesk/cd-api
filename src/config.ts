@@ -116,6 +116,11 @@ export default {
     apiPort: process.env.API_PORT,
     apiRoute: API_ROUTE,
     endPoint: END_POINT,
+    userActivationUrl: process.env.USER_ACTIVATION_URL,
+    emailUser: {
+        user: process.env.EMAIL_USERNAME,
+        pass: process.env.EMAIL_PASSWORD
+    },
     back4app: {
         url: process.env.B4A_URL,
         appId: process.env.X_Parse_Application_Id,

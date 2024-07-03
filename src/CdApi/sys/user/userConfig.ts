@@ -2,7 +2,7 @@
 export default {
     register: {
         notification: {
-            email: false,
+            email: true,
             socketIo: false,
             webPush: false
         }

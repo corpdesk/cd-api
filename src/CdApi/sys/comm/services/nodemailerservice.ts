@@ -48,18 +48,21 @@
 import 'reflect-metadata';
 import { createConnection, getConnection, } from 'typeorm';
 import nodemailer from 'nodemailer';
-import Mail from 'nodemailer/lib/mailer';
+// import Mail from 'nodemailer/lib/mailer';
 import { BaseService } from '../../base/base.service';
 import { CdPushController } from '../../cd-push/controllers/cdpush.controller';
 import { mailConfig } from '../../../../config';
 import { Comm } from '../models/comm.model';
+import { Logging } from '../../base/winston.log';
 
 export class NodemailerService {
+    logger: Logging;
     b: BaseService;
     cdPush: CdPushController;
     constructor() {
         // console.log('starting NodemailerController::constructor()');
         this.b = new BaseService();
+        this.logger = new Logging();
         this.cdPush = new CdPushController();
 
     }
@@ -71,13 +74,12 @@ export class NodemailerService {
      * @param req
      * @param res
      */
-    async sendMail(req, res) {
+    async sendMail(req, res, msg, emailUser) {
+        this.logger.logInfo("starting NodemailerService::sendMail()")
+        this.logger.logInfo("NodemailerService::sendMail()/msg:", msg)
         const transporter = nodemailer.createTransport({
             service: 'Zoho', // no need to set host or port etc. See alternative at top of file.
-            auth: {
-                user: 'corpdesk@zohomail.com',
-                pass: 'Mw6udKgffR43S8a'
-            }
+            auth: emailUser
         });
 
         const mail = {
@@ -104,7 +106,7 @@ export class NodemailerService {
      * @param req
      * @param res
      */
-     async sendMail2(req, res) {
+    async sendMail2(req, res) {
         const username = 'corpdesk@zohomail.com';
         const password = 'Mw6udKgffR43S8a';
 
@@ -123,6 +125,40 @@ export class NodemailerService {
         this.exec(req, res, data);
     }
 
+    sendMail3(req, res) {
+        const username = 'corpdesk@zohomail.com';
+        const password = 'Mw6udKgffR43S8a';
+
+        // Create a transporter object using the default SMTP transport
+        const transporter = nodemailer.createTransport({
+            host: 'smtp.example.com', // replace with your SMTP host
+            port: 587, // replace with your SMTP port
+            secure: false, // true for 465, false for other ports
+            auth: {
+                user: 'your-email@example.com', // replace with your SMTP username
+                pass: 'your-email-password' // replace with your SMTP password
+            }
+        });
+
+        // Define the email options
+        const mailOptions = {
+            from: '"Sender Name" <your-email@example.com>', // sender address
+            to: 'recipient@example.com', // list of receivers
+            subject: 'Hello from Node.js', // Subject line
+            text: 'Hello world?', // plain text body
+            html: '<b>Hello world?</b>' // html body
+        };
+
+        // Send the email
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                return console.log(error);
+            }
+            console.log('Message sent: %s', info.messageId);
+            console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+        });
+    }
+
     async ArchiveMail(req, res) {
         createConnection().then(async connection => {
             console.log('Inserting a new user into the database...');
@@ -131,7 +167,7 @@ export class NodemailerService {
             const ret = await connection.manager.save(comm);
             getConnection().close();
             console.log('ret', ret);
-            const r = await this.b.respond(req, res, ret);
+            const r = await this.b.respond(req, res);
             // return ret;
         }).catch(async (error) => {
             getConnection().close();

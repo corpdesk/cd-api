@@ -1,4 +1,5 @@
 import {BaseService} from '../../base/base.service';
+import { NodemailerService } from './nodemailerservice';
 
 export class MailService{
     b: BaseService;
@@ -6,16 +7,18 @@ export class MailService{
         this.b = new BaseService();
     }
     
-    async sendEmailNotif(req, res) {
+    async sendEmailNotif(req, res, msg,emailUser) {
         console.log(`starting UserController::sendEmailNotif(req, res)`);
-        const mailService = 'NodemailerService';
-        const cPath = `../comm/services/${mailService.toLowerCase()}`; // relative to BaseService because it is called from there
-        const clsCtx = {
-            path: cPath,
-            clsName: mailService,
-            action: 'sendMail'
-        }
-        console.log(`clsCtx: ${JSON.stringify(clsCtx)}`);
-        const ret = await this.b.resolveCls(req, res, clsCtx);
+        // const mailService = 'NodemailerService';
+        // const cPath = `../comm/services/${mailService.toLowerCase()}`; // relative to BaseService because it is called from there
+        // const clsCtx = {
+        //     path: cPath,
+        //     clsName: mailService,
+        //     action: 'sendMail'
+        // }
+        // console.log(`clsCtx: ${JSON.stringify(clsCtx)}`);
+        // const ret = await this.b.resolveCls(req, res, clsCtx);
+        const nm = new NodemailerService()
+        nm.sendMail(req, res, msg,emailUser);
     }
 }

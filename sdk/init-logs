@@ -1,0 +1,145 @@
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: [7/3/2024, 12:09:36 PM] [INFO]: CdRequest::processPost()/01 [CONTEXT] -> {}
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: {
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   context: undefined,
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   level: 'info',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   message: 'CdRequest::processPost()/01',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   timestamp: '7/3/2024, 12:09:36 PM',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   [Symbol(level)]: 'info',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   [Symbol(splat)]: [ { context: undefined } ],
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   [Symbol(message)]: '{"level":"info","message":"CdRequest::processPost()/01"}'
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: }
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: [7/3/2024, 12:09:36 PM] [INFO]: CdRequest::processPost()/02 [CONTEXT] -> {}
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: {
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   context: undefined,
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   level: 'info',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   message: 'CdRequest::processPost()/02',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   timestamp: '7/3/2024, 12:09:36 PM',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   [Symbol(level)]: 'info',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   [Symbol(splat)]: [ { context: undefined } ],
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   [Symbol(message)]: '{"level":"info","message":"CdRequest::processPost()/02"}'
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: }
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: [7/3/2024, 12:09:36 PM] [INFO]: CdRequest::processPost(): [CONTEXT] -> 
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: {
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   "pl": {
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:     "ctx": "Sys",
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:     "m": "CdPush",
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:     "c": "Websocket",
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:     "a": "Create",
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:     "dat": {
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:       "f_vals": [
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:         {
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:           "data": {
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:             "ngModule": "UserModule",
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:             "resourceName": "SessService",
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:             "resourceGuid": "e0e16d6d-ca91-4aab-b539-7eadd8310f9b",
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:             "jwtToken": "",
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:             "socket": null,
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:             "commTrack": {
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:               "initTime": 1719997773174,
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:               "relayTime": null,
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:               "relayed": false,
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:               "deliveryTime": null,
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:               "deliverd": false
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:             }
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:           }
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:         }
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:       ],
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:       "token": ""
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:     },
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:     "args": {}
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   }
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: }
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: {
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   context: {
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:     pl: {
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:       ctx: 'Sys',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:       m: 'CdPush',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:       c: 'Websocket',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:       a: 'Create',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:       dat: [Object],
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:       args: {}
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:     }
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   },
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   level: 'info',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   message: 'CdRequest::processPost():',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   timestamp: '7/3/2024, 12:09:36 PM',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   [Symbol(level)]: 'info',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   [Symbol(splat)]: [ { context: [Object] } ],
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   [Symbol(message)]: '{"context":{"pl":{"a":"Create","args":{},"c":"Websocket","ctx":"Sys","dat":{"f_vals":[{"data":{"commTrack":{"deliverd":false,"deliveryTime":null,"initTime":1719997773174,"relayTime":null,"relayed":false},"jwtToken":"","ngModule":"UserModule","resourceGuid":"e0e16d6d-ca91-4aab-b539-7eadd8310f9b","resourceName":"SessService","socket":null}}],"token":""},"m":"CdPush"}},"level":"info","message":"CdRequest::processPost():"}'
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: }
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: [7/3/2024, 12:09:36 PM] [INFO]: CdRequest::processPost(): [CONTEXT] -> 
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: {
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   "contentType": "application/json"
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: }
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: {
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   context: { contentType: 'application/json' },
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   level: 'info',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   message: 'CdRequest::processPost():',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   timestamp: '7/3/2024, 12:09:36 PM',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   [Symbol(level)]: 'info',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   [Symbol(splat)]: [ { context: [Object] } ],
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   [Symbol(message)]: '{"context":{"contentType":"application/json"},"level":"info","message":"CdRequest::processPost():"}'
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: }
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: [7/3/2024, 12:09:36 PM] [INFO]: CdExec::exec()/01 [CONTEXT] -> {}
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: {
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   context: undefined,
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   level: 'info',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   message: 'CdExec::exec()/01',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   timestamp: '7/3/2024, 12:09:36 PM',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   [Symbol(level)]: 'info',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   [Symbol(splat)]: [ { context: undefined } ],
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   [Symbol(message)]: '{"level":"info","message":"CdExec::exec()/01"}'
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: }
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: [7/3/2024, 12:09:36 PM] [INFO]: BaseService::valid()req.post: [CONTEXT] -> 
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: {
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   "pl": "{\"ctx\":\"Sys\",\"m\":\"CdPush\",\"c\":\"Websocket\",\"a\":\"Create\",\"dat\":{\"f_vals\":[{\"data\":{\"ngModule\":\"UserModule\",\"resourceName\":\"SessService\",\"resourceGuid\":\"e0e16d6d-ca91-4aab-b539-7eadd8310f9b\",\"jwtToken\":\"\",\"socket\":null,\"commTrack\":{\"initTime\":1719997773174,\"relayTime\":null,\"relayed\":false,\"deliveryTime\":null,\"deliverd\":false}}}],\"token\":\"\"},\"args\":{}}"
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: }
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: {
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   context: {
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:     pl: '{"ctx":"Sys","m":"CdPush","c":"Websocket","a":"Create","dat":{"f_vals":[{"data":{"ngModule":"UserModule","resourceName":"SessService","resourceGuid":"e0e16d6d-ca91-4aab-b539-7eadd8310f9b","jwtToken":"","socket":null,"commTrack":{"initTime":1719997773174,"relayTime":null,"relayed":false,"deliveryTime":null,"deliverd":false}}}],"token":""},"args":{}}'
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   },
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   level: 'info',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   message: 'BaseService::valid()req.post:',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   timestamp: '7/3/2024, 12:09:36 PM',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   [Symbol(level)]: 'info',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   [Symbol(splat)]: [ { context: [Object] } ],
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   [Symbol(message)]: '{"context":{"pl":"{\\"ctx\\":\\"Sys\\",\\"m\\":\\"CdPush\\",\\"c\\":\\"Websocket\\",\\"a\\":\\"Create\\",\\"dat\\":{\\"f_vals\\":[{\\"data\\":{\\"ngModule\\":\\"UserModule\\",\\"resourceName\\":\\"SessService\\",\\"resourceGuid\\":\\"e0e16d6d-ca91-4aab-b539-7eadd8310f9b\\",\\"jwtToken\\":\\"\\",\\"socket\\":null,\\"commTrack\\":{\\"initTime\\":1719997773174,\\"relayTime\\":null,\\"relayed\\":false,\\"deliveryTime\\":null,\\"deliverd\\":false}}}],\\"token\\":\\"\\"},\\"args\\":{}}"},"level":"info","message":"BaseService::valid()req.post:"}'
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: }
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: [7/3/2024, 12:09:36 PM] [INFO]: BaseService::noToken()/01 [CONTEXT] -> {}
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: {
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   context: undefined,
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   level: 'info',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   message: 'BaseService::noToken()/01',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   timestamp: '7/3/2024, 12:09:36 PM',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   [Symbol(level)]: 'info',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   [Symbol(splat)]: [ { context: undefined } ],
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   [Symbol(message)]: '{"level":"info","message":"BaseService::noToken()/01"}'
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: }
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: [7/3/2024, 12:09:36 PM] [INFO]: BaseService::noToken()/req.post: [CONTEXT] -> 
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: {
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   "pl": "{\"ctx\":\"Sys\",\"m\":\"CdPush\",\"c\":\"Websocket\",\"a\":\"Create\",\"dat\":{\"f_vals\":[{\"data\":{\"ngModule\":\"UserModule\",\"resourceName\":\"SessService\",\"resourceGuid\":\"e0e16d6d-ca91-4aab-b539-7eadd8310f9b\",\"jwtToken\":\"\",\"socket\":null,\"commTrack\":{\"initTime\":1719997773174,\"relayTime\":null,\"relayed\":false,\"deliveryTime\":null,\"deliverd\":false}}}],\"token\":\"\"},\"args\":{}}"
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: }
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: {
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   context: {
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:     pl: '{"ctx":"Sys","m":"CdPush","c":"Websocket","a":"Create","dat":{"f_vals":[{"data":{"ngModule":"UserModule","resourceName":"SessService","resourceGuid":"e0e16d6d-ca91-4aab-b539-7eadd8310f9b","jwtToken":"","socket":null,"commTrack":{"initTime":1719997773174,"relayTime":null,"relayed":false,"deliveryTime":null,"deliverd":false}}}],"token":""},"args":{}}'
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   },
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   level: 'info',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   message: 'BaseService::noToken()/req.post:',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   timestamp: '7/3/2024, 12:09:36 PM',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   [Symbol(level)]: 'info',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   [Symbol(splat)]: [ { context: [Object] } ],
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   [Symbol(message)]: '{"context":{"pl":"{\\"ctx\\":\\"Sys\\",\\"m\\":\\"CdPush\\",\\"c\\":\\"Websocket\\",\\"a\\":\\"Create\\",\\"dat\\":{\\"f_vals\\":[{\\"data\\":{\\"ngModule\\":\\"UserModule\\",\\"resourceName\\":\\"SessService\\",\\"resourceGuid\\":\\"e0e16d6d-ca91-4aab-b539-7eadd8310f9b\\",\\"jwtToken\\":\\"\\",\\"socket\\":null,\\"commTrack\\":{\\"initTime\\":1719997773174,\\"relayTime\\":null,\\"relayed\\":false,\\"deliveryTime\\":null,\\"deliverd\\":false}}}],\\"token\\":\\"\\"},\\"args\\":{}}"},"level":"info","message":"BaseService::noToken()/req.post:"}'
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: }
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: [7/3/2024, 12:09:36 PM] [INFO]: BaseService::noToken()/returning ret: [CONTEXT] -> 
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: {
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   "return": false
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: }
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: {
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   context: { return: false },
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   level: 'info',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   message: 'BaseService::noToken()/returning ret:',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   timestamp: '7/3/2024, 12:09:36 PM',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   [Symbol(level)]: 'info',
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   [Symbol(splat)]: [ { context: [Object] } ],
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]:   [Symbol(message)]: '{"context":{"return":false},"level":"info","message":"BaseService::noToken()/returning ret:"}'
+Jul 03 09:09:36 ip-172-31-26-137 sudo[44209]: }

@@ -139,7 +139,7 @@ export class GroupService extends CdService {
         return await this.b.createI(req, res, createIParams)
     }
 
-    async createPalsGroup(req, res, userData:UserModel){
+    async createPalsGroup(req, res, userData: UserModel) {
         console.log('GroupService::createPalsGroup()/01')
         // const svGroup = new GroupService()
         const svConsumer = new ConsumerService()
@@ -150,53 +150,64 @@ export class GroupService extends CdService {
         let coId = null;
         let consGuid = null;
         // const co = await svConsumer.activeCompany(req, res);
-        
+
         ////////////
         const plData = await this.b.getPlData(req)
         consGuid = plData.consumerGuid
-        const consumerData:ConsumerModel[] = await svConsumer.getConsumerByGuid(req, res, consGuid)
+        const consumerData: ConsumerModel[] = await svConsumer.getConsumerByGuid(req, res, consGuid)
         console.log('GroupService::createPalsGroup()/consumerData:', consumerData)
         // const consumerData = await svConsumer.activeConsumer(req, res);
-          
-        if(consumerData.length > 0){
+
+        if (consumerData.length > 0) {
             coId = consumerData[0].companyId;
         }
-        const co:CompanyModel[] = await svCompany.getCompany(req, res, { where: { companyId: coId } })
+        const co: CompanyModel[] = await svCompany.getCompanyI(req, res, { where: { companyId: coId } })
         console.log('GroupService::createPalsGroup()/co:', co)
-        
-        if(co.length > 0){
+
+        if (co.length > 0) {
             coId = co[0].companyId
             consGuid = consumerData[0].consumerGuid
+            // const cUser = await svSess.getCurrentUser(req)
+            console.log('GroupService::createPalsGroup()/userData:', userData)
+            console.log('GroupService::createPalsGroup()/co[0].consumerGuid:', co[0].consumerGuid)
+            console.log('GroupService::createPalsGroup()/consGuid:', consGuid)
+            const groupData = {
+                groupGuid: this.b.getGuid(),
+                groupName: `${userData.userGuid}-pals`,
+                groupOwnerId: userData.userId,
+                groupTypeId: 7,
+                moduleGuid: "-dkkm6",
+                companyId: coId,
+                consumerGuid: consGuid,
+                isPublic: false,
+                enabled: true,
+            };
+            console.log('GroupService::createPalsGroup()/groupData:', groupData)
+            const si = {
+                serviceInstance: this,
+                serviceModel: GroupModel,
+                serviceModelInstance: this.serviceModel,
+                docName: 'UserService/afterCreate',
+                dSource: 1,
+            }
+            const createIParams: CreateIParams = {
+                serviceInput: si,
+                controllerData: groupData
+            }
+            console.log('GroupService::createPalsGroup()/createIParams:', createIParams)
+            return await this.createI(req, res, createIParams)
+        } else {
+            // console.log('CompanyService::read$()/e:', e)
+            const e = "unable to associate user with any company"
+            this.b.err.push(e);
+            const i = {
+                messages: this.b.err,
+                code: 'BaseService:update',
+                app_msg: ''
+            };
+            await this.b.serviceErr(req, res, e, i.code)
         }
-        // const cUser = await svSess.getCurrentUser(req)
-        console.log('GroupService::createPalsGroup()/userData:', userData)
-        console.log('GroupService::createPalsGroup()/co[0].consumerGuid:', co[0].consumerGuid)
-        console.log('GroupService::createPalsGroup()/consGuid:', consGuid)
-        const groupData = {
-            groupGuid: this.b.getGuid(),
-            groupName: `${userData.userGuid}-pals`,
-            groupOwnerId: userData.userId,
-            groupTypeId: 7,
-            moduleGuid: "-dkkm6",
-            companyId: coId,
-            consumerGuid: consGuid,
-            isPublic: false,
-            enabled: true,
-        };
-        console.log('GroupService::createPalsGroup()/groupData:', groupData)
-        const si = {
-            serviceInstance: this,
-            serviceModel: GroupModel,
-            serviceModelInstance: this.serviceModel,
-            docName: 'UserService/afterCreate',
-            dSource: 1,
-        }
-        const createIParams: CreateIParams = {
-            serviceInput: si,
-            controllerData: groupData
-        }
-        console.log('GroupService::createPalsGroup()/createIParams:', createIParams)
-        return await this.createI(req, res, createIParams)
+
     }
 
     async groupExists(req, res, params): Promise<boolean> {
@@ -214,20 +225,20 @@ export class GroupService extends CdService {
     }
 
     async beforeCreate(req, res): Promise<any> {
-        const q: any = {where:{cdToken:req.post.dat.token}};
+        const q: any = { where: { cdToken: req.post.dat.token } };
         const serviceInput: IServiceInput = {
             serviceModel: SessionModel,
             modelName: "SessionModel",
             serviceModelInstance: new SessionModel(),
-            cmd:{
-                action:'find',
+            cmd: {
+                action: 'find',
                 query: q
             },
             docName: 'beforeCreate',
             dSource: 1,
         }
-        this.b.sess = await this.b.get(req,res,serviceInput,q)
-        if(this.b.sess.length > 0){
+        this.b.sess = await this.b.get(req, res, serviceInput, q)
+        if (this.b.sess.length > 0) {
             this.b.setPlData(req, { key: 'groupOwnerId', value: this.b.sess[0].currentUserId });
         }
         this.b.setPlData(req, { key: 'consumerGuid', value: this.b.sess[0].consumerGuid });

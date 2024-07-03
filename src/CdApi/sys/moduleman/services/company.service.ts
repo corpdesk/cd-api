@@ -351,6 +351,27 @@ export class CompanyService extends CdService {
         }
     }
 
+    async getCompanyI(req, res, q:IQuery = null): Promise<any> {
+        if(q === null){
+            q = this.b.getQuery(req);
+        }
+        console.log('CompanyService::getCompany/f:', q);
+        const serviceInput = siGet(q)
+        try {
+            return await this.b.read(req, res, serviceInput)
+        } catch (e) {
+            console.log('CompanyService::read$()/e:', e)
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'BaseService:update',
+                app_msg: ''
+            };
+            await this.b.serviceErr(req, res, e, i.code)
+            return []
+        }
+    }
+
     async getCompanySL(req, res) {
         await this.b.initSqlite(req, res)
         const q = this.b.getQuery(req);

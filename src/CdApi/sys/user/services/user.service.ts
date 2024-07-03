@@ -13,14 +13,14 @@ import objectsToCsv from '../../base/objectsToCsv';
 import { configure, getLogger, Appender } from 'log4js';
 import { BaseService } from '../../base/base.service';
 import { UserModel } from '../models/user.model';
-import { registerNotifTemplate } from '../models/registerNotifTemplate';
+import { NotificationTemplate } from '../models/registerNotifTemplate';
 import { CdService } from '../../base/cd.service';
 import { MailService } from '../../comm/services/mail.service';
 import userConfig from '../userConfig';
 import { Database } from '../../base/connect';
 import * as bcrypt from 'bcrypt';
 import { DocModel } from '../../moduleman/models/doc.model';
-import { IServiceInput, Fn, IRespInfo, CreateIParams, IQuery } from '../../base/IBase';
+import { IServiceInput, Fn, IRespInfo, CreateIParams, IQuery, ICdRequest } from '../../base/IBase';
 import { SessionService } from './session.service';
 import { SessionModel } from '../models/session.model';
 import { ISessResp } from '../../base/IBase';
@@ -30,6 +30,7 @@ import { UserViewModel } from '../models/user-view.model';
 import { GroupService } from './group.service';
 import { GroupModel } from '../models/group.model';
 import { Logging } from '../../base/winston.log';
+import config from '../../../../config';
 
 
 
@@ -44,7 +45,7 @@ export class UserService extends CdService {
     srvModules: ModuleService;
     svConsumer: ConsumerService;
     requestPswd: string;
-    plData:any;
+    plData: any;
 
     // i: IRespInfo = {
     //     messages: null,
@@ -105,6 +106,7 @@ export class UserService extends CdService {
             const plData = this.b.getPlData(req);
             this.logger.logInfo('UserService::create()/plData:', plData)
             this.afterCreate(req, res, newUser)
+            delete newUser.password; // do not return password field even though it is hashed
             this.b.cdResp.data = await newUser;
             this.b.cdResp.app_state.success = true;
             const r = await this.b.respond(req, res);
@@ -131,18 +133,10 @@ export class UserService extends CdService {
         await this.cryptPassword(req);
     }
 
-    async afterCreate(req, res, userData: UserModel) {
-        const sessData: SessionModel = await this.authI(req, res)
-        this.b.sess = [sessData];
-        this.logger.logInfo('UserService::afterCreate()/sessData:', sessData)
-        // update req with token
-        req.post.dat.token = sessData.cdToken
-        const svGroup = new GroupService()
-        svGroup.b = this.b
-        // every user must have 'pals' group after registration
-        const palGroup = await svGroup.createPalsGroup(req, res, userData)
-        this.logger.logInfo('UserService::afterCreate()/palGroup:', {palGroup: palGroup})
-        this.regisrationNotification(req, res);
+    async cryptPassword(req) {
+        const d = await this.b.getPlData(req);
+        this.requestPswd = this.plData.password
+        this.plData.password = await bcrypt.hash(d.password, 10);
     }
 
     async validateCreate(req, res) {
@@ -183,16 +177,27 @@ export class UserService extends CdService {
         }
     }
 
-    async cryptPassword(req) {
-        const d = await this.b.getPlData(req);
-        this.requestPswd = this.plData.password
-        this.plData.password = await bcrypt.hash(d.password, 10);
+    async afterCreate(req, res, userData: UserModel) {
+        const sessData: SessionModel = await this.authI(req, res)
+        this.b.sess = [sessData];
+        this.logger.logInfo('UserService::afterCreate()/sessData:', sessData)
+        // update req with token
+        req.post.dat.token = sessData.cdToken
+        const svGroup = new GroupService()
+        svGroup.b = this.b
+        // every user must have 'pals' group after registration
+        const palGroup = await svGroup.createPalsGroup(req, res, userData)
+        this.logger.logInfo('UserService::afterCreate()/palGroup:', { palGroup: palGroup })
+        this.regisrationNotification(req, res, userData);
     }
 
-    async regisrationNotification(req, res) {
+    async regisrationNotification(req, res, newUser) {
+        this.logger.logInfo('starting UserService::regisrationNotification()')
         if (userConfig.register.notification.email) {
-            this.plData.msg = registerNotifTemplate(await this.userModel);
-            const mailRet = await this.mail.sendEmailNotif(await req, res);
+            this.logger.logInfo('UserService::regisrationNotification()/newUser:', {u:newUser})
+            const nt = new NotificationTemplate();
+            this.plData.msg = await nt.registerNotifTemplate(req, res, newUser);
+            const mailRet = await this.mail.sendEmailNotif(await req, res,this.plData.msg,config.emailUser);
         }
     }
 
@@ -334,7 +339,7 @@ export class UserService extends CdService {
         // 1. get cUser
         this.logger.logInfo('UserService::beforeUpdatePassword()/f:', q);
         this.requestPswd = req.post.dat.f_vals[0].oldPassword;
-        this.logger.logInfo('UserService::beforeUpdatePassword()/this.requestPswd:', {requestPswd:this.requestPswd});
+        this.logger.logInfo('UserService::beforeUpdatePassword()/this.requestPswd:', { requestPswd: this.requestPswd });
         // 1. confirm old password
         const qExists = { where: { userId: q.where.userId } };
         const cUser = await this.getUserI(req, res, qExists)
@@ -431,8 +436,8 @@ export class UserService extends CdService {
     async auth(req, res) {
         this.logger.logInfo('UserService::auth()/01');
         const svSess = new SessionService();
-        this.logger.logInfo('auth()/UserModel:', {userModel: JSON.stringify(UserModel)});
-        this.logger.logInfo('auth()/req.post:', {dat: JSON.stringify(req.post.dat)});
+        this.logger.logInfo('auth()/UserModel:', { userModel: JSON.stringify(UserModel) });
+        this.logger.logInfo('auth()/req.post:', { dat: JSON.stringify(req.post.dat) });
         this.plData = this.b.getPlData(req);
         const q: IQuery = {
             // get requested user and 'anon' data/ anon data is used in case of failure
@@ -513,16 +518,16 @@ export class UserService extends CdService {
         // this.logger.logInfo('UserService::verifyPassword()/plData:', plData)
         this.logger.logInfo('UserService::verifyPassword()/cUser:', cUser)
         // this.logger.logInfo('UserService::verifyPassword()/plData.password:', plData.password)
-        this.logger.logInfo('UserService::verifyPassword()/cUser.password:', {pswd:cUser[0].password})
-        this.logger.logInfo('UserService::verifyPassword()/this.requestPswd:', {requestPswd:this.requestPswd})
+        this.logger.logInfo('UserService::verifyPassword()/cUser.password:', { pswd: cUser[0].password })
+        this.logger.logInfo('UserService::verifyPassword()/this.requestPswd:', { requestPswd: this.requestPswd })
         let validPassword: any = null;
-        if(req.post.dat.f_vals[0].forgotPassword){
+        if (req.post.dat.f_vals[0].forgotPassword) {
             // overide verification in circumstances where password is forgotten
             validPassword = true;
         } else {
             validPassword = await bcrypt.compare(this.requestPswd, cUser[0].password);
         }
-        
+
         this.logger.logInfo('UserService::verifyPassword()/02')
         this.logger.logInfo('UserService::verifyPassword()/validPassword:', validPassword)
         if (validPassword) {
@@ -542,7 +547,7 @@ export class UserService extends CdService {
      */
     async authI(req, res): Promise<SessionModel> {
         // const svSess = new SessionService();
-        this.logger.logInfo('auth()/req.post:', {dat:req.post.dat});
+        this.logger.logInfo('auth()/req.post:', { dat: req.post.dat });
         const q: IQuery = {
             // get requested user and 'anon' data/ anon data is used in case of failure
             where: [

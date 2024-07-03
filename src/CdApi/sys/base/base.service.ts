@@ -362,6 +362,12 @@ export class BaseService {
         if (m === 'Moduleman' && c === 'Modules' && a === 'GetAll') {
             ret = true;
         }
+
+        // exempt websocket initialization calls
+        if (m === 'CdPush' && c === 'Websocket' && a === 'Create') {
+            ret = true;
+        }
+
         // exampt mpesa call backs
         if ('MSISDN' in pl) {
             ret = true;
