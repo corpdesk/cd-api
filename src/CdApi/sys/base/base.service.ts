@@ -1969,11 +1969,15 @@ export class BaseService {
 
     async wsRedisRead(k) {
         this.logger.logDebug('BaseService::wsRedisRead()/k:', k)
+        const ret = {
+            r: '',
+            error: null
+        }
         // await this.wsRedisInit();
         try {
             // const getRet = await this.redisClient.get(k);
-            const ret = await this.svRedis.get(k);
-            this.logger.logDebug('BaseService::redisRead()/ret:', {r: ret})
+            ret.r = await this.svRedis.get(k);
+            this.logger.logDebug('BaseService::redisRead()/ret:', {result: ret})
             return ret
         } catch (e) {
             this.logger.logDebug('BaseService::redisRead()/04')
@@ -1985,7 +1989,8 @@ export class BaseService {
             };
             await this.wsServiceErr(this.err, 'BaseService:redisRead')
             // return this.cdResp;
-            return '';
+            ret.error = e.toString()
+            return ret;
         }
     }
 

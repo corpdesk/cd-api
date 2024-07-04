@@ -211,9 +211,9 @@ export class SioService {
                 // const recepientSocket = this.recepientSocket(recepient, pubClient);
                 const recepientDataStr = await this.destinationSocket(recepient);
                 console.log("SioService::relayMessages()/pushEnvelop.pushData.recepientDataStr:",recepientDataStr);
-                const recepientData = JSON.parse(recepientDataStr);
+                const recepientData = JSON.parse(recepientDataStr.r);
                 console.log(`SioService::relayMessages()/recepientData:${JSON.stringify(recepientData)}`);
-                // @@@@@@@@@@@@@@@@@@@ RECEPIENT DATA IS NULL @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                console.log("@@@@@@@@@@@@@@@@@@@ ERROR: RECEPIENT DATA IS NULL @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
                 const recepientSocketId = recepientData.cdObjId.socketId;
                 // const msg = JSON.stringify(pushEnvelop);
                 switch (recepient.subTypeId) {
