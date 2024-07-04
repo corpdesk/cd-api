@@ -389,7 +389,8 @@ export class SioService {
                             break;
                     }
                 } else {
-                    console.log("@@@@@@@@@@@@@@@ No valid response for recepientData @@@@@@@@@@@@@@@@@")
+                    console.log("@@@@@@@@@@@@@@@ No valid response for recepientData from the redis storage @@@@@@@@@@@@@@@@@")
+                    console.log(`@@@@@@@@@@@@@@@ The client ${recepient.cdObjId.resourceName} may not be connected to the push server @@@@@@@@@@@@@@@@@`)
                 }
                 
             })
