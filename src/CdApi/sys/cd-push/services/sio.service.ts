@@ -399,6 +399,7 @@ export class SioService {
 
     async destinationSocket(recepient: ICommConversationSub) {
         console.log("SioService::destinationSocket()/recepient):", recepient)
+        console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@ check recepeint @@@@@@@@@@@@@@@@@@@@@@@@@@@")
         const k = recepient.cdObjId.resourceGuid
         // return await pubClient.get(key, (err, socketDataStr) => {
         //     if (err) throw err;
