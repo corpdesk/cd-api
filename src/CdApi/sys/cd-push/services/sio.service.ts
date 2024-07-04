@@ -209,7 +209,7 @@ export class SioService {
                 console.log(`SioService::relayMessages()/recepient:${JSON.stringify(recepient)}`);
                 console.log("SioService::relayMessages()/pushEnvelop.pushData.pushRecepients:",pushEnvelop.pushData.pushRecepients);
                 // const recepientSocket = this.recepientSocket(recepient, pubClient);
-                const recepientDataStr = await this.destinationSocket(recepient, pubClient);
+                const recepientDataStr = await this.destinationSocket(recepient);
                 console.log("SioService::relayMessages()/pushEnvelop.pushData.recepientDataStr:",recepientDataStr);
                 const recepientData = JSON.parse(recepientDataStr);
                 console.log(`SioService::relayMessages()/recepientData:${JSON.stringify(recepientData)}`);
@@ -392,7 +392,7 @@ export class SioService {
 
     }
 
-    async destinationSocket(recepient: ICommConversationSub, pubClient) {
+    async destinationSocket(recepient: ICommConversationSub) {
         console.log("SioService::destinationSocket()/recepient):", recepient)
         const k = recepient.cdObjId.resourceGuid
         // return await pubClient.get(key, (err, socketDataStr) => {
