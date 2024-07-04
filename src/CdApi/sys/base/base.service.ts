@@ -34,6 +34,7 @@ import { UserModel } from "../user/models/user.model"
 
 import { getDataSource } from "./data-source";
 import { Logging } from './winston.log';
+import { RedisService } from './redis-service';
 
 
 const USER_ANON = 1000;
@@ -64,11 +65,13 @@ export class BaseService {
     isInvalidFields = [];
     isRegRequest = false;
     redisClient;
+    svRedis: RedisService;
     logger: Logging;
     constructor() {
         // this.redisInit();
         this.cdResp = this.initCdResp();
         this.logger = new Logging();
+        this.svRedis = new RedisService()
     }
     models = [];
     sqliteModels = [];
@@ -1966,11 +1969,12 @@ export class BaseService {
 
     async wsRedisRead(k) {
         this.logger.logDebug('BaseService::wsRedisRead()/k:', k)
-        await this.wsRedisInit();
+        // await this.wsRedisInit();
         try {
-            const getRet = await this.redisClient.get(k);
-            this.logger.logDebug('BaseService::redisRead()/getRet:', getRet)
-            return getRet
+            // const getRet = await this.redisClient.get(k);
+            const ret = await this.svRedis.get(k);
+            this.logger.logDebug('BaseService::redisRead()/ret:', {r: ret})
+            return ret
         } catch (e) {
             this.logger.logDebug('BaseService::redisRead()/04')
             this.err.push(e.toString());
@@ -1980,7 +1984,8 @@ export class BaseService {
                 app_msg: ''
             };
             await this.wsServiceErr(this.err, 'BaseService:redisRead')
-            return this.cdResp;
+            // return this.cdResp;
+            return '';
         }
     }
 
