@@ -206,10 +206,14 @@ export class SioService {
         } else {
             pushEnvelop.pushData.pushRecepients.forEach(async (recepient: ICommConversationSub) => {
                 let payLoad = '';
+                console.log(`SioService::relayMessages()/recepient:${JSON.stringify(recepient)}`);
+                console.log("SioService::relayMessages()/pushEnvelop.pushData.pushRecepients:",pushEnvelop.pushData.pushRecepients);
                 // const recepientSocket = this.recepientSocket(recepient, pubClient);
                 const recepientDataStr = await this.destinationSocket(recepient, pubClient);
+                console.log("SioService::relayMessages()/pushEnvelop.pushData.recepientDataStr:",recepientDataStr);
                 const recepientData = JSON.parse(recepientDataStr);
                 console.log(`SioService::relayMessages()/recepientData:${JSON.stringify(recepientData)}`);
+                // @@@@@@@@@@@@@@@@@@@ RECEPIENT DATA IS NULL @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
                 const recepientSocketId = recepientData.cdObjId.socketId;
                 // const msg = JSON.stringify(pushEnvelop);
                 switch (recepient.subTypeId) {
@@ -389,6 +393,7 @@ export class SioService {
     }
 
     async destinationSocket(recepient: ICommConversationSub, pubClient) {
+        console.log("SioService::destinationSocket()/recepient):", recepient)
         const k = recepient.cdObjId.resourceGuid
         // return await pubClient.get(key, (err, socketDataStr) => {
         //     if (err) throw err;

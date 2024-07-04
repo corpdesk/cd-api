@@ -1872,9 +1872,11 @@ export class BaseService {
     }
 
     async wsRedisInit() {
+        this.logger.logDebug('BaseService::wsRedisInit()/01')
         this.redisClient = createClient();
+        this.logger.logDebug('BaseService::wsRedisInit()/this.redisClient:', this.redisClient)
         this.redisClient.on('error', async (err) => {
-            this.logger.logDebug('BaseService::redisCreate()/02')
+            this.logger.logDebug('BaseService::redisCreate()/err:', err)
             this.err.push(err.toString());
             const i = {
                 messages: this.err,
@@ -1940,8 +1942,9 @@ export class BaseService {
     }
 
     async redisRead(req, res, serviceInput: IServiceInput) {
-        await this.redisInit(req, res);
         this.logger.logDebug('BaseService::redisRead()/01')
+        await this.redisInit(req, res);
+        this.logger.logDebug('BaseService::redisRead()/02')
         const pl: CacheData = await this.getPlData(req);
         this.logger.logDebug('BaseService::redisRead()/pl:', pl)
         try {
@@ -1962,6 +1965,7 @@ export class BaseService {
     }
 
     async wsRedisRead(k) {
+        this.logger.logDebug('BaseService::wsRedisRead()/k:', k)
         await this.wsRedisInit();
         try {
             const getRet = await this.redisClient.get(k);
