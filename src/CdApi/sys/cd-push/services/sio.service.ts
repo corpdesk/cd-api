@@ -213,180 +213,183 @@ export class SioService {
                 console.log("SioService::relayMessages()/pushEnvelop.pushData.recepientDataStr:",recepientDataStr);
                 const recepientData = JSON.parse(recepientDataStr.r);
                 console.log(`SioService::relayMessages()/recepientData:${JSON.stringify(recepientData)}`);
-                console.log("@@@@@@@@@@@@@@@@@@@ ERROR: RECEPIENT DATA IS NULL @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-                const recepientSocketId = recepientData.cdObjId.socketId;
-                // const msg = JSON.stringify(pushEnvelop);
-                switch (recepient.subTypeId) {
-                    case 1:
-                        console.log('--------------------------------------------------------------------------')
-                        console.log('STARTING MESSAGE TO SENDER')
-                        console.log('--------------------------------------------------------------------------')
-                        // handle message to sender:
-                        // mark message as relayed plus relayedTime
-                        // const pushEnvelop1 = this.shallow(pushEnvelop)
-                        const pushEnvelop1: ICdPushEnvelop = JSON.parse(JSON.stringify(pushEnvelop));
-                        pushEnvelop1.pushData.commTrack.relayTime = Number(new Date());
-
-                        // pushEnvelop1.pushData.emittEvent = 'push-msg-relayed';
-                        if (pushEnvelop1.pushData.commTrack.relayed !== true) {
-                            pushEnvelop1.pushData.isNotification = true;
-                        }
-
-                        console.log(`SioService::relayMessages()/[switch 1] pushEnvelop:${JSON.stringify(pushEnvelop1)}`);
-                        console.log('SioService::relayMessages()/[switch 1] sending confirmation message to sender');
-                        console.log(`SioService::relayMessages()/[switch 1] pushEnvelop.pushData.triggerEvent:${pushEnvelop1.pushData.triggerEvent}`);
-                        console.log('case-1: 01')
-                        if (pushEnvelop1.pushData.isAppInit) {
-                            /**
-                             * if the incoming message is for applitialization:
-                             * - nb: the resourceGuid is already saved in redis for reference
-                             * - save socket in envelop
-                             * - push message back to sender with socketid info
-                             * - the client app will rely on these data for subsequest communication by federated components of the app
-                             */
+                
+                if(recepientDataStr.r){
+                    const recepientSocketId = recepientData.cdObjId.socketId;
+                    // const msg = JSON.stringify(pushEnvelop);
+                    switch (recepient.subTypeId) {
+                        case 1:
                             console.log('--------------------------------------------------------------------------')
-                            console.log('SENDING APP-INIT-DATA')
-                            console.log(`case-1: 011...isAppInit->triggerEvent === push-registered-client`)
+                            console.log('STARTING MESSAGE TO SENDER')
                             console.log('--------------------------------------------------------------------------')
-                            const socketStore: ISocketItem = {
-                                socketId:recepientSocketId,
-                                name:'appInit',
-                                socketGuid: this.b.getGuid()
+                            // handle message to sender:
+                            // mark message as relayed plus relayedTime
+                            // const pushEnvelop1 = this.shallow(pushEnvelop)
+                            const pushEnvelop1: ICdPushEnvelop = JSON.parse(JSON.stringify(pushEnvelop));
+                            pushEnvelop1.pushData.commTrack.relayTime = Number(new Date());
+    
+                            // pushEnvelop1.pushData.emittEvent = 'push-msg-relayed';
+                            if (pushEnvelop1.pushData.commTrack.relayed !== true) {
+                                pushEnvelop1.pushData.isNotification = true;
                             }
-                            // save socket
-                            pushEnvelop1.pushData.appSockets.push(socketStore)
-                            // send back to sender
-                            io.to(recepientSocketId).emit('push-registered-client', pushEnvelop1);
-                        }
-                        if (pushEnvelop1.pushData.isNotification) {
-                            console.log('case-1: 02...isNotification')
-                            if (pushEnvelop1.pushData.commTrack.relayed !== true && pushEnvelop1.pushData.commTrack.pushed !== true) {
-                                console.log('--------------------------------------------------------------------------')
-                                console.log('SENDING NOTIFICATION')
-                                console.log(`case-1: 04...isNotification->triggerEvent === msg-relayed`)
-                                console.log('--------------------------------------------------------------------------')
-                                pushEnvelop1.pushData.triggerEvent = 'msg-relayed';
-                                pushEnvelop1.pushData.commTrack.relayed = true;
+    
+                            console.log(`SioService::relayMessages()/[switch 1] pushEnvelop:${JSON.stringify(pushEnvelop1)}`);
+                            console.log('SioService::relayMessages()/[switch 1] sending confirmation message to sender');
+                            console.log(`SioService::relayMessages()/[switch 1] pushEnvelop.pushData.triggerEvent:${pushEnvelop1.pushData.triggerEvent}`);
+                            console.log('case-1: 01')
+                            if (pushEnvelop1.pushData.isAppInit) {
                                 /**
-                                 * this is notification from recepient to sender
-                                 * to confirm message has been delivered
+                                 * if the incoming message is for applitialization:
+                                 * - nb: the resourceGuid is already saved in redis for reference
+                                 * - save socket in envelop
+                                 * - push message back to sender with socketid info
+                                 * - the client app will rely on these data for subsequest communication by federated components of the app
                                  */
-                                io.to(recepientSocketId).emit('push-msg-relayed', pushEnvelop1);
-                            }
-
-                            if (pushEnvelop1.pushData.commTrack.delivered === true && pushEnvelop1.pushData.commTrack.completed !== true) {
                                 console.log('--------------------------------------------------------------------------')
-                                console.log('SENDING NOTIFICATION')
-                                console.log(`case-1: 03...isNotification->event to emit === push-delivered`)
+                                console.log('SENDING APP-INIT-DATA')
+                                console.log(`case-1: 011...isAppInit->triggerEvent === push-registered-client`)
                                 console.log('--------------------------------------------------------------------------')
-
-                                /**
-                                 * this is notification from recepient to sender
-                                 * to confirm message has been delivered
-                                 */
-                                io.to(recepientSocketId).emit('push-delivered', pushEnvelop1);
+                                const socketStore: ISocketItem = {
+                                    socketId:recepientSocketId,
+                                    name:'appInit',
+                                    socketGuid: this.b.getGuid()
+                                }
+                                // save socket
+                                pushEnvelop1.pushData.appSockets.push(socketStore)
+                                // send back to sender
+                                io.to(recepientSocketId).emit('push-registered-client', pushEnvelop1);
                             }
-
-                            // if (pushEnvelop1.pushData.triggerEvent === 'msg-received' && pushEnvelop1.pushData.commTrack.completed !== true) {
-                            //     console.log('--------------------------------------------------------------------------')
-                            //     console.log('SENDING NOTIFICATION')
-                            //     console.log(`case-1: 041...isNotification->triggerEvent === msg-relayed`)
-                            //     console.log('--------------------------------------------------------------------------')
-
-                            //     /**
-                            //      * this is notification from recepient to sender
-                            //      * to confirm message has been delivered
-                            //      */
-                            //     io.to(recepientSocketId).emit('push-delivered', pushEnvelop1);
-                            // }
-                            // if (pushEnvelop1.pushData.triggerEvent === 'msg-completed' && pushEnvelop1.pushData.commTrack.completed !== true) {
-                            //     console.log('--------------------------------------------------------------------------')
-                            //     console.log('SENDING NOTIFICATION')
-                            //     console.log(`case-1: 042...isNotification->triggerEvent === msg-completed`)
-                            //     console.log('--------------------------------------------------------------------------')
-
-                            //     /**
-                            //      * record completion of messaging
-                            //      */
-                            //     console.log('message completed')
-
-                            // }
-                        } else {
-                            console.log('case-1: 05')
-                            // send notification to client for relay
-                            if (pushEnvelop1.pushData.triggerEvent === 'msg-received') {
-                                console.log('case-1: 06')
-                                // console.log(`SioService::relayMessages()/[switch 1/[msg-received]] sending 'msg-received' message to sender`);
-                                // payLoad = JSON.stringify(pushEnvelop);
-                                // io.to(recepientSocketId).emit('push-delivered', payLoad);
+                            if (pushEnvelop1.pushData.isNotification) {
+                                console.log('case-1: 02...isNotification')
+                                if (pushEnvelop1.pushData.commTrack.relayed !== true && pushEnvelop1.pushData.commTrack.pushed !== true) {
+                                    console.log('--------------------------------------------------------------------------')
+                                    console.log('SENDING NOTIFICATION')
+                                    console.log(`case-1: 04...isNotification->triggerEvent === msg-relayed`)
+                                    console.log('--------------------------------------------------------------------------')
+                                    pushEnvelop1.pushData.triggerEvent = 'msg-relayed';
+                                    pushEnvelop1.pushData.commTrack.relayed = true;
+                                    /**
+                                     * this is notification from recepient to sender
+                                     * to confirm message has been delivered
+                                     */
+                                    io.to(recepientSocketId).emit('push-msg-relayed', pushEnvelop1);
+                                }
+    
+                                if (pushEnvelop1.pushData.commTrack.delivered === true && pushEnvelop1.pushData.commTrack.completed !== true) {
+                                    console.log('--------------------------------------------------------------------------')
+                                    console.log('SENDING NOTIFICATION')
+                                    console.log(`case-1: 03...isNotification->event to emit === push-delivered`)
+                                    console.log('--------------------------------------------------------------------------')
+    
+                                    /**
+                                     * this is notification from recepient to sender
+                                     * to confirm message has been delivered
+                                     */
+                                    io.to(recepientSocketId).emit('push-delivered', pushEnvelop1);
+                                }
+    
+                                // if (pushEnvelop1.pushData.triggerEvent === 'msg-received' && pushEnvelop1.pushData.commTrack.completed !== true) {
+                                //     console.log('--------------------------------------------------------------------------')
+                                //     console.log('SENDING NOTIFICATION')
+                                //     console.log(`case-1: 041...isNotification->triggerEvent === msg-relayed`)
+                                //     console.log('--------------------------------------------------------------------------')
+    
+                                //     /**
+                                //      * this is notification from recepient to sender
+                                //      * to confirm message has been delivered
+                                //      */
+                                //     io.to(recepientSocketId).emit('push-delivered', pushEnvelop1);
+                                // }
+                                // if (pushEnvelop1.pushData.triggerEvent === 'msg-completed' && pushEnvelop1.pushData.commTrack.completed !== true) {
+                                //     console.log('--------------------------------------------------------------------------')
+                                //     console.log('SENDING NOTIFICATION')
+                                //     console.log(`case-1: 042...isNotification->triggerEvent === msg-completed`)
+                                //     console.log('--------------------------------------------------------------------------')
+    
+                                //     /**
+                                //      * record completion of messaging
+                                //      */
+                                //     console.log('message completed')
+    
+                                // }
                             } else {
-                                console.log('case-1: 07')
-                                console.log(`SioService::relayMessages()/[switch 1[push-msg-relayed]] sending 'push-msg-relayed' message to sender`);
-                                console.log(`SioService::relayMessages()/[switch 1[push-msg-relayed]]/recepientSocketId:${JSON.stringify(recepientSocketId)}`)
-
-                                payLoad = JSON.stringify(pushEnvelop1);
-                                console.log(`SioService::relayMessages()/[switch 1[push-msg-relayed]]/pushEnvelop1:${pushEnvelop1}`)
-                                console.log('--------------------------------------------------------------------------')
-                                console.log('SENDING PAYLOAD')
-                                console.log(`case-1: 08...seding payload ->emit event === 'push-msg-relayed`)
-                                console.log('--------------------------------------------------------------------------')
-                                io.to(recepientSocketId).emit('push-msg-relayed', pushEnvelop1);
-                                // io.to(recepientSocketId).emit('push-msg-relayed', '{"msg": "testing messege"}');
-                                // io.emit('push-msg-relayed', `{"msg": "testing messege"}`);
-                            }
-                        }
-
-                        break;
-                    case 7:
-
-                        console.log('--------------------------------------------------------------------------')
-                        console.log('STARTING MESSAGE TO RECEPIENTS')
-                        console.log('--------------------------------------------------------------------------')
-                        // const pushEnvelop7 = this.shallow(pushEnvelop)
-                        const pushEnvelop7 = JSON.parse(JSON.stringify(pushEnvelop));
-                        console.log(`SioService::relayMessages()/[switch 7] pushEnvelop copy:${JSON.stringify(pushEnvelop7)}`);
-                        // handle message to destined recepient
-                        // if(pushEnvelop.pushData.emittEvent === 'msg-received'){
-                        //     // if it is message confirmation to sender
-                        //     pushEnvelop.pushData.commTrack.deliveryTime = Number(new Date());
-                        //     pushEnvelop.pushData.commTrack.deliverd = true;
-                        // }
-                        console.log('case-7: 01')
-                        if (pushEnvelop7.pushData.isNotification) {
-                            console.log('case-7: 02')
-                        } else {
-                            console.log('case-7: 03')
-                            if (pushEnvelop7.pushData.commTrack.pushed) {
-                                console.log('case-7: 04')
-                            } else {
-                                console.log('case-7: 05')
-                                pushEnvelop7.pushData.commTrack.relayTime = Number(new Date());
-                                pushEnvelop7.pushData.commTrack.relayed = true;
-                                pushEnvelop7.pushData.commTrack.pushTime = Number(new Date());
-                                pushEnvelop7.pushData.commTrack.pushed = true;
-                                pushEnvelop7.pushData.triggerEvent = 'msg-pushed';
-                                pushEnvelop7.pushData.emittEvent = 'push-msg-pushed';
-                                console.log(`SioService::relayMessages()/[switch 7] pushEnvelop7:${JSON.stringify(pushEnvelop7)}`);
-                                if (pushEnvelop7.pushData.triggerEvent === 'msg-received') {
-                                    console.log('case-7: 06')
-                                    // while relaying 'msg-received', do not send to group 7 (recepients)
-                                    console.log('SioService::relayMessages()/[switch 7] not sending message to recepient, this is just confirmation');
+                                console.log('case-1: 05')
+                                // send notification to client for relay
+                                if (pushEnvelop1.pushData.triggerEvent === 'msg-received') {
+                                    console.log('case-1: 06')
+                                    // console.log(`SioService::relayMessages()/[switch 1/[msg-received]] sending 'msg-received' message to sender`);
+                                    // payLoad = JSON.stringify(pushEnvelop);
+                                    // io.to(recepientSocketId).emit('push-delivered', payLoad);
                                 } else {
-                                    console.log('case-7: 07')
-                                    console.log(`SioService::relayMessages()/[switch 7] sending to recepient:${JSON.stringify(pushEnvelop7)}`);
+                                    console.log('case-1: 07')
+                                    console.log(`SioService::relayMessages()/[switch 1[push-msg-relayed]] sending 'push-msg-relayed' message to sender`);
+                                    console.log(`SioService::relayMessages()/[switch 1[push-msg-relayed]]/recepientSocketId:${JSON.stringify(recepientSocketId)}`)
+    
+                                    payLoad = JSON.stringify(pushEnvelop1);
+                                    console.log(`SioService::relayMessages()/[switch 1[push-msg-relayed]]/pushEnvelop1:${pushEnvelop1}`)
                                     console.log('--------------------------------------------------------------------------')
                                     console.log('SENDING PAYLOAD')
-                                    console.log(`case-7: 08...seding payload ->emit event === ${pushEnvelop7.pushData.emittEvent}`)
+                                    console.log(`case-1: 08...seding payload ->emit event === 'push-msg-relayed`)
                                     console.log('--------------------------------------------------------------------------')
-                                    payLoad = JSON.stringify(pushEnvelop7);
-                                    io.to(recepientSocketId).emit(pushEnvelop7.pushData.emittEvent, pushEnvelop7);
+                                    io.to(recepientSocketId).emit('push-msg-relayed', pushEnvelop1);
+                                    // io.to(recepientSocketId).emit('push-msg-relayed', '{"msg": "testing messege"}');
+                                    // io.emit('push-msg-relayed', `{"msg": "testing messege"}`);
                                 }
                             }
-
-                        }
-
-                        break;
+    
+                            break;
+                        case 7:
+    
+                            console.log('--------------------------------------------------------------------------')
+                            console.log('STARTING MESSAGE TO RECEPIENTS')
+                            console.log('--------------------------------------------------------------------------')
+                            // const pushEnvelop7 = this.shallow(pushEnvelop)
+                            const pushEnvelop7 = JSON.parse(JSON.stringify(pushEnvelop));
+                            console.log(`SioService::relayMessages()/[switch 7] pushEnvelop copy:${JSON.stringify(pushEnvelop7)}`);
+                            // handle message to destined recepient
+                            // if(pushEnvelop.pushData.emittEvent === 'msg-received'){
+                            //     // if it is message confirmation to sender
+                            //     pushEnvelop.pushData.commTrack.deliveryTime = Number(new Date());
+                            //     pushEnvelop.pushData.commTrack.deliverd = true;
+                            // }
+                            console.log('case-7: 01')
+                            if (pushEnvelop7.pushData.isNotification) {
+                                console.log('case-7: 02')
+                            } else {
+                                console.log('case-7: 03')
+                                if (pushEnvelop7.pushData.commTrack.pushed) {
+                                    console.log('case-7: 04')
+                                } else {
+                                    console.log('case-7: 05')
+                                    pushEnvelop7.pushData.commTrack.relayTime = Number(new Date());
+                                    pushEnvelop7.pushData.commTrack.relayed = true;
+                                    pushEnvelop7.pushData.commTrack.pushTime = Number(new Date());
+                                    pushEnvelop7.pushData.commTrack.pushed = true;
+                                    pushEnvelop7.pushData.triggerEvent = 'msg-pushed';
+                                    pushEnvelop7.pushData.emittEvent = 'push-msg-pushed';
+                                    console.log(`SioService::relayMessages()/[switch 7] pushEnvelop7:${JSON.stringify(pushEnvelop7)}`);
+                                    if (pushEnvelop7.pushData.triggerEvent === 'msg-received') {
+                                        console.log('case-7: 06')
+                                        // while relaying 'msg-received', do not send to group 7 (recepients)
+                                        console.log('SioService::relayMessages()/[switch 7] not sending message to recepient, this is just confirmation');
+                                    } else {
+                                        console.log('case-7: 07')
+                                        console.log(`SioService::relayMessages()/[switch 7] sending to recepient:${JSON.stringify(pushEnvelop7)}`);
+                                        console.log('--------------------------------------------------------------------------')
+                                        console.log('SENDING PAYLOAD')
+                                        console.log(`case-7: 08...seding payload ->emit event === ${pushEnvelop7.pushData.emittEvent}`)
+                                        console.log('--------------------------------------------------------------------------')
+                                        payLoad = JSON.stringify(pushEnvelop7);
+                                        io.to(recepientSocketId).emit(pushEnvelop7.pushData.emittEvent, pushEnvelop7);
+                                    }
+                                }
+    
+                            }
+    
+                            break;
+                    }
                 }
+                
             })
         }
 
