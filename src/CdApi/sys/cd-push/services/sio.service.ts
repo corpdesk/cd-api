@@ -266,7 +266,7 @@ export class SioService {
                                     console.log('SENDING NOTIFICATION')
                                     console.log(`case-1: 04...isNotification->triggerEvent === msg-relayed`)
                                     console.log('--------------------------------------------------------------------------')
-                                    pushEnvelop1.pushData.triggerEvent = 'msg-relayed';
+                                    pushEnvelop1.pushData.emittEvent = 'push-msg-relayed';
                                     pushEnvelop1.pushData.commTrack.relayed = true;
                                     /**
                                      * this is notification from recepient to sender
@@ -378,6 +378,7 @@ export class SioService {
                                         console.log('--------------------------------------------------------------------------')
                                         console.log('SENDING PAYLOAD')
                                         console.log(`case-7: 08...seding payload ->emit event === ${pushEnvelop7.pushData.emittEvent}`)
+                                        console.log(`case-7: 09...seding payload ->recepientSocketId = ${recepientSocketId}`)
                                         console.log('--------------------------------------------------------------------------')
                                         payLoad = JSON.stringify(pushEnvelop7);
                                         io.to(recepientSocketId).emit(pushEnvelop7.pushData.emittEvent, pushEnvelop7);
