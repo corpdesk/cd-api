@@ -155,9 +155,9 @@ export class SioService {
 
             this.logger.logInfo(`SioService::runRegisteredEvents(socket)/e:${JSON.stringify(e)}`);
             socket.on(e.triggerEvent, async (payLoad: string) => {
-                this.logger.logInfo('---------------------------------------')
-                this.logger.logInfo(`socket.on${e.triggerEvent}`)
-                this.logger.logInfo('---------------------------------------')
+                console.log('---------------------------------------')
+                console.log(`socket.on${e.triggerEvent}`)
+                console.log('---------------------------------------')
                 this.logger.logInfo(`SioService::runRegisteredEvents()/e.triggerEvent:${e.triggerEvent}`);
                 this.logger.logInfo(`SioService::runRegisteredEvents()/payLoad:${JSON.stringify(payLoad)}`);
                 const pushEnvelop: ICdPushEnvelop = JSON.parse(payLoad)
@@ -170,9 +170,9 @@ export class SioService {
                      */
                     this.logger.logInfo('SioService::getRegisteredEvents()/message processing completed')
                     this.logger.logInfo(`SioService::getRegisteredEvents()/pushEnvelop:${pushEnvelop}`);
-                    this.logger.logInfo('--------------------------------------------------------------------------')
-                    this.logger.logInfo('PROCESS COMPLETED')
-                    this.logger.logInfo('--------------------------------------------------------------------------')
+                    console.log('--------------------------------------------------------------------------')
+                    console.log('PROCESS COMPLETED')
+                    console.log('--------------------------------------------------------------------------')
                 } else {
                     this.relayMessages(pushEnvelop, io, pubClient)
                 }
@@ -202,9 +202,9 @@ export class SioService {
     relayMessages(pushEnvelop: ICdPushEnvelop, io, pubClient) {
         if (pushEnvelop.pushData.commTrack.completed === true) {
             this.logger.logInfo(`SioService::relayMessages()/pushEnvelop:${pushEnvelop}`);
-            this.logger.logInfo('--------------------------------------------------------------------------')
-            this.logger.logInfo('PROCESS COMPLETED')
-            this.logger.logInfo('--------------------------------------------------------------------------')
+            console.log('--------------------------------------------------------------------------')
+            console.log('PROCESS COMPLETED')
+            console.log('--------------------------------------------------------------------------')
 
         } else {
             pushEnvelop.pushData.pushRecepients.forEach(async (recepient: ICommConversationSub) => {
@@ -222,9 +222,9 @@ export class SioService {
                     // const msg = JSON.stringify(pushEnvelop);
                     switch (recepient.subTypeId) {
                         case 1:
-                            this.logger.logInfo('--------------------------------------------------------------------------')
-                            this.logger.logInfo('STARTING MESSAGE TO SENDER')
-                            this.logger.logInfo('--------------------------------------------------------------------------')
+                            console.log('--------------------------------------------------------------------------')
+                            console.log('STARTING MESSAGE TO SENDER')
+                            console.log('--------------------------------------------------------------------------')
                             // handle message to sender:
                             // mark message as relayed plus relayedTime
                             // const pushEnvelop1 = this.shallow(pushEnvelop)
@@ -248,10 +248,10 @@ export class SioService {
                                  * - push message back to sender with socketid info
                                  * - the client app will rely on these data for subsequest communication by federated components of the app
                                  */
-                                this.logger.logInfo('--------------------------------------------------------------------------')
-                                this.logger.logInfo('SENDING APP-INIT-DATA')
-                                this.logger.logInfo(`case-1: 011...isAppInit->triggerEvent === push-registered-client`)
-                                this.logger.logInfo('--------------------------------------------------------------------------')
+                                console.log('--------------------------------------------------------------------------')
+                                console.log('SENDING APP-INIT-DATA')
+                                console.log(`case-1: 011...isAppInit->triggerEvent === push-registered-client`)
+                                console.log('--------------------------------------------------------------------------')
                                 const socketStore: ISocketItem = {
                                     socketId: recepientSocketId,
                                     name: 'appInit',
@@ -265,10 +265,10 @@ export class SioService {
                             if (pushEnvelop1.pushData.isNotification) {
                                 this.logger.logInfo('case-1: 02...isNotification')
                                 if (pushEnvelop1.pushData.commTrack.relayed !== true && pushEnvelop1.pushData.commTrack.pushed !== true) {
-                                    this.logger.logInfo('--------------------------------------------------------------------------')
-                                    this.logger.logInfo('SENDING NOTIFICATION')
-                                    this.logger.logInfo(`case-1: 04...isNotification->triggerEvent === msg-relayed`)
-                                    this.logger.logInfo('--------------------------------------------------------------------------')
+                                    console.log('--------------------------------------------------------------------------')
+                                    console.log('SENDING NOTIFICATION')
+                                    console.log(`case-1: 04...isNotification->triggerEvent === msg-relayed`)
+                                    console.log('--------------------------------------------------------------------------')
                                     pushEnvelop1.pushData.emittEvent = 'push-msg-relayed';
                                     pushEnvelop1.pushData.commTrack.relayed = true;
                                     /**
@@ -279,10 +279,10 @@ export class SioService {
                                 }
 
                                 if (pushEnvelop1.pushData.commTrack.delivered === true && pushEnvelop1.pushData.commTrack.completed !== true) {
-                                    this.logger.logInfo('--------------------------------------------------------------------------')
-                                    this.logger.logInfo('SENDING NOTIFICATION')
-                                    this.logger.logInfo(`case-1: 03...isNotification->event to emit === push-delivered`)
-                                    this.logger.logInfo('--------------------------------------------------------------------------')
+                                    console.log('--------------------------------------------------------------------------')
+                                    console.log('SENDING NOTIFICATION')
+                                    console.log(`case-1: 03...isNotification->event to emit === push-delivered`)
+                                    console.log('--------------------------------------------------------------------------')
 
                                     /**
                                      * this is notification from recepient to sender
@@ -292,10 +292,10 @@ export class SioService {
                                 }
 
                                 // if (pushEnvelop1.pushData.triggerEvent === 'msg-received' && pushEnvelop1.pushData.commTrack.completed !== true) {
-                                //     this.logger.logInfo('--------------------------------------------------------------------------')
+                                //     console.log('--------------------------------------------------------------------------')
                                 //     this.logger.logInfo('SENDING NOTIFICATION')
                                 //     this.logger.logInfo(`case-1: 041...isNotification->triggerEvent === msg-relayed`)
-                                //     this.logger.logInfo('--------------------------------------------------------------------------')
+                                //     console.log('--------------------------------------------------------------------------')
 
                                 //     /**
                                 //      * this is notification from recepient to sender
@@ -304,10 +304,10 @@ export class SioService {
                                 //     io.to(recepientSocketId).emit('push-delivered', pushEnvelop1);
                                 // }
                                 // if (pushEnvelop1.pushData.triggerEvent === 'msg-completed' && pushEnvelop1.pushData.commTrack.completed !== true) {
-                                //     this.logger.logInfo('--------------------------------------------------------------------------')
+                                //     console.log('--------------------------------------------------------------------------')
                                 //     this.logger.logInfo('SENDING NOTIFICATION')
                                 //     this.logger.logInfo(`case-1: 042...isNotification->triggerEvent === msg-completed`)
-                                //     this.logger.logInfo('--------------------------------------------------------------------------')
+                                //     console.log('--------------------------------------------------------------------------')
 
                                 //     /**
                                 //      * record completion of messaging
@@ -330,10 +330,10 @@ export class SioService {
 
                                     payLoad = JSON.stringify(pushEnvelop1);
                                     this.logger.logInfo(`SioService::relayMessages()/[switch 1[push-msg-relayed]]/pushEnvelop1:${pushEnvelop1}`)
-                                    this.logger.logInfo('--------------------------------------------------------------------------')
-                                    this.logger.logInfo('SENDING PAYLOAD')
-                                    this.logger.logInfo(`case-1: 08...seding payload ->emit event === 'push-msg-relayed`)
-                                    this.logger.logInfo('--------------------------------------------------------------------------')
+                                    console.log('--------------------------------------------------------------------------')
+                                    console.log('SENDING PAYLOAD')
+                                    console.log(`case-1: 08...seding payload ->emit event === 'push-msg-relayed`)
+                                    console.log('--------------------------------------------------------------------------')
                                     io.to(recepientSocketId).emit('push-msg-relayed', pushEnvelop1);
                                     // io.to(recepientSocketId).emit('push-msg-relayed', '{"msg": "testing messege"}');
                                     // io.emit('push-msg-relayed', `{"msg": "testing messege"}`);
@@ -343,10 +343,10 @@ export class SioService {
                             break;
                         case 7:
 
-                            this.logger.logInfo('--------------------------------------------------------------------------')
-                            this.logger.logInfo('STARTING MESSAGE TO RECEPIENTS')
-                            this.logger.logInfo('No of app sockets:', { noOfSockets: pushEnvelop.pushData.appSockets.length })
-                            this.logger.logInfo('--------------------------------------------------------------------------')
+                            console.log('--------------------------------------------------------------------------')
+                            console.log('STARTING MESSAGE TO RECEPIENTS')
+                            console.log('No of app sockets:', { noOfSockets: pushEnvelop.pushData.appSockets.length })
+                            console.log('--------------------------------------------------------------------------')
                             // const pushEnvelop7 = this.shallow(pushEnvelop)
                             const pushEnvelop7 = JSON.parse(JSON.stringify(pushEnvelop));
                             this.logger.logInfo(`SioService::relayMessages()/[switch 7] pushEnvelop copy:${JSON.stringify(pushEnvelop7)}`);
@@ -379,11 +379,11 @@ export class SioService {
                                     } else {
                                         this.logger.logInfo('case-7: 07')
                                         this.logger.logInfo(`SioService::relayMessages()/[switch 7] sending to recepient:${JSON.stringify(pushEnvelop7)}`);
-                                        this.logger.logInfo('--------------------------------------------------------------------------')
-                                        this.logger.logInfo('SENDING PAYLOAD')
-                                        this.logger.logInfo(`case-7: 08...seding payload ->emit event === ${pushEnvelop7.pushData.emittEvent}`)
-                                        this.logger.logInfo(`case-7: 09...seding payload ->recepientSocketId = ${recepientSocketId}`)
-                                        this.logger.logInfo('--------------------------------------------------------------------------')
+                                        console.log('--------------------------------------------------------------------------')
+                                        console.log('SENDING PAYLOAD')
+                                        console.log(`case-7: 08...seding payload ->emit event === ${pushEnvelop7.pushData.emittEvent}`)
+                                        console.log(`case-7: 09...seding payload ->recepientSocketId = ${recepientSocketId}`)
+                                        console.log('--------------------------------------------------------------------------')
                                         payLoad = JSON.stringify(pushEnvelop7);
                                         io.to(recepientSocketId).emit(pushEnvelop7.pushData.emittEvent, pushEnvelop7);
                                     }
