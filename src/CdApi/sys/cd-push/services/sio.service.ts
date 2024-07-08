@@ -278,7 +278,7 @@ export class SioService {
                                     io.to(recepientSocketId).emit('push-msg-relayed', pushEnvelop1);
                                 }
 
-                                if (pushEnvelop1.pushData.commTrack.delivered === true && pushEnvelop1.pushData.commTrack.completed !== true) {
+                                if (pushEnvelop1.pushData.commTrack.delivered === true && pushEnvelop1.pushData.commTrack.completed !== true ) {
                                     console.log('--------------------------------------------------------------------------')
                                     console.log('SENDING NOTIFICATION')
                                     console.log(`case-1: 03...isNotification->event to emit === push-delivered`)
@@ -291,36 +291,38 @@ export class SioService {
                                     io.to(recepientSocketId).emit('push-delivered', pushEnvelop1);
                                 }
 
-                                // if (pushEnvelop1.pushData.triggerEvent === 'msg-received' && pushEnvelop1.pushData.commTrack.completed !== true) {
-                                //     console.log('--------------------------------------------------------------------------')
-                                //     this.logger.logInfo('SENDING NOTIFICATION')
-                                //     this.logger.logInfo(`case-1: 041...isNotification->triggerEvent === msg-relayed`)
-                                //     console.log('--------------------------------------------------------------------------')
+                                // was closed and open for testing on 8 jul 2024
+                                if (pushEnvelop1.pushData.triggerEvent === 'msg-received' && pushEnvelop1.pushData.commTrack.completed !== true) {
+                                    console.log('--------------------------------------------------------------------------')
+                                    this.logger.logInfo('SENDING NOTIFICATION')
+                                    this.logger.logInfo(`case-1: 041...isNotification->triggerEvent === msg-relayed`)
+                                    console.log('--------------------------------------------------------------------------')
 
-                                //     /**
-                                //      * this is notification from recepient to sender
-                                //      * to confirm message has been delivered
-                                //      */
-                                //     io.to(recepientSocketId).emit('push-delivered', pushEnvelop1);
-                                // }
-                                // if (pushEnvelop1.pushData.triggerEvent === 'msg-completed' && pushEnvelop1.pushData.commTrack.completed !== true) {
-                                //     console.log('--------------------------------------------------------------------------')
-                                //     this.logger.logInfo('SENDING NOTIFICATION')
-                                //     this.logger.logInfo(`case-1: 042...isNotification->triggerEvent === msg-completed`)
-                                //     console.log('--------------------------------------------------------------------------')
+                                    /**
+                                     * this is notification from recepient to sender
+                                     * to confirm message has been delivered
+                                     */
+                                    io.to(recepientSocketId).emit('push-delivered', pushEnvelop1);
+                                }
+                                // was closed and open for testing on 8 jul 2024
+                                if (pushEnvelop1.pushData.triggerEvent === 'msg-completed' && pushEnvelop1.pushData.commTrack.completed !== true) {
+                                    console.log('--------------------------------------------------------------------------')
+                                    this.logger.logInfo('SENDING NOTIFICATION')
+                                    this.logger.logInfo(`case-1: 042...isNotification->triggerEvent === msg-completed`)
+                                    console.log('--------------------------------------------------------------------------')
 
-                                //     /**
-                                //      * record completion of messaging
-                                //      */
-                                //     this.logger.logInfo('message completed')
+                                    /**
+                                     * record completion of messaging
+                                     */
+                                    this.logger.logInfo('message completed')
 
-                                // }
+                                }
                             } else {
                                 this.logger.logInfo('case-1: 05')
                                 // send notification to client for relay
                                 if (pushEnvelop1.pushData.triggerEvent === 'msg-received') {
                                     this.logger.logInfo('case-1: 06')
-                                    // this.logger.logInfo(`SioService::relayMessages()/[switch 1/[msg-received]] sending 'msg-received' message to sender`);
+                                    this.logger.logInfo(`SioService::relayMessages()/[switch 1/[msg-received]] sending 'msg-received' message to sender`);
                                     // payLoad = JSON.stringify(pushEnvelop);
                                     // io.to(recepientSocketId).emit('push-delivered', payLoad);
                                 } else {
