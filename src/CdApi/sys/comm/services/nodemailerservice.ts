@@ -88,7 +88,7 @@ export class NodemailerService {
             from: `${config.emailUsers[0].name} <${config.emailUsers[0].user}>`,
             to: recepientUser.email,
             subject: 'Welcome!',
-            text: this.stripHTML(req.post.dat.f_vals[0].data.msg) ,
+            text: this.stripHTML(req.post.dat.f_vals[0].data.msg),
             html: req.post.dat.f_vals[0].data.msg,
             headers: { 'x-myheader': 'test header' }
         }
@@ -103,14 +103,15 @@ export class NodemailerService {
         return true;
     }
 
-    stripHTML(html) {
-        // Create a new div element
-        let tempDiv = document.createElement("div");
-        // Set the innerHTML of the div to the input HTML
-        tempDiv.innerHTML = html;
-        // Get the text content of the div, which strips out the HTML tags
-        return tempDiv.textContent || tempDiv.innerText || "";
+    stripHTML(html: string): string {
+        return htmlToText(html, {
+            wordwrap: false,
+            selectors: [
+                { selector: 'img', format: 'skip' } // Optional: To skip images
+            ]
+        });
     }
+
 
     /**
      * Optional method
@@ -202,4 +203,8 @@ export class NodemailerService {
         // return info.response;
     }
 
+}
+
+function htmlToText(html: string, arg1: { wordwrap: boolean; selectors: { selector: string; format: string; }[]; }): string {
+    throw new Error('Function not implemented.');
 }
