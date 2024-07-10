@@ -48,6 +48,7 @@
 import 'reflect-metadata';
 import { createConnection, getConnection, } from 'typeorm';
 import nodemailer from 'nodemailer';
+import { htmlToText } from 'html-to-text'
 // import Mail from 'nodemailer/lib/mailer';
 import { BaseService } from '../../base/base.service';
 import { CdPushController } from '../../cd-push/controllers/cdpush.controller';
@@ -205,6 +206,3 @@ export class NodemailerService {
 
 }
 
-function htmlToText(html: string, arg1: { wordwrap: boolean; selectors: { selector: string; format: string; }[]; }): string {
-    throw new Error('Function not implemented.');
-}

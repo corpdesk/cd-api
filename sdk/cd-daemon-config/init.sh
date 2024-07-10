@@ -1,5 +1,6 @@
 #!/bin/bash
-
+sudo chown devops:devops /home/devops/cd-api/sdk/cd-daemon-config/start_cd_api.sh
+sudo chown devops:devops /home/devops/cd-sio/sdk/cd-daemon-config/start_cd_sio.sh
 sudo -u devops chmod +x /home/devops/cd-api/sdk/cd-daemon-config/start_cd_api.sh
 sudo -u devops chmod +x /home/devops/cd-sio/sdk/cd-daemon-config/start_cd_sio.sh
 sudo rm -f /usr/bin/node
