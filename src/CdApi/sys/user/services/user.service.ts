@@ -197,7 +197,7 @@ export class UserService extends CdService {
             this.logger.logInfo('UserService::regisrationNotification()/newUser:', {u:newUser})
             const nt = new NotificationTemplate();
             this.plData.msg = await nt.registerNotifTemplate(req, res, newUser);
-            const mailRet = await this.mail.sendEmailNotif(await req, res,this.plData.msg,config.emailUser);
+            const mailRet = await this.mail.sendEmailNotif(await req, res,this.plData.msg, newUser);
         }
     }
 

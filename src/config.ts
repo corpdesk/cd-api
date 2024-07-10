@@ -117,10 +117,16 @@ export default {
     apiRoute: API_ROUTE,
     endPoint: END_POINT,
     userActivationUrl: process.env.USER_ACTIVATION_URL,
-    emailUser: {
+    emailUsers: [{
+        name: 'ASDAP',
+        email: process.env.EMAIL_ADDRESS,
         user: process.env.EMAIL_USERNAME,
-        pass: process.env.EMAIL_PASSWORD
-    },
+        pass: process.env.EMAIL_PASSWORD,
+        auth: {
+            user: process.env.EMAIL_USERNAME,
+            pass: process.env.EMAIL_PASSWORD
+        }
+    }],
     back4app: {
         url: process.env.B4A_URL,
         appId: process.env.X_Parse_Application_Id,

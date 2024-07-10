@@ -51,9 +51,10 @@ import nodemailer from 'nodemailer';
 // import Mail from 'nodemailer/lib/mailer';
 import { BaseService } from '../../base/base.service';
 import { CdPushController } from '../../cd-push/controllers/cdpush.controller';
-import { mailConfig } from '../../../../config';
+import config, { mailConfig } from '../../../../config';
 import { Comm } from '../models/comm.model';
 import { Logging } from '../../base/winston.log';
+import { UserModel } from '../../user/models/user.model';
 
 export class NodemailerService {
     logger: Logging;
@@ -74,19 +75,20 @@ export class NodemailerService {
      * @param req
      * @param res
      */
-    async sendMail(req, res, msg, emailUser) {
+    async sendMail(req, res, msg, recepientUser: UserModel) {
         this.logger.logInfo("starting NodemailerService::sendMail()")
         this.logger.logInfo("NodemailerService::sendMail()/msg:", msg)
+        this.logger.logInfo("NodemailerService::sendMail()/emailUser:", config.emailUsers[0])
         const transporter = nodemailer.createTransport({
             service: 'Zoho', // no need to set host or port etc. See alternative at top of file.
-            auth: emailUser
+            auth: config.emailUsers[0].auth
         });
 
         const mail = {
-            from: `'CD Platform' <corpdesk@zohomail.com>`,
-            to: 'george.oremo@gmail.com',
+            from: `${config.emailUsers[0].name} <${config.emailUsers[0].user}>`,
+            to: recepientUser.email,
             subject: 'Welcome!',
-            text: 'Hello world?',
+            text: this.stripHTML(req.post.dat.f_vals[0].data.msg) ,
             html: req.post.dat.f_vals[0].data.msg,
             headers: { 'x-myheader': 'test header' }
         }
@@ -99,6 +101,15 @@ export class NodemailerService {
         });
 
         return true;
+    }
+
+    stripHTML(html) {
+        // Create a new div element
+        let tempDiv = document.createElement("div");
+        // Set the innerHTML of the div to the input HTML
+        tempDiv.innerHTML = html;
+        // Get the text content of the div, which strips out the HTML tags
+        return tempDiv.textContent || tempDiv.innerText || "";
     }
 
     /**
