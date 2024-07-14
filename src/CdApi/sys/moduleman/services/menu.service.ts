@@ -54,37 +54,37 @@ export class MenuService {
         this.serviceModel = new MenuModel();
     }
 
-    // /**
-    //  * {
-    //         "ctx": "Sys",
-    //         "m": "Moduleman",
-    //         "c": "MenuController",
-    //         "a": "actionCreate",
-    //         "dat": {
-    //             "f_vals": [{
-    //                 "cd_obj": {
-    //                     "cd_obj_name": "moduleName-controllerName-menuName",
-    //                     "cd_obj_type_guid": "574c73a6-7e5b-40fe-aa89-e52ce1640f42",
-    //                     "parent_module_guid": "a06f881e-41f1-45b9-87f4-8475fef7fcba"
-    //                 },
-    //                 "data": {
-    //                     "menu_name": "reservation",
-    //                     "menu_closet_file": "",
-    //                     "menu_parent_id": "982",
-    //                     "module_id": "258",
-    //                     "menu_order": "11",
-    //                     "path": "reservation",
-    //                     "menu_description": "reservation",
-    //                     "menu_lable": "reservation",
-    //                     "menu_icon": "cog",
-    //                     "active": true
-    //                 }
-    //             }],
-    //             "token": "mT6blaIfqWhzNXQLG8ksVbc1VodSxRZ8lu5cMgda"
-    //         },
-    //         "args": null
-    //     }
-    //  */
+    /**
+     * {
+            "ctx": "Sys",
+            "m": "Moduleman",
+            "c": "MenuController",
+            "a": "actionCreate",
+            "dat": {
+                "f_vals": [{
+                    "cd_obj": {
+                        "cd_obj_name": "moduleName-controllerName-menuName",
+                        "cd_obj_type_guid": "574c73a6-7e5b-40fe-aa89-e52ce1640f42",
+                        "parent_module_guid": "a06f881e-41f1-45b9-87f4-8475fef7fcba"
+                    },
+                    "data": {
+                        "menu_name": "reservation",
+                        "menu_closet_file": "",
+                        "menu_parent_id": "982",
+                        "module_id": "258",
+                        "menu_order": "11",
+                        "path": "reservation",
+                        "menu_description": "reservation",
+                        "menu_lable": "reservation",
+                        "menu_icon": "cog",
+                        "active": true
+                    }
+                }],
+                "token": "mT6blaIfqWhzNXQLG8ksVbc1VodSxRZ8lu5cMgda"
+            },
+            "args": null
+        }
+     */
     async create(req, res): Promise<void> {
         const svSess = new SessionService();
         if (await this.validateCreate(req, res)) {

@@ -13,29 +13,29 @@ export class GroupMemberController extends CdController {
         this.svGroupMember = new GroupMemberService();
     }
 
-    // /**
-    //  * {
-    //         "ctx": "Sys",
-    //         "m": "Moduleman",
-    //         "c": "GroupMember",
-    //         "a": "Create",
-    //         "dat": {
-    //             "f_vals": [
-    //                 {
-    //                     "data": {
-    //                         "companyName": "/src/CdApi/sys/moduleman",
-    //                         "companyTypeGuid": "7ae902cd-5bc5-493b-a739-125f10ca0268",
-    //                         "parentModuleGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b"
-    //                     }
-    //                 }
-    //             ],
-    //             "token": "3ffd785f-e885-4d37-addf-0e24379af338"
-    //         },
-    //         "args": {}
-    //     }
-    //  * @param req
-    //  * @param res
-    //  */
+    /**
+     * {
+            "ctx": "Sys",
+            "m": "Moduleman",
+            "c": "GroupMember",
+            "a": "Create",
+            "dat": {
+                "f_vals": [
+                    {
+                        "data": {
+                            "companyName": "/src/CdApi/sys/moduleman",
+                            "companyTypeGuid": "7ae902cd-5bc5-493b-a739-125f10ca0268",
+                            "parentModuleGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b"
+                        }
+                    }
+                ],
+                "token": "3ffd785f-e885-4d37-addf-0e24379af338"
+            },
+            "args": {}
+        }
+     * @param req
+     * @param res
+     */
     async Create(req, res) {
         try {
             await this.svGroupMember.create(req, res);

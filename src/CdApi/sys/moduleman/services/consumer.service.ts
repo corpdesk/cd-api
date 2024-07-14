@@ -37,8 +37,8 @@ export class ConsumerService extends CdService {
      * create rules
      */
     cRules: any = {
-        required: ['companyGuid'],
-        noDuplicate: ['companyGuid']
+        required: ['companyId'],
+        noDuplicate: ['companyId']
     };
     uRules: any[];
     dRules: any[];
@@ -117,8 +117,8 @@ export class ConsumerService extends CdService {
         const pl: ConsumerModel = this.b.getPlData(req, res);
         this.logger.logInfo('moduleman/create::beforeCreate()/this.company:', this.company);
         this.b.setPlData(req, { key: 'consumerName', value: this.company.companyName });
-        this.b.setPlData(req, { key: 'companyId', value: this.company.companyId });
-        this.b.setPlData(req, { key: 'companyGuid', value: pl.companyGuid });
+        this.b.setPlData(req, { key: 'companyGuid', value: this.company.companyGuid });
+        this.b.setPlData(req, { key: 'companyId', value: pl.companyId });
         this.b.setPlData(req, { key: 'consumerGuid', value: this.b.getGuid() });
         this.b.setPlData(req, { key: 'consumerEnabled', value: true });
         return true;
@@ -231,7 +231,7 @@ export class ConsumerService extends CdService {
         // // 2. confirm the consumerTypeGuid referenced exists
         const pl: ConsumerModel = this.b.getPlData(req);
         this.logger.logInfo('moduleman/ConsumerService::validateCreate()/pl:', pl)
-        if ('companyGuid' in pl) {
+        if ('companyId' in pl) {
             this.logger.logInfo('moduleman/ConsumerService::validateCreate()/07')
             this.logger.logInfo('moduleman/ConsumerService::validateCreate()/pl:', pl)
             const serviceInput = {
@@ -239,7 +239,7 @@ export class ConsumerService extends CdService {
                 docName: 'ConsumerService::validateCreate',
                 cmd: {
                     action: 'find',
-                    query: { where: { companyGuid: pl.companyGuid } }
+                    query: { where: { companyId: pl.companyId } }
                 },
                 dSource: 1
             }

@@ -11,29 +11,29 @@ export class ConsumerResourceController {
         this.svConsumerResource = new ConsumerResourceService();
     }
 
-    // // /**
-    // //  * {
-    //         "ctx": "Sys",
-    //         "m": "Moduleman",
-    //         "c": "ConsumerResource",
-    //         "a": "Create",
-    //         "dat": {
-    //             "f_vals": [
-    //                 {
-    //                     "data": {
-    //                         "cdObjTypeGuid": "8b4cf8de-1ffc-4575-9e73-4ccf45a7756b",
-    //                         "consumerGuid": "B0B3DA99-1859-A499-90F6-1E3F69575DCD",
-    //                         "objGuid": "8D4ED6A9-398D-32FE-7503-740C097E4F1F"
-    //                     }
-    //                 }
-    //             ],
-    //             "token": "3ffd785f-e885-4d37-addf-0e24379af338"
-    //         },
-    //         "args": {}
-    //     }
-    // //  * @param req
-    // //  * @param res
-    // //  */
+    /**
+    //  * {
+            "ctx": "Sys",
+            "m": "Moduleman",
+            "c": "ConsumerResource",
+            "a": "Create",
+            "dat": {
+                "f_vals": [
+                    {
+                        "data": {
+                            "cdObjTypeGuid": "8b4cf8de-1ffc-4575-9e73-4ccf45a7756b",
+                            "consumerGuid": "B0B3DA99-1859-A499-90F6-1E3F69575DCD",
+                            "objGuid": "8D4ED6A9-398D-32FE-7503-740C097E4F1F"
+                        }
+                    }
+                ],
+                "token": "3ffd785f-e885-4d37-addf-0e24379af338"
+            },
+            "args": {}
+        }
+     * @param req
+     * @param res
+    */
     async Create(req, res) {
         try {
             await this.svConsumerResource.create(req, res);

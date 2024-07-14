@@ -11,27 +11,27 @@ export class ConsumerController {
         this.svConsumer = new ConsumerService();
     }
 
-    // // /**
-    // //  * {
-    //             "ctx": "Sys",
-    //             "m": "Moduleman",
-    //             "c": "Consumer",
-    //             "a": "Create",
-    //             "dat": {
-    //                 "f_vals": [
-    //                     {
-    //                         "data": {
-    //                             "companyGuid": "8a7a5b56-6c76-11ec-a1b0-4184d18c49ca"
-    //                         }
-    //                     }
-    //                 ],
-    //                 "token": "3ffd785f-e885-4d37-addf-0e24379af338"
-    //             },
-    //             "args": {}
-    //         }
-    // //  * @param req
-    // //  * @param res
-    // //  */
+    /**
+    //  * {
+                "ctx": "Sys",
+                "m": "Moduleman",
+                "c": "Consumer",
+                "a": "Create",
+                "dat": {
+                    "f_vals": [
+                        {
+                            "data": {
+                                "companyGuid": "8a7a5b56-6c76-11ec-a1b0-4184d18c49ca"
+                            }
+                        }
+                    ],
+                    "token": "3ffd785f-e885-4d37-addf-0e24379af338"
+                },
+                "args": {}
+            }
+    //  * @param req
+    //  * @param res
+    //  */
     async Create(req, res) {
         try {
             await this.svConsumer.create(req, res);
