@@ -73,7 +73,7 @@ export class ConsumerService extends CdService {
     //  * @param res
     //  */
     async create(req, res) {
-        this.logger.logInfo('moduleman/create::validateCreate()/01')
+        this.logger.logInfo('ConsumerServices/create::validateCreate()/01')
         const svSess = new SessionService();
         if (await this.validateCreate(req, res)) {
             await this.beforeCreate(req, res);
@@ -114,7 +114,8 @@ export class ConsumerService extends CdService {
     }
 
     async beforeCreate(req, res): Promise<any> {
-        const pl: ConsumerModel = this.b.getPlData(req, res);
+        const pl: ConsumerModel = this.b.getPlData(req);
+        this.logger.logInfo('moduleman/create::beforeCreate()/pl:', pl);
         this.logger.logInfo('moduleman/create::beforeCreate()/this.company:', this.company);
         this.b.setPlData(req, { key: 'consumerName', value: this.company.companyName });
         this.b.setPlData(req, { key: 'companyGuid', value: this.company.companyGuid });

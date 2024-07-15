@@ -130,7 +130,7 @@ export class ConsumerResourceService extends CdService {
         // consumer_resource_enabled, consumer_id, obj_id, cd_obj_id, consumer_resource_type_id,
         // consumer_guid, obj_guid, cd_obj_guid, consumer_resource_type_guid
 
-        // const pl: ConsumerModel = this.b.getPlData(req, res);
+        // const pl: ConsumerModel = this.b.getPlData(req);
         // console.log('moduleman/create::beforeCreate()/this.company:', this.company);
         // this.b.setPlData(req, { key: 'consumerName', value: this.company.companyName });
         // this.b.setPlData(req, { key: 'companyId', value: this.company.companyId });
