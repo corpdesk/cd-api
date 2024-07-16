@@ -209,7 +209,18 @@ export class CdObjService extends CdService {
         // }
         if ('cdObjTypeGuid' in pl) {
             console.log('CdObjService::validateCreate()/01')
-            const cdObjTypeData: CdObjTypeModel[] = await this.b.get(req, res, CdObjTypeModel, { where: { cdObjTypeGuid: pl.cdObjTypeGuid } });
+            console.log('CdObjService::validateCreate()/pl:', pl)
+            const serviceInput = {
+                serviceModel: CdObjTypeModel,
+                docName: 'CdObjService::getcdObjType',
+                cmd: {
+                    action: 'find',
+                    query: { where: { cdObjTypeGuid: pl.cdObjTypeGuid } }
+                },
+                dSource: 1
+            }
+            const cdObjTypeData: CdObjTypeModel[] = await this.b.read(req, res, serviceInput)
+            console.log('CdObjService::validateCreate()/cdObjTypeData:', cdObjTypeData)
             if (await this.b.validateInputRefernce(`cdObj type reference is invalid`, cdObjTypeData, svSess)) {
                 console.log('CdObjService::validateCreate()/02')
                 console.log('CdObjService::validateCreate()/cdObjTypeData:', cdObjTypeData);

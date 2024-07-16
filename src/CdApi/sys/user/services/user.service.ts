@@ -456,7 +456,7 @@ export class UserService extends CdService {
             },
             dSource: 1
         }
-        const result: UserModel[] = await this.b.get(req, res, serviceInput, q);
+        const result: UserModel[] = await this.b.get(req, res, serviceInput);
         this.logger.logInfo('UserService::auth()/result:', result);
         const guest = await this.resolveGuest(req, res, result);
         this.logger.logInfo('UserService::auth()/guest:', guest)
@@ -565,7 +565,7 @@ export class UserService extends CdService {
             },
             dSource: 1
         }
-        const result: UserModel[] = await this.b.get(req, res, serviceInput, q);
+        const result: UserModel[] = await this.b.get(req, res, serviceInput);
         const guest = await this.resolveGuest(req, res, result);
         this.logger.logInfo('UserService::auth1()/guest:', guest)
         return await this.srvSess.create(req, res, guest)

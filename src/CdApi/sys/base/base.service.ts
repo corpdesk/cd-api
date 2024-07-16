@@ -1387,8 +1387,8 @@ export class BaseService {
         });
     }
 
-    async get(req, res, serviceInput: IServiceInput, q: IQuery): Promise<any> {
-        this.logger.logDebug('BaseService::get/q:', q);
+    async get(req, res, serviceInput: IServiceInput): Promise<any> {
+        // this.logger.logDebug('BaseService::get/q:', q);
         // console.log('BaseService::get/model:', model);
         // const serviceInput: IServiceInput = {
         //     serviceModel: model,

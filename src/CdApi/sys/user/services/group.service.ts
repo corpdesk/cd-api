@@ -237,7 +237,7 @@ export class GroupService extends CdService {
             docName: 'beforeCreate',
             dSource: 1,
         }
-        this.b.sess = await this.b.get(req, res, serviceInput, q)
+        this.b.sess = await this.b.get(req, res, serviceInput)
         if (this.b.sess.length > 0) {
             this.b.setPlData(req, { key: 'groupOwnerId', value: this.b.sess[0].currentUserId });
         }

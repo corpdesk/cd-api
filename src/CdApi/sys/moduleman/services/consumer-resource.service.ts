@@ -40,9 +40,7 @@ export class ConsumerResourceService extends CdService {
      * create rules
      */
     cRules: any = {
-        // required: ['cdObjTypeId', 'consumerId', 'objId'],
-        // noDuplicate: ['objId', 'consumerId']
-        required: ['consumerGuid', 'cdObjGuid', 'consumerResourceTypeId'],
+        required: ['consumerGuid', 'cdObjGuid'],
         noDuplicate: ['consumerGuid', 'cdObjGuid']
     };
     uRules: any[];
@@ -54,31 +52,37 @@ export class ConsumerResourceService extends CdService {
         this.serviceModel = new ConsumerResourceModel();
     }
 
-    // /**
-    //  * In the example below we are registering booking module as a resource to emp services
-    //  * This allows users registered under empservices to access booking module when appropriate privileges are given
-    //  * {
-    //         "ctx": "Sys",
-    //         "m": "Moduleman",
-    //         "c": "ConsumerResource",
-    //         "a": "Create",
-    //         "dat": {
-    //             "f_vals": [
-    //                 {
-    //                     "data": {
-    //                          "cd_obj_type_id": "8b4cf8de-1ffc-4575-9e73-4ccf45a7756b", // module
-    //                          "consumer_id": "B0B3DA99-1859-A499-90F6-1E3F69575DCD", // emp services
-    //                          "obj_id": "8D4ED6A9-398D-32FE-7503-740C097E4F1F" // recource (module) id...in this case: booking module
-    //                     }
-    //                 }
-    //             ],
-    //             "token": "3ffd785f-e885-4d37-addf-0e24379af338"
-    //         },
-    //         "args": {}
-    //     }
-    //  * @param req
-    //  * @param res
-    //  */
+    /**
+     * 
+     * The consumer resource to list as resource must
+     * 1. be registered in cdobj table
+     * 2. it is the cdobj reference that is used to register it as a resource to a given consumer
+     * 3. As a cdobj type, the recource can be as varied as cdobj type allows. Eg company, user, module, controller etc
+     * 
+     * In the example below we are registering booking module as a resource to emp services
+     * This allows users registered under empservices to access booking module when appropriate privileges are given
+     * {
+            "ctx": "Sys",
+            "m": "Moduleman",
+            "c": "ConsumerResource",
+            "a": "Create",
+            "dat": {
+                "f_vals": [
+                    {
+                        "data": {
+                             "cdObjTypeGuid": "8b4cf8de-1ffc-4575-9e73-4ccf45a7756b", // module
+                             "consumerId": "B0B3DA99-1859-A499-90F6-1E3F69575DCD", // emp services
+                             "cdObjGuid": "8D4ED6A9-398D-32FE-7503-740C097E4F1F" // resource (module) guid...in this case: booking module
+                        }
+                    }
+                ],
+                "token": "3ffd785f-e885-4d37-addf-0e24379af338"
+            },
+            "args": {}
+        }
+     * @param req
+     * @param res
+     */
     async create(req, res) {
         console.log('ConsumerResourceService::create::validateCreate()/01')
         const svSess = new SessionService();
@@ -121,6 +125,7 @@ export class ConsumerResourceService extends CdService {
         return this.b.read(req, res, serviceInput)
     }
 
+    
     async beforeCreate(req, res): Promise<any> {
         // cRules: any = {
         //     required: ['cd_obj_type_id', 'consumer_id', 'obj_id'],
@@ -143,18 +148,30 @@ export class ConsumerResourceService extends CdService {
         this.b.setPlData(req, { key: 'consumerResourceEnabled', value: true });
 
         // get cdObj:
-        const cdObjModel = CdObjModel;
         const pl: ConsumerResourceModel = this.b.getPlData(req);
-        let q: IQuery = { where: { cdObjGuid: pl.cdObjGuid } };
-        const cdObjData: CdObjModel[] = await this.b.get(req, res, cdObjModel, q);
+        // let q: any = { where: { cdObjGuid: pl.cdObjGuid } }
+        let serviceInput: IServiceInput = {
+            serviceModel: CdObjModel,
+            cmd: {
+                action: 'find',
+                query: { where: { cdObjGuid: pl.cdObjGuid } }
+            },
+            dSource: 1
+        }
+        console.log('moduleman/ConsumerResourceService::beforeCreate()/serviceInput:', serviceInput)
+        // const cdObjModel = CdObjModel;
+        
+        // let q: IQuery = { where: { cdObjGuid: pl.cdObjGuid } };
+        const cdObjData: CdObjModel[] = await this.b.get(req, res, serviceInput);
         console.log('ConsumerResourceService::beforeCreate::validateCreate()/02')
         console.log('ConsumerResourceService::beforeCreate::validateCreate()/cdObjData:', cdObjData)
         this.b.setPlData(req, { key: 'consumberResourceName', value: cdObjData[0].cdObjName });
         this.b.setPlData(req, { key: 'cdObjId', value: cdObjData[0].cdObjId});
         // get consumer
-        const consumerModel = ConsumerModel;
-        q = { select: ['consumerId'], where: { consumerGuid: pl.consumerGuid } };
-        const consumerData: ConsumerModel[] = await this.b.get(req, res, consumerModel, q);
+        // const consumerModel = ConsumerModel;
+        serviceInput.serviceModel = ConsumerModel
+        serviceInput.cmd.query = { select: ['consumerId'], where: { consumerGuid: pl.consumerGuid } };
+        const consumerData: ConsumerModel[] = await this.b.get(req, res, serviceInput);
         console.log('ConsumerResourceService::beforeCreate::validateCreate()/03')
         this.b.setPlData(req, { key: 'consumerId', value: consumerData[0].consumerId });
 
