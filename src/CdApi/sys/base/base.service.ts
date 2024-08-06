@@ -35,6 +35,7 @@ import { UserModel } from "../user/models/user.model"
 import { getDataSource } from "./data-source";
 import { Logging } from './winston.log';
 import { RedisService } from './redis-service';
+import { QueryBuilderHelper, QueryInput } from '../utils/QueryBuilderHelper';
 
 
 const USER_ANON = 1000;
@@ -67,6 +68,7 @@ export class BaseService {
     redisClient;
     svRedis: RedisService;
     logger: Logging;
+
     constructor() {
         // this.redisInit();
         this.cdResp = this.initCdResp();
@@ -1300,8 +1302,10 @@ export class BaseService {
         // this.setRepo(serviceInput.serviceModel)
         const repo: any = this.repo;
         try {
+            const q: any = this.getQuery(req)
+            this.logger.logDebug(`BaseService::readCount()/q:`, q)
             const [result, total] = await repo.findAndCount(
-                this.getQuery(req)
+                q
             );
             return {
                 items: result,
@@ -1316,6 +1320,53 @@ export class BaseService {
     readCount$(req, res, serviceInput): Observable<any> {
         this.logger.logDebug('BaseService::readCount$()/serviceInput:', serviceInput)
         return from(this.readCount(req, res, serviceInput));
+    }
+
+    transformQueryInput(query: QueryInput, queryBuilderHelper): QueryInput {
+        return {
+            ...query,
+            where: queryBuilderHelper.transformWhereClause(query.where),
+        };
+    }
+
+    /**
+     * typeorm query was failing when 'OR' query were used for findAndCount
+     * however the QueryBuilder is working ok
+     * This method makes use of QueryBuilderHelper to allow query to still be structured as earlier then this
+     * class converts them to typeorm query builder.
+     */
+    async readQB(req, res, serviceInput): Promise<any> {
+        await this.init(req, res);
+        // const repo = getConnection().getRepository(serviceInput.serviceModel);
+        this.logger.logDebug('BaseService::readQB()/repo/model:', serviceInput.serviceModel)
+        // const repo: any = await this.repo(req, res, serviceInput.serviceModel)
+        await this.setRepo(serviceInput)
+        // this.setRepo(serviceInput.serviceModel)
+        // Create the helper instance
+        const queryBuilderHelper = new QueryBuilderHelper(this.repo);
+        const repo: any = this.repo;
+        try {
+            let q: any = this.getQuery(req)
+            q = this.transformQueryInput(q, queryBuilderHelper)
+            this.logger.logDebug(`BaseService::readQB()/q:`, { q: JSON.stringify(q) })
+            console.log('BaseService::readQB()/q:', q)
+            const queryBuilder = queryBuilderHelper.createQueryBuilder(q);
+            const dataPromise = queryBuilder.getMany();
+            console.log('dataPromise:', await dataPromise)
+            const countPromise = queryBuilder.getCount();
+            return Promise.all([dataPromise, countPromise]).then(([items, count]) => ({
+                items,
+                count,
+            }));
+        }
+        catch (err) {
+            return await this.serviceErr(req, res, err, 'BaseService:readQB');
+        }
+    }
+
+    readQB$(req, res, serviceInput): Observable<any> {
+        this.logger.logDebug('BaseService::readQB$()/serviceInput:', serviceInput)
+        return from(this.readQB(req, res, serviceInput));
     }
 
     async readPaged(req, res, serviceInput): Promise<any> {
@@ -1977,7 +2028,7 @@ export class BaseService {
         try {
             // const getRet = await this.redisClient.get(k);
             ret.r = await this.svRedis.get(k);
-            this.logger.logDebug('BaseService::redisRead()/ret:', {result: ret})
+            this.logger.logDebug('BaseService::redisRead()/ret:', { result: ret })
             return ret
         } catch (e) {
             this.logger.logDebug('BaseService::redisRead()/04')

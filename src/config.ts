@@ -26,11 +26,19 @@ export const AppDataSource = new DataSource({
     database: process.env.DB_NAME,
     password: process.env.DB_PWD,
     synchronize: false,
-    logging: false,
     // entities: [UserModel],
     entities: ENTITIES,
     migrations: [],
     subscribers: [],
+    // logging: false,
+    logging: [
+        'query', 
+        // 'error',
+        // 'schema',
+        // 'warn', 
+        // 'info', 
+        // 'log'
+    ],
 })
 
 
@@ -73,10 +81,18 @@ const mysqlConfig2 = {
     database: process.env.DB_NAME,
     password: process.env.DB_PWD,
     synchronize: true,
-    logging: false,
     entities: ENTITIES,
     migrations: [],
     subscribers: [],
+    // logging: false,
+    logging: [
+        'query', 
+        // 'error',
+        // 'schema',
+        // 'warn', 
+        // 'info', 
+        // 'log'
+    ],
 }
 
 export async function sqliteConfig(connName): Promise<any> {

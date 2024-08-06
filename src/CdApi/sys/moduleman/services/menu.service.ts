@@ -436,6 +436,31 @@ export class MenuService {
             })
     }
 
+    getMenuGetQB(req, res) {
+        console.log('MenuService::getMenuCount()/reached 1')
+        const q = this.b.getQuery(req);
+        // console.log('MenuService::getModuleCount/q:', q);
+        const serviceInput = {
+            serviceModel: MenuViewModel,
+            docName: 'MenuService::getMenu$',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        this.b.readQB$(req, res, serviceInput)
+            .subscribe((r) => {
+                this.b.i.code = 'ModulesController::Get';
+                const svSess = new SessionService();
+                svSess.sessResp.cd_token = req.post.dat.token;
+                svSess.sessResp.ttl = svSess.getTtl();
+                this.b.setAppState(true, this.b.i, svSess.sessResp);
+                this.b.cdResp.data = r;
+                this.b.respond(req, res)
+            })
+    }
+
     update(req, res) {
         const serviceInput = {
             serviceModel: MenuModel,
