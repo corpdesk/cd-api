@@ -8,7 +8,7 @@ import { SelectQueryBuilder, Repository, Like } from 'typeorm';
 
 export interface QueryInput {
     select?: string[];
-    where?: any[] | {};
+    where?: any;
     take?: number;
     skip?: number;
 }
@@ -52,15 +52,23 @@ export class QueryBuilderHelper {
         if (query.where && Array.isArray(query.where) && query.where.length > 0) {
             console.log('QueryBuilderHelper::createQueryBuilder/04:')
             query.where.forEach((condition, index) => {
-                const operator = index === 0 ? 'where' : 'orWhere';
-                Object.keys(condition).forEach((field) => {
-                    const dbField = `${this.repository.metadata.name}.${this.getDatabaseColumnName(field)}`;
-                    queryBuilder[operator](`${dbField} = :${field}`, { [field]: condition[field] });
-                });
+                const key = Object.keys(condition)[0];
+                console.log('QueryBuilderHelper::createQueryBuilder/key:', key)
+                const value = condition[key];
+                console.log('QueryBuilderHelper::createQueryBuilder/value:', value)
+                console.log('QueryBuilderHelper::createQueryBuilder/value._type:', value._type)
+
+                const dbField = `${this.repository.metadata.name}.${this.getDatabaseColumnName(key)}`;
+
+                if (value._type === "like") {
+                    const likeValue = value._value; // Extract the value inside Like()
+                    queryBuilder.orWhere(`${dbField} LIKE :${key}`, { [key]: likeValue });
+                } else {
+                    const operator = index === 0 ? 'where' : 'orWhere';
+                    queryBuilder[operator](`${dbField} = :${key}`, { [key]: value });
+                }
             });
-        }
-        // else if (query.where && typeof query.where === 'object' && Object.keys(query.where).length === 0) {
-        else if (query.where && typeof query.where === 'object' && this.isEmptyObject(query.where)) {
+        } else if (query.where && typeof query.where === 'object' && this.isEmptyObject(query.where)) {
             console.log('QueryBuilderHelper::createQueryBuilder/05:')
             // Do not add any where clause
         }
@@ -80,6 +88,7 @@ export class QueryBuilderHelper {
 
         return queryBuilder;
     }
+
 
     private getDatabaseColumnName(field: string): string {
         const column = this.repository.metadata.findColumnWithPropertyName(field);
