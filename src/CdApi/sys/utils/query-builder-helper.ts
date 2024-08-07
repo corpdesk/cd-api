@@ -62,6 +62,7 @@ export class QueryBuilderHelper {
 
                 if (value._type === "like") {
                     const likeValue = value._value; // Extract the value inside Like()
+                    console.log('QueryBuilderHelper::createQueryBuilder/likeValue:', likeValue)
                     queryBuilder.orWhere(`${dbField} LIKE :${key}`, { [key]: likeValue });
                 } else {
                     const operator = index === 0 ? 'where' : 'orWhere';
