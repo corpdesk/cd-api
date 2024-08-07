@@ -4,97 +4,94 @@
  * This is a helper class to allow query to still be structured as earlier then this
  * class converts them to typeorm query builder.
  */
-import { Repository, Like, FindOperator } from 'typeorm';
+import { SelectQueryBuilder, Repository, Like } from 'typeorm';
 
 export interface QueryInput {
-  select: string[];
-  where: Array<{ [key: string]: string | FindOperator<string> }>;
-  limit?: number;
-  skip?: number;
+    select?: string[];
+    where?: any[] | {};
+    take?: number;
+    skip?: number;
 }
 
-export class QueryBuilderHelper<T> {
-  private repository: Repository<T>;
+export class QueryBuilderHelper {
+    constructor(private repository: Repository<any>) { }
 
-  constructor(repository: Repository<T>) {
-    this.repository = repository;
-  }
-
-  private getDatabaseColumnName(property: string): string {
-    const column = this.repository.metadata.findColumnWithPropertyName(property);
-    return column ? column.databaseName : property;
-  }
-
-  transformWhereClause(where: Array<{ [key: string]: string | FindOperator<string> }>) {
-    return where.map(condition => {
-      const transformedCondition: { [key: string]: any } = {};
-
-      Object.keys(condition).forEach(key => {
-        const value = condition[key];
-        if (typeof value === 'string' && value.startsWith('Like(') && value.endsWith(')')) {
-          const likeValue = value.slice(5, -1); // Remove "Like(" and ")"
-          transformedCondition[key] = Like(likeValue);
-        } else {
-          transformedCondition[key] = value;
+    transformWhereClause(where: any): any {
+        if (Array.isArray(where)) {
+            return where.map((condition) => {
+                const field = Object.keys(condition)[0];
+                const value = condition[field];
+                if (typeof value === 'string' && value.startsWith('Like(') && value.endsWith(')')) {
+                    const match = value.match(/^Like\((.*)\)$/);
+                    if (match) {
+                        return { [field]: Like(match[1]) };
+                    }
+                }
+                return condition;
+            });
         }
-      });
-
-      return transformedCondition;
-    });
-  }
-
-  createQueryBuilder(input: QueryInput) {
-    const { select, where, limit, skip } = input;
-
-    // Initialize query builder
-    const queryBuilder = this.repository.createQueryBuilder(this.repository.metadata.name);
-
-    // Add select fields with verbose logging
-    if (select.length > 0) {
-      console.log('Select fields: ', select);
-      select.forEach((field) => {
-        const databaseColumn = this.getDatabaseColumnName(field);
-        console.log(`Processing select field: ${field}, mapped to database column: ${databaseColumn}`);
-        queryBuilder.addSelect(`${this.repository.metadata.name}.${databaseColumn}`);
-      });
+        return where;
     }
 
-    // Add where conditions with OR logic
-    if (where.length > 0) {
-      where.forEach((condition, index) => {
-        const whereClauses: string[] = [];
-        const parameters: { [key: string]: any } = {};
+    createQueryBuilder(query: QueryInput): SelectQueryBuilder<any> {
+        console.log('QueryBuilderHelper::createQueryBuilder/01:')
+        const queryBuilder = this.repository.createQueryBuilder(this.repository.metadata.name);
 
-        Object.keys(condition).forEach(key => {
-          const dbColumn = this.getDatabaseColumnName(key);
-          const value = condition[key];
+        if (query.select && query.select.length > 0) {
+            console.log('QueryBuilderHelper::createQueryBuilder/02:')
+            const select = query.select.map((field) => `${this.repository.metadata.name}.${this.getDatabaseColumnName(field)}`);
+            console.log('Select Fields:', select);  // Debug logging
+            queryBuilder.select(select);
+        } else {
+            console.log('QueryBuilderHelper::createQueryBuilder/03:')
+            const allColumns = this.repository.metadata.columns.map(column => `${this.repository.metadata.name}.${column.databaseName}`);
+            console.log('All Columns:', allColumns);  // Debug logging
+            queryBuilder.select(allColumns);
+        }
 
-          if (value instanceof FindOperator && value.type === 'like') {
-            whereClauses.push(`${this.repository.metadata.name}.${dbColumn} LIKE :${key}${index}`);
-            parameters[`${key}${index}`] = value.value;
-          } else {
-            whereClauses.push(`${this.repository.metadata.name}.${dbColumn} = :${key}${index}`);
-            parameters[`${key}${index}`] = value;
-          }
-        });
+        if (query.where && Array.isArray(query.where) && query.where.length > 0) {
+            console.log('QueryBuilderHelper::createQueryBuilder/04:')
+            query.where.forEach((condition, index) => {
+                const operator = index === 0 ? 'where' : 'orWhere';
+                Object.keys(condition).forEach((field) => {
+                    const dbField = `${this.repository.metadata.name}.${this.getDatabaseColumnName(field)}`;
+                    queryBuilder[operator](`${dbField} = :${field}`, { [field]: condition[field] });
+                });
+            });
+        }
+        // else if (query.where && typeof query.where === 'object' && Object.keys(query.where).length === 0) {
+        else if (query.where && typeof query.where === 'object' && this.isEmptyObject(query.where)) {
+            console.log('QueryBuilderHelper::createQueryBuilder/05:')
+            // Do not add any where clause
+        }
 
-        queryBuilder.orWhere(whereClauses.join(' OR '), parameters);
-      });
+        if (query.take) {
+            console.log('QueryBuilderHelper::createQueryBuilder/06:')
+            queryBuilder.take(query.take);
+        }
+
+        if (query.skip) {
+            console.log('QueryBuilderHelper::createQueryBuilder/07:')
+            queryBuilder.skip(query.skip);
+        }
+
+        console.log('QueryBuilderHelper::createQueryBuilder/08:')
+        console.log('QueryBuilderHelper::createQueryBuilder/sql:', queryBuilder.getSql())
+
+        return queryBuilder;
     }
 
-    // Add limit and skip options
-    if (limit !== undefined) {
-      queryBuilder.limit(limit);
+    private getDatabaseColumnName(field: string): string {
+        const column = this.repository.metadata.findColumnWithPropertyName(field);
+        return column ? column.databaseName : field;
     }
 
-    if (skip !== undefined) {
-      queryBuilder.skip(skip);
+    isEmptyObject(obj) {
+        return Object.keys(obj).length === 0;
     }
-
-    console.log('Final Query: ', queryBuilder.getSql());
-    return queryBuilder;
-  }
 }
+
+
 
 
 

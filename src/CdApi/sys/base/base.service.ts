@@ -1294,12 +1294,9 @@ export class BaseService {
 
     async readCount(req, res, serviceInput): Promise<any> {
         await this.init(req, res);
-        // const repo = getConnection().getRepository(serviceInput.serviceModel);
         this.logger.logDebug('BaseService::readCount()/repo/model:', serviceInput.serviceModel)
         this.logger.logDebug(`BaseService::readCount()/repo/model:${serviceInput.serviceModel}`)
-        // const repo: any = await this.repo(req, res, serviceInput.serviceModel)
         await this.setRepo(serviceInput)
-        // this.setRepo(serviceInput.serviceModel)
         const repo: any = this.repo;
         try {
             const q: any = this.getQuery(req)
@@ -1330,18 +1327,16 @@ export class BaseService {
     }
 
     /**
+     * 
      * typeorm query was failing when 'OR' query were used for findAndCount
      * however the QueryBuilder is working ok
      * This method makes use of QueryBuilderHelper to allow query to still be structured as earlier then this
      * class converts them to typeorm query builder.
      */
-    async readQB(req, res, serviceInput): Promise<any> {
+    async readQB_original(req, res, serviceInput): Promise<any> {
         await this.init(req, res);
-        // const repo = getConnection().getRepository(serviceInput.serviceModel);
         this.logger.logDebug('BaseService::readQB()/repo/model:', serviceInput.serviceModel)
-        // const repo: any = await this.repo(req, res, serviceInput.serviceModel)
         await this.setRepo(serviceInput)
-        // this.setRepo(serviceInput.serviceModel)
         // Create the helper instance
         const queryBuilderHelper = new QueryBuilderHelper(this.repo);
         const repo: any = this.repo;
@@ -1349,17 +1344,73 @@ export class BaseService {
             let q: any = this.getQuery(req)
             q = this.transformQueryInput(q, queryBuilderHelper)
             this.logger.logDebug(`BaseService::readQB()/q:`, { q: JSON.stringify(q) })
-            console.log('BaseService::readQB()/q:', q)
             const queryBuilder = queryBuilderHelper.createQueryBuilder(q);
             const dataPromise = queryBuilder.getMany();
-            console.log('dataPromise:', await dataPromise)
+            console.log('BaseService::readQB/sql:', queryBuilder.getSql())
             const countPromise = queryBuilder.getCount();
-            return Promise.all([dataPromise, countPromise]).then(([items, count]) => ({
-                items,
-                count,
-            }));
+            // return Promise.all([dataPromise, countPromise]).then(([items, count]) => ({
+            //     items,
+            //     count,
+            // }));
+            return Promise.all([dataPromise, countPromise])
+                .then((results) => {
+                    // console.log('BaseService::readQB/results:', results)
+                    const items = results[0];
+                    const count = results[1];
+
+                    console.log('Query Results - Items:', items); // Debug logging for items
+                    console.log('Query Results - Count:', count); // Debug logging for count
+
+                    return {
+                        items: items,
+                        count: count,
+                    };
+                })
+                .catch((error) => {
+                    console.error('Error fetching query results:', error); // Debug logging for errors
+                    throw error;
+                });
         }
         catch (err) {
+            return await this.serviceErr(req, res, err, 'BaseService:readQB');
+        }
+    }
+
+    async readQB(req, res, serviceInput): Promise<any> {
+        await this.init(req, res);
+        this.logger.logDebug('BaseService::readQB()/repo/model:', serviceInput.serviceModel);
+        await this.setRepo(serviceInput);
+
+        // Create the helper instance
+        const queryBuilderHelper = new QueryBuilderHelper(this.repo);
+        const repo: any = this.repo;
+
+        try {
+            let q: any = this.getQuery(req);
+            q = this.transformQueryInput(q, queryBuilderHelper);
+            this.logger.logDebug(`BaseService::readQB()/q:`, { q: JSON.stringify(q) });
+            console.log('BaseService::readQB()/q:', q);
+
+            const queryBuilder = queryBuilderHelper.createQueryBuilder(q);
+
+            console.log('BaseService::readQB/sql:', queryBuilder.getSql())
+            // Fetching items
+            // const items = await queryBuilder.getMany();
+            const items = await queryBuilder.getRawMany();
+            
+            console.log('Fetched Items:', items); // Debug logging for items
+
+            // Fetching count
+            const count = await queryBuilder.getCount();
+            console.log('Fetched Count:', count); // Debug logging for count
+
+            // Combine results
+            return {
+                items,
+                count,
+            };
+        } catch (err) {
+            console.error('Error in readQB:', err); // Debug logging for errors
             return await this.serviceErr(req, res, err, 'BaseService:readQB');
         }
     }

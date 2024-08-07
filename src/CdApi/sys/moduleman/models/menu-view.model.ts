@@ -21,13 +21,12 @@ import { ViewEntity, ViewColumn } from 'typeorm';
     name: 'menu_view',
     synchronize: false,
     expression: `
-     SELECT
+     SELECT 
         menu.menu_id AS menu_id,
         menu.menu_name AS menu_label,
         menu.menu_name AS menu_name,
         menu.menu_guid AS menu_guid,
         menu.menu_closet_file AS closet_file,
-        menu.cd_obj_id AS cd_obj_id,
         menu.menu_enabled AS menu_enabled,
         menu.menu_description AS menu_description,
         menu.menu_icon AS menu_icon,
@@ -43,8 +42,9 @@ import { ViewEntity, ViewColumn } from 'typeorm';
         module.module_name AS module_name,
         module.module_is_public AS module_is_public,
         module.is_sys_module AS is_sys_module,
-        (SELECT NULL) AS 'children,
-        (SELECT NULL) AS 'menu_action,
+        (SELECT NULL) AS children,
+        (SELECT NULL) AS menu_action,
+        cd_obj.cd_obj_id AS cd_obj_id,
         cd_obj.cd_obj_name AS cd_obj_name,
         cd_obj.last_sync_date AS last_sync_date,
         cd_obj.cd_obj_disp_name AS cd_obj_disp_name,
@@ -58,8 +58,8 @@ import { ViewEntity, ViewColumn } from 'typeorm';
         cd_obj.icon AS icon,
         cd_obj.show_icon AS show_icon,
         cd_obj.curr_val AS curr_val,
-        cd_obj.cd_obj_enabled AS cd_obj_enabled'
-        FROM
+        cd_obj.cd_obj_enabled AS cd_obj_enabled
+    FROM
         ((menu
         JOIN module ON ((menu.module_id = module.module_id)))
         JOIN cd_obj ON ((cd_obj.cd_obj_id = menu.cd_obj_id)))
