@@ -18,6 +18,7 @@ import { size } from 'lodash';
 import { CdObjModel } from '../models/cd-obj.model';
 import { ModuleModel } from '../models/module.model';
 import { Logging } from '../../base/winston.log';
+import { EntityAdapter } from '../../utils/entity-adapter';
 
 const menuCache = new CacheContainer(new MemoryStorage())
 
@@ -31,6 +32,7 @@ export class MenuService {
     userGroupsArr = [];
     menuArrDb = [];
     serviceModel: MenuModel;
+    entityAdapter: EntityAdapter;
 
     /*
      * create rules
@@ -47,6 +49,7 @@ export class MenuService {
     };
 
     constructor() {
+        
         this.b = new BaseService();
         this.logger = new Logging();
         this.srvGroupMember = new GroupMemberService();
@@ -436,8 +439,9 @@ export class MenuService {
             })
     }
 
-    getMenuGetQB(req, res) {
+    getMenuQB(req, res) {
         console.log('MenuService::getMenuCount()/reached 1')
+        this.b.entityAdapter.registerMappingFromEntity(MenuViewModel);
         const q = this.b.getQuery(req);
         // console.log('MenuService::getModuleCount/q:', q);
         const serviceInput = {
@@ -449,6 +453,7 @@ export class MenuService {
             },
             dSource: 1
         }
+        
         this.b.readQB$(req, res, serviceInput)
             .subscribe((r) => {
                 this.b.i.code = 'ModulesController::Get';

@@ -35,7 +35,8 @@ import { UserModel } from "../user/models/user.model"
 import { getDataSource } from "./data-source";
 import { Logging } from './winston.log';
 import { RedisService } from './redis-service';
-import { QueryBuilderHelper, QueryInput } from '../utils/QueryBuilderHelper';
+import { QueryBuilderHelper, QueryInput } from '../utils/query-builder-helper';
+import { EntityAdapter } from '../utils/entity-adapter';
 
 
 const USER_ANON = 1000;
@@ -68,9 +69,11 @@ export class BaseService {
     redisClient;
     svRedis: RedisService;
     logger: Logging;
+    entityAdapter: EntityAdapter;
 
     constructor() {
         // this.redisInit();
+        this.entityAdapter = new EntityAdapter();
         this.cdResp = this.initCdResp();
         this.logger = new Logging();
         this.svRedis = new RedisService()
@@ -1376,7 +1379,7 @@ export class BaseService {
         }
     }
 
-    async readQB(req, res, serviceInput): Promise<any> {
+    async readQB_02(req, res, serviceInput): Promise<any> {
         await this.init(req, res);
         this.logger.logDebug('BaseService::readQB()/repo/model:', serviceInput.serviceModel);
         await this.setRepo(serviceInput);
@@ -1397,6 +1400,47 @@ export class BaseService {
             // Fetching items
             // const items = await queryBuilder.getMany();
             const items = await queryBuilder.getRawMany();
+            
+            console.log('Fetched Items:', items); // Debug logging for items
+
+            // Fetching count
+            const count = await queryBuilder.getCount();
+            console.log('Fetched Count:', count); // Debug logging for count
+
+            // Combine results
+            return {
+                items,
+                count,
+            };
+        } catch (err) {
+            console.error('Error in readQB:', err); // Debug logging for errors
+            return await this.serviceErr(req, res, err, 'BaseService:readQB');
+        }
+    }
+
+    async readQB(req, res, serviceInput): Promise<any> {
+        await this.init(req, res);
+        this.logger.logDebug('BaseService::readQB()/repo/model:', serviceInput.serviceModel);
+        await this.setRepo(serviceInput);
+
+        // Create the helper instance
+        const queryBuilderHelper = new QueryBuilderHelper(this.repo);
+        const repo: any = this.repo;
+
+        try {
+            let q: any = this.getQuery(req);
+            q = this.transformQueryInput(q, queryBuilderHelper);
+            this.logger.logDebug(`BaseService::readQB()/q:`, { q: JSON.stringify(q) });
+            console.log('BaseService::readQB()/q:', q);
+
+            const queryBuilder = queryBuilderHelper.createQueryBuilder(q);
+
+            console.log('BaseService::readQB/sql:', queryBuilder.getSql())
+            // Fetching items
+            // const items = await queryBuilder.getMany();
+            let items = await queryBuilder.getRawMany();
+            const entityName = this.entityAdapter.getEntityName(serviceInput.serviceModel);
+            items = this.entityAdapter.mapRawToEntity(entityName, items);
             
             console.log('Fetched Items:', items); // Debug logging for items
 

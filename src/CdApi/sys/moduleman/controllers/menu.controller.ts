@@ -73,7 +73,7 @@ export class MenuController {
         try {
             console.log('MenuController::GetCount()/reached 1')
             // await this.svMenu.getMenuCount(req, res); // has a bug at typeorm when 'OR' is used
-            await this.svMenu.getMenuGetQB(req, res); // substitute for above
+            await this.svMenu.getMenuQB(req, res); // substitute for above
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'ModuleController:Get');
         }
@@ -84,7 +84,7 @@ export class MenuController {
         console.log('starting GetCounter()')
         try {
             console.log('MenuController::GetCount()/reached 1')
-            await this.svMenu.getMenuGetQB(req, res);
+            await this.svMenu.getMenuQB(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'ModuleController:Get');
         }
