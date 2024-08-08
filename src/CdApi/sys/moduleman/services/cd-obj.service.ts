@@ -406,6 +406,32 @@ export class CdObjService extends CdService {
             })
     }
 
+    getCdObjQB(req, res) {
+        console.log('CdObjService::getCdObjQB()/1')
+        this.b.entityAdapter.registerMappingFromEntity(CdObjViewModel);
+        const q = this.b.getQuery(req);
+        const serviceInput = {
+            serviceModel: CdObjViewModel,
+            docName: 'CdObjService::getCdObjQB',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        
+        this.b.readQB$(req, res, serviceInput)
+            .subscribe((r) => {
+                this.b.i.code = serviceInput.docName;
+                const svSess = new SessionService();
+                svSess.sessResp.cd_token = req.post.dat.token;
+                svSess.sessResp.ttl = svSess.getTtl();
+                this.b.setAppState(true, this.b.i, svSess.sessResp);
+                this.b.cdResp.data = r;
+                this.b.respond(req, res)
+            })
+    }
+
     getCdObjTypeCount(req, res) {
         const q = this.b.getQuery(req);
         console.log('CdObjService::getCdObjCount/q:', q);

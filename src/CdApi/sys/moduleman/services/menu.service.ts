@@ -1,24 +1,19 @@
-import { Cache, CacheContainer } from 'node-ts-cache';
+import { CacheContainer } from 'node-ts-cache';
 import { MemoryStorage } from 'node-ts-cache-storage-memory';
 import {
-    Observable, map, mergeMap, of, from, expand, bufferCount, tap, forkJoin, take, switchMap, pipe, defaultIfEmpty
+    Observable, map, mergeMap, of, bufferCount, tap, forkJoin, switchMap, defaultIfEmpty
 } from 'rxjs';
-import * as Lá from 'lodash';
 import { SessionService } from '../../user/services/session.service';
 import { AclService } from './acl.service';
-import config from '../../../../config';
 import { GroupMemberService } from '../../user/services/group-member.service';
 import { BaseService } from '../../base/base.service';
 import { GroupService } from '../../user/services/group.service';
 import { MenuViewModel } from '../models/menu-view.model';
-import { CreateIParams, IAllowedModules, IMenuRelations, IRespInfo, ISelectedMenu, IServiceInput } from '../../base/IBase';
+import { CreateIParams, IAllowedModules, IMenuRelations, ISelectedMenu, IServiceInput } from '../../base/IBase';
 import { MenuModel } from '../models/menu.model';
 import { CdObjService } from './cd-obj.service';
-import { size } from 'lodash';
 import { CdObjModel } from '../models/cd-obj.model';
-import { ModuleModel } from '../models/module.model';
 import { Logging } from '../../base/winston.log';
-import { EntityAdapter } from '../../utils/entity-adapter';
 
 const menuCache = new CacheContainer(new MemoryStorage())
 
@@ -32,7 +27,6 @@ export class MenuService {
     userGroupsArr = [];
     menuArrDb = [];
     serviceModel: MenuModel;
-    entityAdapter: EntityAdapter;
 
     /*
      * create rules

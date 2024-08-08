@@ -72,7 +72,8 @@ export class ModuleController {
     //  */
     async GetCount(req, res) {
         try {
-            await this.svModule.getModuleCount(req, res);
+            // await this.svModule.getModuleCount(req, res);
+            await this.svModule.getModuleQB(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'ModuleController:Get');
         }

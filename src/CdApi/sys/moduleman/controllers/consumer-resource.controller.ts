@@ -125,7 +125,8 @@ export class ConsumerResourceController {
     // //  */
     async GetCount(req, res) {
         try {
-            await this.svConsumerResource.getConsumerResourceCount(req, res);
+            // await this.svConsumerResource.getConsumerResourceCount(req, res);
+            await this.svConsumerResource.getConsumerResourceQB(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'ConsumerResourceController:Get');
         }

@@ -105,7 +105,8 @@ export class CdObjController {
     //  */
     async GetCount(req, res) {
         try {
-            await this.svCdObj.getCdObjCount(req, res);
+            // await this.svCdObj.getCdObjCount(req, res);
+            await this.svCdObj.getCdObjQB(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'ModuleController:Get');
         }

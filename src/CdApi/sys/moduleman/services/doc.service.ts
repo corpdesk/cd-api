@@ -237,8 +237,8 @@ export class DocService extends CdService {
     getDocCount(req, res) {
         const q = this.b.getQuery(req);
         const serviceInput = {
-            serviceModel: ModuleViewModel,
-            docName: 'MenuService::getModuleCount$',
+            serviceModel: DocModel,
+            docName: 'DocService::getDocCount$',
             cmd: {
                 action: 'find',
                 query: q
@@ -247,13 +247,40 @@ export class DocService extends CdService {
         }
         this.b.readCount$(req, res, serviceInput)
             .subscribe((r) => {
-                this.i.code = 'ModulesController::Get';
+                this.i.code = serviceInput.docName;
                 const svSess = new SessionService();
                 svSess.sessResp.cd_token = req.post.dat.token;
                 svSess.sessResp.ttl = svSess.getTtl();
                 this.b.setAppState(true, this.i, svSess.sessResp);
                 this.b.cdResp.data = r;
                 this.b.respond(req,res)
+            })
+    }
+
+    getDocQB(req, res) {
+        console.log('DocService::getDocQB()/1')
+        this.b.entityAdapter.registerMappingFromEntity(DocModel);
+        const q = this.b.getQuery(req);
+        // console.log('MenuService::getModuleCount/q:', q);
+        const serviceInput = {
+            serviceModel: DocModel,
+            docName: 'DocService::getDocQB',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        
+        this.b.readQB$(req, res, serviceInput)
+            .subscribe((r) => {
+                this.b.i.code = serviceInput.docName;
+                const svSess = new SessionService();
+                svSess.sessResp.cd_token = req.post.dat.token;
+                svSess.sessResp.ttl = svSess.getTtl();
+                this.b.setAppState(true, this.b.i, svSess.sessResp);
+                this.b.cdResp.data = r;
+                this.b.respond(req, res)
             })
     }
 

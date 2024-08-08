@@ -108,7 +108,8 @@ export class ConsumerController {
     // //  */
     async GetCount(req, res) {
         try {
-            await this.svConsumer.getConsumerCount(req, res);
+            // await this.svConsumer.getConsumerCount(req, res);
+            await this.svConsumer.getConsumerQB(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'ConsumerController:Get');
         }

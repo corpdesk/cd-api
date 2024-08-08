@@ -12,19 +12,12 @@ import { BaseService } from '../../base/base.service';
 import { CdService } from '../../base/cd.service';
 import { SessionService } from '../../user/services/session.service';
 import { UserService } from '../../user/services/user.service';
-// import { ModuleModel } from '../models/module.model';
-import { CreateIParams, IQuery, IRespInfo, IServiceInput, IUser } from '../../base/IBase';
+import { CreateIParams, IServiceInput, IUser } from '../../base/IBase';
 import { ConsumerResourceModel } from '../models/consumer-resource.model';
-// import { ModuleViewModel } from '../models/module-view.model';
 import { ConsumerResourceViewModel } from '../models/consumer-resource-view.model';
 import { ConsumerResourceTypeModel } from '../models/consumer-resource-type.model';
-import { CdObjTypeModel } from '../models/cd-obj-type.model';
 import { ConsumerModel } from '../models/consumer.model';
-import { CdObjService } from './cd-obj.service';
-import { ModuleModel } from '../models/module.model';
-import { UserModel } from '../../user/models/user.model';
 import { CdObjModel } from '../models/cd-obj.model';
-// import { ConsumerResourceViewModel } from '../models/company-view.model';
 
 export class ConsumerResourceService extends CdService {
     b: any; // instance of BaseService
@@ -473,6 +466,33 @@ export class ConsumerResourceService extends CdService {
         this.b.readCount$(req, res, serviceInput)
             .subscribe((r) => {
                 this.b.i.code = 'ConsumerResourceController::Get';
+                const svSess = new SessionService();
+                svSess.sessResp.cd_token = req.post.dat.token;
+                svSess.sessResp.ttl = svSess.getTtl();
+                this.b.setAppState(true, this.b.i, svSess.sessResp);
+                this.b.cdResp.data = r;
+                this.b.respond(req, res)
+            })
+    }
+
+    getConsumerResourceQB(req, res) {
+        console.log('ConsumerResourceService::getConsumerResourceQB()/1')
+        this.b.entityAdapter.registerMappingFromEntity(ConsumerResourceViewModel);
+        const q = this.b.getQuery(req);
+        // console.log('MenuService::getModuleCount/q:', q);
+        const serviceInput = {
+            serviceModel: ConsumerResourceViewModel,
+            docName: 'ConsumerResourceService::getConsumerResourceQB',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        
+        this.b.readQB$(req, res, serviceInput)
+            .subscribe((r) => {
+                this.b.i.code = serviceInput.docName;
                 const svSess = new SessionService();
                 svSess.sessResp.cd_token = req.post.dat.token;
                 svSess.sessResp.ttl = svSess.getTtl();

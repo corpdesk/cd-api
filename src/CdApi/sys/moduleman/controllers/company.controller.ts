@@ -142,7 +142,8 @@ export class CompanyController {
     //  */
     async GetCount(req, res) {
         try {
-            await this.svCompany.getCompanyCount(req, res);
+            // await this.svCompany.getCompanyCount(req, res);
+            await this.svCompany.getCompanyQB(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'ModuleController:Get');
         }
