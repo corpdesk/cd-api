@@ -502,6 +502,79 @@ export class ConsumerResourceService extends CdService {
             })
     }
 
+    async getConsumerResourcesMap(req, res): Promise<any> {
+        // Initialize the service
+        // await this.b.init(req, res);
+        
+        // Register the mapping from the entity to ensure the data is correctly transformed
+        this.b.entityAdapter.registerMappingFromEntity(ConsumerResourceViewModel);
+        
+        // Prepare the query to fetch all consumer resources
+        const query = this.b.getQuery(req);
+
+        // Define the service input structure
+        const serviceInput = {
+            serviceModel: ConsumerResourceViewModel,
+            docName: 'ConsumerResourceService::getConsumerResources',
+            cmd: {
+                action: 'find',
+                query: query
+            },
+            dSource: 1
+        };
+
+        // Fetch data using the base service's readQB method
+        const result = await this.b.readQB(req, res, serviceInput);
+
+        // Transform the flat data structure into a hierarchical structure
+        const consumerResourceMap = this.transformToConsumerResourceTree(result.items);
+
+        // Set the response data
+        this.b.cdResp.data = { consumers: consumerResourceMap };
+        this.b.respond(req, res);
+    }
+
+    /**
+     * Transform the flat list of consumer resources into a hierarchical structure.
+     */
+    private transformToConsumerResourceTree(items: ConsumerResourceViewModel[]): any[] {
+        const consumerMap = {};
+
+        items.forEach(item => {
+            // Ensure the consumer entry exists in the map
+            if (!consumerMap[item.consumerGuid]) {
+                consumerMap[item.consumerGuid] = {
+                    consumerName: item.consumerName,
+                    consumerGuid: item.consumerGuid,
+                    consumerId: item.consumerId,
+                    consumerResourceIcon: item.consumerResourceIcon,
+                    consumerResourceLink: item.consumerResourceLink,
+                    resources: []
+                };
+            }
+
+            // Add the resource to the consumer's resources array
+            consumerMap[item.consumerGuid].resources.push({
+                consumerResourceGuid: item.consumerResourceGuid,
+                consumerResourceName: item.consumerResourceName,
+                cdObjTypeId: item.cdObjTypeId,
+                cdObjId: item.cdObjId,
+                objGuid: item.objGuid,
+                docId: item.docId,
+                consumerResourceEnabled: item.consumerResourceEnabled,
+                consumerResourceTypeGuid: item.consumerResourceTypeGuid,
+                consumerResourceIcon: item.consumerResourceIcon,
+                consumerResourceLink: item.consumerResourceLink,
+                consumerResourceId: item.consumerResourceId,
+                cdObjName: item.cdObjName
+            });
+        });
+
+        // Convert the map to an array
+        return Object.values(consumerMap);
+    }
+
+
     getConsumerResourceTypeCount(req, res) {
         const q = this.b.getQuery(req);
         console.log('ConsumerResourceService::getConsumerResourceCount/q:', q);

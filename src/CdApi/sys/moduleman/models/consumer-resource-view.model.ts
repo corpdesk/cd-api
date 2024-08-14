@@ -5,7 +5,7 @@ import { ViewEntity, ViewColumn } from 'typeorm';
         name: 'consumer_resource_view',
         synchronize: false,
         expression: `
-        select
+        SELECT 
             consumer_resource.consumer_id AS consumer_id,
             consumer_resource.consumer_resource_name AS consumer_resource_name,
             consumer_resource.cd_obj_type_id AS cd_obj_type_id,
@@ -15,17 +15,20 @@ import { ViewEntity, ViewColumn } from 'typeorm';
             consumer_resource.consumer_resource_guid AS consumer_resource_guid,
             consumer_resource.doc_id AS doc_id,
             consumer_resource.consumer_resource_enabled AS consumer_resource_enabled,
-            consumer_resource.obj_id AS obj_id,
             consumer_resource.consumer_resource_type_guid AS consumer_resource_type_guid,
-            consumer_resource.obj_guid AS obj_guid,
+            consumer_resource.consumer_resource_icon AS consumer_resource_icon,
+            consumer_resource.consumer_resource_link AS consumer_resource_link,
             consumer.consumer_guid AS consumer_guid,
-            cd_obj.cd_obj_guid AS cd_obj_guid
-        from
+            consumer.consumer_name AS consumer_name,
+            cd_obj.cd_obj_guid AS cd_obj_guid,
+            cd_obj.obj_guid AS obj_guid,
+            cd_obj.obj_id AS obj_id,
+            cd_obj.cd_obj_name AS cd_obj_name,
+            cd_obj.cd_obj_type_guid AS cd_obj_type_guid
+        FROM
             ((consumer_resource
-        join cd_obj on
-            ((consumer_resource.cd_obj_id = cd_obj.cd_obj_id)))
-        join consumer on
-            ((consumer_resource.consumer_id = consumer.consumer_id)));
+            JOIN cd_obj ON ((consumer_resource.cd_obj_id = cd_obj.cd_obj_id)))
+            JOIN consumer ON ((consumer_resource.consumer_id = consumer.consumer_id)));
         `
     })
 
@@ -79,6 +82,14 @@ export class ConsumerResourceViewModel {
         }
     )
     consumerGuid: string;
+
+    @ViewColumn(
+        {
+            name: 'consumer_name'
+        }
+    )
+    consumerName: string;
+
     //////////////////////////////
     @ViewColumn(
         {
@@ -124,9 +135,37 @@ export class ConsumerResourceViewModel {
 
     @ViewColumn(
         {
+            name: 'consumer_resource_icon'
+        }
+    )
+    consumerResourceIcon: string;
+
+    @ViewColumn(
+        {
+            name: 'consumer_resource_link'
+        }
+    )
+    consumerResourceLink: string;
+
+    @ViewColumn(
+        {
             name: 'cd_obj_guid'
         }
     )
     cdObjGuid: string;
+
+    @ViewColumn(
+        {
+            name: 'cd_obj_name'
+        }
+    )
+    cdObjName: string;
+
+    @ViewColumn(
+        {
+            name: 'cd_obj_type_guid'
+        }
+    )
+    cdObjTypeGuide: string;
 
 }

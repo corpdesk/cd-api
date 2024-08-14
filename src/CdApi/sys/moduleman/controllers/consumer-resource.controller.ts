@@ -125,10 +125,24 @@ export class ConsumerResourceController {
     // //  */
     async GetCount(req, res) {
         try {
-            // await this.svConsumerResource.getConsumerResourceCount(req, res);
+            // await this.svConsumerResource.GetCount(req, res);
             await this.svConsumerResource.getConsumerResourceQB(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'ConsumerResourceController:Get');
+            await this.b.serviceErr(req, res, e, 'ConsumerResourceController:GetCount');
+        }
+    }
+
+    /**
+     * Get consumers mapped to resources
+     * @param req 
+     * @param res 
+     */
+    async GetMaped(req, res) {
+        try {
+            // await this.svConsumerResource.GetMaped(req, res);
+            await this.svConsumerResource.getConsumerResourcesMap(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'ConsumerResourceController:GetMaped');
         }
     }
 
