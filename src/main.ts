@@ -45,13 +45,16 @@ export class Main {
         // basic settings
         const app: Application = express();
 
+        // Serve .well-known directory for Let's Encrypt validation
+        app.use('/.well-known/acme-challenge', express.static(path.join(__dirname, '.well-known/acme-challenge')));
+
         const privateKey = fs.readFileSync(config.keyPath, 'utf8');
         const certificate = fs.readFileSync(config.certPath, 'utf8');
 
-        
+
         let certAuth = '';
         // just in case certificate authority is not provided
-        if(config.caPath.length > 0){
+        if (config.caPath.length > 0) {
             certAuth = fs.readFileSync(config.caPath, 'utf8');
         } else {
             certAuth = null
@@ -100,7 +103,7 @@ export class Main {
          */
         if (config.pushService.sio.enabled) {
             this.logger.logInfo('Main::run()/02')
-            
+
             // const io = new Server(httpServer, corsOpts);
             /////////////////////////////////////////////////////
             const io = new Server(httpServer, {
@@ -239,7 +242,7 @@ export class Main {
         }
 
         if (config.pushService.wss.enabled) {
-            
+
             console.log("main/05")
             const expressServer = app.listen(config.wssPort, () => {
                 console.log(`server is listening on ${config.wssPort}`);
