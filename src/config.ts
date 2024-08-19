@@ -32,7 +32,7 @@ export const AppDataSource = new DataSource({
     subscribers: [],
     // logging: false,
     logging: [
-        'query', 
+        'query',
         // 'error',
         // 'schema',
         // 'warn', 
@@ -86,7 +86,7 @@ const mysqlConfig2 = {
     subscribers: [],
     // logging: false,
     logging: [
-        'query', 
+        'query',
         // 'error',
         // 'schema',
         // 'warn', 
@@ -107,7 +107,11 @@ export async function sqliteConfig(connName): Promise<any> {
     };
 }
 
-
+// http port for runnint webroot without SSL. Used by letsencrypt validation and automation
+const HTTP_PORT = process.env.HTTP_PORT;
+// control the server to serve http or not. Eg cd-api should be able to serve http but sio should not.
+const HTTP_WEBROOT = process.env.HTTP_WEBROOT;
+const HTTP_ENABLED = process.env.HTTP_ENABLED === 'true';
 const API_PORT = process.env.API_PORT;
 const API_ROUTE = process.env.API_ROUTE;
 const END_POINT = `${process.env.API_URL}:${API_PORT}`;
@@ -126,6 +130,12 @@ export default {
     },
     wssPort: process.env.WSS_PORT,
     secure: process.env.SECURE,
+    // httpPort: HTTP_PORT,
+    http: {
+        enabled: HTTP_ENABLED,
+        port: HTTP_PORT,
+        webroot: HTTP_WEBROOT
+    },
     keyPath: process.env.KEY_PATH,
     certPath: process.env.CERT_PATH,
     caPath: process.env.CSR_PATH,
