@@ -72,8 +72,8 @@ export class Main {
 
         ////////////////////////////////////////////////////////////////////////////////
         const corsOptions = {
-            // origin: 'https://asdap.net', // Replace with your client URL
-            origin: 'http://localhost',
+            origin: 'https://asdap.net', // Replace with your client URL
+            // origin: 'http://localhost', // for localhost teting
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
             allowedHeaders: ['Content-Type', 'Authorization'],
             credentials: true
