@@ -1357,10 +1357,11 @@ export class BaseService {
             // Fetching items
             // const items = await queryBuilder.getMany();
             let items = await queryBuilder.getRawMany();
+            console.log('BaseService::readQB()/items:', items);
             const entityName = this.entityAdapter.getEntityName(serviceInput.serviceModel);
             items = this.entityAdapter.mapRawToEntity(entityName, items);
             
-            console.log('Fetched Items:', items); // Debug logging for items
+            console.log('BaseService::readQB()/Fetched-Items:', items); // Debug logging for items
 
             // Fetching count
             const count = await queryBuilder.getCount();

@@ -35,20 +35,30 @@ export class QueryBuilderHelper {
 
     createQueryBuilder(query: QueryInput): SelectQueryBuilder<any> {
         console.log('QueryBuilderHelper::createQueryBuilder/01:')
+        console.log('QueryBuilderHelper::createQueryBuilder/query:', query)
         const queryBuilder = this.repository.createQueryBuilder(this.repository.metadata.name);
-    
+
         if (query.select && query.select.length > 0) {
             console.log('QueryBuilderHelper::createQueryBuilder/02:')
             const select = query.select.map((field) => `${this.repository.metadata.name}.${this.getDatabaseColumnName(field)}`);
-            console.log('Select Fields:', select);  // Debug logging
-            queryBuilder.select(select);
+            console.log('QueryBuilderHelper::createQueryBuilder()/Select Fields:', select);  // Debug logging
+            // queryBuilder.select(select);
+
+            // Iterate over the select array and add each field to the queryBuilder
+            query.select.forEach(field => {
+                const fullyQualifiedField = `${this.repository.metadata.name}.${field}`;
+                queryBuilder.addSelect(fullyQualifiedField);
+            });
+            
         } else {
             console.log('QueryBuilderHelper::createQueryBuilder/03:')
             const allColumns = this.repository.metadata.columns.map(column => `${this.repository.metadata.name}.${column.databaseName}`);
             console.log('All Columns:', allColumns);  // Debug logging
             queryBuilder.select(allColumns);
         }
-    
+
+        console.log('QueryBuilderHelper::createQueryBuilder/sql-01:', queryBuilder.getSql())
+
         if (query.where && Array.isArray(query.where) && query.where.length > 0) {
             console.log('QueryBuilderHelper::createQueryBuilder/04:')
             query.where.forEach((condition, index) => {
@@ -57,9 +67,9 @@ export class QueryBuilderHelper {
                 const value = condition[key];
                 console.log('QueryBuilderHelper::createQueryBuilder/value:', value)
                 console.log('QueryBuilderHelper::createQueryBuilder/value._type:', value._type)
-    
+
                 const dbField = `${this.repository.metadata.name}.${this.getDatabaseColumnName(key)}`;
-    
+
                 if (value._type === "like") {
                     let likeValue = value._value; // Extract the value inside Like()
                     // Remove any extra quotes around the value
@@ -76,20 +86,20 @@ export class QueryBuilderHelper {
             console.log('QueryBuilderHelper::createQueryBuilder/05:')
             // Do not add any where clause
         }
-    
+
         if (query.take) {
             console.log('QueryBuilderHelper::createQueryBuilder/06:')
             queryBuilder.take(query.take);
         }
-    
+
         if (query.skip) {
             console.log('QueryBuilderHelper::createQueryBuilder/07:')
             queryBuilder.skip(query.skip);
         }
-    
+
         console.log('QueryBuilderHelper::createQueryBuilder/08:')
         console.log('QueryBuilderHelper::createQueryBuilder/sql:', queryBuilder.getSql())
-    
+
         return queryBuilder;
     }
 

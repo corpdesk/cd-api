@@ -34,10 +34,15 @@ export class EntityAdapter {
         const metadata: EntityMetadata = connection.getMetadata(entity);
 
         const mapping: { [key: string]: string } = {};
+        console.log('EntityAdapter::registerMappingFromEntity()/metadata.name:', metadata.name)
+        console.log('EntityAdapter::registerMappingFromEntity()/metadata.columns:', metadata.columns)
         metadata.columns.forEach(column => {
+            console.log('EntityAdapter::registerMappingFromEntity()/column:', column)
+            console.log('EntityAdapter::registerMappingFromEntity()/column.databaseName:', column.databaseName)
             mapping[column.propertyName] = column.databaseName;
         });
 
+        console.log('EntityAdapter::registerMappingFromEntity()/mapping:', mapping)
         this.registerMapping(metadata.name, mapping);
     }
 
