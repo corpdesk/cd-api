@@ -35,9 +35,9 @@ export class EntityAdapter {
 
         const mapping: { [key: string]: string } = {};
         console.log('EntityAdapter::registerMappingFromEntity()/metadata.name:', metadata.name)
-        console.log('EntityAdapter::registerMappingFromEntity()/metadata.columns:', metadata.columns)
+        // console.log('EntityAdapter::registerMappingFromEntity()/metadata.columns:', metadata.columns)
         metadata.columns.forEach(column => {
-            console.log('EntityAdapter::registerMappingFromEntity()/column:', column)
+            // console.log('EntityAdapter::registerMappingFromEntity()/column:', column)
             console.log('EntityAdapter::registerMappingFromEntity()/column.databaseName:', column.databaseName)
             mapping[column.propertyName] = column.databaseName;
         });
