@@ -158,7 +158,8 @@ export class UserController extends CdController {
     // }
     async GetCount(req, res) {
         try {
-            await this.svUser.getUserCount(req, res);
+            // await this.svUser.getUserCount(req, res);
+            await this.svUser.getUserQB(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'UserController:Get');
         }

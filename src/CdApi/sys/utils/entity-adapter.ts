@@ -51,4 +51,24 @@ export class EntityAdapter {
         const metadata: EntityMetadata = connection.getMetadata(entity);
         return metadata.name;
     }
+
+    public getDbSelect(entityName: string, selectFields: string[]): string[] {
+        // Check if the entity has a registered mapping
+        if (!this.mappings[entityName]) {
+            throw new Error(`No mappings registered for entity: ${entityName}`);
+        }
+    
+        const mapping = this.mappings[entityName];
+    
+        // Transform the select fields into their corresponding database column names
+        const dbSelect = selectFields.map(field => {
+            if (!mapping[field]) {
+                throw new Error(`Field "${field}" does not exist in the registered mapping for entity: ${entityName}`);
+            }
+            return mapping[field];
+        });
+    
+        return dbSelect;
+    }
+    
 }

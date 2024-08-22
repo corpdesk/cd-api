@@ -199,6 +199,7 @@ export interface PushEvent {
 export interface IServiceInput {
     serviceInstance?: any;
     serviceModel: any;
+    mapping?: any;
     serviceModelInstance?: any;
     docName?: string;
     cmd?: Cmd;

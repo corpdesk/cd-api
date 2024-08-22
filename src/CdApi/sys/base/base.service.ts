@@ -1347,11 +1347,12 @@ export class BaseService {
 
         try {
             let q: any = this.getQuery(req);
+            // const map = this.entityAdapter.registerMappingFromEntity(serviceInput.serviceModel);
             q = this.transformQueryInput(q, queryBuilderHelper);
             this.logger.logDebug(`BaseService::readQB()/q:`, { q: JSON.stringify(q) });
             console.log('BaseService::readQB()/q:', q);
 
-            const queryBuilder = queryBuilderHelper.createQueryBuilder(q);
+            const queryBuilder = queryBuilderHelper.createQueryBuilder(serviceInput);
 
             console.log('BaseService::readQB/sql:', queryBuilder.getSql())
             // Fetching items

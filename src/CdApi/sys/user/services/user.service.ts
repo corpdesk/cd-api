@@ -720,6 +720,32 @@ export class UserService extends CdService {
             })
     }
 
+    getUserQB(req, res) {
+        console.log('CompanyService::getUserQB()/1')
+        // const map = this.b.entityAdapter.registerMappingFromEntity(UserViewModel);
+        const q = this.b.getQuery(req);
+        const serviceInput = {
+            serviceModel: UserViewModel,
+            docName: 'UserService::getUserQB',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        
+        this.b.readQB$(req, res, serviceInput)
+            .subscribe((r) => {
+                this.b.i.code = serviceInput.docName;
+                const svSess = new SessionService();
+                svSess.sessResp.cd_token = req.post.dat.token;
+                svSess.sessResp.ttl = svSess.getTtl();
+                this.b.setAppState(true, this.b.i, svSess.sessResp);
+                this.b.cdResp.data = r;
+                this.b.respond(req, res)
+            })
+    }
+
     // getUserTypeCount(req, res) {
     //     const q = this.b.getQuery(req);
     //     this.logger.logInfo('UserService::getUserCount/q:', q);

@@ -11,8 +11,9 @@ export interface QueryInput {
 
 export class QueryBuilderHelper {
     entityAdapter: EntityAdapter;
-    
-    constructor(private repository: Repository<any>) {
+    constructor(
+        private repository: Repository<any>
+    ) { 
         this.entityAdapter = new EntityAdapter();
     }
 
@@ -40,8 +41,13 @@ export class QueryBuilderHelper {
         // Handling SELECT clause
         if (query.select && query.select.length > 0) {
             this.entityAdapter.registerMappingFromEntity(serviceInput.serviceModel);
-            const selectDB = this.entityAdapter.getDbSelect(this.repository.metadata.name, query.select);
+            const selectDB = this.entityAdapter.getDbSelect(this.repository.metadata.name,query.select)
+            console.log('QueryBuilderHelper::createQueryBuilder()/selectDB:', selectDB)
             queryBuilder.select(selectDB);
+            // query.select.forEach(field => {
+            //     const fullyQualifiedField = `${this.repository.metadata.name}.${this.getDatabaseColumnName(field)}`;
+            //     queryBuilder.addSelect(fullyQualifiedField);
+            // });
         } else {
             const allColumns = this.repository.metadata.columns.map(column => `${this.repository.metadata.name}.${column.databaseName}`);
             queryBuilder.select(allColumns);
@@ -74,59 +80,31 @@ export class QueryBuilderHelper {
         Object.keys(where).forEach((key, index) => {
             const value = where[key];
             const dbField = `${this.repository.metadata.name}.${this.getDatabaseColumnName(key)}`;
+            const condition = `${dbField} = :${key}`;
 
-            if (typeof value === 'string' && value.startsWith('Like(') && value.endsWith(')')) {
-                const match = value.match(/^Like\((.*)\)$/);
-                if (match) {
-                    const likeValue = match[1];
-                    if (index === 0) {
-                        queryBuilder.where(`${dbField} LIKE :${key}`, { [key]: likeValue });
-                    } else {
-                        queryBuilder.andWhere(`${dbField} LIKE :${key}`, { [key]: likeValue });
-                    }
-                }
+            if (index === 0) {
+                queryBuilder.where(condition, { [key]: value });
             } else {
-                if (index === 0) {
-                    queryBuilder.where(`${dbField} = :${key}`, { [key]: value });
-                } else {
-                    queryBuilder.andWhere(`${dbField} = :${key}`, { [key]: value });
-                }
+                queryBuilder.andWhere(condition, { [key]: value });
             }
         });
     }
 
     private processArrayWhereClause(queryBuilder: SelectQueryBuilder<any>, whereArray: any[]): void {
-        console.log('QueryBuilderHelper::processArrayWhereClause()/01');
+        console.log('QueryBuilderHelper::processArrayWhereClause/whereArray:', whereArray)
         whereArray.forEach((condition, index) => {
             const key = Object.keys(condition)[0];
             const value = condition[key];
             const dbField = `${this.repository.metadata.name}.${this.getDatabaseColumnName(key)}`;
-            console.log('QueryBuilderHelper::processArrayWhereClause()/02');
-            if (typeof value === 'string' && value.startsWith('Like(') && value.endsWith(')')) {
-                console.log('QueryBuilderHelper::processArrayWhereClause()/03');
-                const match = value.match(/^Like\((.*)\)$/);
-                if (match) {
-                    console.log('QueryBuilderHelper::processArrayWhereClause()/04');
-                    const likeValue = match[1];
-                    if (index === 0) {
-                        console.log('QueryBuilderHelper::processArrayWhereClause()/05');
-                        queryBuilder.where(`${dbField} LIKE :${key}`, { [key]: likeValue });
-                    } else {
-                        console.log('QueryBuilderHelper::processArrayWhereClause()/06');
-                        queryBuilder.orWhere(`${dbField} LIKE :${key}`, { [key]: likeValue });
-                    }
-                }
+            console.log('QueryBuilderHelper::processArrayWhereClause/dbField:', dbField)
+
+            if (index === 0) {
+                queryBuilder.where(`${dbField} = :${key}`, { [key]: value });
             } else {
-                console.log('QueryBuilderHelper::processArrayWhereClause()/07');
-                if (index === 0) {
-                    console.log('QueryBuilderHelper::processArrayWhereClause()/08');
-                    queryBuilder.where(`${dbField} = :${key}`, { [key]: value });
-                } else {
-                    console.log('QueryBuilderHelper::processArrayWhereClause()/09');
-                    queryBuilder.orWhere(`${dbField} = :${key}`, { [key]: value });
-                }
+                queryBuilder.andWhere(`${dbField} = :${key}`, { [key]: value });
             }
         });
+        console.log('QueryBuilderHelper::processArrayWhereClause/sql-01:', queryBuilder.getSql())
     }
 
     private getDatabaseColumnName(field: string): string {
