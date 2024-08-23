@@ -198,6 +198,7 @@ export class QueryBuilderHelper {
 
     processArrayWhereClause2(queryBuilder: SelectQueryBuilder<any>, where: any){
         console.log('QueryBuilderHelper::processArrayWhereClause2/04:')
+        console.log('QueryBuilderHelper::processArrayWhereClause2/where:', where)
         where.forEach((condition, index) => {
             const key = Object.keys(condition)[0];
             console.log('QueryBuilderHelper::processArrayWhereClause2/key:', key)
