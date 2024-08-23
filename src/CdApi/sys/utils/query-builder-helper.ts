@@ -45,9 +45,11 @@ export class QueryBuilderHelper {
     }
 
     transformQueryInput(query: QueryInput): QueryInput {
+        const w = this.transformWhereClause(query.where)
+        console.log('QueryBuilderHelper::transformQueryInput()/w:', w);
         return {
             ...query,
-            where: this.transformWhereClause(query.where),
+            where: w,
         };
     }
 
