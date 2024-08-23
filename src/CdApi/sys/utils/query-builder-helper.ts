@@ -209,10 +209,13 @@ export class QueryBuilderHelper {
 
             if (value._type === "like") {
                 let likeValue = value._value; // Extract the value inside Like()
+                console.log('QueryBuilderHelper::processArrayWhereClause2/likeValue:', likeValue)
                 // Remove any extra quotes around the value
                 if (likeValue.startsWith("'") && likeValue.endsWith("'")) {
                     likeValue = likeValue.slice(1, -1);
                 }
+                console.log('QueryBuilderHelper::processArrayWhereClause2/`${dbField} LIKE :${key}`:', `${dbField} LIKE :${key}`)
+                console.log('QueryBuilderHelper::processArrayWhereClause2/{ [key]: likeValue }:', { [key]: likeValue })
                 queryBuilder.orWhere(`${dbField} LIKE :${key}`, { [key]: likeValue });
             } else {
                 const operator = index === 0 ? 'where' : 'orWhere';
