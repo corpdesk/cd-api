@@ -203,7 +203,7 @@ export class QueryBuilderHelper {
         console.log('QueryBuilderHelper::processArrayWhereClause2/where1:', strWhere)
         const a = `:"Like\\(`; // Escape the '(' character
         const b = `')"}`
-        const regex = new RegExp(a, 'g'); 
+        const regex = new RegExp(a, 'g');
         strWhere = strWhere.replace(regex, b);
         console.log('QueryBuilderHelper::processArrayWhereClause2/strWhere:', strWhere)
         where = JSON.parse(strWhere);
@@ -236,22 +236,34 @@ export class QueryBuilderHelper {
 
     private processArrayWhereClause(queryBuilder: SelectQueryBuilder<any>, whereArray: any[]): void {
         console.log('QueryBuilderHelper::processArrayWhereClause()/01');
+        console.log('QueryBuilderHelper::processArrayWhereClause()/whereArray:', whereArray);
         whereArray.forEach((condition, index) => {
             const key = Object.keys(condition)[0];
             const value = condition[key];
             const dbField = `${this.repository.metadata.name}.${this.getDatabaseColumnName(key)}`;
+            console.log('QueryBuilderHelper::processArrayWhereClause()/key:', key);
+            console.log('QueryBuilderHelper::processArrayWhereClause()/value:', value);
+            console.log('QueryBuilderHelper::processArrayWhereClause()/dbField:', dbField);
             console.log('QueryBuilderHelper::processArrayWhereClause()/02');
             if (typeof value === 'string' && value.startsWith('Like(') && value.endsWith(')')) {
                 console.log('QueryBuilderHelper::processArrayWhereClause()/03');
                 const match = value.match(/^Like\((.*)\)$/);
+                console.log('QueryBuilderHelper::processArrayWhereClause()/dbField:', dbField);
                 if (match) {
                     console.log('QueryBuilderHelper::processArrayWhereClause()/04');
+                    console.log('QueryBuilderHelper::processArrayWhereClause()/match:', match);
                     const likeValue = match[1];
+                    console.log('QueryBuilderHelper::processArrayWhereClause()/likeValue:', likeValue);
                     if (index === 0) {
                         console.log('QueryBuilderHelper::processArrayWhereClause()/05');
+                        console.log('QueryBuilderHelper::processArrayWhereClause()/likeValue:', likeValue);
+                        console.log('QueryBuilderHelper::processArrayWhereClause()/`${dbField} LIKE :${key}`:', `${dbField} LIKE :${key}`);
+                        console.log('QueryBuilderHelper::processArrayWhereClause()/{ [key]: likeValue }:', { [key]: likeValue });
                         queryBuilder.where(`${dbField} LIKE :${key}`, { [key]: likeValue });
                     } else {
                         console.log('QueryBuilderHelper::processArrayWhereClause()/06');
+                        console.log('QueryBuilderHelper::processArrayWhereClause()/`${dbField} LIKE :${key}`:', `${dbField} LIKE :${key}`);
+                        console.log('QueryBuilderHelper::processArrayWhereClause()/{ [key]: likeValue }:', { [key]: likeValue });
                         queryBuilder.orWhere(`${dbField} LIKE :${key}`, { [key]: likeValue });
                     }
                 }
@@ -259,9 +271,13 @@ export class QueryBuilderHelper {
                 console.log('QueryBuilderHelper::processArrayWhereClause()/07');
                 if (index === 0) {
                     console.log('QueryBuilderHelper::processArrayWhereClause()/08');
+                    console.log('QueryBuilderHelper::processArrayWhereClause()/`${dbField} LIKE :${key}`:', `${dbField} LIKE :${key}`);
+                    console.log('QueryBuilderHelper::processArrayWhereClause()/{ [key]: likeValue }:', { [key]: value });
                     queryBuilder.where(`${dbField} = :${key}`, { [key]: value });
                 } else {
                     console.log('QueryBuilderHelper::processArrayWhereClause()/09');
+                    console.log('QueryBuilderHelper::processArrayWhereClause()/`${dbField} LIKE :${key}`:', `${dbField} LIKE :${key}`);
+                    console.log('QueryBuilderHelper::processArrayWhereClause()/{ [key]: likeValue }:', { [key]: value });
                     queryBuilder.orWhere(`${dbField} = :${key}`, { [key]: value });
                 }
             }
