@@ -154,8 +154,8 @@ export class QueryBuilderHelper {
                 this.processObjectWhereClause(queryBuilder, query.where);
             } else if (Array.isArray(query.where) && query.where.length > 0) {
                 // If 'where' is an array
-                // this.processArrayWhereClause(queryBuilder, query.where);
-                this.processArrayWhereClause2(queryBuilder, query.where);
+                this.processArrayWhereClause(queryBuilder, query.where);
+                // this.processArrayWhereClause2(queryBuilder, query.where);
             }
         }
 
