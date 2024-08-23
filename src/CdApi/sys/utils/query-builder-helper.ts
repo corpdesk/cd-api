@@ -205,6 +205,7 @@ export class QueryBuilderHelper {
         const b = `')"}`
         const regex = new RegExp(a, 'g'); // Create a regular expression from the variable 'a'
         strWhere = strWhere.replace(regex, b);
+        where = JSON.parse(strWhere);
         where.forEach((condition, index) => {
             const key = Object.keys(condition)[0];
             console.log('QueryBuilderHelper::processArrayWhereClause2/key:', key)
