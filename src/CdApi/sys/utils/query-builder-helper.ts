@@ -37,7 +37,8 @@ export class QueryBuilderHelper {
                     console.log('QueryBuilderHelper::transformWhereClause()/07');
                     if (match) {
                         console.log('QueryBuilderHelper::transformWhereClause()/08');
-                        const ret = { [field]: Like(match[1]) }
+                        // const ret = { [field]: Like(match[1]) }
+                        const ret = { [field]: value }
                         console.log('QueryBuilderHelper::transformWhereClause()/ret:', ret);
                         return ret;
                     }
