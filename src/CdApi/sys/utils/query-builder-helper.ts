@@ -30,6 +30,8 @@ export class QueryBuilderHelper {
                 if (typeof value === 'string' && value.startsWith('Like(') && value.endsWith(')')) {
                     console.log('QueryBuilderHelper::transformWhereClause()/06');
                     const match = value.match(/^Like\((.*)\)$/);
+                    console.log('QueryBuilderHelper::transformWhereClause()/value:', value);
+                    console.log('QueryBuilderHelper::transformWhereClause()/match:', match);
                     console.log('QueryBuilderHelper::transformWhereClause()/07');
                     if (match) {
                         console.log('QueryBuilderHelper::transformWhereClause()/08');
