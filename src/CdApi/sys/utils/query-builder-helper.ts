@@ -200,12 +200,14 @@ export class QueryBuilderHelper {
         console.log('QueryBuilderHelper::processArrayWhereClause2/04:')
         console.log('QueryBuilderHelper::processArrayWhereClause2/where:', where)
         let strWhere = JSON.stringify(where)
-        console.log('QueryBuilderHelper::processArrayWhereClause2/where:', strWhere)
+        console.log('QueryBuilderHelper::processArrayWhereClause2/where1:', strWhere)
         const a = `:"Like(`;
         const b = `')"}`
         const regex = new RegExp(a, 'g'); // Create a regular expression from the variable 'a'
         strWhere = strWhere.replace(regex, b);
+        console.log('QueryBuilderHelper::processArrayWhereClause2/strWhere:', strWhere)
         where = JSON.parse(strWhere);
+        console.log('QueryBuilderHelper::processArrayWhereClause2/where2:', where)
         where.forEach((condition, index) => {
             const key = Object.keys(condition)[0];
             console.log('QueryBuilderHelper::processArrayWhereClause2/key:', key)
