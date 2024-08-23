@@ -252,8 +252,11 @@ export class QueryBuilderHelper {
                 if (match) {
                     console.log('QueryBuilderHelper::processArrayWhereClause()/04');
                     console.log('QueryBuilderHelper::processArrayWhereClause()/match:', match);
-                    const likeValue = match[1];
+                    let likeValue = match[1];
                     console.log('QueryBuilderHelper::processArrayWhereClause()/likeValue:', likeValue);
+                    if (likeValue.startsWith("'") && likeValue.endsWith("'")) {
+                        likeValue = likeValue.slice(1, -1);
+                    }
                     if (index === 0) {
                         console.log('QueryBuilderHelper::processArrayWhereClause()/05');
                         console.log('QueryBuilderHelper::processArrayWhereClause()/likeValue:', likeValue);
