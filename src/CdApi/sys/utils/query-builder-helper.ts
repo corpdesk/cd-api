@@ -16,74 +16,76 @@ export class QueryBuilderHelper {
         this.entityAdapter = new EntityAdapter();
     }
 
-    // transformWhereClause(where: any): any {
-    //     console.log('QueryBuilderHelper::transformWhereClause()/01');
-    //     console.log('QueryBuilderHelper::transformWhereClause()/where:', where);
-    //     if (Array.isArray(where)) {
-    //         console.log('QueryBuilderHelper::transformWhereClause()/where:', where);
-    //         console.log('QueryBuilderHelper::transformWhereClause()/02');
-    //         return where.map((condition) => {
-    //             console.log('QueryBuilderHelper::transformWhereClause()/03');
-    //             console.log('QueryBuilderHelper::transformWhereClause()/condition:', condition);
-    //             const field = Object.keys(condition)[0];
-    //             console.log('QueryBuilderHelper::transformWhereClause()/04');
-    //             const value = condition[field];
-    //             console.log('QueryBuilderHelper::transformWhereClause()/05');
-    //             if (typeof value === 'string' && value.startsWith('Like(') && value.endsWith(')')) {
-    //                 console.log('QueryBuilderHelper::transformWhereClause()/06');
-    //                 const match = value.match(/^Like\((.*)\)$/);
-    //                 console.log('QueryBuilderHelper::transformWhereClause()/value:', value);
-    //                 console.log('QueryBuilderHelper::transformWhereClause()/match:', match);
-    //                 console.log('QueryBuilderHelper::transformWhereClause()/07');
-    //                 if (match) {
-    //                     console.log('QueryBuilderHelper::transformWhereClause()/08');
-    //                     return { [field]: Like(match[1]) };
-    //                 }
-    //             }
-    //             console.log('QueryBuilderHelper::transformWhereClause()/09');
-    //             return condition;
-    //         });
-    //     }
-    //     console.log('QueryBuilderHelper::transformWhereClause()/10');
-    //     return where;
-    // }
-
     transformWhereClause(where: any): any {
+        console.log('QueryBuilderHelper::transformWhereClause()/01');
+        console.log('QueryBuilderHelper::transformWhereClause()/where:', where);
         if (Array.isArray(where)) {
+            console.log('QueryBuilderHelper::transformWhereClause()/where:', where);
+            console.log('QueryBuilderHelper::transformWhereClause()/02');
             return where.map((condition) => {
+                console.log('QueryBuilderHelper::transformWhereClause()/03');
+                console.log('QueryBuilderHelper::transformWhereClause()/condition:', condition);
                 const field = Object.keys(condition)[0];
-                let value = condition[field];
-
+                console.log('QueryBuilderHelper::transformWhereClause()/04');
+                const value = condition[field];
+                console.log('QueryBuilderHelper::transformWhereClause()/05');
                 if (typeof value === 'string' && value.startsWith('Like(') && value.endsWith(')')) {
-                    const match = value.match(/^Like\('(.*)'\)$/);
+                    console.log('QueryBuilderHelper::transformWhereClause()/06');
+                    const match = value.match(/^Like\((.*)\)$/);
+                    console.log('QueryBuilderHelper::transformWhereClause()/value:', value);
+                    console.log('QueryBuilderHelper::transformWhereClause()/match:', match);
+                    console.log('QueryBuilderHelper::transformWhereClause()/07');
                     if (match) {
-                        // Only extract the inner value for Like condition
-                        value = Like(match[1]);
+                        console.log('QueryBuilderHelper::transformWhereClause()/08');
+                        const ret = { [field]: Like(match[1]) }
+                        console.log('QueryBuilderHelper::transformWhereClause()/ret:', ret);
+                        return ret;
                     }
                 }
-
-                return { [field]: value };
+                console.log('QueryBuilderHelper::transformWhereClause()/09');
+                return condition;
             });
-        } else if (typeof where === 'object' && where !== null) {
-            const transformed = {};
-            Object.keys(where).forEach((field) => {
-                let value = where[field];
-
-                if (typeof value === 'string' && value.startsWith('Like(') && value.endsWith(')')) {
-                    const match = value.match(/^Like\('(.*)'\)$/);
-                    if (match) {
-                        // Only extract the inner value for Like condition
-                        value = Like(match[1]);
-                    }
-                }
-
-                transformed[field] = value;
-            });
-            return transformed;
         }
-
+        console.log('QueryBuilderHelper::transformWhereClause()/10');
         return where;
     }
+
+    // transformWhereClause(where: any): any {
+    //     if (Array.isArray(where)) {
+    //         return where.map((condition) => {
+    //             const field = Object.keys(condition)[0];
+    //             let value = condition[field];
+
+    //             if (typeof value === 'string' && value.startsWith('Like(') && value.endsWith(')')) {
+    //                 const match = value.match(/^Like\('(.*)'\)$/);
+    //                 if (match) {
+    //                     // Only extract the inner value for Like condition
+    //                     value = Like(match[1]);
+    //                 }
+    //             }
+
+    //             return { [field]: value };
+    //         });
+    //     } else if (typeof where === 'object' && where !== null) {
+    //         const transformed = {};
+    //         Object.keys(where).forEach((field) => {
+    //             let value = where[field];
+
+    //             if (typeof value === 'string' && value.startsWith('Like(') && value.endsWith(')')) {
+    //                 const match = value.match(/^Like\('(.*)'\)$/);
+    //                 if (match) {
+    //                     // Only extract the inner value for Like condition
+    //                     value = Like(match[1]);
+    //                 }
+    //             }
+
+    //             transformed[field] = value;
+    //         });
+    //         return transformed;
+    //     }
+
+    //     return where;
+    // }
 
     transformQueryInput(query: QueryInput): QueryInput {
         const w = this.transformWhereClause(query.where)
