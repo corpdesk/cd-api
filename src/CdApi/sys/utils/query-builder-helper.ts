@@ -17,23 +17,46 @@ export class QueryBuilderHelper {
     }
 
     transformWhereClause(where: any): any {
+        console.log('QueryBuilderHelper::transformWhereClause()/01');
+        console.log('QueryBuilderHelper::transformWhereClause()/where:', where);
         if (Array.isArray(where)) {
+            console.log('QueryBuilderHelper::transformWhereClause()/02');
             return where.map((condition) => {
+                console.log('QueryBuilderHelper::transformWhereClause()/03');
                 const field = Object.keys(condition)[0];
+                console.log('QueryBuilderHelper::transformWhereClause()/04');
                 const value = condition[field];
+                console.log('QueryBuilderHelper::transformWhereClause()/05');
                 if (typeof value === 'string' && value.startsWith('Like(') && value.endsWith(')')) {
+                    console.log('QueryBuilderHelper::transformWhereClause()/06');
                     const match = value.match(/^Like\((.*)\)$/);
+                    console.log('QueryBuilderHelper::transformWhereClause()/07');
                     if (match) {
+                        console.log('QueryBuilderHelper::transformWhereClause()/08');
                         return { [field]: Like(match[1]) };
                     }
                 }
+                console.log('QueryBuilderHelper::transformWhereClause()/09');
                 return condition;
             });
         }
+        console.log('QueryBuilderHelper::transformWhereClause()/10');
         return where;
     }
 
+    transformQueryInput(query: QueryInput): QueryInput {
+        return {
+            ...query,
+            where: this.transformWhereClause(query.where),
+        };
+    }
+
     createQueryBuilder(serviceInput: IServiceInput): SelectQueryBuilder<any> {
+        // clean up the where clause...especially for request from browsers
+        const q = this.transformQueryInput(serviceInput.cmd.query);
+        serviceInput.cmd.query.where = q.where;
+        console.log('QueryBuilderHelper::createQueryBuilder()/q:', q);
+
         const query = serviceInput.cmd.query;
         const queryBuilder = this.repository.createQueryBuilder(this.repository.metadata.name);
 

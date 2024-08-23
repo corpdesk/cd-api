@@ -1322,12 +1322,12 @@ export class BaseService {
         return from(this.readCount(req, res, serviceInput));
     }
 
-    transformQueryInput(query: QueryInput, queryBuilderHelper): QueryInput {
-        return {
-            ...query,
-            where: queryBuilderHelper.transformWhereClause(query.where),
-        };
-    }
+    // transformQueryInput(query: QueryInput, queryBuilderHelper): QueryInput {
+    //     return {
+    //         ...query,
+    //         where: queryBuilderHelper.transformWhereClause(query.where),
+    //     };
+    // }
 
     /**
      * 
@@ -1349,11 +1349,11 @@ export class BaseService {
             // let q: any = this.getQuery(req);
             // const map = this.entityAdapter.registerMappingFromEntity(serviceInput.serviceModel);
 
-            // clean up the where clause...especially for request from browsers
-            const q = this.transformQueryInput(serviceInput.cmd.query, queryBuilderHelper);
-            serviceInput.cmd.query.where = q.where;
-            this.logger.logDebug(`BaseService::readQB()/q:`, { q: JSON.stringify(q) });
-            console.log('BaseService::readQB()/q:', q);
+            // // clean up the where clause...especially for request from browsers
+            // const q = this.transformQueryInput(serviceInput.cmd.query, queryBuilderHelper);
+            // serviceInput.cmd.query.where = q.where;
+            // this.logger.logDebug(`BaseService::readQB()/q:`, { q: JSON.stringify(q) });
+            // console.log('BaseService::readQB()/q:', q);
 
             const queryBuilder = queryBuilderHelper.createQueryBuilder(serviceInput);
 
