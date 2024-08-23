@@ -201,9 +201,9 @@ export class QueryBuilderHelper {
         console.log('QueryBuilderHelper::processArrayWhereClause2/where:', where)
         let strWhere = JSON.stringify(where)
         console.log('QueryBuilderHelper::processArrayWhereClause2/where1:', strWhere)
-        const a = `:"Like(`;
+        const a = `:"Like\\(`; // Escape the '(' character
         const b = `')"}`
-        const regex = new RegExp(a, 'g'); // Create a regular expression from the variable 'a'
+        const regex = new RegExp(a, 'g'); 
         strWhere = strWhere.replace(regex, b);
         console.log('QueryBuilderHelper::processArrayWhereClause2/strWhere:', strWhere)
         where = JSON.parse(strWhere);
