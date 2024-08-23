@@ -16,6 +16,36 @@ export class QueryBuilderHelper {
         this.entityAdapter = new EntityAdapter();
     }
 
+    test(query, queryBuilder){
+        if (query.where && Array.isArray(query.where) && query.where.length > 0) {
+            console.log('QueryBuilderHelper::createQueryBuilder/04:')
+            query.where.forEach((condition, index) => {
+                const key = Object.keys(condition)[0];
+                console.log('QueryBuilderHelper::createQueryBuilder/key:', key)
+                const value = condition[key];
+                console.log('QueryBuilderHelper::createQueryBuilder/value:', value)
+                console.log('QueryBuilderHelper::createQueryBuilder/value._type:', value._type)
+
+                const dbField = `${this.repository.metadata.name}.${this.getDatabaseColumnName(key)}`;
+
+                if (value._type === "like") {
+                    let likeValue = value._value; // Extract the value inside Like()
+                    // Remove any extra quotes around the value
+                    if (likeValue.startsWith("'") && likeValue.endsWith("'")) {
+                        likeValue = likeValue.slice(1, -1);
+                    }
+                    queryBuilder.orWhere(`${dbField} LIKE :${key}`, { [key]: likeValue });
+                } else {
+                    const operator = index === 0 ? 'where' : 'orWhere';
+                    queryBuilder[operator](`${dbField} = :${key}`, { [key]: value });
+                }
+            });
+        } else if (query.where && typeof query.where === 'object' && this.isEmptyObject(query.where)) {
+            console.log('QueryBuilderHelper::createQueryBuilder/05:')
+            // Do not add any where clause
+        }
+    }
+
     transformWhereClause(where: any): any {
         console.log('QueryBuilderHelper::transformWhereClause()/01');
         console.log('QueryBuilderHelper::transformWhereClause()/where:', where);
@@ -100,9 +130,9 @@ export class QueryBuilderHelper {
 
     createQueryBuilder(serviceInput: IServiceInput): SelectQueryBuilder<any> {
         // clean up the where clause...especially for request from browsers
-        const q = this.transformQueryInput(serviceInput.cmd.query);
-        serviceInput.cmd.query.where = q.where;
-        console.log('QueryBuilderHelper::createQueryBuilder()/q:', q);
+        // const q = this.transformQueryInput(serviceInput.cmd.query);
+        // serviceInput.cmd.query.where = q.where;
+        // console.log('QueryBuilderHelper::createQueryBuilder()/q:', q);
 
         const query = serviceInput.cmd.query;
         const queryBuilder = this.repository.createQueryBuilder(this.repository.metadata.name);
@@ -124,7 +154,8 @@ export class QueryBuilderHelper {
                 this.processObjectWhereClause(queryBuilder, query.where);
             } else if (Array.isArray(query.where) && query.where.length > 0) {
                 // If 'where' is an array
-                this.processArrayWhereClause(queryBuilder, query.where);
+                // this.processArrayWhereClause(queryBuilder, query.where);
+                this.processArrayWhereClause2(queryBuilder, query.where);
             }
         }
 
@@ -161,6 +192,31 @@ export class QueryBuilderHelper {
                 } else {
                     queryBuilder.andWhere(`${dbField} = :${key}`, { [key]: value });
                 }
+            }
+        });
+    }
+
+    processArrayWhereClause2(queryBuilder: SelectQueryBuilder<any>, where: any){
+        console.log('QueryBuilderHelper::processArrayWhereClause2/04:')
+        where.forEach((condition, index) => {
+            const key = Object.keys(condition)[0];
+            console.log('QueryBuilderHelper::processArrayWhereClause2/key:', key)
+            const value = condition[key];
+            console.log('QueryBuilderHelper::processArrayWhereClause2/value:', value)
+            console.log('QueryBuilderHelper::processArrayWhereClause2/value._type:', value._type)
+
+            const dbField = `${this.repository.metadata.name}.${this.getDatabaseColumnName(key)}`;
+
+            if (value._type === "like") {
+                let likeValue = value._value; // Extract the value inside Like()
+                // Remove any extra quotes around the value
+                if (likeValue.startsWith("'") && likeValue.endsWith("'")) {
+                    likeValue = likeValue.slice(1, -1);
+                }
+                queryBuilder.orWhere(`${dbField} LIKE :${key}`, { [key]: likeValue });
+            } else {
+                const operator = index === 0 ? 'where' : 'orWhere';
+                queryBuilder[operator](`${dbField} = :${key}`, { [key]: value });
             }
         });
     }
