@@ -16,13 +16,13 @@ export class QueryBuilderHelper {
         this.entityAdapter = new EntityAdapter();
     }
 
-    transformWhereClause(where: any): any {
+    async transformWhereClause(where: any): any {
         console.log('QueryBuilderHelper::transformWhereClause()/01');
         console.log('QueryBuilderHelper::transformWhereClause()/where:', where);
         if (Array.isArray(where)) {
             console.log('QueryBuilderHelper::transformWhereClause()/where:', where);
             console.log('QueryBuilderHelper::transformWhereClause()/02');
-            return where.map((condition) => {
+            return where.map(async (condition) => {
                 console.log('QueryBuilderHelper::transformWhereClause()/03');
                 console.log('QueryBuilderHelper::transformWhereClause()/condition:', condition);
                 const field = Object.keys(condition)[0];
@@ -39,7 +39,7 @@ export class QueryBuilderHelper {
                         console.log('QueryBuilderHelper::transformWhereClause()/08');
                         const param = match[1]
                         console.log('QueryBuilderHelper::transformWhereClause()/param:', param);
-                        const ret = { [field]: Like(param) }
+                        const ret = { [field]: await Like(param) }
                         console.log('QueryBuilderHelper::transformWhereClause()/ret:', ret);
                         return ret;
                     }
