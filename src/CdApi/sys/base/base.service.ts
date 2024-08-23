@@ -1336,7 +1336,7 @@ export class BaseService {
      * This method makes use of QueryBuilderHelper to allow query to still be structured as earlier then this
      * class converts them to typeorm query builder.
      */
-    async readQB(req, res, serviceInput): Promise<any> {
+    async readQB(req, res, serviceInput: IServiceInput): Promise<any> {
         await this.init(req, res);
         this.logger.logDebug('BaseService::readQB()/repo/model:', serviceInput.serviceModel);
         await this.setRepo(serviceInput);
@@ -1346,9 +1346,12 @@ export class BaseService {
         const repo: any = this.repo;
 
         try {
-            let q: any = this.getQuery(req);
+            // let q: any = this.getQuery(req);
             // const map = this.entityAdapter.registerMappingFromEntity(serviceInput.serviceModel);
-            q = this.transformQueryInput(q, queryBuilderHelper);
+
+            // clean up the where clause...especially for request from browsers
+            const q = this.transformQueryInput(serviceInput.cmd.query, queryBuilderHelper);
+            serviceInput.cmd.query.where = q.where;
             this.logger.logDebug(`BaseService::readQB()/q:`, { q: JSON.stringify(q) });
             console.log('BaseService::readQB()/q:', q);
 
