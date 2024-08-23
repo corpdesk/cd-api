@@ -16,13 +16,13 @@ export class QueryBuilderHelper {
         this.entityAdapter = new EntityAdapter();
     }
 
-    async transformWhereClause(where: any): Promise<any> {
+    transformWhereClause(where: any): any {
         console.log('QueryBuilderHelper::transformWhereClause()/01');
         console.log('QueryBuilderHelper::transformWhereClause()/where:', where);
         if (Array.isArray(where)) {
             console.log('QueryBuilderHelper::transformWhereClause()/where:', where);
             console.log('QueryBuilderHelper::transformWhereClause()/02');
-            return where.map(async (condition) => {
+            return where.map((condition) => {
                 console.log('QueryBuilderHelper::transformWhereClause()/03');
                 console.log('QueryBuilderHelper::transformWhereClause()/condition:', condition);
                 const field = Object.keys(condition)[0];
@@ -39,7 +39,7 @@ export class QueryBuilderHelper {
                         console.log('QueryBuilderHelper::transformWhereClause()/08');
                         const param = match[1]
                         console.log('QueryBuilderHelper::transformWhereClause()/param:', param);
-                        const ret = { [field]: await Like(param) }
+                        const ret = { [field]: Like(param) }
                         console.log('QueryBuilderHelper::transformWhereClause()/ret:', ret);
                         return ret;
                     }
@@ -89,7 +89,7 @@ export class QueryBuilderHelper {
     //     return where;
     // }
 
-    async transformQueryInput(query: QueryInput): Promise<QueryInput> {
+    transformQueryInput(query: QueryInput): QueryInput {
         const w = this.transformWhereClause(query.where)
         console.log('QueryBuilderHelper::transformQueryInput()/w:', w);
         return {
@@ -98,10 +98,10 @@ export class QueryBuilderHelper {
         };
     }
 
-    async createQueryBuilder(serviceInput: IServiceInput): Promise<any> {
+    createQueryBuilder(serviceInput: IServiceInput): SelectQueryBuilder<any> {
         // clean up the where clause...especially for request from browsers
-        const q = await this.transformQueryInput(serviceInput.cmd.query);
-        serviceInput.cmd.query.where = await q.where;
+        const q = this.transformQueryInput(serviceInput.cmd.query);
+        serviceInput.cmd.query.where = q.where;
         console.log('QueryBuilderHelper::createQueryBuilder()/q:', q);
 
         const query = serviceInput.cmd.query;
