@@ -1355,7 +1355,7 @@ export class BaseService {
             // this.logger.logDebug(`BaseService::readQB()/q:`, { q: JSON.stringify(q) });
             // console.log('BaseService::readQB()/q:', q);
 
-            const queryBuilder = queryBuilderHelper.createQueryBuilder(serviceInput);
+            const queryBuilder = await queryBuilderHelper.createQueryBuilder(serviceInput);
 
             console.log('BaseService::readQB/sql:', queryBuilder.getSql())
             // Fetching items

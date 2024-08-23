@@ -16,7 +16,7 @@ export class QueryBuilderHelper {
         this.entityAdapter = new EntityAdapter();
     }
 
-    async transformWhereClause(where: any): any {
+    async transformWhereClause(where: any): Promise<any> {
         console.log('QueryBuilderHelper::transformWhereClause()/01');
         console.log('QueryBuilderHelper::transformWhereClause()/where:', where);
         if (Array.isArray(where)) {
@@ -89,7 +89,7 @@ export class QueryBuilderHelper {
     //     return where;
     // }
 
-    transformQueryInput(query: QueryInput): QueryInput {
+    async transformQueryInput(query: QueryInput): Promise<QueryInput> {
         const w = this.transformWhereClause(query.where)
         console.log('QueryBuilderHelper::transformQueryInput()/w:', w);
         return {
@@ -98,9 +98,9 @@ export class QueryBuilderHelper {
         };
     }
 
-    createQueryBuilder(serviceInput: IServiceInput): SelectQueryBuilder<any> {
+    async createQueryBuilder(serviceInput: IServiceInput): Promise<any> {
         // clean up the where clause...especially for request from browsers
-        const q = this.transformQueryInput(serviceInput.cmd.query);
+        const q = await this.transformQueryInput(serviceInput.cmd.query);
         serviceInput.cmd.query.where = q.where;
         console.log('QueryBuilderHelper::createQueryBuilder()/q:', q);
 
