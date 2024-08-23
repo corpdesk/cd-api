@@ -101,7 +101,7 @@ export class QueryBuilderHelper {
     async createQueryBuilder(serviceInput: IServiceInput): Promise<any> {
         // clean up the where clause...especially for request from browsers
         const q = await this.transformQueryInput(serviceInput.cmd.query);
-        serviceInput.cmd.query.where = q.where;
+        serviceInput.cmd.query.where = await q.where;
         console.log('QueryBuilderHelper::createQueryBuilder()/q:', q);
 
         const query = serviceInput.cmd.query;
