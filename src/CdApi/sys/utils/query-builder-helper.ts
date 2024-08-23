@@ -11,12 +11,12 @@ export interface QueryInput {
 
 export class QueryBuilderHelper {
     entityAdapter: EntityAdapter;
-    
+
     constructor(private repository: Repository<any>) {
         this.entityAdapter = new EntityAdapter();
     }
 
-    test(query, queryBuilder){
+    test(query, queryBuilder) {
         if (query.where && Array.isArray(query.where) && query.where.length > 0) {
             console.log('QueryBuilderHelper::createQueryBuilder/04:')
             query.where.forEach((condition, index) => {
@@ -196,11 +196,15 @@ export class QueryBuilderHelper {
         });
     }
 
-    processArrayWhereClause2(queryBuilder: SelectQueryBuilder<any>, where: any){
+    processArrayWhereClause2(queryBuilder: SelectQueryBuilder<any>, where: any) {
         console.log('QueryBuilderHelper::processArrayWhereClause2/04:')
         console.log('QueryBuilderHelper::processArrayWhereClause2/where:', where)
-        const strWhere = JSON.stringify(where)
+        let strWhere = JSON.stringify(where)
         console.log('QueryBuilderHelper::processArrayWhereClause2/where:', strWhere)
+        const a = `:"Like(`;
+        const b = `')"}`
+        const regex = new RegExp(a, 'g'); // Create a regular expression from the variable 'a'
+        strWhere = strWhere.replace(regex, b);
         where.forEach((condition, index) => {
             const key = Object.keys(condition)[0];
             console.log('QueryBuilderHelper::processArrayWhereClause2/key:', key)
