@@ -111,7 +111,7 @@ export class ModuleService extends CdService {
     /**
      * This method uses getAclModule$ to get allowedModules$ which is then used to generate menu data
      * allowedModules$ is generated using this.getAclModule$(req, res, { currentUser: cUser, consumerGuid: cguid });
-     * note that allowedModules$ is an observable. 
+     * note that allowedModules$ is an
      * allowedModules$ is then used to generate acl menu
      * 
      * @param req 
@@ -175,7 +175,11 @@ export class ModuleService extends CdService {
 
         const result$ = forkJoin({
             consumer: clientConsumer$,
-            menuData: menuData$,
+            menuData: menuData$
+            // .pipe(
+            //     map(menu => menu.flat())
+            //   )
+              ,
             userData: of(cUser),
             /////////////////////
             // OPTIONAL ADDITIVES:

@@ -206,50 +206,44 @@ export class MenuService {
             })
     }
 
-    /**
-     * 
-     * @param req 
-     * @param res 
-     * @param params 
-     * @returns 
-     */
     // getAclMenu$(req, res, params: IAllowedModules): Observable<any> {
-    //     this.logger.logInfo('MenuService::getAclMenu$()/params:', params)
-    //     return params.modules$
-    //         .pipe(
-    //             mergeMap((m) => {
-    //                 console.log('MenuService::getAclMenu$()/m:', m)
-    //                 return m.map(mod => {
-    //                     console.log('MenuService::getAclMenu$()/mod:', mod)
-    //                     const moduleMenuData$ = this.getModuleMenu$(req, res, mod);
-    //                     this.logger.logInfo('MenuService::getAclMenu$()/moduleMenuData:', moduleMenuData$)
-    //                     return forkJoin({
-    //                         modules: params.modules$,
-    //                         menu: this.buildNestedMenu(this.getRootMenuId(moduleMenuData$), moduleMenuData$),
-    //                     }).pipe(
-    //                         map(({ menu, modules }) => {
-    //                             console.log('MenuService::getAclMenu$()/mod:', mod)
-    //                             return menu;
-    //                         })
-    //                     )
-    //                 })
-    //             })
-    //             , mergeMap((m) => {
-    //                 return m.pipe(
-    //                     map((modules) => {
-    //                         return modules;
+    //     this.logger.logInfo('MenuService::getAclMenu$()/params:', params);
+    //     return params.modules$.pipe(
+    //         mergeMap((m) => {
+    //             return m.map(mod => {
+    //                 this.logger.logInfo('MenuService::getAclMenu$()/mod:', mod)
+    //                 const moduleMenuData$ = this.getModuleMenu$(req, res, mod);
+    //                 this.logger.logInfo('MenuService::getAclMenu$()/moduleMenuData:', moduleMenuData$);
+    //                 return forkJoin({
+    //                     modules: params.modules$,
+    //                     menu: this.buildNestedMenu(this.getRootMenuIds(moduleMenuData$), moduleMenuData$),
+    //                 }).pipe(
+    //                     map(({ menu, modules }) => {
+    //                         this.logger.logInfo('MenuService::getAclMenu$()/menu:', menu)
+    //                         this.logger.logInfo('MenuService::getAclMenu$()/modules:', modules)
+    //                         return menu;  // menu now contains an array of nested menu trees
+                            
     //                     })
-    //                 )
-    //             })
-    //             , bufferCount(params.modulesCount)
-    //         )
+    //                 );
+    //             });
+    //         }),
+    //         mergeMap((m) => {
+    //             this.logger.logInfo('MenuService::getAclMenu$()/m:', m)
+    //             return m.pipe(
+    //                 map((modules) => modules)
+    //             );
+    //         }),
+    //         bufferCount(params.modulesCount)
+    //     );
     // }
 
     getAclMenu$(req, res, params: IAllowedModules): Observable<any> {
         this.logger.logInfo('MenuService::getAclMenu$()/params:', params);
+        
         return params.modules$.pipe(
             mergeMap((m) => {
                 return m.map(mod => {
+                    this.logger.logInfo('MenuService::getAclMenu$()/mod:', mod)
                     const moduleMenuData$ = this.getModuleMenu$(req, res, mod);
                     this.logger.logInfo('MenuService::getAclMenu$()/moduleMenuData:', moduleMenuData$);
                     return forkJoin({
@@ -257,19 +251,24 @@ export class MenuService {
                         menu: this.buildNestedMenu(this.getRootMenuIds(moduleMenuData$), moduleMenuData$),
                     }).pipe(
                         map(({ menu, modules }) => {
+                            this.logger.logInfo('MenuService::getAclMenu$()/menu:', menu);
+                            this.logger.logInfo('MenuService::getAclMenu$()/modules:', modules);
                             return menu;  // menu now contains an array of nested menu trees
                         })
                     );
                 });
             }),
             mergeMap((m) => {
+                this.logger.logInfo('MenuService::getAclMenu$()/m:', m);
                 return m.pipe(
                     map((modules) => modules)
                 );
             }),
-            bufferCount(params.modulesCount)
+            bufferCount(params.modulesCount),
+            map((bufferedMenus) => bufferedMenus.flat())  // Flatten the buffered menus
         );
     }
+    
 
     getModuleMenu$(req, res, moduleData): Observable<MenuViewModel[]> {
         this.logger.logInfo('MenuService::getModuleMenu$()/moduleData:', moduleData)
@@ -285,87 +284,6 @@ export class MenuService {
         }
         return this.b.read$(req, res, serviceInput)
     }
-
-    // menu_view
-    // menu_id, menu_lable, menu_guid, closet_file, menu_action_id, doc_id, menu_parent_id, path, is_title, badge, is_layout,
-    // module_id, module_guid, module_name, module_is_public, is_sys_module, children, menu_action,
-    // cd_obj_id, cd_obj_name, last_sync_date, cd_obj_disp_name, cd_obj_guid, cd_obj_type_guid,
-    // last_modification_date, parent_module_guid, parent_class_guid, parent_obj, show_name, icon,
-    // show_icon, curr_val, cd_obj_enabled
-
-    // MenuItem {
-    //     id?: number; // menuId
-    //     label?: string; // manuLabel
-    //     icon?: string; // icon
-    //     link?: string; // path
-    //     subItems?: any; // children
-    //     isTitle?: boolean; // isTitle
-    //     badge?: any; // badge
-    //     parentId?: number; // menuParentId
-    //     isLayout?: boolean; // isLayout
-    // }
-    // buildNestedMenu(menuId$: Observable<number>, moduleMenuData$: Observable<MenuViewModel[]>): Observable<any> {
-    //     this.b.logTimeStamp('MenuService::buildNestedMenu/01')
-    //     return this.getMenuItem(menuId$, moduleMenuData$).pipe(
-    //         map((sm: ISelectedMenu) => {
-    //             console.log('MenuService::buildNestedMenu/sm:', sm)
-    //             let ret: IMenuRelations = {
-    //                 menuParent: null,
-    //                 menuChildren: null
-    //             };
-    //             if (sm.selectedItem) {
-    //                 const data = sm.selectedItem;
-    //                 this.b.logTimeStamp('MenuService::buildNestedMenu/02')
-    //                 ret = {
-    //                     menuParent: {
-    //                         menuLabel: data.menuLabel,
-    //                         menuId: data.menuId,
-    //                         icon: data.icon,
-    //                         path: data.path,
-    //                         isTitle: data.isTitle,
-    //                         badge: data.badge,
-    //                         menuParentId: data.menuParentId,
-    //                         isLayout: data.isLayout,
-    //                         moduleIsPublic: data.moduleIsPublic,
-    //                         moduleGuid: data.moduleGuid,
-    //                         children: [],
-    //                     },
-    //                     menuChildren: this.getChildren(data.menuId, sm)
-    //                 };
-    //             } else {
-    //                 ret = {
-    //                     menuParent: null,
-    //                     menuChildren: []
-    //                 };
-    //             }
-    //             return ret;
-    //         })
-    //         , tap((m) => {
-    //             this.b.logTimeStamp('MenuService::buildNestedMenu$/03')
-    //         }),
-    //         mergeMap(
-    //             (parentWithChildIds) => forkJoin(
-    //                 [
-    //                     of(parentWithChildIds.menuParent),
-    //                     ...parentWithChildIds.menuChildren.map(childMenu => this.buildNestedMenu(of(childMenu.menuId), moduleMenuData$))
-    //                 ]
-    //             )
-    //         )
-    //         , tap((m) => {
-    //             this.b.logTimeStamp('MenuService::buildNestedMenu$/04')
-    //         }),
-    //         tap(([parent, ...children]) => {
-    //             this.b.logTimeStamp('MenuService::buildNestedMenu$/05')
-    //             if (parent) {
-    //                 parent.children = children;
-    //             }
-    //         }),
-    //         map(([parent,]) => parent)
-    //         , tap((m) => {
-    //             this.b.logTimeStamp('MenuService::buildNestedMenu$/06')
-    //         }),
-    //     );
-    // }
 
     buildNestedMenu(rootMenuIds$: Observable<number[]>, moduleMenuData$: Observable<MenuViewModel[]>): Observable<any[]> {
         return rootMenuIds$.pipe(
@@ -416,37 +334,6 @@ export class MenuService {
             })
         );
     }
-
-
-    // getRootMenuId(moduleMenuData$: Observable<MenuViewModel[]>): Observable<number> {
-    //     return moduleMenuData$
-    //         .pipe(
-    //             switchMap((menuData) => {
-    //                 console.log('MenuService::getRootMenuId/menuData:', menuData)
-    //                 const selectedMenu = menuData.filter((m) => {
-    //                     if (m.menuParentId === -1) {
-    //                         return m;
-    //                     }
-    //                 });
-    //                 console.log('MenuService::getRootMenuId/selectedMenu:', selectedMenu)
-    //                 return selectedMenu;
-    //             })
-    //             , switchMap(x => of(x.menuId))
-    //         )
-
-    // }
-
-    // getRootMenuIds(moduleMenuData$: Observable<MenuViewModel[]>): Observable<number[]> {
-    //     return moduleMenuData$
-    //         .pipe(
-    //             map((menuData) => {
-    //                 // Filter to get all root menus (where menuParentId === -1)
-    //                 return menuData
-    //                     .filter((m) => m.menuParentId === -1)
-    //                     .map((m) => m.menuId);  // Return only the menuId of the root menus
-    //             })
-    //         );
-    // }
 
     getMenuItem(menuId$: Observable<number>, moduleMenuData$: Observable<MenuViewModel[]>): Observable<ISelectedMenu> {
         this.b.logTimeStamp('MenuService::getMenuItem$/01')
