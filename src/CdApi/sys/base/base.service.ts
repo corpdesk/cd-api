@@ -35,7 +35,7 @@ import { UserModel } from "../user/models/user.model"
 import { getDataSource } from "./data-source";
 import { Logging } from './winston.log';
 import { RedisService } from './redis-service';
-import { QueryBuilderHelper, QueryInput } from '../utils/query-builder-helper';
+import { QueryBuilderHelper } from '../utils/query-builder-helper';
 import { EntityAdapter } from '../utils/entity-adapter';
 
 

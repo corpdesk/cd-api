@@ -2,7 +2,7 @@ import { BaseService } from '../../base/base.service';
 import { CdService } from '../../base/cd.service';
 import { SessionService } from '../../user/services/session.service';
 import { UserService } from '../../user/services/user.service';
-import { CreateIParams, IQuery, IRespInfo, IServiceInput, IUser } from '../../base/IBase';
+import { CreateIParams, IQuery, IServiceInput, IUser } from '../../base/IBase';
 import { CompanyModel, siGet } from '../models/company.model';
 import { CompanyViewModel } from '../models/company-view.model';
 import { CompanyTypeModel } from '../models/company-type.model';

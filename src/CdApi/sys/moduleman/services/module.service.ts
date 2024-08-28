@@ -31,7 +31,7 @@ export class ModuleService extends CdService {
     srvMenu: MenuService;
     srvNotif: NotificationService;
     srvCalnd: CalendarService;
-    srvConsumer: ConsumerService;
+    svConsumer: ConsumerService;
     srvAcl: AclService;
     consumerGuid: string;
 
@@ -108,6 +108,17 @@ export class ModuleService extends CdService {
         return true;
     }
 
+    /**
+     * This method uses getAclModule$ to get allowedModules$ which is then used to generate menu data
+     * allowedModules$ is generated using this.getAclModule$(req, res, { currentUser: cUser, consumerGuid: cguid });
+     * note that allowedModules$ is an observable. 
+     * allowedModules$ is then used to generate acl menu
+     * 
+     * @param req 
+     * @param res 
+     * @param cUser 
+     * @returns 
+     */
     getModulesUserData$(req, res, cUser: ModuleModel): Observable<any> {
         this.b.logTimeStamp('ModuleService::getModulesUserData$/01')
         this.srvSess = new SessionService();
@@ -117,19 +128,30 @@ export class ModuleService extends CdService {
         this.srvCalnd = new CalendarService();
         this.srvGroup = new GroupService();
         this.srvGroupMember = new GroupMemberService();
-        this.srvConsumer = new ConsumerService();
+        this.svConsumer = new ConsumerService();
         this.srvMenu = new MenuService();
         this.srvAcl = new AclService();
-        const cguid = this.srvConsumer.getConsumerGuid(req);
+
+        /**
+         * extract the request consumer guid
+         */
+        const cguid = this.svConsumer.getConsumerGuid(req);
         // this.logger.logInfo("ModuleService::getModulesUserData$/02/cguid:", cguid)
-        const clientConsumer$ = this.srvConsumer.getConsumerByGuid$(req, res, cguid);
+
+        /**
+         * use consumer guid to get the associated consumer
+         */
+        const clientConsumer$ = this.svConsumer.getConsumerByGuid$(req, res, cguid);
         const allowedModules$ = this.getAclModule$(req, res, { currentUser: cUser, consumerGuid: cguid });
+        // allowedModules$.subscribe((d)=>{
+        //     console.log("ModuleService::getModulesData$()/allowedModules$:", d)
+        // })
         const menuData$ = allowedModules$
             .pipe(
                 mergeMap(
                     (am: any[]) => iif(
                         () => {
-                            // this.logger.logInfo('ModuleService::getModulesUserData$/am:', am)
+                            this.logger.logInfo('ModuleService::getModulesUserData$/am:', am)
                             return am.length > 0
                         },
                         this.srvMenu.getAclMenu$(req, res, { modules$: allowedModules$, modulesCount: am.length }),
@@ -168,6 +190,37 @@ export class ModuleService extends CdService {
         return result$;
     }
 
+    /**
+     * Acl modules or allowed modules are modules that are accessible to the current user.
+     * For this to be aggregated, 3 datasets are retreived from database to an object as below:
+     *  {
+            // unfilteredModules: this.getAll$(req, res).pipe(map((m) => { return m })), // for isRoot
+            userRoles: this.srvAcl.aclUser$(req, res, params).pipe(map((m) => { return m })),
+            consumerModules: this.srvAcl.aclModule$(req, res).pipe(map((m) => { return m })),
+            moduleParents: this.srvAcl.aclModuleMembers$(req, res, params).pipe(map((m) => { return m }))
+        }
+
+     *  1. User Roles:
+        The current user must be registered as a resource to the current consumer in session.
+     *  Exceptions is modules that are marked as public.
+     *  Apart from being registered as a resource to a consumer, the consumer type is 
+     *  used to mark user roles eg consumer_root, consumer_user, consumer_tech, consumer_admin
+     *  The above are fetched using consumer_resources_view
+     * 
+     *  2. Consumer Modules:
+     *  These are modules that the current user has acces to.
+     *  Must be a module registed as a resource for a given consumer.
+     *  The data is also fetched from consumer_resources_view
+     * 
+     *  3. ModuleParents:
+     *  
+     * 
+     * 
+     * @param req 
+     * @param res 
+     * @param params 
+     * @returns 
+     */
     getAclModule$(req, res, params): Observable<any> {
         this.b.logTimeStamp('ModuleService::getAclModule$/01')
         this.consumerGuid = params.consumerGuid;
@@ -186,7 +239,7 @@ export class ModuleService extends CdService {
                     this.b.logTimeStamp('ModuleService::getModulesUserData$/02')
                     this.logger.logInfo('ModuleService::getAclModule$()/acl:', acl)
                     /**
-                     * - Public modules are included withough acl filtering
+                     * - Public modules are included without acl filtering
                      * - Based on acl result, return appropirate modules
                      */
                     const publicModules = acl.consumerModules.filter(m => m.moduleIsPublic);

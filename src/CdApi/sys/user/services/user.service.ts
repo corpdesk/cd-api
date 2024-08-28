@@ -42,7 +42,7 @@ export class UserService extends CdService {
     mail: MailService;
     db;
     srvSess: SessionService;
-    srvModules: ModuleService;
+    svModule: ModuleService;
     svConsumer: ConsumerService;
     requestPswd: string;
     plData: any;
@@ -77,7 +77,7 @@ export class UserService extends CdService {
         this.mail = new MailService();
         this.userModel = new UserModel();
         this.srvSess = new SessionService();
-        this.srvModules = new ModuleService();
+        this.svModule = new ModuleService();
         this.svConsumer = new ConsumerService();
     }
 
@@ -440,7 +440,12 @@ export class UserService extends CdService {
         this.logger.logInfo('auth()/req.post:', { dat: JSON.stringify(req.post.dat) });
         this.plData = this.b.getPlData(req);
         const q: IQuery = {
-            // get requested user and 'anon' data/ anon data is used in case of failure
+            /**
+             * get requested user and 'anon' data/ anon data is used in case of failure
+             * anon data is in readiness for failed or invalid login process
+             * In other words 'anon' for anonimous user is also a valid user but with
+             * limited privileges 
+             */
             where: [
                 { userName: this.plData.userName },
                 { userName: 'anon' }
@@ -476,7 +481,6 @@ export class UserService extends CdService {
         this.logger.logInfo('UserService::resolveGuest()/01');
         const plData = this.b.getPlData(req);
         this.logger.logInfo('UserService::resolveGuest()/plData:', plData)
-        // this.logger.logInfo('UserService::resolveGuest()/guestArr:', guestArr)
         if (guestArr.length > 0) {
             this.logger.logInfo('UserService::resolveGuest()/02');
             // search if given username exists
@@ -610,7 +614,7 @@ export class UserService extends CdService {
         this.b.logTimeStamp('UserService::processResponse$/01')
         delete guest.password;
         const sessResult$: Rx.Observable<SessionModel> = Rx.from(this.srvSess.create(req, res, guest));
-        const modulesUserData$ = this.srvModules.getModulesUserData$(req, res, guest);
+        const modulesUserData$ = this.svModule.getModulesUserData$(req, res, guest);
         const sessFlat = r => { return r };
         this.b.logTimeStamp('ModuleService::processResponse$/02')
         return Rx.forkJoin({

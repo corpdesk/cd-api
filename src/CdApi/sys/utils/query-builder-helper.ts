@@ -1,13 +1,8 @@
 import { SelectQueryBuilder, Repository, Like } from 'typeorm';
 import { EntityAdapter } from './entity-adapter';
-import { IServiceInput } from '../base/IBase';
+import { IServiceInput, QueryInput } from '../base/IBase';
 
-export interface QueryInput {
-    select?: string[];
-    where?: any;
-    take?: number;
-    skip?: number;
-}
+
 
 export class QueryBuilderHelper {
     entityAdapter: EntityAdapter;

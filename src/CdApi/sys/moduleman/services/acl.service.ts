@@ -56,8 +56,23 @@ export class AclService {
         console.log('AclService::getAclModule(req, res,params)/params:', params)
         console.log('AclService::getAclModule/this.consumerGuid:', this.consumerGuid)
         const result$ = of(
+            /**
+             * query from consumer_resource_view for users who are members of active consumer
+             * and in respect of their roles: consumer_root, consumer_user, consumer_tech
+             */
             this.aclUser$(req, res, { consumerGuid: params.consumerGuid }).pipe(map((u) => { return { useRoles: u } })),
+            /**
+             * query from consumer_resource_view for modules which are 
+             *  - members of active consumer
+             *  - modules are enabled
+             */
             this.aclModule$(req, res).pipe(map((u) => { return { modules: u } })),
+            /**
+             * Get modules where user belongs or has access to:
+             * This is queried from acl_module_member_view 
+             * acl_module_member_view aggregates related group, group_members and modules
+             * In essence it implements Access Level policy
+             */
             this.aclModuleMembers$(req, res, params).pipe(map((u) => { return { moduleParents: u } }))
         ).pipe(
             mergeMap((obs$: any) => obs$),
@@ -99,7 +114,8 @@ export class AclService {
     }
 
     /**
-     * stream of users based on AclUserViewModel and
+     * stream of users based on AclUserViewModel
+     * based on settings at consumer_resource_types
      * filtered by current consumer relationship and user role
      * @param req
      * @param res
@@ -257,7 +273,7 @@ export class AclService {
                     });
                     // this.b.logTimeStamp(':AclService::aclModule$()/05')
                     // console.log('AclService::aclModule$()/04:');
-                    // console.log('aclModuleMembers/mArr:', mArr);
+                    console.log('AclService::aclModule$/mArr:', mArr);
                     return mArr;
 
                 })
@@ -265,11 +281,25 @@ export class AclService {
             )
     }
 
-    // users and modules where they belong
+    /**
+     * AclModuleMemberViewModel aggregates related group, group_members and modules
+     * In other words one can query which users belong to which module (logical association by grouping)
+     * 
+     * @param req 
+     * @param res 
+     * @param params 
+     * @returns 
+     */
     aclModuleMembers$(req, res, params): Observable<any> {
         // this.b.logTimeStamp('AclService::aclModuleMembers$/01')
         // console.log('AclService::aclModuleMembers$/01:');
         const b = new BaseService();
+
+        /**
+         * define filter for extracting modules where current user belongs
+         * @param m 
+         * @returns 
+         */
         const isModuleMember = m => m.memberGuid === params.currentUser.userGuid;
 
         const serviceInput: IServiceInput = {
@@ -278,10 +308,18 @@ export class AclService {
             docName: 'AclService::aclUser$',
             cmd: {
                 action: 'find',
+                /**
+                 * query for extracting all the modules where current user belongs or has access to
+                 */
                 query: { 
                     where: [
-                        { memberGuid: params.currentUser.userGuid, moduleEnabled: true, groupMemberEnabled:true }, 
-                        { moduleIsPublic: true }
+                        { 
+                            memberGuid: params.currentUser.userGuid, 
+                            moduleEnabled: true, 
+                            groupMemberEnabled:true }, 
+                        { 
+                            moduleIsPublic: true 
+                        }
                     ] 
                 }
             },

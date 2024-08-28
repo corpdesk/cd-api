@@ -342,6 +342,13 @@ export interface IQuery {
     class?:string;
 }
 
+export interface QueryInput {
+    select?: string[];
+    where?: any;
+    take?: number;
+    skip?: number;
+}
+
 // query builder filter
 export interface IQbFilter {
     field: string;
