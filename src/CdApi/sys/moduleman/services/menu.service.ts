@@ -206,37 +206,6 @@ export class MenuService {
             })
     }
 
-    // getAclMenu$(req, res, params: IAllowedModules): Observable<any> {
-    //     this.logger.logInfo('MenuService::getAclMenu$()/params:', params);
-    //     return params.modules$.pipe(
-    //         mergeMap((m) => {
-    //             return m.map(mod => {
-    //                 this.logger.logInfo('MenuService::getAclMenu$()/mod:', mod)
-    //                 const moduleMenuData$ = this.getModuleMenu$(req, res, mod);
-    //                 this.logger.logInfo('MenuService::getAclMenu$()/moduleMenuData:', moduleMenuData$);
-    //                 return forkJoin({
-    //                     modules: params.modules$,
-    //                     menu: this.buildNestedMenu(this.getRootMenuIds(moduleMenuData$), moduleMenuData$),
-    //                 }).pipe(
-    //                     map(({ menu, modules }) => {
-    //                         this.logger.logInfo('MenuService::getAclMenu$()/menu:', menu)
-    //                         this.logger.logInfo('MenuService::getAclMenu$()/modules:', modules)
-    //                         return menu;  // menu now contains an array of nested menu trees
-                            
-    //                     })
-    //                 );
-    //             });
-    //         }),
-    //         mergeMap((m) => {
-    //             this.logger.logInfo('MenuService::getAclMenu$()/m:', m)
-    //             return m.pipe(
-    //                 map((modules) => modules)
-    //             );
-    //         }),
-    //         bufferCount(params.modulesCount)
-    //     );
-    // }
-
     getAclMenu$(req, res, params: IAllowedModules): Observable<any> {
         this.logger.logInfo('MenuService::getAclMenu$()/params:', params);
         
@@ -278,7 +247,7 @@ export class MenuService {
             docName: 'MenuService::getModuleMenu$',
             cmd: {
                 action: 'find',
-                query: { where: { moduleGuid: moduleData.moduleGuid } }
+                query: { where: { moduleGuid: moduleData.moduleGuid, menuEnabled: 1 } }
             },
             dSource: 1,
         }
