@@ -16,22 +16,31 @@ export class GroupMemberController extends CdController {
     /**
      * {
             "ctx": "Sys",
-            "m": "Moduleman",
+            "m": "User",
             "c": "GroupMember",
             "a": "Create",
             "dat": {
                 "f_vals": [
                     {
                         "data": {
-                            "companyName": "/src/CdApi/sys/moduleman",
-                            "companyTypeGuid": "7ae902cd-5bc5-493b-a739-125f10ca0268",
-                            "parentModuleGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b"
+                            "userIdMember": "1010",
+                            "memberGuid": "fe5b1a9d-df45-4fce-a181-65289c48ea00",
+                            "groupGuidParent": "D7FF9E61-B143-D083-6130-A51058AD9630",
+                            "cdObjTypeId": "9"
+                        }
+                    },
+                    {
+                        "data": {
+                            "userIdMember": "1015",
+                            "memberGuid": "fe5b1a9d-df45-4fce-a181-65289c48ea00",
+                            "groupGuidParent": "2cdaba03-5121-11e7-b279-c04a002428aa",
+                            "cdObjTypeId": "9"
                         }
                     }
                 ],
-                "token": "3ffd785f-e885-4d37-addf-0e24379af338"
+                "token": "6E831EAF-244D-2E5A-0A9E-27C1FDF7821D"
             },
-            "args": {}
+            "args": null
         }
      * @param req
      * @param res

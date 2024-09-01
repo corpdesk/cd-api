@@ -241,11 +241,11 @@ export class AclService {
             .pipe(
                 map((m) => {
                     // this.b.logTimeStamp(':AclService::aclModule$()/02')
-                    // console.log('AclService::aclModule$()/m1:', m)
+                    console.log('AclService::aclModule$()/m1:', m)
                     return m.filter(isEnabled)
                 }),
                 map((m) => {
-                    // console.log('AclService::aclModule$()/m2:', m)
+                    console.log('AclService::aclModule$()/m2:', m)
                     // console.log('AclService::aclModule$()/03:');
                     // this.b.logTimeStamp(':AclService::aclModule$()/03')
                     return m.filter(isConsumerResource)
@@ -256,7 +256,7 @@ export class AclService {
                 map(modules => {
                     // this.b.logTimeStamp(':AclService::aclModule$()/04')
                     // console.log('AclService::aclModule$()/03:');
-                    // console.log('aclModuleMembers/modules3:', modules);
+                    console.log('aclModuleMembers/modules3:', modules);
                     const mArr = [];
                     modules.forEach((m) => {
                         m = {

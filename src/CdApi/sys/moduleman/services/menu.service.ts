@@ -269,6 +269,7 @@ export class MenuService {
     private buildSingleMenuTree(rootMenuId: number, moduleMenuData$: Observable<MenuViewModel[]>): Observable<any> {
         return moduleMenuData$.pipe(
             map((menuData) => {
+                console.log("MenuService::buildSingleMenuTree()/menuData1:", menuData)
                 // Recursive function to build the tree structure
                 const buildTree = (parentId: number): any => {
                     return menuData
@@ -279,6 +280,7 @@ export class MenuService {
                         }));
                 };
 
+                console.log("MenuService::buildSingleMenuTree()/menuData2:", menuData)
                 // Start building the tree from the root node
                 const rootNode = menuData.find((m) => m.menuId === rootMenuId);
                 if (rootNode) {
@@ -297,6 +299,7 @@ export class MenuService {
     getRootMenuIds(moduleMenuData$: Observable<MenuViewModel[]>): Observable<number[]> {
         return moduleMenuData$.pipe(
             map((menuData) => {
+                console.log("MenuService::getRootMenuIds()/menuData:", menuData)
                 return menuData
                     .filter((m) => m.menuParentId === -1)
                     .map((m) => m.menuId);
@@ -309,7 +312,7 @@ export class MenuService {
         return moduleMenuData$
             .pipe(
                 tap((m) => {
-                    this.b.logger.logInfo('MenuService::getMenuItem$/m:', m)
+                    console.log('MenuService::getMenuItem/m:', m)
                     menuId$.pipe(map((mId) => {
                         this.b.logTimeStamp('MenuService::getMenuItem$/02')
                         return mId;
@@ -327,6 +330,7 @@ export class MenuService {
                 )
                 , map(
                     (m) => {
+                        console.log('MenuService::getMenuItem/m:', m)
                         if (m) {
                             return m.menuData.filter((menuItem: MenuViewModel) => {
                                 if (menuItem.menuId === m.menuId) {

@@ -1457,7 +1457,7 @@ export class BaseService {
     }
 
     async get(req, res, serviceInput: IServiceInput): Promise<any> {
-        // this.logger.logDebug('BaseService::get/q:', q);
+        this.logger.logDebug('BaseService::get/serviceInput:', serviceInput);
         // console.log('BaseService::get/model:', model);
         // const serviceInput: IServiceInput = {
         //     serviceModel: model,
