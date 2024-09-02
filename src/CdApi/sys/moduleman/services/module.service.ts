@@ -13,26 +13,27 @@ import { MenuService } from './menu.service';
 import { AclService } from './acl.service';
 import { GroupService } from '../../user/services/group.service';
 import { ModuleModel } from '../models/module.model';
-import { CreateIParams, IAclCtx, IRespInfo, IServiceInput, ObjectItem } from '../../base/IBase';
+import { CreateIParams, IAclCtx, IQuery, IRespInfo, IServiceInput, ObjectItem } from '../../base/IBase';
 import { ModuleViewModel } from '../models/module-view.model';
 import { CdService } from '../../base/cd.service';
 import { Logging } from '../../base/winston.log';
+import { GroupModel } from '../../user/models/group.model';
 
 export class ModuleService extends CdService {
     logger: Logging;
     cdToken;
     serviceModel;
     b: BaseService;
-    srvSess: SessionService;
-    srvUser: UserService;
-    srvGroup: GroupService;
-    srvGroupMember: GroupMemberService;
-    srvMemo: MemoService;
-    srvMenu: MenuService;
-    srvNotif: NotificationService;
-    srvCalnd: CalendarService;
+    svSess: SessionService;
+    svUser: UserService;
+    svGroup: GroupService;
+    svGroupMember: GroupMemberService;
+    svMemo: MemoService;
+    svMenu: MenuService;
+    svNotif: NotificationService;
+    svCalnd: CalendarService;
     svConsumer: ConsumerService;
-    srvAcl: AclService;
+    svAcl: AclService;
     consumerGuid: string;
 
     /*
@@ -53,7 +54,10 @@ export class ModuleService extends CdService {
         this.b = new BaseService();
         this.logger = new Logging();
         this.serviceModel = new ModuleModel();
+        this.svSess = new SessionService();
+        this.svConsumer = new ConsumerService();
     }
+
 
     async create(req, res): Promise<void> {
         const svSess = new SessionService();
@@ -66,7 +70,8 @@ export class ModuleService extends CdService {
                 docName: 'Create Module',
                 dSource: 1,
             }
-            const respData = await this.b.create(req, res, serviceInput);
+            const newModule = await this.b.create(req, res, serviceInput);
+            const respData = this.afterCreate(req, res, newModule)
             this.b.i.app_msg = 'new module created';
             this.b.setAppState(true, this.b.i, svSess.sessResp);
             this.b.cdResp.data = await respData;
@@ -75,10 +80,6 @@ export class ModuleService extends CdService {
             svSess.sessResp.cd_token = req.post.dat.token;
             const r = await this.b.respond(req, res);
         }
-    }
-
-    createI(req, res, createIParams: CreateIParams) {
-        //
     }
 
     async validateCreate(req, res) {
@@ -109,6 +110,123 @@ export class ModuleService extends CdService {
     }
 
     /**
+     * sync bill with cd-moduleGroup
+     * @param req 
+     * @param res 
+     * @param createResult 
+     * @returns 
+     */
+    async afterCreate(req, res, newModule: ModuleModel): Promise<any> {
+        console.log('ModuleService::afterCreate()/01')
+        console.log('ModuleService::afterCreate()/newModule:', newModule)
+        // const nb = await newModule;
+        const sessionData = await this.svSess.getSession(req, res);
+        console.log('ModuleService::afterCreate()/sessionData:', sessionData)
+        const consumerGuid = sessionData[0].consumerGuid;
+        const cuid = sessionData[0].currentUserId;
+        console.log('ModuleService::afterCreate()/consumerGuid:', consumerGuid)
+        const consumerData = await this.svConsumer.getCompanyData(req, res, consumerGuid);
+        console.log('ModuleService::afterCreate()/consumerData:', consumerData)
+        const companyId = consumerData[0].companyId
+        /**
+         *  - confirm bill is not double entry on moduleGroup
+         *  - create or update accts/moduleGroup while creating a bill
+         */
+        const moduleGroup: GroupModel = {
+            groupGuid: newModule.moduleGuid,
+            groupName: newModule.moduleName,
+            groupOwnerId: cuid,
+            groupTypeId: 2,
+            groupEnabled: true,
+            moduleGuid: newModule.moduleGuid,
+            companyId: companyId
+        }
+        console.log('ModuleService::afterCreate()/moduleGroup:', moduleGroup)
+        const svGroup = new GroupService();
+        const si = {
+            serviceInstance: svGroup,
+            serviceModel: GroupModel,
+            serviceModelInstance: svGroup.serviceModel,
+            docName: 'ModuleService/afterCreate',
+            dSource: 1,
+        }
+        const createIParams: CreateIParams = {
+            serviceInput: si,
+            controllerData: moduleGroup
+        }
+        console.log('ModuleService::afterCreate()/02')
+        /**
+         * create new group from new module data
+         */
+        const newGroup = await svGroup.createI(req, res, createIParams)
+        console.log('ModuleService::afterCreate()/newGroup:', newGroup)
+        /**
+         * update new module with new group data
+         */
+        // const update = await this.setGroupId(req, res, newGroup, newModule)
+        let updatedModule: any;
+        if (newGroup) {
+            updatedModule = await this.setGroupId(req, res, newGroup[0], newModule)
+            console.log('ModuleService::afterCreate()/updatedModule:', updatedModule)
+        } else {
+            // Handle the case where newGroup is null, if needed
+        }
+
+
+        const serviceInput: IServiceInput = {
+            serviceInstance: this,
+            serviceModel: ModuleModel,
+            docName: 'ModuleService::afterCreate',
+            cmd: {
+                action: 'find',
+                query: { where: { moduleId: newModule.moduleId } }
+            },
+            dSource: 1,
+        }
+        console.log('ModuleService::afterCreate/serviceInput:', serviceInput);
+        const ret = await this.b.read(req, res, serviceInput)
+        console.log('ModuleService::afterCreate/ret:', ret);
+        return ret;
+    }
+
+    async setGroupId(req, res, newGroup: GroupModel, newModule: ModuleModel) {
+        console.log('ModuleService::setGroupId/01');
+        // const groupData: GroupModel;
+        if (newModule && newModule) {
+            // const g = groupData;
+            const q = {
+                update: {
+                    groupGuid: newModule.moduleGuid,
+                    moduleGuid: newModule.moduleGuid
+                },
+                where: {
+                    moduleId: newModule.moduleId
+                }
+            }
+            console.log('ModuleService::setGroupId/q:', q);
+            return await this.updateI(req, res, q);
+        } else {
+            const e = 'could not get invoice data'
+            this.b.err.push(e);
+            const i = {
+                messages: this.b.err,
+                code: 'ModuleService:setGroupId',
+                app_msg: ''
+            };
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
+        }
+
+    }
+
+    async createI(req, res, createIParams: CreateIParams): Promise<ModuleModel | boolean> {
+        console.log('ModuleService::create()/createIParams:', createIParams)
+        const newModule = await this.b.createI(req, res, createIParams)
+        // const ret = await this.afterCreate(req, res, newModule)
+        return newModule;
+    }
+
+    /**
      * This method uses getAclModule$ to get allowedModules$ which is then used to generate menu data
      * allowedModules$ is generated using this.getAclModule$(req, res, { currentUser: cUser, consumerGuid: cguid });
      * note that allowedModules$ is an
@@ -121,16 +239,16 @@ export class ModuleService extends CdService {
      */
     getModulesUserData$(req, res, cUser: ModuleModel): Observable<any> {
         this.b.logTimeStamp('ModuleService::getModulesUserData$/01')
-        this.srvSess = new SessionService();
-        this.srvUser = new UserService();
-        this.srvMemo = new MemoService();
-        this.srvNotif = new NotificationService();
-        this.srvCalnd = new CalendarService();
-        this.srvGroup = new GroupService();
-        this.srvGroupMember = new GroupMemberService();
+        this.svSess = new SessionService();
+        this.svUser = new UserService();
+        this.svMemo = new MemoService();
+        this.svNotif = new NotificationService();
+        this.svCalnd = new CalendarService();
+        this.svGroup = new GroupService();
+        this.svGroupMember = new GroupMemberService();
         this.svConsumer = new ConsumerService();
-        this.srvMenu = new MenuService();
-        this.srvAcl = new AclService();
+        this.svMenu = new MenuService();
+        this.svAcl = new AclService();
 
         /**
          * extract the request consumer guid
@@ -154,7 +272,7 @@ export class ModuleService extends CdService {
                             this.logger.logInfo('ModuleService::getModulesUserData$/am:', am)
                             return am.length > 0
                         },
-                        this.srvMenu.getAclMenu$(req, res, { modules$: allowedModules$, modulesCount: am.length }),
+                        this.svMenu.getAclMenu$(req, res, { modules$: allowedModules$, modulesCount: am.length }),
                         []
                     )
                 )
@@ -165,13 +283,13 @@ export class ModuleService extends CdService {
          * - memos
          * - calender
          */
-        // const acoid = this.srvUser.getUserActiveCo();
-        // const notifdata = this.srvNotif.getsrvNotifications(cuid);
-        // const notifsumm = this.srvNotif.getsrvNotifications_summary(cuid);
-        // const memosumm = this.srvMemo.getMemoSummary(cuid);
-        // const calndsumm = this.srvCalnd.getCalendarSumm(cuid);
-        // const userContacts = this.srvUser.getContacts(cuid);
-        // const userPals = this.srvGroupMember.getPals(cuid);
+        // const acoid = this.svUser.getUserActiveCo();
+        // const notifdata = this.svNotif.getsvNotifications(cuid);
+        // const notifsumm = this.svNotif.getsvNotifications_summary(cuid);
+        // const memosumm = this.svMemo.getMemoSummary(cuid);
+        // const calndsumm = this.svCalnd.getCalendarSumm(cuid);
+        // const userContacts = this.svUser.getContacts(cuid);
+        // const userPals = this.svGroupMember.getPals(cuid);
 
         const result$ = forkJoin({
             consumer: clientConsumer$,
@@ -179,7 +297,7 @@ export class ModuleService extends CdService {
             // .pipe(
             //     map(menu => menu.flat())
             //   )
-              ,
+            ,
             userData: of(cUser),
             /////////////////////
             // OPTIONAL ADDITIVES:
@@ -199,9 +317,9 @@ export class ModuleService extends CdService {
      * For this to be aggregated, 3 datasets are retreived from database to an object as below:
      *  {
             // unfilteredModules: this.getAll$(req, res).pipe(map((m) => { return m })), // for isRoot
-            userRoles: this.srvAcl.aclUser$(req, res, params).pipe(map((m) => { return m })),
-            consumerModules: this.srvAcl.aclModule$(req, res).pipe(map((m) => { return m })),
-            moduleParents: this.srvAcl.aclModuleMembers$(req, res, params).pipe(map((m) => { return m }))
+            userRoles: this.svAcl.aclUser$(req, res, params).pipe(map((m) => { return m })),
+            consumerModules: this.svAcl.aclModule$(req, res).pipe(map((m) => { return m })),
+            moduleParents: this.svAcl.aclModuleMembers$(req, res, params).pipe(map((m) => { return m }))
         }
 
      *  1. User Roles:
@@ -228,15 +346,15 @@ export class ModuleService extends CdService {
     getAclModule$(req, res, params): Observable<any> {
         this.b.logTimeStamp('ModuleService::getAclModule$/01')
         this.consumerGuid = params.consumerGuid;
-        this.srvAcl.consumerGuid = params.consumerGuid;
+        this.svAcl.consumerGuid = params.consumerGuid;
         this.logger.logInfo('ModuleService::getAclModule$()/params:', params)
-        this.logger.logInfo('ModuleService::getAclModule$()/this.srvAcl.consumerGuid:', this.srvAcl.consumerGuid)
+        this.logger.logInfo('ModuleService::getAclModule$()/this.svAcl.consumerGuid:', this.svAcl.consumerGuid)
         // this.logger.logInfo('ModuleService::getAclModule$()/01:');
         return forkJoin({
             // unfilteredModules: this.getAll$(req, res).pipe(map((m) => { return m })), // for isRoot
-            userRoles: this.srvAcl.aclUser$(req, res, params).pipe(map((m) => { return m })),
-            consumerModules: this.srvAcl.aclModule$(req, res).pipe(map((m) => { return m })),
-            moduleParents: this.srvAcl.aclModuleMembers$(req, res, params).pipe(map((m) => { return m }))
+            userRoles: this.svAcl.aclUser$(req, res, params).pipe(map((m) => { return m })),
+            consumerModules: this.svAcl.aclModule$(req, res).pipe(map((m) => { return m })),
+            moduleParents: this.svAcl.aclModuleMembers$(req, res, params).pipe(map((m) => { return m }))
         })
             .pipe(
                 map((acl: any) => {
@@ -356,7 +474,7 @@ export class ModuleService extends CdService {
             },
             dSource: 1
         }
-        
+
         this.b.readQB$(req, res, serviceInput)
             .subscribe((r) => {
                 this.b.i.code = serviceInput.docName;
@@ -398,6 +516,19 @@ export class ModuleService extends CdService {
         return null;
     }
 
+    /**
+     * harmonise any data that can
+     * result in type error;
+     * @param q
+     * @returns
+     */
+    beforeUpdate(q: any): IQuery {
+        if (q.update.moduleEnabled === '') {
+            q.update.moduleEnabled = null;
+        }
+        return q;
+    }
+
     update(req, res) {
         const serviceInput = {
             serviceModel: ModuleModel,
@@ -415,6 +546,23 @@ export class ModuleService extends CdService {
             })
     }
 
+    async updateI(req, res, q): Promise<any> {
+        console.log('ModuleService::updateI()/01');
+        // let q = this.b.getQuery(req);
+        q = this.beforeUpdate(q);
+        const serviceInput = {
+            serviceModel: ModuleModel,
+            docName: 'ModuleService::updateI',
+            cmd: {
+                action: 'update',
+                query: q
+            },
+            dSource: 1
+        }
+        console.log('ModuleService::update()/02')
+        return this.b.update(req, res, serviceInput)
+    }
+
     delete(req, res) {
         const serviceInput = {
             serviceModel: ModuleModel,
@@ -428,6 +576,11 @@ export class ModuleService extends CdService {
 
         this.b.delete$(req, res, serviceInput)
             .subscribe((ret) => {
+                /**
+                 * TODO:
+                 * implemement svGroup.deletI(req,res)
+                 * then use it to delet group associated with this module
+                 */
                 this.b.cdResp.data = ret;
                 this.b.respond(req, res)
             })

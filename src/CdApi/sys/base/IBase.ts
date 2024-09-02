@@ -342,6 +342,24 @@ export interface IQuery {
     class?:string;
 }
 
+/**
+ * constraining the update attribute to specific models in different services.
+ * By using Array<keyof T> for the select attribute, you constrain the select array to valid fields of the model type T.
+ * This approach improves type safety and ensures that you don't accidentally select invalid fields.
+ * This type-safe approach helps prevent errors at compile-time, making your code more reliable and maintainable.
+ */
+// export type SelectType<T> = Array<keyof T>;
+// export interface IQuery<T = any> {
+//     select?: SelectType<T>;
+//     update?: T;
+//     where: any;
+//     take?: number;
+//     skip?: number;
+//     jFilters?: IJFilter[];
+//     order?: any;
+//     class?: string;
+// }
+
 export interface QueryInput {
     select?: string[];
     where?: any;

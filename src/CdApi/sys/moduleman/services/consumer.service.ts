@@ -125,15 +125,15 @@ export class ConsumerService extends CdService {
         return true;
     }
 
-    getCompanyData(req, res, coGuid: string): Promise<CompanyModel[]> {
-        this.logger.logInfo('moduleman/create::getCompanyData()/coGuid:', {coGuid:coGuid});
+    getCompanyData(req, res, consGuid: string): Promise<CompanyModel[]> {
+        this.logger.logInfo('moduleman/create::getCompanyData()/coGuid:', {coGuid:consGuid});
         const serviceInput: IServiceInput = {
             serviceInstance: this,
             serviceModel: ConsumerModel,
             docName: 'CompanyService::getCompany$',
             cmd: {
                 action: 'find',
-                query: { where: { companyGuid: coGuid } }
+                query: { where: { consumerGuid: consGuid } }
             },
             dSource: 1
         }

@@ -55,6 +55,7 @@ export class BaseService {
     // sqliteDb;
     sqliteConn: Connection;
     cuid = USER_ANON;
+    consumer_guid;
     debug = true;
     pl;
     svSess: SessionService;

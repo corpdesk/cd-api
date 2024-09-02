@@ -103,6 +103,8 @@ export class SessionService {
             },
             dSource: 1,
         }
+        console.log("SessionService::getSession/req.post.dat.token:", req.post.dat.token)
+        console.log("SessionService::getSession/serviceInput:", serviceInput)
         return await this.b.read(req, res, serviceInput);
     }
 

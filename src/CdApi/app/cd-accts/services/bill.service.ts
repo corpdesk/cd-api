@@ -295,7 +295,7 @@ export class BillService extends CdService {
         console.log('BillService::afterCreate()/02')
         const invoiceData: any = await svInvoice.createI(req, res, createIParams)
         console.log('BillService::afterCreate()/invoiceData:', await invoiceData)
-        const update = await this.setInvoiceId(req, res, await invoiceData, nb)
+        const update = await this.setInvoiceId(req, res, await invoiceData[0], nb)
         console.log('BillService::afterCreate()/update:', update)
 
         const serviceInput: IServiceInput = {
@@ -314,10 +314,10 @@ export class BillService extends CdService {
         return ret;
     }
 
-    async setInvoiceId(req, res, invoiceData:CdAcctsIntInvoiceModel[], newBill) {
+    async setInvoiceId(req, res, invoiceData:CdAcctsIntInvoiceModel, newBill) {
         console.log('BillService::getBill/01');
-        if(invoiceData.length > 0){
-            const invoice = invoiceData[0];
+        if(invoiceData){
+            const invoice = invoiceData;
             const q = {
                 update: {
                     cdAcctsIntInvoiceId: invoice.cdAcctsIntInvoiceId

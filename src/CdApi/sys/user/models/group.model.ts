@@ -49,7 +49,7 @@ export class GroupModel {
             nullable: true
         }
     )
-    groupDescription: string;
+    groupDescription?: string;
 
     @Column(
         {
@@ -57,7 +57,7 @@ export class GroupModel {
             nullable: true
         }
     )
-    docId: number;
+    docId?: number;
 
     @Column(
         {
@@ -80,7 +80,7 @@ export class GroupModel {
         length: 36,
         default: uuidv4()
     })
-    moduleGuid?: string;
+    moduleGuid: string;
 
     @Column(
         {
@@ -103,7 +103,7 @@ export class GroupModel {
             nullable: true
         }
     )
-    groupIsPublic: boolean;
+    groupIsPublic?: boolean;
 
     @Column(
         {
