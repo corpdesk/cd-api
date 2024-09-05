@@ -1,12 +1,15 @@
 // https://www.npmjs.com/package/device-detector-js
 import DeviceDetector from 'device-detector-js';
 import { BaseService } from '../../base/base.service';
-import { IServiceInput, ISessResp } from '../../base/IBase';
+import { IServiceInput, ISessionDataExt, ISessResp } from '../../base/IBase';
 import { DocModel } from '../../moduleman/models/doc.model';
 import { SessionModel } from '../models/session.model';
 import { UserModel } from '../models/user.model';
 import { UserService } from './user.service';
 import { Logging } from '../../base/winston.log';
+import { ConsumerModel } from '../../moduleman/models/consumer.model';
+import { CompanyModel } from '../../moduleman/models/company.model';
+import { ConsumerService } from '../../moduleman/services/consumer.service';
 
 
 export class SessionService {
@@ -27,6 +30,12 @@ export class SessionService {
         jwt: null,
         ttl: 600
     };
+
+    currentUserData: UserModel[];
+    currentSessData: SessionModel[];
+    currentConsumerData: ConsumerModel[];
+    currentCompanyData: CompanyModel[];
+    
     constructor() {
         this.b = new BaseService();
         this.logger = new Logging();
@@ -146,5 +155,29 @@ export class SessionService {
             svUser.getAnon(req, res)
         }
         
+    }
+
+    async getSessionDataExt(req, res): Promise<ISessionDataExt> {
+        const svUser = new UserService();
+        const svConsumer = new ConsumerService();
+        // const sessionData = await this.getSession(req, res);
+        this.currentSessData = await this.getSession(req, res);
+        console.log('SessionService::getSessionDataExt()/this.currentSessData:', this.currentSessData)
+        const consumerGuid = this.currentSessData[0].consumerGuid;
+        const cuid = this.currentSessData[0].currentUserId;
+        console.log('SessionService::getSessionDataExt()/cuid:', cuid)
+        this.currentUserData = await svUser.getUserByID(req, res, cuid);
+        console.log('SessionService::getSessionDataExt()/consumerGuid:', consumerGuid)
+        console.log('SessionService::getSessionDataExt()/consumerGuid:', consumerGuid)
+        this.currentConsumerData = await svConsumer.getConsumerI(req, res, {where:{consumerGuid:consumerGuid}});
+        console.log('SessionService::getSessionDataExt()/this.currentConsumerData:', this.currentConsumerData)
+        this.currentCompanyData = await svConsumer.getCompanyData(req, res, consumerGuid);
+        console.log('SessionService::getSessionDataExt()/this.currentCompanyData:', this.currentCompanyData)
+        return {
+            currentUser: this.currentUserData[0],
+            currentSession: this.currentSessData[0],
+            currentConsumer: this.currentConsumerData[0],
+            currentCompany: this.currentCompanyData[0],
+        }
     }
 }

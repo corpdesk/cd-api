@@ -49,7 +49,7 @@ export class MenuModel {
             nullable: true
         }
     )
-    menuDescription: string;
+    menuDescription?: string;
 
     @Column(
         'varchar',
@@ -59,7 +59,7 @@ export class MenuModel {
             nullable: true
         }
     )
-    menuClosetFile: string;
+    menuClosetFile?: string;
 
     @Column(
         {
@@ -99,7 +99,7 @@ export class MenuModel {
             nullable: true
         }
     )
-    docId: number;
+    docId?: number;
 
     @Column(
         {
@@ -115,7 +115,7 @@ export class MenuModel {
             nullable: true
         }
     )
-    menuOrder: number;
+    menuOrder?: number;
 
     @Column(
         'varchar',
@@ -162,7 +162,7 @@ export class MenuModel {
             nullable: true
         }
     )
-    iconType: number;
+    iconType: string;
 
     @Column(
         {
@@ -170,7 +170,7 @@ export class MenuModel {
             nullable: true
         }
     )
-    group: number;
+    group?: number;
 
 
     @Column(
@@ -179,7 +179,7 @@ export class MenuModel {
             nullable: true
         }
     )
-    isTitle: boolean;
+    isTitle?: boolean;
 
     @Column(
         {
@@ -187,7 +187,7 @@ export class MenuModel {
             nullable: true
         }
     )
-    badge: string;
+    badge?: string;
 
     @Column(
         {
@@ -195,7 +195,7 @@ export class MenuModel {
             nullable: true
         }
     )
-    isLayout: boolean;
+    isLayout?: boolean;
 
 
 }

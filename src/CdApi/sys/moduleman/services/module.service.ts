@@ -13,11 +13,16 @@ import { MenuService } from './menu.service';
 import { AclService } from './acl.service';
 import { GroupService } from '../../user/services/group.service';
 import { ModuleModel } from '../models/module.model';
-import { CreateIParams, IAclCtx, IQuery, IRespInfo, IServiceInput, ObjectItem } from '../../base/IBase';
+import { CreateIParams, IAclCtx, IQuery, IRespInfo, IServiceInput, ISessionDataExt, ObjectItem } from '../../base/IBase';
 import { ModuleViewModel } from '../models/module-view.model';
 import { CdService } from '../../base/cd.service';
 import { Logging } from '../../base/winston.log';
 import { GroupModel } from '../../user/models/group.model';
+import { CdObjModel } from '../models/cd-obj.model';
+import { ConsumerResourceModel } from '../models/consumer-resource.model';
+import { MenuModel } from '../models/menu.model';
+import { CdObjService } from './cd-obj.service';
+import { ConsumerResourceService } from './consumer-resource.service';
 
 export class ModuleService extends CdService {
     logger: Logging;
@@ -35,6 +40,14 @@ export class ModuleService extends CdService {
     svConsumer: ConsumerService;
     svAcl: AclService;
     consumerGuid: string;
+    sessDataExt: ISessionDataExt;
+    retMenuCollection:MenuModel[] = [];
+
+    newModule: ModuleModel;
+    newModCdObj: CdObjModel | boolean;
+    newModConsumRecource: ConsumerResourceModel | boolean;
+    newGroup: GroupModel | boolean;
+    newModMenus: MenuModel[] | boolean;
 
     /*
      * create rules
@@ -54,8 +67,8 @@ export class ModuleService extends CdService {
         this.b = new BaseService();
         this.logger = new Logging();
         this.serviceModel = new ModuleModel();
-        this.svSess = new SessionService();
-        this.svConsumer = new ConsumerService();
+        // this.svSess = new SessionService();
+        // this.svConsumer = new ConsumerService();
     }
 
 
@@ -70,8 +83,8 @@ export class ModuleService extends CdService {
                 docName: 'Create Module',
                 dSource: 1,
             }
-            const newModule = await this.b.create(req, res, serviceInput);
-            const respData = this.afterCreate(req, res, newModule)
+            this.newModule = await this.b.create(req, res, serviceInput);
+            const respData = this.afterCreate(req, res)
             this.b.i.app_msg = 'new module created';
             this.b.setAppState(true, this.b.i, svSess.sessResp);
             this.b.cdResp.data = await respData;
@@ -104,103 +117,106 @@ export class ModuleService extends CdService {
     }
 
     async beforeCreate(req, res): Promise<boolean> {
+        const svSess = new SessionService();
+        this.sessDataExt = await svSess.getSessionDataExt(req, res);
         this.b.setPlData(req, { key: 'moduleGuid', value: this.b.getGuid() });
         this.b.setPlData(req, { key: 'moduleEnabled', value: true });
         return true;
     }
 
     /**
-     * sync bill with cd-moduleGroup
+     * 
+     * afterCreate is used to automate post module creation which includes:
+     *  - registration of module group
+     *  - registration of the module as a cd-object
+     *  - registration of the module as consumer-resource to the current
+     *  - registration of module menu items (if requested for)
+     * 
      * @param req 
      * @param res 
      * @param createResult 
      * @returns 
      */
-    async afterCreate(req, res, newModule: ModuleModel): Promise<any> {
+    async afterCreate(req, res): Promise<any> {
         console.log('ModuleService::afterCreate()/01')
-        console.log('ModuleService::afterCreate()/newModule:', newModule)
-        // const nb = await newModule;
-        const sessionData = await this.svSess.getSession(req, res);
-        console.log('ModuleService::afterCreate()/sessionData:', sessionData)
-        const consumerGuid = sessionData[0].consumerGuid;
-        const cuid = sessionData[0].currentUserId;
-        console.log('ModuleService::afterCreate()/consumerGuid:', consumerGuid)
-        const consumerData = await this.svConsumer.getCompanyData(req, res, consumerGuid);
-        console.log('ModuleService::afterCreate()/consumerData:', consumerData)
-        const companyId = consumerData[0].companyId
+        console.log('ModuleService::afterCreate()/this.sessDataExt:', this.sessDataExt)
+        this.newGroup = await this.registerModuleGroup(req, res);
+        console.log('ModuleService::afterCreate()/this.newGroup:', this.newGroup)
         /**
-         *  - confirm bill is not double entry on moduleGroup
-         *  - create or update accts/moduleGroup while creating a bill
-         */
-        const moduleGroup: GroupModel = {
-            groupGuid: newModule.moduleGuid,
-            groupName: newModule.moduleName,
-            groupOwnerId: cuid,
-            groupTypeId: 2,
-            groupEnabled: true,
-            moduleGuid: newModule.moduleGuid,
-            companyId: companyId
-        }
-        console.log('ModuleService::afterCreate()/moduleGroup:', moduleGroup)
-        const svGroup = new GroupService();
-        const si = {
-            serviceInstance: svGroup,
-            serviceModel: GroupModel,
-            serviceModelInstance: svGroup.serviceModel,
-            docName: 'ModuleService/afterCreate',
-            dSource: 1,
-        }
-        const createIParams: CreateIParams = {
-            serviceInput: si,
-            controllerData: moduleGroup
-        }
-        console.log('ModuleService::afterCreate()/02')
-        /**
-         * create new group from new module data
-         */
-        const newGroup = await svGroup.createI(req, res, createIParams)
-        console.log('ModuleService::afterCreate()/newGroup:', newGroup)
-        /**
-         * update new module with new group data
-         */
-        // const update = await this.setGroupId(req, res, newGroup, newModule)
+        * update new module with new group data
+        */
         let updatedModule: any;
-        if (newGroup) {
-            updatedModule = await this.setGroupId(req, res, newGroup[0], newModule)
+        if (this.newGroup) {
+            updatedModule = await this.setGroupId(req, res)
             console.log('ModuleService::afterCreate()/updatedModule:', updatedModule)
         } else {
             // Handle the case where newGroup is null, if needed
         }
 
+        /**
+         * create new cdObje
+         */
+        if ("cdObj" in req.post.dat.f_vals[0]) {
+            console.log('ModuleService::afterCreate()/cdOb is available')
+            this.newModCdObj = await this.registerModCdObj(req, res);
+            console.log('ModuleService::afterCreate()/this.newModCdObj:', this.newModCdObj)
+        } else {
+            // handle if cdObj component is not supplied
+        }
 
+
+        /**
+         * register the module as a consumer resource
+         */
+        this.newModConsumRecource = await this.registerModConsumRecource(req, res);
+        console.log('ModuleService::afterCreate()/this.newModConsumRecource:', this.newModConsumRecource)
+
+        /**
+         * create module menus
+         */
+        this.newModMenus = await this.registerModMenu(req, res);
+        console.log('ModuleService::afterCreate()/this.newModMenus:', await this.newModMenus)
+
+
+        /**
+         * extract the latest state of new module and return to client
+         */
         const serviceInput: IServiceInput = {
             serviceInstance: this,
             serviceModel: ModuleModel,
             docName: 'ModuleService::afterCreate',
             cmd: {
                 action: 'find',
-                query: { where: { moduleId: newModule.moduleId } }
+                query: { where: { moduleId: this.newModule.moduleId } }
             },
             dSource: 1,
         }
         console.log('ModuleService::afterCreate/serviceInput:', serviceInput);
         const ret = await this.b.read(req, res, serviceInput)
         console.log('ModuleService::afterCreate/ret:', ret);
-        return ret;
+        return await {
+            moduleData: ret,
+            moduleGroup: this.newGroup,
+            moduleCdObj: this.newModCdObj,
+            moduleConsumerResource: this.newModConsumRecource,
+            moduleMenu: this.newModMenus
+        };
+        // return ret;
+
     }
 
-    async setGroupId(req, res, newGroup: GroupModel, newModule: ModuleModel) {
+    async setGroupId(req, res) {
         console.log('ModuleService::setGroupId/01');
         // const groupData: GroupModel;
-        if (newModule && newModule) {
+        if (this.newModule && this.newModule) {
             // const g = groupData;
             const q = {
                 update: {
-                    groupGuid: newModule.moduleGuid,
-                    moduleGuid: newModule.moduleGuid
+                    groupGuid: this.newModule.moduleGuid,
+                    moduleGuid: this.newModule.moduleGuid
                 },
                 where: {
-                    moduleId: newModule.moduleId
+                    moduleId: this.newModule.moduleId
                 }
             }
             console.log('ModuleService::setGroupId/q:', q);
@@ -218,6 +234,315 @@ export class ModuleService extends CdService {
         }
 
     }
+
+    async registerModuleGroup(req, res) {
+        const svGroup = new GroupService();
+
+        /**
+         *  - confirm bill is not double entry on moduleGroup
+         *  - create or update accts/moduleGroup while creating a bill
+         */
+        const moduleGroup: GroupModel = {
+            groupGuid: this.newModule.moduleGuid,
+            groupName: this.newModule.moduleName,
+            groupOwnerId: this.b.cuid,
+            groupTypeId: 2,
+            groupEnabled: true,
+            moduleGuid: this.newModule.moduleGuid,
+            companyId: 0 // this.b.sessDataExt.currentCompany.companyId
+        }
+        console.log('ModuleService::registerModuleGroup()/moduleGroup:', moduleGroup)
+        const si = {
+            serviceInstance: svGroup,
+            serviceModel: GroupModel,
+            serviceModelInstance: svGroup.serviceModel,
+            docName: 'ModuleService/registerModuleGroup',
+            dSource: 1,
+        }
+        const createIParams: CreateIParams = {
+            serviceInput: si,
+            controllerData: moduleGroup
+        }
+        console.log('ModuleService::registerModuleGroup()/02')
+        /**
+         * create new group from new module data
+         */
+        return await svGroup.createI(req, res, createIParams)
+    }
+
+    async registerModCdObj(req, res) {
+        const svCdObj = new CdObjService();
+        const cdObj: CdObjModel = await this.b.getPlData(req, "cdObj")
+        console.log('ModuleService::afterCreate()/cdObj:', cdObj)
+        const si = {
+            serviceInstance: svCdObj,
+            serviceModel: CdObjModel,
+            serviceModelInstance: svCdObj.serviceModel,
+            docName: 'ModuleService/registerModCdObj',
+            dSource: 1,
+        }
+        const createIParams: CreateIParams = {
+            serviceInput: si,
+            controllerData: cdObj
+        }
+        console.log('ModuleService::registerModCdObj()/02')
+        /**
+         * create new group from new module data
+         */
+        return await svCdObj.createI(req, res, createIParams)
+    }
+
+    async registerModConsumRecource(req, res) {
+        const svConsumerResource = new ConsumerResourceService();
+        console.log("MosuleService::registerModConsumRecource()/this.b.sessDataExt:", this.sessDataExt)
+        // console.log("MosuleService::registerModConsumRecource()/this.newModConsumRecource:", this.newModConsumRecource)
+        const consumerModuleResource: ConsumerResourceModel = {
+            consumerId: this.sessDataExt.currentConsumer.consumerId,
+            consumerGuid: this.sessDataExt.currentConsumer.consumerGuid,
+            consumerResourceName: this.newModule.moduleName,
+            consumerResourceLink: 'javascript: void(0);',
+            consumerResourceEnabled: true,
+            objId: this.newModule.moduleId,
+            objGuid: this.newModule.moduleGuid,
+            cdObjTypeId: 3,
+            cdObjId: this.newModCdObj["cdObjId"],
+            cdObjGuid: this.newModCdObj["cdObjGuid"],
+        }
+        console.log('ModuleService::registerModConsumRecource()/consumerModuleResource:', consumerModuleResource)
+        const si = {
+            serviceInstance: svConsumerResource,
+            serviceModel: ConsumerResourceModel,
+            serviceModelInstance: svConsumerResource.serviceModel,
+            docName: 'ModuleService/registerModConsumRecource',
+            dSource: 1,
+        }
+        const createIParams: CreateIParams = {
+            serviceInput: si,
+            controllerData: consumerModuleResource
+        }
+        console.log('ModuleService::registerModConsumRecource()/02')
+        /**
+         * create new group from new module data
+         */
+        return svConsumerResource.createI(req, res, createIParams)
+    }
+
+    // async registerModMenu(req, res) {
+    //     console.log("MosuleService::registerModMenu()/this.sessDataExt:", this.sessDataExt)
+    //     // const svConsumerResource = new ConsumerResourceService();
+    //     // const svCdObj = new CdObjService();
+    //     const svMenu = new MenuService();
+    //     // let retMenuCollection:MenuModel[] = [];
+    //     if("moduleMenu" in req.post.dat.f_vals[0]){
+    //         /**
+    //          * extract requested menu data
+    //          */
+    //         const moduleMenu: MenuModel[] = await this.b.getPlData(req, "moduleMenu")
+    //         console.log("MosuleService::registerModMenu()/moduleMenu:", moduleMenu)
+
+
+    //         moduleMenu.forEach(async (menuItem:MenuModel, i) => {
+    //             console.log("MosuleService::registerModMenu()/i:", i)
+    //             console.log("MosuleService::registerModMenu()/menuItem:", menuItem)
+    //             /**
+    //              * register cdObj and use the data to fill menu data
+    //              */
+    //             const cdObj:CdObjModel = {
+    //                 cdObjName: this.newModule.moduleName,
+    //                 cdObjTypeGuid: '574c73a6-7e5b-40fe-aa89-e52ce1640f42', // menu_item
+    //                 parentModuleGuid: this.newModule.moduleGuid,
+    //                 cdObjDispName: this.newModule.moduleName,
+    //                 icon: "ri-gears-lines"
+    //             }
+    //             const moduleMenuCdObj:CdObjModel | boolean = await this.registerModCdObj(req,res)
+    //             console.log("MosuleService::registerModMenu()/i:", i)
+    //             console.log("MosuleService::registerModMenu()/moduleMenuCdObj:", moduleMenuCdObj)
+
+
+    //             /**
+    //             * menu data 
+    //             */
+    //             console.log("MosuleService::registerModMenu()/i:", i)
+    //             console.log("MosuleService::registerModMenu()/retMenuCollection:", this.retMenuCollection)
+    //             let menuParentId = 0;
+    //             if(i === 0){
+    //                 menuParentId = -1;
+    //             } else {
+    //                 if(this.retMenuCollection.length > 0){
+    //                     menuParentId = this.retMenuCollection[0].menuId
+    //                 } else {
+    //                     console.log("MosuleService::registerModMenu()/problem with insertion to retMenuCollection:")
+    //                     this.b.i.app_msg = `problem adding menu item:${menuItem.menuName} `
+    //                     this.b.err.push(this.b.i.app_msg);
+    //                 }  
+    //             }
+    //             const moduleMenu: MenuModel = {
+    //                 menuName: menuItem.menuName,
+    //                 menuLable: menuItem.menuName,
+    //                 menuGuid: this.b.getGuid(),
+    //                 menuActionId: moduleMenuCdObj["cdObjId"],
+    //                 menuParentId: menuParentId,
+    //                 moduleId: this.newModule.moduleId,
+    //                 path: menuItem.path,
+    //                 menuIcon: menuItem.menuIcon,
+    //                 iconType: menuItem.iconType,
+    //                 cdObjId: moduleMenuCdObj["cdObjId"],
+    //                 menuEnabled: true
+    //             }
+    //             console.log("MosuleService::registerModMenu()/i:", i)
+    //             console.log('ModuleService::registerModMenu()/moduleMenu:', moduleMenu)
+    //             const si = {
+    //                 serviceInstance: svMenu,
+    //                 serviceModel: MenuModel,
+    //                 serviceModelInstance: svMenu.serviceModel,
+    //                 docName: 'ModuleService/registerModMenu',
+    //                 dSource: 1,
+    //             }
+    //             const createIParams: CreateIParams = {
+    //                 serviceInput: si,
+    //                 controllerData: moduleMenu
+    //             }
+    //             console.log("MosuleService::registerModMenu()/i:", i)
+    //             console.log("MosuleService::registerModMenu()/createIParams:", createIParams)
+    //             console.log('ModuleService::registerModMenu()/02')
+    //             /**
+    //              * create new group from new module data
+    //              */
+    //             const ret:MenuModel = await svMenu.createI(req, res, createIParams)
+    //             console.log("MosuleService::registerModMenu()/i:", i)
+    //             console.log("MosuleService::registerModMenu()/ret:", ret)
+    //             console.log("MosuleService::registerModMenu()/this.retMenuCollection:", this.retMenuCollection)
+    //             this.retMenuCollection.push(ret)
+    //             console.log("MosuleService::registerModMenu()/this.retMenuCollection.length:", this.retMenuCollection.length)
+    //         })
+            
+    //         console.log('ModuleService::registerModMenu()/this.retMenuCollection:', this.retMenuCollection)
+    //     }
+
+    //     const serviceInput: IServiceInput = {
+    //         serviceInstance: svMenu,
+    //         serviceModel: MenuModel,
+    //         docName: 'ModuleService::registerModMenu',
+    //         cmd: {
+    //             action: 'find',
+    //             query: { where: { moduleId: this.newModule.moduleId } }
+    //         },
+    //         dSource: 1,
+    //     }
+    //     const retMenu: MenuModel[] = await this.b.read(req, res, serviceInput)
+    //     console.log('ModuleService::registerModMenu()/retMenu:', retMenu)
+    //     console.log('ModuleService::registerModMenu()/this.retMenuCollection:', this.retMenuCollection)
+    //     return retMenu;
+    // }
+
+    async registerModMenu(req, res) {
+        console.log("ModuleService::registerModMenu()/this.sessDataExt:", this.sessDataExt)
+        const svMenu = new MenuService();
+    
+        if ("moduleMenu" in req.post.dat.f_vals[0]) {
+            /**
+             * extract requested menu data
+             */
+            const moduleMenu: MenuModel[] = await this.b.getPlData(req, "moduleMenu");
+            console.log("ModuleService::registerModMenu()/moduleMenu:", moduleMenu);
+    
+            // Using for...of instead of forEach to handle async properly
+            for (let i = 0; i < moduleMenu.length; i++) {
+                const menuItem = moduleMenu[i];
+                console.log("ModuleService::registerModMenu()/i:", i);
+                console.log("ModuleService::registerModMenu()/menuItem:", menuItem);
+    
+                /**
+                 * register cdObj and use the data to fill menu data
+                 */
+                const cdObj: CdObjModel = {
+                    cdObjName: this.newModule.moduleName,
+                    cdObjTypeGuid: '574c73a6-7e5b-40fe-aa89-e52ce1640f42', // menu_item
+                    parentModuleGuid: this.newModule.moduleGuid,
+                    cdObjDispName: this.newModule.moduleName,
+                    icon: "ri-gears-lines"
+                };
+                const moduleMenuCdObj: CdObjModel | boolean = await this.registerModCdObj(req, res);
+                console.log("ModuleService::registerModMenu()/moduleMenuCdObj:", moduleMenuCdObj);
+    
+                /**
+                 * menu data
+                 */
+                console.log("ModuleService::registerModMenu()/retMenuCollection:", this.retMenuCollection);
+                let menuParentId = 0;
+    
+                if (i === 0) {
+                    menuParentId = -1; // First item as parent
+                } else {
+                    if (this.retMenuCollection.length > 0) {
+                        menuParentId = this.retMenuCollection[0].menuId;
+                    } else {
+                        console.log("ModuleService::registerModMenu()/problem with insertion to retMenuCollection:");
+                        this.b.i.app_msg = `problem adding menu item:${menuItem.menuName}`;
+                        this.b.err.push(this.b.i.app_msg);
+                    }
+                }
+    
+                const newMenuItem: MenuModel = {
+                    menuName: menuItem.menuName,
+                    menuLable: menuItem.menuName,
+                    menuGuid: this.b.getGuid(),
+                    menuActionId: moduleMenuCdObj["cdObjId"],
+                    menuParentId: menuParentId,
+                    moduleId: this.newModule.moduleId,
+                    path: menuItem.path,
+                    menuIcon: menuItem.menuIcon,
+                    iconType: menuItem.iconType,
+                    cdObjId: moduleMenuCdObj["cdObjId"],
+                    menuEnabled: true
+                };
+    
+                console.log('ModuleService::registerModMenu()/newMenuItem:', newMenuItem);
+    
+                const si = {
+                    serviceInstance: svMenu,
+                    serviceModel: MenuModel,
+                    serviceModelInstance: svMenu.serviceModel,
+                    docName: 'ModuleService/registerModMenu',
+                    dSource: 1,
+                };
+    
+                const createIParams: CreateIParams = {
+                    serviceInput: si,
+                    controllerData: newMenuItem
+                };
+    
+                /**
+                 * create new group from new module data
+                 */
+                const ret: MenuModel = await svMenu.createI(req, res, createIParams);
+                console.log("ModuleService::registerModMenu()/ret:", ret);
+    
+                this.retMenuCollection.push(ret);
+                console.log("ModuleService::registerModMenu()/this.retMenuCollection.length:", this.retMenuCollection.length);
+            }
+    
+            console.log('ModuleService::registerModMenu()/this.retMenuCollection:', this.retMenuCollection);
+        }
+    
+        const serviceInput: IServiceInput = {
+            serviceInstance: svMenu,
+            serviceModel: MenuModel,
+            docName: 'ModuleService::registerModMenu',
+            cmd: {
+                action: 'find',
+                query: { where: { moduleId: this.newModule.moduleId } }
+            },
+            dSource: 1,
+        };
+    
+        const retMenu: MenuModel[] = await this.b.read(req, res, serviceInput);
+        console.log('ModuleService::registerModMenu()/retMenu:', retMenu);
+        console.log('ModuleService::registerModMenu()/this.retMenuCollection:', this.retMenuCollection);
+    
+        return retMenu;
+    }
+       
 
     async createI(req, res, createIParams: CreateIParams): Promise<ModuleModel | boolean> {
         console.log('ModuleService::create()/createIParams:', createIParams)

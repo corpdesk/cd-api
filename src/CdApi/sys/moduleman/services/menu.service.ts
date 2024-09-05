@@ -116,8 +116,8 @@ export class MenuService {
         }
     }
 
-    createI(req, res, createIParams: CreateIParams) {
-        //
+    async createI(req, res, createIParams: CreateIParams) {
+        return await this.b.createI(req, res, createIParams)
     }
 
     async validateCreate(req, res) {

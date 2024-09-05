@@ -21,7 +21,7 @@ import { DocModel } from './doc.model';
 )
 // @CdModel
 export class CdObjModel {
-    b: BaseService;
+    b?: BaseService;
 
     @PrimaryGeneratedColumn(
         {
@@ -134,7 +134,7 @@ export class CdObjModel {
             default: null
         }
     )
-    objGuid: string;
+    objGuid?: string;
 
     @Column(
         {
@@ -197,10 +197,10 @@ export class CdObjModel {
     // docs: DocModel[];
 
     // HOOKS
-    @BeforeInsert()
-    @BeforeUpdate()
-    async validate() {
-        await validateOrReject(this);
-    }
+    // @BeforeInsert()
+    // @BeforeUpdate()
+    // async validate() {
+    //     await validateOrReject(this);
+    // }
 
 }

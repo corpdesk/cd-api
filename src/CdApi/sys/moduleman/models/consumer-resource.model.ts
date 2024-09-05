@@ -75,10 +75,9 @@ export class ConsumerResourceModel {
 
     @Column({
         name: 'consumer_resource_type_id',
-        length: 40,
-        default: uuidv4()
+        default: null
     })
-    consumerResourceTypeId?: string;
+    consumerResourceTypeId?: number;
 
     @Column({
         name: 'consumer_guid',
@@ -114,5 +113,15 @@ export class ConsumerResourceModel {
         default: uuidv4()
     })
     cdObjGuid?: string;
+
+    @Column({
+        name: 'consumer_resource_icon',
+    })
+    consumerResourceIcon?: string;
+
+    @Column({
+        name: 'consumer_resource_link',
+    })
+    consumerResourceLink?: string;
 
 }

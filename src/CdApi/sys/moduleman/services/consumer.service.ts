@@ -8,7 +8,7 @@ import { CdService } from '../../base/cd.service';
 import { SessionService } from '../../user/services/session.service';
 import { UserService } from '../../user/services/user.service';
 // import { ModuleModel } from '../models/module.model';
-import { CreateIParams, IRespInfo, IServiceInput, IUser } from '../../base/IBase';
+import { CreateIParams, IQuery, IRespInfo, IServiceInput, IUser } from '../../base/IBase';
 import { ConsumerModel } from '../models/consumer.model';
 // import { ModuleViewModel } from '../models/module-view.model';
 import { ConsumerViewModel } from '../models/consumer-view.model';
@@ -125,19 +125,22 @@ export class ConsumerService extends CdService {
         return true;
     }
 
-    getCompanyData(req, res, consGuid: string): Promise<CompanyModel[]> {
-        this.logger.logInfo('moduleman/create::getCompanyData()/coGuid:', {coGuid:consGuid});
+    async getCompanyData(req, res, consGuid: string): Promise<CompanyModel[]> {
+        const svCompany = new CompanyService();
+        console.log('moduleman/create::getCompanyData()/coGuid:', consGuid);
         const serviceInput: IServiceInput = {
             serviceInstance: this,
             serviceModel: ConsumerModel,
-            docName: 'CompanyService::getCompany$',
+            docName: 'CompanyService::getCompanyData',
             cmd: {
                 action: 'find',
                 query: { where: { consumerGuid: consGuid } }
             },
             dSource: 1
         }
-        return this.b.read(req, res, serviceInput)
+        const consumerData: ConsumerModel = await this.b.read(req, res, serviceInput);
+        console.log('moduleman/create::getCompanyData()/consumerData:', consumerData);
+        return await svCompany.getCompanyI(req, res, { where: { companyId: consumerData[0].companyId } });
     }
 
     async read(req, res, serviceInput: IServiceInput): Promise<any> {
@@ -312,6 +315,21 @@ export class ConsumerService extends CdService {
         }
     }
 
+    getConsumerI(req, res, q: IQuery): Promise<ConsumerModel[]> {
+        this.logger.logInfo('ConsumerService::getConsumerI()/query:', { query: q });
+        const serviceInput: IServiceInput = {
+            serviceInstance: this,
+            serviceModel: ConsumerModel,
+            docName: 'ConsumerService::getConsumerI',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        return this.b.read(req, res, serviceInput)
+    }
+
     async getConsumerType(req, res) {
         const q = this.b.getQuery(req);
         this.logger.logInfo('ConsumerService::getConsumer/f:', q);
@@ -387,7 +405,7 @@ export class ConsumerService extends CdService {
             },
             dSource: 1
         }
-        
+
         this.b.readQB$(req, res, serviceInput)
             .subscribe((r) => {
                 this.b.i.code = serviceInput.docName;
@@ -535,7 +553,7 @@ export class ConsumerService extends CdService {
         let companyGuid = null;
         let coId = null;
         if (consumerData.length > 0) {
-            this.logger.logInfo('ConsumerService::activeCompany()/consumerData[0].companyId:', {companyId: consumerData[0].companyId})
+            this.logger.logInfo('ConsumerService::activeCompany()/consumerData[0].companyId:', { companyId: consumerData[0].companyId })
             coId = consumerData[0].companyId;
             return await svCompany.getCompany(req, res, { where: { companyId: coId } })
         } else {
@@ -554,7 +572,7 @@ export class ConsumerService extends CdService {
         let companyGuid = null;
         let coId = null;
         if (consumerData.length > 0) {
-            this.logger.logInfo('ConsumerService::activeCompany()/consumerData[0].companyId:', {companyId:consumerData[0].companyId})
+            this.logger.logInfo('ConsumerService::activeCompany()/consumerData[0].companyId:', { companyId: consumerData[0].companyId })
             return consumerData
         } else {
             return Promise.resolve([])

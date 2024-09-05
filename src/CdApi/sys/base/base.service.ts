@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 // import { color, log, red, green, cyan, cyanBright, blue, yellow } from 'console-log-colors';
 // import { bold, white, gray } from 'console-log-colors';
 import * as Lá from 'lodash';
-import { CreateIParams, ICdRequest, ICdResponse, IControllerContext, IQuery, IRespInfo, IServiceInput, ISessResp, ObjectItem, CacheData, IQbInput } from './IBase';
+import { CreateIParams, ICdRequest, ICdResponse, IControllerContext, IQuery, IRespInfo, IServiceInput, ISessResp, ObjectItem, CacheData, IQbInput, ISessionDataExt } from './IBase';
 import {
     EntityMetadata,
     Repository,
@@ -60,6 +60,7 @@ export class BaseService {
     pl;
     svSess: SessionService;
     sess: SessionModel[];
+    // sessDataExt: ISessionDataExt;
     i: IRespInfo = {
         messages: [],
         code: '',
@@ -96,6 +97,12 @@ export class BaseService {
                 await db.setConnEntity(model);
             });
             await db.getConnection();
+            // console.log("BaseService::init()/this.cuid1:", this.cuid)
+            // if (this.cuid > 1000) {
+            //     console.log("BaseService::init()/this.cuid2:", this.cuid)
+            //     const svSess = new SessionService();
+            //     this.sessDataExt = await svSess.getSessionDataExt(req, res);
+            // }
         }
         this.logger.logInfo("BaseService::init()/this.models:", this.models)
     }

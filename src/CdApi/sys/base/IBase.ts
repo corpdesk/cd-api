@@ -1,6 +1,10 @@
 import { Observable } from 'rxjs';
 import { AclModuleViewModel } from '../moduleman/models/acl-module-view.model';
 import { MenuViewModel } from '../moduleman/models/menu-view.model';
+import { UserModel } from '../user/models/user.model';
+import { SessionModel } from '../user/models/session.model';
+import { ConsumerModel } from '../moduleman/models/consumer.model';
+import { CompanyModel } from '../moduleman/models/company.model';
 
 export const CDOBJ_TYPE_USER = 9
 export const CDOBJ_TYPE_GROUP = 10
@@ -63,6 +67,13 @@ export interface ISessResp {
     ttl: number;
     initUuid?: string;
     initTime?: string;
+}
+
+export interface ISessionDataExt {
+    currentUser: UserModel;
+    currentSession: SessionModel;
+    currentConsumer: ConsumerModel;
+    currentCompany: CompanyModel;
 }
 
 export interface IRespInfo {
