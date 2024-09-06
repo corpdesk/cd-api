@@ -67,7 +67,7 @@ export class GroupMemberModel {
             nullable: true
         }
     )
-    docId: number;
+    docId?: number;
 
     @Column(
         {
@@ -83,7 +83,7 @@ export class GroupMemberModel {
             nullable: true
         }
     )
-    groupMemberParentId: number;
+    groupMemberParentId?: number;
 
     @Column(
         {
@@ -99,7 +99,7 @@ export class GroupMemberModel {
             nullable: true
         }
     )
-    groupInvitationId: number;
+    groupInvitationId?: number;
 
     @Column(
         'varchar',
@@ -115,10 +115,9 @@ export class GroupMemberModel {
         'varchar',
         {
             name: 'member_id',
-            length: 50,
             nullable: true
         }
     )
-    memberId: string;
+    memberId?: number;
 
 }

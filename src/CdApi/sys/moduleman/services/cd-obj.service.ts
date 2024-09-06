@@ -456,6 +456,23 @@ export class CdObjService extends CdService {
             })
     }
 
+    async updateI(req, res, q): Promise<any> {
+        console.log('CdObjService::updateI()/01');
+        // let q = this.b.getQuery(req);
+        q = this.beforeUpdate(q);
+        const serviceInput = {
+            serviceModel: CdObjModel,
+            docName: 'CdObjService::updateI',
+            cmd: {
+                action: 'update',
+                query: q
+            },
+            dSource: 1
+        }
+        console.log('CdObjService::update()/02')
+        return this.b.update(req, res, serviceInput)
+    }
+
     delete(req, res) {
         const q = this.b.getQuery(req);
         console.log('CdObjService::delete()/q:', q)

@@ -99,12 +99,13 @@ export class GroupMemberService extends CdService {
     }
 
     async createI(req, res, createIParams: CreateIParams): Promise<GroupMemberModel | boolean> {
-        const svSess = new SessionService()
-        if (this.validateCreateI(req, res, createIParams)) {
-            return await this.b.createI(req, res, createIParams)
-        } else {
-            this.b.setAlertMessage(`could not join group`, svSess, false);
-        }
+        // const svSess = new SessionService()
+        // if (this.validateCreateI(req, res, createIParams)) {
+        //     return await this.b.createI(req, res, createIParams)
+        // } else {
+        //     this.b.setAlertMessage(`could not join group`, svSess, false);
+        // }
+        return await this.b.createI(req, res, createIParams)
     }
 
     async validateCreateI(req, res, createIParams: CreateIParams) {
