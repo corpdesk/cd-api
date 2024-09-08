@@ -77,43 +77,6 @@ export class QueryBuilderHelper {
         return where;
     }
 
-    // transformWhereClause(where: any): any {
-    //     if (Array.isArray(where)) {
-    //         return where.map((condition) => {
-    //             const field = Object.keys(condition)[0];
-    //             let value = condition[field];
-
-    //             if (typeof value === 'string' && value.startsWith('Like(') && value.endsWith(')')) {
-    //                 const match = value.match(/^Like\('(.*)'\)$/);
-    //                 if (match) {
-    //                     // Only extract the inner value for Like condition
-    //                     value = Like(match[1]);
-    //                 }
-    //             }
-
-    //             return { [field]: value };
-    //         });
-    //     } else if (typeof where === 'object' && where !== null) {
-    //         const transformed = {};
-    //         Object.keys(where).forEach((field) => {
-    //             let value = where[field];
-
-    //             if (typeof value === 'string' && value.startsWith('Like(') && value.endsWith(')')) {
-    //                 const match = value.match(/^Like\('(.*)'\)$/);
-    //                 if (match) {
-    //                     // Only extract the inner value for Like condition
-    //                     value = Like(match[1]);
-    //                 }
-    //             }
-
-    //             transformed[field] = value;
-    //         });
-    //         return transformed;
-    //     }
-
-    //     return where;
-    // }
-
     transformQueryInput(query: QueryInput): QueryInput {
         const w = this.transformWhereClause(query.where)
         console.log('QueryBuilderHelper::transformQueryInput()/w:', w);
@@ -123,15 +86,53 @@ export class QueryBuilderHelper {
         };
     }
 
-    createQueryBuilder(serviceInput: IServiceInput): SelectQueryBuilder<any> {
-        // clean up the where clause...especially for request from browsers
-        // const q = this.transformQueryInput(serviceInput.cmd.query);
-        // serviceInput.cmd.query.where = q.where;
-        // console.log('QueryBuilderHelper::createQueryBuilder()/q:', q);
+    // createQueryBuilder(serviceInput: IServiceInput): SelectQueryBuilder<any> {
+    //     // clean up the where clause...especially for request from browsers
+    //     // const q = this.transformQueryInput(serviceInput.cmd.query);
+    //     // serviceInput.cmd.query.where = q.where;
+    //     // console.log('QueryBuilderHelper::createQueryBuilder()/q:', q);
 
+    //     const query = serviceInput.cmd.query;
+    //     const queryBuilder = this.repository.createQueryBuilder(this.repository.metadata.name);
+
+    //     // Handling SELECT clause
+    //     if (query.select && query.select.length > 0) {
+    //         this.entityAdapter.registerMappingFromEntity(serviceInput.serviceModel);
+    //         const selectDB = this.entityAdapter.getDbSelect(this.repository.metadata.name, query.select);
+    //         queryBuilder.select(selectDB);
+    //     } else {
+    //         const allColumns = this.repository.metadata.columns.map(column => `${this.repository.metadata.name}.${column.databaseName}`);
+    //         queryBuilder.select(allColumns);
+    //     }
+
+    //     // Handling WHERE clause
+    //     if (query.where) {
+    //         if (typeof query.where === 'object' && !Array.isArray(query.where) && !this.isEmptyObject(query.where)) {
+    //             // If 'where' is an object
+    //             this.processObjectWhereClause(queryBuilder, query.where);
+    //         } else if (Array.isArray(query.where) && query.where.length > 0) {
+    //             // If 'where' is an array
+    //             this.processArrayWhereClause(queryBuilder, query.where);
+    //             // this.processArrayWhereClause2(queryBuilder, query.where);
+    //         }
+    //     }
+
+    //     // Handling TAKE and SKIP clauses
+    //     if (query.take) {
+    //         queryBuilder.take(query.take);
+    //     }
+
+    //     if (query.skip) {
+    //         queryBuilder.skip(query.skip);
+    //     }
+
+    //     return queryBuilder;
+    // }
+
+    createQueryBuilder(serviceInput: IServiceInput): SelectQueryBuilder<any> {
         const query = serviceInput.cmd.query;
         const queryBuilder = this.repository.createQueryBuilder(this.repository.metadata.name);
-
+    
         // Handling SELECT clause
         if (query.select && query.select.length > 0) {
             this.entityAdapter.registerMappingFromEntity(serviceInput.serviceModel);
@@ -141,30 +142,33 @@ export class QueryBuilderHelper {
             const allColumns = this.repository.metadata.columns.map(column => `${this.repository.metadata.name}.${column.databaseName}`);
             queryBuilder.select(allColumns);
         }
-
+    
+        // Apply DISTINCT if specified
+        if (query.distinct) {
+            queryBuilder.distinct(true);
+        }
+    
         // Handling WHERE clause
         if (query.where) {
             if (typeof query.where === 'object' && !Array.isArray(query.where) && !this.isEmptyObject(query.where)) {
-                // If 'where' is an object
                 this.processObjectWhereClause(queryBuilder, query.where);
             } else if (Array.isArray(query.where) && query.where.length > 0) {
-                // If 'where' is an array
                 this.processArrayWhereClause(queryBuilder, query.where);
-                // this.processArrayWhereClause2(queryBuilder, query.where);
             }
         }
-
+    
         // Handling TAKE and SKIP clauses
         if (query.take) {
             queryBuilder.take(query.take);
         }
-
+    
         if (query.skip) {
             queryBuilder.skip(query.skip);
         }
-
+    
         return queryBuilder;
     }
+    
 
     private processObjectWhereClause(queryBuilder: SelectQueryBuilder<any>, where: any): void {
         Object.keys(where).forEach((key, index) => {

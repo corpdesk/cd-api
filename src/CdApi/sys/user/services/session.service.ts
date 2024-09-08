@@ -55,9 +55,10 @@ export class SessionService {
                 docName: 'Create Session',
                 data: this.sessModel
             }
-            const ret = await this.b.create(req, res, serviceInput);
-            this.logger.logInfo('SessionService::create/02/ret:', ret);
-            return ret;
+            const sessData: SessionModel = await this.b.create(req, res, serviceInput);
+            req.post.dat.token = sessData.cdToken
+            this.logger.logInfo('SessionService::create/02/sessData:', sessData);
+            return sessData;
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'SessionService:create');
         }

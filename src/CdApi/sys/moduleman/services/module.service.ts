@@ -1,4 +1,4 @@
-import { Observable, of, forkJoin, iif } from 'rxjs';
+import { Observable, of, forkJoin, iif, from } from 'rxjs';
 import { map, mergeMap } from 'rxjs';
 import * as Lá from 'lodash';
 import { BaseService } from '../../base/base.service';
@@ -13,7 +13,7 @@ import { MenuService } from './menu.service';
 import { AclService } from './acl.service';
 import { GroupService } from '../../user/services/group.service';
 import { ModuleModel } from '../models/module.model';
-import { CreateIParams, IAclCtx, IQuery, IRespInfo, IServiceInput, ISessionDataExt, ObjectItem } from '../../base/IBase';
+import { CreateIParams, IAclCtx, ICdRequest, IQuery, IRespInfo, IServiceInput, ISessionDataExt, ObjectItem } from '../../base/IBase';
 import { ModuleViewModel } from '../models/module-view.model';
 import { CdService } from '../../base/cd.service';
 import { Logging } from '../../base/winston.log';
@@ -24,6 +24,7 @@ import { MenuModel } from '../models/menu.model';
 import { CdObjService } from './cd-obj.service';
 import { ConsumerResourceService } from './consumer-resource.service';
 import { GroupMemberModel } from '../../user/models/group-member.model';
+import { SessionModel } from '../../user/models/session.model';
 
 export class ModuleService extends CdService {
     logger: Logging;
@@ -537,18 +538,190 @@ export class ModuleService extends CdService {
     }
 
     /**
-     * This method uses getAclModule$ to get allowedModules$ which is then used to generate menu data
+     * The function of this module is to return Corpdesk facilities that are available to a given user.
+     * This is applicable before and after login.
+     * Before login the current user is considered anonimous and has a userName of 'anon'.
+     * When login is successfull the current user aquires the userName based on user registered values.
+     * This method uses getAclModule$ to fetch allowedModules$.
+     * allowedModules$ is a set of modules that the requesting user is allowed access.
      * allowedModules$ is generated using this.getAclModule$(req, res, { currentUser: cUser, consumerGuid: cguid });
-     * note that allowedModules$ is an
-     * allowedModules$ is then used to generate acl menu
+     * These modules are then used to generate menu data. 
+     * To fetch menu, this method calls this.svMenu.getAclMenu$(req, res, { modules$: allowedModules$, modulesCount: am.length }) from MenuService.
+     * In all these proceses, AclService is consulted to facilitate privilage access logics.
      * 
-     * @param req 
-     * @param res 
-     * @param cUser 
-     * @returns 
+     * @param req // request handle from the api client
+     * @param res // response handle
+     * @param cUser // the handle for the current user accessing the api
+     * @returns:
+     * Even through the return is currently marked as any, the return format is curretly an object of the structure below:
+     * {
+     *      consumer: ConsumerModel, // request to corpdesk api are made in the context of a given consumer organization entity.
+     *      menuData: MenuItem[], // unlike MenuModel, it has an attribute children: MenuItem[],
+     *      userData: UserModel // object of current user
+     * }
+     * 
      */
-    getModulesUserData$(req, res, cUser: ModuleModel): Observable<any> {
-        this.b.logTimeStamp('ModuleService::getModulesUserData$/01')
+    // getModulesUserData_$(req, res, cUser: ModuleModel): Observable<any> {
+    //     this.b.logTimeStamp('ModuleService::getModulesUserData$/01')
+    //     this.svSess = new SessionService();
+    //     this.svUser = new UserService();
+    //     this.svMemo = new MemoService();
+    //     this.svNotif = new NotificationService();
+    //     this.svCalnd = new CalendarService();
+    //     this.svGroup = new GroupService();
+    //     this.svGroupMember = new GroupMemberService();
+    //     this.svConsumer = new ConsumerService();
+    //     this.svMenu = new MenuService();
+    //     this.svAcl = new AclService();
+
+        
+
+    //     /**
+    //      * extract the request consumer guid
+    //      */
+    //     const cguid = this.svConsumer.getConsumerGuid(req);
+    //     // this.logger.logInfo("ModuleService::getModulesUserData$/02/cguid:", cguid)
+
+    //     /**
+    //      * use consumer guid to get the associated consumer
+    //      */
+    //     const clientConsumer$ = this.svConsumer.getConsumerByGuid$(req, res, cguid);
+    //     const allowedModules$ = this.getAclModule$(req, res, { currentUser: cUser, consumerGuid: cguid });
+    //     const menuData$ = allowedModules$
+    //         .pipe(
+    //             mergeMap(
+    //                 (am: any[]) => iif(
+    //                     () => {
+    //                         this.logger.logInfo('ModuleService::getModulesUserData$/am:', am)
+    //                         return am.length > 0
+    //                     },
+    //                     this.svMenu.getAclMenu$(req, res, { modules$: allowedModules$, modulesCount: am.length }),
+    //                     []
+    //                 )
+    //             )
+    //         )
+    //     /**
+    //      * Add more user data
+    //      * - notifications
+    //      * - memos
+    //      * - calender
+    //      */
+    //     // const acoid = this.svUser.getUserActiveCo();
+    //     // const notifdata = this.svNotif.getsvNotifications(cuid);
+    //     // const notifsumm = this.svNotif.getsvNotifications_summary(cuid);
+    //     // const memosumm = this.svMemo.getMemoSummary(cuid);
+    //     // const calndsumm = this.svCalnd.getCalendarSumm(cuid);
+    //     // const userContacts = this.svUser.getContacts(cuid);
+    //     // const userPals = this.svGroupMember.getPals(cuid);
+
+    //     const result$ = forkJoin({
+    //         consumer: clientConsumer$,
+    //         menuData: menuData$
+    //         // .pipe(
+    //         //     map(menu => menu.flat())
+    //         //   )
+    //         ,
+    //         userData: of(cUser),
+    //         /////////////////////
+    //         // OPTIONAL ADDITIVES:
+    //         // notifData: notifdata,
+    //         // notifSumm: notifsumm,
+    //         // memoSumm: memosumm,
+    //         // calndSumm: calndsumm,
+    //         // contacts: userContacts,
+    //         // pals: userPals,
+    //         // aCoid: acoid,
+    //     });
+    //     return result$;
+    // }
+
+    // getModulesUserData$(req, res, cUser: ModuleModel): Observable<any> {
+    //     this.b.logTimeStamp('ModuleService::getModulesUserData$/01');
+    
+    //     // Initialize necessary services
+    //     this.svSess = new SessionService();
+    //     this.svUser = new UserService();
+    //     this.svMemo = new MemoService();
+    //     this.svNotif = new NotificationService();
+    //     this.svCalnd = new CalendarService();
+    //     this.svGroup = new GroupService();
+    //     this.svGroupMember = new GroupMemberService();
+    //     this.svConsumer = new ConsumerService();
+    //     this.svMenu = new MenuService();
+    //     this.svAcl = new AclService();
+    
+    //     // Use 'from()' to convert the async method to an Observable
+    //     return from(this.svSess.getSessionDataExt(req, res)).pipe(
+    //         mergeMap((sessionDataExt:ISessionDataExt) => {
+    //             // After retrieving session data, proceed with other logic
+    //             this.sessDataExt = sessionDataExt;
+    //             console.log("ModuleService::getModulesUserData$()/sessionDataExt:", sessionDataExt);
+    
+    //             /**
+    //              * Extract the request consumer guid
+    //              */
+    //             const cguid = this.svConsumer.getConsumerGuid(req);
+    
+    //             /**
+    //              * Use consumer guid to get the associated consumer
+    //              */
+    //             // const clientConsumer$ = this.svConsumer.getConsumerByGuid$(req, res, cguid);
+    //             /**
+    //              * derive allowed modules
+    //              */
+    //             const allowedModules$ = this.getAclModule$(req, res, { currentUser: cUser, consumerGuid: cguid });
+    //             /**
+    //              * use allowed modules to process menu generation
+    //              */
+    //             const menuData$ = allowedModules$.pipe(
+    //                 mergeMap((am: any[]) =>
+    //                     iif(
+    //                         () => {
+    //                             this.logger.logInfo('ModuleService::getModulesUserData$/am:', am);
+    //                             return am.length > 0;
+    //                         },
+    //                         this.svMenu.getAclMenu$(req, res, { modules$: allowedModules$, modulesCount: am.length }),
+    //                         []
+    //                     )
+    //                 )
+    //             );
+    
+    //             /**
+    //              * use forkJoin to prepare Observable results containing various categories of data in an object.
+    //              * Current categories include:
+    //              *      - consumer // the current organization/company that runs Corpdesk
+    //              *      - menuData // hierarchial menu for modules where current user have access
+    //              *      - userData // current user
+    //              *      - note from the comments below that there are several options for future categories of data to integrate.
+    //              *      - The design is also to have possibilities of configuring which data is included or not or automate based on prevailing circumstances
+    //              */
+    //             const result$ = forkJoin({
+    //                 consumer: of(sessionDataExt.currentConsumer),
+    //                 menuData: menuData$,
+    //                 userData: of(cUser),
+    //                 /////////////////////
+    //                 // OPTIONAL ADDITIVES:
+    //                 // notifData: notifdata,
+    //                 // notifSumm: notifsumm,
+    //                 // memoSumm: memosumm,
+    //                 // calndSumm: calndsumm,
+    //                 // contacts: userContacts,
+    //                 // pals: userPals,
+    //                 // aCoid: acoid,
+    //             });
+    
+    //             // Return the forkJoin result as an Observable
+    //             return result$;
+    //         })
+    //     );
+    // }
+
+    getModulesUserData$(req, res, sessData: SessionModel): Observable<any> {
+        this.b.logTimeStamp('ModuleService::getModulesUserData$/01');
+        console.log('ModuleService::getModulesUserData$/sessData:', sessData);
+        console.log('ModuleService::getModulesUserData$/req.post.dat.token:', req.post.dat.token);
+    
+        // Initialize necessary services
         this.svSess = new SessionService();
         this.svUser = new UserService();
         this.svMemo = new MemoService();
@@ -560,63 +733,74 @@ export class ModuleService extends CdService {
         this.svMenu = new MenuService();
         this.svAcl = new AclService();
 
-        /**
-         * extract the request consumer guid
-         */
-        const cguid = this.svConsumer.getConsumerGuid(req);
-        // this.logger.logInfo("ModuleService::getModulesUserData$/02/cguid:", cguid)
-
-        /**
-         * use consumer guid to get the associated consumer
-         */
-        const clientConsumer$ = this.svConsumer.getConsumerByGuid$(req, res, cguid);
-        const allowedModules$ = this.getAclModule$(req, res, { currentUser: cUser, consumerGuid: cguid });
-        const menuData$ = allowedModules$
-            .pipe(
-                mergeMap(
-                    (am: any[]) => iif(
-                        () => {
-                            this.logger.logInfo('ModuleService::getModulesUserData$/am:', am)
-                            return am.length > 0
-                        },
-                        this.svMenu.getAclMenu$(req, res, { modules$: allowedModules$, modulesCount: am.length }),
-                        []
+        // const cdReq: ICdRequest = req.post;
+        // cdReq.
+        // Use 'from()' to convert the async method to an Observable
+        return from(this.svSess.getSessionDataExt(req, res)).pipe(
+            mergeMap((sessionDataExt:ISessionDataExt) => {
+                // After retrieving session data, proceed with other logic
+                this.sessDataExt = sessionDataExt;
+                console.log("ModuleService::getModulesUserData$()/sessionDataExt:", sessionDataExt);
+    
+                /**
+                 * Extract the request consumer guid
+                 */
+                // const cguid = this.svConsumer.getConsumerGuid(req);
+                const cguid = sessionDataExt.currentConsumer.consumerGuid;
+    
+                /**
+                 * Use consumer guid to get the associated consumer
+                 */
+                // const clientConsumer$ = this.svConsumer.getConsumerByGuid$(req, res, cguid);
+                /**
+                 * derive allowed modules
+                 */
+                // const allowedModules$ = this.getAclModule$(req, res, { currentUser: cUser, consumerGuid: cguid });
+                const allowedModules$ = this.getAclModule$(req, res, sessionDataExt);
+                /**
+                 * use allowed modules to process menu generation
+                 */
+                const menuData$ = allowedModules$.pipe(
+                    mergeMap((am: any[]) =>
+                        iif(
+                            () => {
+                                this.logger.logInfo('ModuleService::getModulesUserData$/am:', am);
+                                return am.length > 0;
+                            },
+                            this.svMenu.getAclMenu$(req, res, { modules$: allowedModules$, modulesCount: am.length }, sessionDataExt),
+                            []
+                        )
                     )
-                )
-            )
-        /**
-         * Add more user data
-         * - notifications
-         * - memos
-         * - calender
-         */
-        // const acoid = this.svUser.getUserActiveCo();
-        // const notifdata = this.svNotif.getsvNotifications(cuid);
-        // const notifsumm = this.svNotif.getsvNotifications_summary(cuid);
-        // const memosumm = this.svMemo.getMemoSummary(cuid);
-        // const calndsumm = this.svCalnd.getCalendarSumm(cuid);
-        // const userContacts = this.svUser.getContacts(cuid);
-        // const userPals = this.svGroupMember.getPals(cuid);
-
-        const result$ = forkJoin({
-            consumer: clientConsumer$,
-            menuData: menuData$
-            // .pipe(
-            //     map(menu => menu.flat())
-            //   )
-            ,
-            userData: of(cUser),
-            /////////////////////
-            // OPTIONAL ADDITIVES:
-            // notifData: notifdata,
-            // notifSumm: notifsumm,
-            // memoSumm: memosumm,
-            // calndSumm: calndsumm,
-            // contacts: userContacts,
-            // pals: userPals,
-            // aCoid: acoid,
-        });
-        return result$;
+                );
+    
+                /**
+                 * use forkJoin to prepare Observable results containing various categories of data in an object.
+                 * Current categories include:
+                 *      - consumer // the current organization/company that runs Corpdesk
+                 *      - menuData // hierarchial menu for modules where current user have access
+                 *      - userData // current user
+                 *      - note from the comments below that there are several options for future categories of data to integrate.
+                 *      - The design is also to have possibilities of configuring which data is included or not or automate based on prevailing circumstances
+                 */
+                const result$ = forkJoin({
+                    consumer: of(sessionDataExt.currentConsumer),
+                    menuData: menuData$,
+                    userData: of(sessionDataExt.currentUser),
+                    /////////////////////
+                    // OPTIONAL ADDITIVES:
+                    // notifData: notifdata,
+                    // notifSumm: notifsumm,
+                    // memoSumm: memosumm,
+                    // calndSumm: calndsumm,
+                    // contacts: userContacts,
+                    // pals: userPals,
+                    // aCoid: acoid,
+                });
+    
+                // Return the forkJoin result as an Observable
+                return result$;
+            })
+        );
     }
 
     /**
@@ -650,52 +834,101 @@ export class ModuleService extends CdService {
      * @param params 
      * @returns 
      */
-    getAclModule$(req, res, params): Observable<any> {
+    // getAclModule$(req, res, sessionDataExt: ISessionDataExt): Observable<any> {
+    //     this.b.logTimeStamp('ModuleService::getAclModule$/01')
+    //     this.consumerGuid = sessionDataExt.currentConsumer.consumerGuid;
+    //     this.svAcl.consumerGuid = sessionDataExt.currentConsumer.consumerGuid;
+    //     this.logger.logInfo('ModuleService::getAclModule$()/sessionDataExt:', sessionDataExt)
+    //     this.logger.logInfo('ModuleService::getAclModule$()/this.svAcl.consumerGuid:', this.svAcl.consumerGuid)
+    //     // this.logger.logInfo('ModuleService::getAclModule$()/01:');
+    //     return forkJoin({
+    //         // unfilteredModules: this.getAll$(req, res).pipe(map((m) => { return m })), // for isRoot
+    //         userRoles: this.svAcl.aclUser$(req, res, sessionDataExt).pipe(map((m) => { return m })),
+    //         consumerModules: this.svAcl.aclModule$(req, res).pipe(map((m) => { return m })),
+    //         moduleParents: this.svAcl.aclModuleMembers$(req, res, sessionDataExt).pipe(map((m) => { return m }))
+    //     })
+    //         .pipe(
+    //             map((acl: any) => {
+    //                 this.b.logTimeStamp('ModuleService::getModulesUserData$/02')
+    //                 this.logger.logInfo('ModuleService::getAclModule$()/acl:', acl)
+    //                 /**
+    //                  * - Public modules are included without acl filtering
+    //                  * - Based on acl result, return appropirate modules
+    //                  */
+    //                 const publicModules = acl.consumerModules.filter(m => m.moduleIsPublic);
+    //                 this.logger.logInfo('ModuleService::getAclModule$()/publicModules:', publicModules)
+    //                 /**
+    //                  * - if userIsConsumerRoot then return all consumerModules
+    //                  */
+    //                 if (acl.userRoles.isConsumerRoot.length > 0) {
+    //                     // this.b.logTimeStamp('ModuleService::getModulesUserData$/03')
+    //                     return acl.consumerModules;
+    //                 }
+    //                 else if (acl.userRoles.isConsumerUser.length > 0) { // if user is registered as consumer user then filter consumer modules
+    //                     // this.b.logTimeStamp('ModuleService::getModulesUserData$/04')
+    //                     // this.logger.logInfo('ModuleService::getModulesUserData$/acl.userRoles.isConsumerUser:', acl.userRoles.isConsumerUser);
+    //                     // this.logger.logInfo('ModuleService::getModulesUserData$/acl.moduleParents:', acl.moduleParents);
+    //                     // this.logger.logInfo('ModuleService::getModulesUserData$/acl.consumerModules:', acl.consumerModules);
+    //                     const userModules = this.b.intersect(acl.consumerModules, acl.moduleParents, 'moduleGuid');
+    //                     this.logger.logInfo('ModuleService::getModulesUserData$/userModules:', userModules);
+    //                     this.logger.logInfo('ModuleService::getModulesUserData$/publicModules:', publicModules);
+
+    //                     /**
+    //                      * create a union of userModules and publicModules
+    //                      */
+    //                     return userModules.concat(publicModules); // return user modules and public modules
+    //                 }
+    //                 else {  // if is neither of the above, return zero modules
+    //                     // this.logger.logInfo('ModuleService::getAclModule$()/publicModules:', publicModules)
+    //                     return publicModules; // return only public modules
+    //                 }
+    //             })
+    //         );
+    // }
+
+    getAclModule$(req, res, sessionDataExt: ISessionDataExt): Observable<any> {
         this.b.logTimeStamp('ModuleService::getAclModule$/01')
-        this.consumerGuid = params.consumerGuid;
-        this.svAcl.consumerGuid = params.consumerGuid;
-        this.logger.logInfo('ModuleService::getAclModule$()/params:', params)
-        this.logger.logInfo('ModuleService::getAclModule$()/this.svAcl.consumerGuid:', this.svAcl.consumerGuid)
-        // this.logger.logInfo('ModuleService::getAclModule$()/01:');
+        this.consumerGuid = sessionDataExt.currentConsumer.consumerGuid;
+        this.svAcl.consumerGuid = sessionDataExt.currentConsumer.consumerGuid;
+        this.logger.logInfo('ModuleService::getAclModule$()/sessionDataExt:', sessionDataExt);
+        this.logger.logInfo('ModuleService::getAclModule$()/this.svAcl.consumerGuid:', this.svAcl.consumerGuid);
+    
         return forkJoin({
-            // unfilteredModules: this.getAll$(req, res).pipe(map((m) => { return m })), // for isRoot
-            userRoles: this.svAcl.aclUser$(req, res, params).pipe(map((m) => { return m })),
+            userRoles: this.svAcl.aclUser$(req, res, sessionDataExt).pipe(map((m) => { return m })),
             consumerModules: this.svAcl.aclModule$(req, res).pipe(map((m) => { return m })),
-            moduleParents: this.svAcl.aclModuleMembers$(req, res, params).pipe(map((m) => { return m }))
+            moduleParents: this.svAcl.aclModuleMembers$(req, res, sessionDataExt).pipe(map((m) => { return m }))
         })
-            .pipe(
-                map((acl: any) => {
-                    this.b.logTimeStamp('ModuleService::getModulesUserData$/02')
-                    this.logger.logInfo('ModuleService::getAclModule$()/acl:', acl)
+        .pipe(
+            map((acl: any) => {
+                this.b.logTimeStamp('ModuleService::getModulesUserData$/02')
+                this.logger.logInfo('ModuleService::getAclModule$()/acl:', acl);
+    
+                const publicModules = acl.consumerModules.filter(m => m.moduleIsPublic);
+                this.logger.logInfo('ModuleService::getAclModule$()/publicModules:', publicModules);
+    
+                if (acl.userRoles.isConsumerRoot.length > 0) {
+                    return acl.consumerModules;
+                }
+                else if (acl.userRoles.isConsumerUser.length > 0) {
+                    const userModules = this.b.intersect(acl.consumerModules, acl.moduleParents, 'moduleGuid');
+                    this.logger.logInfo('ModuleService::getModulesUserData$/userModules:', userModules);
+                    this.logger.logInfo('ModuleService::getModulesUserData$/publicModules:', publicModules);
+    
                     /**
-                     * - Public modules are included without acl filtering
-                     * - Based on acl result, return appropirate modules
+                     * Combine userModules and publicModules and remove duplicates based on moduleGuid
                      */
-                    const publicModules = acl.consumerModules.filter(m => m.moduleIsPublic);
-                    this.logger.logInfo('ModuleService::getAclModule$()/publicModules:', publicModules)
-                    /**
-                     * - if userIsConsumerRoot then return all consumerModules
-                     */
-                    if (acl.userRoles.isConsumerRoot.length > 0) {
-                        // this.b.logTimeStamp('ModuleService::getModulesUserData$/03')
-                        return acl.consumerModules;
-                    }
-                    else if (acl.userRoles.isConsumerUser.length > 0) { // if user is registered as consumer user then filter consumer modules
-                        // this.b.logTimeStamp('ModuleService::getModulesUserData$/04')
-                        // this.logger.logInfo('ModuleService::getModulesUserData$/acl.userRoles.isConsumerUser:', acl.userRoles.isConsumerUser);
-                        // this.logger.logInfo('ModuleService::getModulesUserData$/acl.moduleParents:', acl.moduleParents);
-                        // this.logger.logInfo('ModuleService::getModulesUserData$/acl.consumerModules:', acl.consumerModules);
-                        const userModules = this.b.intersect(acl.consumerModules, acl.moduleParents, 'moduleGuid');
-                        // this.logger.logInfo('ModuleService::getModulesUserData$/userModules:', userModules);
-                        return userModules.concat(publicModules); // return user modules and public modules
-                    }
-                    else {  // if is neither of the above, return zero modules
-                        // this.logger.logInfo('ModuleService::getAclModule$()/publicModules:', publicModules)
-                        return publicModules; // return only public modules
-                    }
-                })
-            );
+                    const combinedModules = userModules.concat(publicModules);
+                    const uniqueModules = Array.from(new Set(combinedModules.map(a => a.moduleGuid)))
+                        .map(guid => combinedModules.find(a => a.moduleGuid === guid));
+                    
+                    return uniqueModules;
+                } else {
+                    return publicModules;
+                }
+            })
+        );
     }
+    
 
     // /**
     //  * {

@@ -9,7 +9,7 @@ import { GroupMemberService } from '../../user/services/group-member.service';
 import { BaseService } from '../../base/base.service';
 import { GroupService } from '../../user/services/group.service';
 import { MenuViewModel } from '../models/menu-view.model';
-import { CreateIParams, IAllowedModules, IMenuRelations, ISelectedMenu, IServiceInput } from '../../base/IBase';
+import { CreateIParams, IAllowedModules, IMenuRelations, ISelectedMenu, IServiceInput, ISessionDataExt } from '../../base/IBase';
 import { MenuModel } from '../models/menu.model';
 import { CdObjService } from './cd-obj.service';
 import { CdObjModel } from '../models/cd-obj.model';
@@ -206,18 +206,25 @@ export class MenuService {
             })
     }
 
-    getAclMenu$(req, res, params: IAllowedModules): Observable<any> {
-        this.logger.logInfo('MenuService::getAclMenu$()/params:', params);
+    /**
+     * 
+     * @param req 
+     * @param res 
+     * @param params // allowed module to use in generating menu
+     * @returns 
+     */
+    getAclMenu$(req, res, allowedModules: IAllowedModules, sessionDataExt:ISessionDataExt): Observable<any> {
+        this.logger.logInfo('MenuService::getAclMenu$()/allowedModules:', allowedModules);
         
-        return params.modules$.pipe(
+        return allowedModules.modules$.pipe(
             mergeMap((m) => {
                 return m.map(mod => {
                     this.logger.logInfo('MenuService::getAclMenu$()/mod:', mod)
-                    const moduleMenuData$ = this.getModuleMenu$(req, res, mod);
+                    const moduleMenuData$ = this.getModuleMenu$(req, res, mod,sessionDataExt);
                     this.logger.logInfo('MenuService::getAclMenu$()/moduleMenuData:', moduleMenuData$);
                     return forkJoin({
-                        modules: params.modules$,
-                        menu: this.buildNestedMenu(this.getRootMenuIds(moduleMenuData$), moduleMenuData$),
+                        modules: allowedModules.modules$,
+                        menu: this.buildNestedMenu(this.getRootMenuIds(moduleMenuData$,sessionDataExt), moduleMenuData$,sessionDataExt),
                     }).pipe(
                         map(({ menu, modules }) => {
                             this.logger.logInfo('MenuService::getAclMenu$()/menu:', menu);
@@ -233,32 +240,43 @@ export class MenuService {
                     map((modules) => modules)
                 );
             }),
-            bufferCount(params.modulesCount),
+            bufferCount(allowedModules.modulesCount),
             map((bufferedMenus) => bufferedMenus.flat())  // Flatten the buffered menus
         );
     }
     
 
-    getModuleMenu$(req, res, moduleData): Observable<MenuViewModel[]> {
+    getModuleMenu$(req, res, moduleData, sessionDataExt:ISessionDataExt): Observable<MenuViewModel[]> {
         this.logger.logInfo('MenuService::getModuleMenu$()/moduleData:', moduleData)
+        this.b.entityAdapter.registerMappingFromEntity(MenuViewModel);
+        let filter = {}
+        if(sessionDataExt.currentUser.userId === 1000){
+            filter = { moduleGuid: moduleData.moduleGuid, menuEnabled: true , menuIsPublic: true}
+        } else {
+            filter = { moduleGuid: moduleData.moduleGuid, menuEnabled: true }
+        }
         const serviceInput: IServiceInput = {
-            serviceInstance: this,
+            // serviceInstance: this,
             serviceModel: MenuViewModel,
             docName: 'MenuService::getModuleMenu$',
             cmd: {
                 action: 'find',
-                query: { where: { moduleGuid: moduleData.moduleGuid, menuEnabled: 1 } }
+                query: { 
+                    where: { moduleGuid: moduleData.moduleGuid, menuEnabled: 1 }, 
+                    distinct: true
+                }
             },
             dSource: 1,
         }
         return this.b.read$(req, res, serviceInput)
+        // return this.b.readQB$(req, res, serviceInput)
     }
 
-    buildNestedMenu(rootMenuIds$: Observable<number[]>, moduleMenuData$: Observable<MenuViewModel[]>): Observable<any[]> {
+    buildNestedMenu(rootMenuIds$: Observable<number[]>, moduleMenuData$: Observable<MenuViewModel[]>, sessionDataExt:ISessionDataExt): Observable<any[]> {
         return rootMenuIds$.pipe(
             switchMap((rootMenuIds) => {
                 const menuTrees$ = rootMenuIds.map((rootMenuId) =>
-                    this.buildSingleMenuTree(rootMenuId, moduleMenuData$)
+                    this.buildSingleMenuTree(rootMenuId, moduleMenuData$,sessionDataExt)
                 );
                 return forkJoin(menuTrees$);
             })
@@ -266,10 +284,68 @@ export class MenuService {
     }
 
     // Updated helper method to build a single menu tree
-    private buildSingleMenuTree(rootMenuId: number, moduleMenuData$: Observable<MenuViewModel[]>): Observable<any> {
+    // private buildSingleMenuTree(rootMenuId: number, moduleMenuData$: Observable<MenuViewModel[]>, sessionDataExt:ISessionDataExt): Observable<any> {
+    //     /**
+    //      * cuid is current user
+    //      * special users include:
+    //      * anon, cuid=1000
+    //      * root, cuid=1001
+    //      */
+    //     const cuid = sessionDataExt.currentUser.userId
+    //     console.log("MenuService::buildSingleMenuTree()/cuid:", cuid)
+    //     return moduleMenuData$.pipe(
+    //         map((menuData) => {
+    //             console.log("MenuService::buildSingleMenuTree()/menuData1:", menuData)
+    //             // Recursive function to build the tree structure
+    //             const buildTree = (parentId: number): any => {
+    //                 return menuData
+    //                     .filter((m) => {
+    //                         if(cuid===1000 && m.menuParentId === parentId && m.menuIsPublic === true){
+    //                             return m;
+    //                         } 
+                            
+    //                         else if(m.menuParentId === parentId) {
+    //                             return m;
+    //                         }
+                            
+    //                     })
+    //                     .map((m) => ({
+    //                         ...m,
+    //                         children: buildTree(m.menuId)
+    //                     }));
+    //             };
+
+    //             console.log("MenuService::buildSingleMenuTree()/menuData2:", menuData)
+    //             // Start building the tree from the root node
+    //             const rootNode = menuData.find((m) => m.menuId === rootMenuId);
+    //             if (rootNode) {
+    //                 return {
+    //                     ...rootNode,
+    //                     children: buildTree(rootMenuId)
+    //                 };
+    //             } else {
+    //                 return null; // Handle cases where root node is not found
+    //             }
+    //         })
+    //     );
+    // }
+
+    private buildSingleMenuTree(
+        rootMenuId: number, 
+        moduleMenuData$: Observable<MenuViewModel[]>, 
+        sessionDataExt: ISessionDataExt
+    ): Observable<any> {
+        const cuid = sessionDataExt.currentUser.userId;
+    
         return moduleMenuData$.pipe(
             map((menuData) => {
-                console.log("MenuService::buildSingleMenuTree()/menuData1:", menuData)
+                console.log("MenuService::buildSingleMenuTree()/menuData1:", menuData);
+    
+                // Filter menu data if the user is 'anon' (cuid=1000)
+                if (cuid === 1000) {
+                    menuData = menuData.filter(m => m.menuIsPublic == 1);
+                }
+    
                 // Recursive function to build the tree structure
                 const buildTree = (parentId: number): any => {
                     return menuData
@@ -279,8 +355,9 @@ export class MenuService {
                             children: buildTree(m.menuId)
                         }));
                 };
-
-                console.log("MenuService::buildSingleMenuTree()/menuData2:", menuData)
+    
+                console.log("MenuService::buildSingleMenuTree()/menuData2:", menuData);
+    
                 // Start building the tree from the root node
                 const rootNode = menuData.find((m) => m.menuId === rootMenuId);
                 if (rootNode) {
@@ -296,7 +373,7 @@ export class MenuService {
     }
 
     // Helper method to retrieve root menu IDs
-    getRootMenuIds(moduleMenuData$: Observable<MenuViewModel[]>): Observable<number[]> {
+    getRootMenuIds(moduleMenuData$: Observable<MenuViewModel[]>, sessionDataExt:ISessionDataExt): Observable<number[]> {
         return moduleMenuData$.pipe(
             map((menuData) => {
                 console.log("MenuService::getRootMenuIds()/menuData:", menuData)
@@ -307,7 +384,7 @@ export class MenuService {
         );
     }
 
-    getMenuItem(menuId$: Observable<number>, moduleMenuData$: Observable<MenuViewModel[]>): Observable<ISelectedMenu> {
+    getMenuItem(menuId$: Observable<number>, moduleMenuData$: Observable<MenuViewModel[]>, sessionDataExt:ISessionDataExt): Observable<ISelectedMenu> {
         this.b.logTimeStamp('MenuService::getMenuItem$/01')
         return moduleMenuData$
             .pipe(

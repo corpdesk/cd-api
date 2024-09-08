@@ -37,6 +37,7 @@ import { ViewEntity, ViewColumn } from 'typeorm';
         menu.is_title AS is_title,
         menu.badge AS badge,
         menu.is_layout AS is_layout,
+        menu.menu_is_public AS menu_is_public,
         module.module_id AS module_id,
         module.module_guid AS module_guid,
         module.module_name AS module_name,
@@ -322,5 +323,12 @@ export class MenuViewModel {
         }
     )
     cdObjEnabled?: boolean | number;
+
+    @ViewColumn(
+        {
+            name: 'menu_is_public'
+        }
+    )
+    menuIsPublic?: boolean | number;
 
 }

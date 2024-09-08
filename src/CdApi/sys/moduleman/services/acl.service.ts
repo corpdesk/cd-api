@@ -5,7 +5,7 @@ import { GroupMemberService } from '../../user/services/group-member.service';
 import { BaseService } from '../../base/base.service';
 import { AclModel } from '../models/acl.model';
 import { DocModel } from '../models/doc.model';
-import { IAclCtx, ICdRequest, IQuery, IServiceInput } from '../../base/IBase';
+import { IAclCtx, ICdRequest, IQuery, IServiceInput, ISessionDataExt } from '../../base/IBase';
 import { ModuleService } from './module.service';
 import { SessionService } from '../../user/services/session.service';
 import { ConsumerService } from './consumer.service';
@@ -14,6 +14,10 @@ import { AclModuleViewModel } from '../models/acl-module-view.model';
 import { AclModuleMemberViewModel } from '../models/acl-module-member-view.model';
 import { Logging } from '../../base/winston.log';
 
+/**
+ * AclService is used by Corpdesk api to manage privilege access to modules.
+ * Modules use MenuModel as handles to its facilities. So menus are also subject to AclService
+ */
 export class AclService {
     logger: Logging;
     b: BaseService;
@@ -51,20 +55,30 @@ export class AclService {
         this.srvConsumer = new ConsumerService();
     }
 
-    async getAclModule(req, res, params) {
-        this.b.logTimeStamp(`AclService::getAclModule/params:${JSON.stringify(params)}`)
-        console.log('AclService::getAclModule(req, res,params)/params:', params)
+    /**
+     * Consumer is a company that is registred as Consumer consumer.
+     * All clients are expected to call api in the context of a given consumer.
+     * One of the Coprdesk ways of assessing access level is by registering users who have access to a given consumer resources.
+     * Consumer resources are managed by ConsumerResourceService and storage managed by ConsumerResourceModel
+     * 
+     * @param req 
+     * @param res 
+     * @param params 
+     */
+    async getAclModule(req, res, sessionDataExt: ISessionDataExt) {
+        this.b.logTimeStamp(`AclService::getAclModule/sessionDataExt:${JSON.stringify(sessionDataExt)}`)
+        console.log('AclService::getAclModule(req, res,params)/sessionDataExt:', sessionDataExt)
         console.log('AclService::getAclModule/this.consumerGuid:', this.consumerGuid)
         const result$ = of(
             /**
              * query from consumer_resource_view for users who are members of active consumer
              * and in respect of their roles: consumer_root, consumer_user, consumer_tech
              */
-            this.aclUser$(req, res, { consumerGuid: params.consumerGuid }).pipe(map((u) => { return { useRoles: u } })),
+            this.aclUser$(req, res, sessionDataExt).pipe(map((u) => { return { useRoles: u } })),
             /**
              * query from consumer_resource_view for modules which are 
-             *  - members of active consumer
-             *  - modules are enabled
+             *  - members of active consumer and
+             *  - modules that are enabled
              */
             this.aclModule$(req, res).pipe(map((u) => { return { modules: u } })),
             /**
@@ -73,7 +87,7 @@ export class AclService {
              * acl_module_member_view aggregates related group, group_members and modules
              * In essence it implements Access Level policy
              */
-            this.aclModuleMembers$(req, res, params).pipe(map((u) => { return { moduleParents: u } }))
+            this.aclModuleMembers$(req, res, sessionDataExt).pipe(map((u) => { return { moduleParents: u } }))
         ).pipe(
             mergeMap((obs$: any) => obs$),
             bufferCount(3)
@@ -115,17 +129,19 @@ export class AclService {
 
     /**
      * stream of users based on AclUserViewModel
-     * based on settings at consumer_resource_types
+     * This is based on settings at consumer_resource_types
+     * ConsumerResourceTypeMode categorizes user based on roles (consumer root user, regular consumer users etc )
+     * This is currently experimental and some data are hard coded for demonstrations of use case.
      * filtered by current consumer relationship and user role
      * @param req
      * @param res
      * @param params
      * @returns
      */
-    aclUser$(req, res, params): Observable<any> {
+    aclUser$(req, res, sessionDataExt: ISessionDataExt): Observable<any> {
         // this.b.logTimeStamp(`AclService::aclUser$/params:${JSON.stringify(params)}`)
         const b = new BaseService();
-        this.consumerGuid = params.consumerGuid;
+        this.consumerGuid = sessionDataExt.currentConsumer.consumerGuid;
         const q: IQuery = { where: {} };
         const serviceInput: IServiceInput = {
             serviceModel: AclUserViewModel,
@@ -142,19 +158,30 @@ export class AclService {
                 share() // to avoid repeated db round trips
             )
         const isRoot = u => u.userId === 1001;
+        const isAnon = u => u.userId === 1000;
 
         const isConsumerRoot = u => u.consumerResourceTypeId === 4
             && u.consumerGuid === this.consumerGuid
-            && u.objGuid === params.currentUser.userGuid;
+            && u.objGuid === sessionDataExt.currentUser.userGuid;
 
         const isConsumerTechie = u => u.consumerResourceTypeId === 5
             && u.consumerGuid === this.consumerGuid
-            && u.objGuid === params.currentUser.userGuid;
+            && u.objGuid === sessionDataExt.currentUser.userGuid;
 
         const isConsumerUser = u => u.consumerResourceTypeId === 6
             && u.consumerGuid === this.consumerGuid
-            && u.objGuid === params.currentUser.userGuid;
+            && u.objGuid === sessionDataExt.currentUser.userGuid;
 
+        const isAnon$ = user$
+            .pipe(
+                map((u) => {
+                    const ret = u.filter(isRoot)
+                    // this.b.logTimeStamp(`AclService::aclUser$/u[isRoot$]:${JSON.stringify(u)}`)
+                    // this.b.logTimeStamp(`AclService::aclUser$/ret[isRoot$]:${JSON.stringify(ret)}`)
+                    return ret;
+                })
+                , distinct()
+            );
         const isRoot$ = user$
             .pipe(
                 map((u) => {
@@ -201,6 +228,7 @@ export class AclService {
 
         return forkJoin(
             {
+                isAnon: isAnon$.pipe(map((u) => { return u })),
                 isRoot: isRoot$.pipe(map((u) => { return u })),
                 isConsumerRoot: isConsumerRoot$.pipe(map((u) => { return u })),
                 isConsumerUser: isConsumerUser$.pipe(map((u) => { return u }))
@@ -282,6 +310,9 @@ export class AclService {
     }
 
     /**
+     * When a module is created, it also creates a corresponding group in GroupModel
+     * This logical group is used to save members of Corpdesk cd-objects that have access to this module.
+     * Members of groups are managed by GroupMembersModel
      * AclModuleMemberViewModel aggregates related group, group_members and modules
      * In other words one can query which users belong to which module (logical association by grouping)
      * 
@@ -311,16 +342,17 @@ export class AclService {
                 /**
                  * query for extracting all the modules where current user belongs or has access to
                  */
-                query: { 
+                query: {
                     where: [
-                        { 
-                            memberGuid: params.currentUser.userGuid, 
-                            moduleEnabled: true, 
-                            groupMemberEnabled:true }, 
-                        { 
-                            moduleIsPublic: true 
+                        {
+                            memberGuid: params.currentUser.userGuid,
+                            moduleEnabled: true,
+                            groupMemberEnabled: true
+                        },
+                        {
+                            moduleIsPublic: true
                         }
-                    ] 
+                    ]
                 }
             },
             dSource: 1,

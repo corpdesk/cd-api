@@ -1339,8 +1339,7 @@ export class BaseService {
 
     /**
      * 
-     * typeorm query was failing when 'OR' query were used for findAndCount
-     * however the QueryBuilder is working ok
+     * 
      * This method makes use of QueryBuilderHelper to allow query to still be structured as earlier then this
      * class converts them to typeorm query builder.
      */

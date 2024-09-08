@@ -222,6 +222,33 @@ export interface IServiceInput {
     fetchInput?: IFetchInput;
 }
 
+export interface Cmd {
+    action: string;
+    query: IQuery | IQbInput;
+}
+
+// query builder input
+export interface IQbInput {
+    select?: string[];
+    update?: object;
+    where: IQbFilter[];
+    distinct?: boolean;
+    take?: number;
+    skip?: number;
+}
+
+export interface IQuery {
+    select?: string[];
+    update?: object;
+    where: any;
+    distinct?: boolean;
+    take?: number;
+    skip?: number;
+    jFilters?: IJFilter[];
+    order?:any;
+    class?:string;
+}
+
 export interface IFetchInput{
     url: string;
     optins?:{
@@ -233,11 +260,6 @@ export interface IFetchInput{
             'X-Parse-REST-API-Key'?:string;
         }
     }
-}
-
-export interface Cmd {
-    action: string;
-    query: IQuery | IQbInput;
 }
 
 export interface IDoc {
@@ -331,26 +353,6 @@ export interface IAllowedModules {
 export interface IMenuRelations {
     menuParent: MenuViewModel;
     menuChildren: MenuViewModel[];
-}
-
-// query builder input
-export interface IQbInput {
-    select?: string[];
-    update?: object;
-    where: IQbFilter[];
-    take?: number;
-    skip?: number;
-}
-
-export interface IQuery {
-    select?: string[];
-    update?: object;
-    where: any;
-    take?: number;
-    skip?: number;
-    jFilters?: IJFilter[];
-    order?:any;
-    class?:string;
 }
 
 /**

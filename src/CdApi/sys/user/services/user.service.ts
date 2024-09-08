@@ -610,28 +610,60 @@ export class UserService extends CdService {
             );
     }
 
-    processResponse$(req, res, guest) {
-        this.b.logTimeStamp('UserService::processResponse$/01')
+    // processResponse$(req, res, guest) {
+    //     this.b.logTimeStamp('UserService::processResponse$/01')
+    //     delete guest.password;
+    //     const sessData$: Rx.Observable<SessionModel> = Rx.from(this.srvSess.create(req, res, guest));
+    //     const modulesUserData$ = this.svModule.getModulesUserData$(req, res, guest);
+    //     const sessFlat = r => { return r };
+    //     this.b.logTimeStamp('ModuleService::processResponse$/02')
+    //     return Rx.forkJoin({
+    //         sessResult: sessData$,
+    //         modulesUserData: modulesUserData$
+    //     })
+    //         .pipe(
+    //             Rx.defaultIfEmpty({
+    //                 sessResult: sessData$.pipe(Rx.mergeMap(r => sessFlat(r))),
+    //                 modulesUserData: {
+    //                     consumer: [],
+    //                     menuData: [],
+    //                     userData: {}
+    //                 }
+    //             })
+    //         )
+    // }
+
+    processResponse$(req, res, guest: UserModel): Rx.Observable<any> {
+        this.b.logTimeStamp('UserService::processResponse$/01');
         delete guest.password;
-        const sessResult$: Rx.Observable<SessionModel> = Rx.from(this.srvSess.create(req, res, guest));
-        const modulesUserData$ = this.svModule.getModulesUserData$(req, res, guest);
-        const sessFlat = r => { return r };
-        this.b.logTimeStamp('ModuleService::processResponse$/02')
-        return Rx.forkJoin({
-            sessResult: sessResult$,
-            modulesUserData: modulesUserData$
-        })
-            .pipe(
-                Rx.defaultIfEmpty({
-                    sessResult: sessResult$.pipe(Rx.mergeMap(r => sessFlat(r))),
-                    modulesUserData: {
-                        consumer: [],
-                        menuData: [],
-                        userData: {}
-                    }
-                })
-            )
+    
+        // Create an observable for session data
+        const sessData$: Rx.Observable<SessionModel> = Rx.from(this.srvSess.create(req, res, guest));
+    
+        // Now using mergeMap to ensure sessData$ is resolved before passing it to getModulesUserData$
+        return sessData$.pipe(
+            Rx.mergeMap((sessData) => {
+                req.post.dat.token = sessData.cdToken
+                // Call getModulesUserData$ with sessData instead of guest
+                const modulesUserData$ = this.svModule.getModulesUserData$(req, res, sessData);
+    
+                // Use forkJoin to combine sessData and modulesUserData
+                return Rx.forkJoin({
+                    sessResult: Rx.of(sessData),  // Wrapping sessData into an observable
+                    modulesUserData: modulesUserData$
+                });
+            }),
+            Rx.defaultIfEmpty({
+                sessResult: sessData$.pipe(Rx.mergeMap(r => Rx.of(r))),
+                modulesUserData: {
+                    consumer: [],
+                    menuData: [],
+                    userData: {}
+                }
+            })
+        );
     }
+    
 
     async getUserByID(req, res, uid): Promise<UserModel[]> {
         const serviceInput = {
