@@ -324,11 +324,16 @@ export class MenuViewModel {
     )
     cdObjEnabled?: boolean | number;
 
-    @ViewColumn(
-        {
-            name: 'menu_is_public'
-        }
-    )
-    menuIsPublic?: boolean | number;
+    // @ViewColumn(
+    //     {
+    //         name: 'menu_is_public'
+    //     }
+    // )
+    // menuIsPublic?: boolean | number;
+
+    @ViewColumn({
+        name: 'menu_is_public'
+    })
+    menuIsPublic?: number;
 
 }

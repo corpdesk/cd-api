@@ -197,12 +197,19 @@ export class MenuModel {
     )
     isLayout?: boolean;
 
-    @Column(
-        {
-            name: 'menu_is_public',
-            nullable: true
-        }
-    )
-    menuIsPublic?: boolean | number;
+    // @Column(
+    //     {
+    //         name: 'menu_is_public',
+    //         nullable: true
+    //     }
+    // )
+    // menuIsPublic?: boolean | number;
+
+    @Column({
+        type: 'tinyint',
+        width: 1,
+        default: 0,
+    })
+    menuIsPublic?: number;
 
 }
