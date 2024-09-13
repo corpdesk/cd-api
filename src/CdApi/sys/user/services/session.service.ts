@@ -3,6 +3,7 @@ import DeviceDetector from 'device-detector-js';
 import { BaseService } from '../../base/base.service';
 import { IServiceInput, ISessionDataExt, ISessResp } from '../../base/IBase';
 import { DocModel } from '../../moduleman/models/doc.model';
+// import * as dotenv from 'dotenv';
 import { SessionModel } from '../models/session.model';
 import { UserModel } from '../models/user.model';
 import { UserService } from './user.service';
@@ -10,6 +11,9 @@ import { Logging } from '../../base/winston.log';
 import { ConsumerModel } from '../../moduleman/models/consumer.model';
 import { CompanyModel } from '../../moduleman/models/company.model';
 import { ConsumerService } from '../../moduleman/services/consumer.service';
+import { RedisService } from '../../base/redis-service';
+import config from '../../../../config';
+// dotenv.config();
 
 
 export class SessionService {
@@ -30,6 +34,7 @@ export class SessionService {
         jwt: null,
         ttl: 600
     };
+    private redisService: RedisService;
 
     currentUserData: UserModel[];
     currentSessData: SessionModel[];
@@ -40,6 +45,8 @@ export class SessionService {
         this.b = new BaseService();
         this.logger = new Logging();
         this.sessModel = new SessionModel();
+        // Initialize RedisService
+        this.redisService = new RedisService();
     }
 
     async create(req, res, guest) {
@@ -158,27 +165,69 @@ export class SessionService {
         
     }
 
+    // async getSessionDataExt_old(req, res): Promise<ISessionDataExt> {
+    //     const svUser = new UserService();
+    //     const svConsumer = new ConsumerService();
+    //     // const sessionData = await this.getSession(req, res);
+    //     this.currentSessData = await this.getSession(req, res);
+    //     console.log('SessionService::getSessionDataExt()/this.currentSessData:', this.currentSessData)
+    //     const consumerGuid = this.currentSessData[0].consumerGuid;
+    //     const cuid = this.currentSessData[0].currentUserId;
+    //     console.log('SessionService::getSessionDataExt()/cuid:', cuid)
+    //     this.currentUserData = await svUser.getUserByID(req, res, cuid);
+    //     console.log('SessionService::getSessionDataExt()/consumerGuid:', consumerGuid)
+    //     console.log('SessionService::getSessionDataExt()/consumerGuid:', consumerGuid)
+    //     this.currentConsumerData = await svConsumer.getConsumerI(req, res, {where:{consumerGuid:consumerGuid}});
+    //     console.log('SessionService::getSessionDataExt()/this.currentConsumerData:', this.currentConsumerData)
+    //     this.currentCompanyData = await svConsumer.getCompanyData(req, res, consumerGuid);
+    //     console.log('SessionService::getSessionDataExt()/this.currentCompanyData:', this.currentCompanyData)
+    //     return {
+    //         currentUser: this.currentUserData[0],
+    //         currentSession: this.currentSessData[0],
+    //         currentConsumer: this.currentConsumerData[0],
+    //         currentCompany: this.currentCompanyData[0],
+    //     }
+    // }
+
     async getSessionDataExt(req, res): Promise<ISessionDataExt> {
+        // Define a unique cache key based on session ID or user-specific identifier
+        const cacheKey = `session_data_${req.post.dat.token}`;
+        
+        // Try to retrieve session data from Redis cache
+        let sessionData = await this.redisService.get(cacheKey);
+        
+        if (sessionData) {
+            // Parse cached session data and return it
+            return JSON.parse(sessionData);
+        }
+
+        // If cache miss, proceed to retrieve data from the database as usual
         const svUser = new UserService();
         const svConsumer = new ConsumerService();
-        // const sessionData = await this.getSession(req, res);
+
         this.currentSessData = await this.getSession(req, res);
-        console.log('SessionService::getSessionDataExt()/this.currentSessData:', this.currentSessData)
         const consumerGuid = this.currentSessData[0].consumerGuid;
         const cuid = this.currentSessData[0].currentUserId;
-        console.log('SessionService::getSessionDataExt()/cuid:', cuid)
+        
         this.currentUserData = await svUser.getUserByID(req, res, cuid);
-        console.log('SessionService::getSessionDataExt()/consumerGuid:', consumerGuid)
-        console.log('SessionService::getSessionDataExt()/consumerGuid:', consumerGuid)
-        this.currentConsumerData = await svConsumer.getConsumerI(req, res, {where:{consumerGuid:consumerGuid}});
-        console.log('SessionService::getSessionDataExt()/this.currentConsumerData:', this.currentConsumerData)
+        this.currentConsumerData = await svConsumer.getConsumerI(req, res, {where: {consumerGuid: consumerGuid}});
         this.currentCompanyData = await svConsumer.getCompanyData(req, res, consumerGuid);
-        console.log('SessionService::getSessionDataExt()/this.currentCompanyData:', this.currentCompanyData)
-        return {
+
+        // Compose session data object
+        const retSessionData = {
             currentUser: this.currentUserData[0],
             currentSession: this.currentSessData[0],
             currentConsumer: this.currentConsumerData[0],
             currentCompany: this.currentCompanyData[0],
-        }
+        };
+
+        // Set the TTL to 1 hour (3600 seconds)
+        const ttl = Number(config.cacheTtl)
+        // Store the session data in Redis for future requests (set a TTL of 1 hour)
+        await this.redisService.set(cacheKey, JSON.stringify(retSessionData),ttl);
+        
+        
+        // Return the freshly fetched session data
+        return retSessionData;
     }
 }

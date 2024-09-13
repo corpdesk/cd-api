@@ -142,6 +142,7 @@ export default {
     apiPort: process.env.API_PORT,
     apiRoute: API_ROUTE,
     endPoint: END_POINT,
+    cacheTtl: process.env.CACHE_TTL,
     userActivationUrl: process.env.USER_ACTIVATION_URL,
     emailUsers: [{
         name: 'ASDAP',

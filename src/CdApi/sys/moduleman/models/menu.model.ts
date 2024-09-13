@@ -206,6 +206,7 @@ export class MenuModel {
     // menuIsPublic?: boolean | number;
 
     @Column({
+        name: 'menu_is_public',
         type: 'tinyint',
         width: 1,
         default: 0,

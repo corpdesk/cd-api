@@ -29,6 +29,7 @@ import { SioService } from './CdApi/sys/cd-push/services/sio.service';
 import { Logging } from './CdApi/sys/base/winston.log';
 import { WebsocketService } from './CdApi/sys/cd-push/services/websocket.service';
 import pusher from './CdApi/sys/cd-push/services/pusher';
+import { getRedisClient } from './CdApi/sys/base/redis-client';
 
 
 
@@ -127,12 +128,14 @@ export class Main {
 
             this.logger.logInfo('Main::run()/03')
             this.logger.logInfo('Main::run()/config.push.mode:', { mode: config.push.mode })
+            // let pubClient = getRedisClient();
             let pubClient;
             let subClient;
             switch (config.push.mode) {
                 case "PUSH_BASIC":
                     this.logger.logInfo('Main::run()/031')
-                    pubClient = createClient({ host: config.push.redisHost, port: config.push.redisPort, legacyMode: true } as RedisClientOptions);
+                    // pubClient = createClient({ host: config.push.redisHost, port: config.push.redisPort, legacyMode: true } as RedisClientOptions);
+                    pubClient = getRedisClient();
                     subClient = pubClient.duplicate();
                     break;
                 case "PUSH_CLUSTER":
@@ -147,7 +150,8 @@ export class Main {
                     break;
                 default:
                     this.logger.logInfo('Main::run()/034')
-                    pubClient = createClient({ host: config.push.redisHost, port: config.push.redisPort } as RedisClientOptions);
+                    // pubClient = createClient({ host: config.push.redisHost, port: config.push.redisPort } as RedisClientOptions);
+                    pubClient = getRedisClient();
                     subClient = pubClient.duplicate();
                     break;
             }
