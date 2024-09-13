@@ -5,7 +5,7 @@ import config from '../../../config';
 // let redisClient: RedisClientType;
 let redisClient;
 
-export const getRedisClient = (): RedisClientType => {
+export const getRedisClient = () => {
     if (!redisClient) {
         redisClient = createClient({
             host: config.push.redisHost,

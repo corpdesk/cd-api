@@ -134,8 +134,8 @@ export class Main {
             switch (config.push.mode) {
                 case "PUSH_BASIC":
                     this.logger.logInfo('Main::run()/031')
-                    pubClient = createClient({ host: config.push.redisHost, port: config.push.redisPort, legacyMode: true } as RedisClientOptions);
-                    // pubClient = getRedisClient();
+                    // pubClient = createClient({ host: config.push.redisHost, port: config.push.redisPort, legacyMode: true } as RedisClientOptions);
+                    pubClient = getRedisClient();
                     subClient = pubClient.duplicate();
                     break;
                 case "PUSH_CLUSTER":

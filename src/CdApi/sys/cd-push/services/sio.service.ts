@@ -211,6 +211,7 @@ export class SioService {
                 let payLoad = '';
                 this.logger.logInfo(`SioService::relayMessages()/recepient:${JSON.stringify(recepient)}`);
                 this.logger.logInfo("SioService::relayMessages()/pushEnvelop.pushData.pushRecepients:", pushEnvelop.pushData.pushRecepients);
+                console.log("SioService::relayMessages()/pushEnvelop:", pushEnvelop);
                 // const recepientSocket = this.recepientSocket(recepient, pubClient);
                 const recepientDataStr = await this.destinationSocket(recepient);
                 this.logger.logInfo("SioService::relayMessages()/pushEnvelop.pushData.recepientDataStr:", recepientDataStr);
