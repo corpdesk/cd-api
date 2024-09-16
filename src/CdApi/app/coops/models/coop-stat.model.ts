@@ -9,33 +9,33 @@ import { ColumnNumericTransformer } from '../../../sys/base/base.model';
 
 @Entity(
     {
-        name: 'coop',
+        name: 'coop_stat',
         synchronize: false
     }
 )
-export class CoopModel {
+export class CoopStatModel {
     @PrimaryGeneratedColumn(
         {
-            name: 'coop_id'
+            name: 'coop_stat_id'
         }
     )
-    coopId?: number;
+    coopStatId?: number;
 
     @Column({
-        name: 'coop_guid',
+        name: 'coop_stat_guid',
         length: 36,
         default: uuidv4()
     })
-    coopGuid?: string;
+    coopStatGuid?: string;
 
     @Column(
         {
-            name: 'coop_name',
+            name: 'coop_stat_name',
             length: 50,
             nullable: true
         }
     )
-    coopName: string;
+    coopStatName: string;
 
     @Column(
         {
@@ -43,7 +43,7 @@ export class CoopModel {
             length: 60,
             default: null
         })
-    coopDescription: string;
+    coopStatDescription: string;
 
     @Column(
         {
@@ -121,11 +121,11 @@ export class CoopModel {
 
     @Column(
         {
-            name: 'coop_date_label',
+            name: 'coop_stat_date_label',
             default: null
         }
     )
-    coopDateLabel?: string;
+    coopStatDateLabel?: string;
 
     @Column(
         'boolean',
@@ -146,29 +146,29 @@ export class CoopModel {
 
     @Column(
         {
-            name: 'coop_ref_id',
+            name: 'coop_stat_ref_id',
             default: null
         }
     )
-    coopRefId?: number;
+    coopStatRefId?: number;
 
     @Column(
         'boolean',
         {
-            name: 'coop_enabled',
+            name: 'coop_stat_enabled',
             default: null
         }
     )
-    coopEnabled?: boolean;
+    coopStatEnabled?: boolean;
 
     @Column(
         'boolean',
         {
-            name: 'coop_display',
+            name: 'coop_stat_display',
             default: null
         }
     )
-    coopDisplay?: boolean;
+    coopStatDisplay?: boolean;
 
 
 }

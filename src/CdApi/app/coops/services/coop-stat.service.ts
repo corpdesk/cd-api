@@ -3,23 +3,23 @@ import { CdService } from '../../../sys/base/cd.service';
 import { SessionService } from '../../../sys/user/services/session.service';
 import { UserService } from '../../../sys/user/services/user.service';
 import { CreateIParams, IQuery, IRespInfo, IServiceInput, IUser, ICdRequest, ISessionDataExt } from '../../../sys/base/IBase';
-import { CoopModel } from '../models/coop.model';
-// import { CoopViewModel, siGet } from '../models/coop-view.model';
+import { CoopStatModel } from '../models/coop-stat.model';
+// import { CoopStatViewModel, siGet } from '../models/coop-view.model';
 import { CoopTypeModel } from '../models/coop-type.model';
-import { CoopViewModel } from '../models/coop-view.model';
+import { CoopStatViewModel } from '../models/coop-stat-view.model';
 import { siGet } from '../../../sys/base/base.model';
 import { CdGeoLocationService } from '../../cd-geo/services/cd-geo-location.service';
 import { Logging } from '../../../sys/base/winston.log';
 
-export class CoopService extends CdService {
+export class CoopStatService extends CdService {
     logger: Logging;
     b: any; // instance of BaseService
     cdToken: string;
     srvSess: SessionService;
     srvUser: UserService;
     user: IUser;
-    serviceModel: CoopModel;
-    modelName: "CoopModel";
+    serviceModel: CoopStatModel;
+    modelName: "CoopStatModel";
     sessModel;
     sessDataExt: ISessionDataExt;
     // moduleModel: ModuleModel;
@@ -28,8 +28,8 @@ export class CoopService extends CdService {
      * create rules
      */
     cRules: any = {
-        required: ['coopName', 'coopTypeId', 'coopDateLabel'],
-        noDuplicate: ['coopName', 'coopDateLabel']
+        required: ['coopStatName', 'coopTypeId', 'coopStatDateLabel'],
+        noDuplicate: ['coopStatName', 'coopStatDateLabel']
     };
     uRules: any[];
     dRules: any[];
@@ -38,7 +38,7 @@ export class CoopService extends CdService {
         super()
         this.b = new BaseService();
         this.logger = new Logging();
-        this.serviceModel = new CoopModel();
+        this.serviceModel = new CoopStatModel();
     }
     
     async initSession(req, res){
@@ -56,9 +56,9 @@ export class CoopService extends CdService {
            "f_vals": [
            {
                "data": {
-                   "coopGuid":"",
-                   "coopName": "Benin", 
-                   "coopDescription":"2005",
+                   "coopStatGuid":"",
+                   "coopStatName": "Benin", 
+                   "coopStatDescription":"2005",
                    "cdGeoLocationId":null,
                    "coopWoccu": false,
                    "coopCount": null,
@@ -68,8 +68,8 @@ export class CoopService extends CdService {
                    "coopReserves":null, 
                    "coopAssets": null,
                    "coopMemberPenetration":20.95,
-                   "coopDateLabel": "2005-12-31 23:59:59",
-                   "coopRefId":null
+                   "coopStatDateLabel": "2005-12-31 23:59:59",
+                   "coopStatRefId":null
                }
            }
            ],
@@ -87,8 +87,8 @@ export class CoopService extends CdService {
         if (await this.validateCreate(req, res)) {
             await this.beforeCreate(req, res);
             const serviceInput = {
-                serviceModel: CoopModel,
-                modelName: "CoopModel",
+                serviceModel: CoopStatModel,
+                modelName: "CoopStatModel",
                 serviceModelInstance: this.serviceModel,
                 docName: 'Create Coop',
                 dSource: 1,
@@ -112,7 +112,7 @@ export class CoopService extends CdService {
             await this.beforeCreateSL(req, res);
             const serviceInput = {
                 serviceInstance: this,
-                serviceModel: CoopModel,
+                serviceModel: CoopStatModel,
                 serviceModelInstance: this.serviceModel,
                 docName: 'Create Coop',
                 dSource: 1,
@@ -128,7 +128,7 @@ export class CoopService extends CdService {
         }
     }
 
-    async createI(req, res, createIParams: CreateIParams): Promise<CoopModel | boolean> {
+    async createI(req, res, createIParams: CreateIParams): Promise<CoopStatModel | boolean> {
         return await this.b.createI(req, res, createIParams)
     }
 
@@ -153,9 +153,9 @@ export class CoopService extends CdService {
             {
                 "data": [
                 {
-                    "coopGuid": "",
-                    "coopName": "Kenya",
-                    "coopDescription": "2006",
+                    "coopStatGuid": "",
+                    "coopStatName": "Kenya",
+                    "coopStatDescription": "2006",
                     "cdGeoLocationId": null,
                     "coopWoccu": false,
                     "coopCount": 2993,
@@ -165,13 +165,13 @@ export class CoopService extends CdService {
                     "coopReserves": 102792479,
                     "coopAssets": 2146769999,
                     "coopMemberPenetration": 16.01,
-                    "coopDateLabel": "2006-12-31 23:59:59",
-                    "coopRefId": null
+                    "coopStatDateLabel": "2006-12-31 23:59:59",
+                    "coopStatRefId": null
                 },
                 {
-                    "coopGuid": "",
-                    "coopName": "Malawi",
-                    "coopDescription": "2006",
+                    "coopStatGuid": "",
+                    "coopStatName": "Malawi",
+                    "coopStatDescription": "2006",
                     "cdGeoLocationId": null,
                     "coopWoccu": false,
                     "coopCount": 70,
@@ -181,8 +181,8 @@ export class CoopService extends CdService {
                     "coopReserves": 601936,
                     "coopAssets": 7407250,
                     "coopMemberPenetration": 0.9,
-                    "coopDateLabel": "2006-12-31 23:59:59",
-                    "coopRefId": null
+                    "coopStatDateLabel": "2006-12-31 23:59:59",
+                    "coopStatRefId": null
                 }
                 ]
             }
@@ -200,16 +200,16 @@ export class CoopService extends CdService {
         this.logger.logInfo('CoopService::createM()/01')
         let data = req.post.dat.f_vals[0].data
         this.logger.logInfo('CoopService::createM()/data:', data)
-        // this.b.models.push(CoopModel)
+        // this.b.models.push(CoopStatModel)
         // this.b.init(req, res)
 
         for (var coopData of data) {
             this.logger.logInfo('coopData', coopData)
-            const coopQuery: CoopModel = coopData;
-            const svCoop = new CoopService();
+            const coopQuery: CoopStatModel = coopData;
+            const svCoop = new CoopStatService();
             const si = {
                 serviceInstance: svCoop,
-                serviceModel: CoopModel,
+                serviceModel: CoopStatModel,
                 serviceModelInstance: svCoop.serviceModel,
                 docName: 'CoopService::CreateM',
                 dSource: 1,
@@ -228,8 +228,8 @@ export class CoopService extends CdService {
         // and the query can be set from the client side.
         let q = {
             // "select": [
-            //     "coopName",
-            //     "coopDescription"
+            //     "coopStatName",
+            //     "coopStatDescription"
             // ],
             "where": {},
             "take": 5,
@@ -241,7 +241,7 @@ export class CoopService extends CdService {
     async CoopExists(req, res, params): Promise<boolean> {
         const serviceInput: IServiceInput = {
             serviceInstance: this,
-            serviceModel: CoopModel,
+            serviceModel: CoopStatModel,
             docName: 'CoopService::CoopExists',
             cmd: {
                 action: 'find',
@@ -253,21 +253,21 @@ export class CoopService extends CdService {
     }
 
     async beforeCreate(req, res): Promise<any> {
-        this.b.setPlData(req, { key: 'coopGuid', value: this.b.getGuid() });
-        this.b.setPlData(req, { key: 'coopEnabled', value: true });
+        this.b.setPlData(req, { key: 'coopStatGuid', value: this.b.getGuid() });
+        this.b.setPlData(req, { key: 'coopStatEnabled', value: true });
         return true;
     }
 
     async beforeCreateSL(req, res): Promise<any> {
-        this.b.setPlData(req, { key: 'coopGuid', value: this.b.getGuid() });
-        this.b.setPlData(req, { key: 'coopEnabled', value: true });
+        this.b.setPlData(req, { key: 'coopStatGuid', value: this.b.getGuid() });
+        this.b.setPlData(req, { key: 'coopStatEnabled', value: true });
         return true;
     }
 
     async read(req, res, serviceInput: IServiceInput): Promise<any> {
         // const serviceInput: IServiceInput = {
         //     serviceInstance: this,
-        //     serviceModel: CoopModel,
+        //     serviceModel: CoopStatModel,
         //     docName: 'CoopService::CoopExists',
         //     cmd: {
         //         action: 'find',
@@ -313,7 +313,7 @@ export class CoopService extends CdService {
         let q = this.b.getQuery(req);
         q = this.beforeUpdate(q);
         const serviceInput = {
-            serviceModel: CoopModel,
+            serviceModel: CoopStatModel,
             docName: 'CoopService::update',
             cmd: {
                 action: 'update',
@@ -334,7 +334,7 @@ export class CoopService extends CdService {
         let q = this.b.getQuery(req);
         q = this.beforeUpdateSL(q);
         const serviceInput = {
-            serviceModel: CoopModel,
+            serviceModel: CoopStatModel,
             docName: 'CoopService::update',
             cmd: {
                 action: 'update',
@@ -397,7 +397,7 @@ export class CoopService extends CdService {
         // 1. Validate against duplication
         const params = {
             controllerInstance: this,
-            model: CoopModel,
+            model: CoopStatModel,
         }
         this.b.i.code = 'CoopService::validateCreate';
         let ret = false;
@@ -423,7 +423,7 @@ export class CoopService extends CdService {
         this.logger.logInfo('coop/CoopService::validateCreate()/06')
         ///////////////////////////////////////////////////////////////////
         // 2. confirm the coopTypeId referenced exists
-        const pl: CoopModel = this.b.getPlData(req);
+        const pl: CoopStatModel = this.b.getPlData(req);
         if ('coopTypeId' in pl) {
             this.logger.logInfo('coop/CoopService::validateCreate()/07')
             this.logger.logInfo('coop/CoopService::validateCreate()/pl:', pl)
@@ -473,7 +473,7 @@ export class CoopService extends CdService {
     /**
      * 
      * curl test:
-     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App", "m": "Coops","c": "Coop","a": "Get","dat": {"f_vals": [{"query": {"where": {"coopName": "Kenya"}}}],"token":"08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
+     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App", "m": "Coops","c": "Coop","a": "Get","dat": {"f_vals": [{"query": {"where": {"coopStatName": "Kenya"}}}],"token":"08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
      * @param req 
      * @param res 
      * @param q 
@@ -485,10 +485,10 @@ export class CoopService extends CdService {
         }
         this.logger.logInfo('CoopService::getCoop/f:', q);
         // const serviceInput = siGet(q,this)
-        this.serviceModel = new CoopModel();
+        this.serviceModel = new CoopStatModel();
         const serviceInput: IServiceInput = this.b.siGet(q, this)
         serviceInput.serviceModelInstance = this.serviceModel
-        serviceInput.serviceModel = CoopModel
+        serviceInput.serviceModel = CoopStatModel
         try {
             const r = await this.b.read(req, res, serviceInput)
             this.b.successResponse(req, res, r)
@@ -623,7 +623,7 @@ export class CoopService extends CdService {
         const q = this.b.getQuery(req);
         this.logger.logInfo('CoopService::getCoopPaged/q:', q);
         const serviceInput = {
-            serviceModel: CoopViewModel,
+            serviceModel: CoopStatViewModel,
             docName: 'CoopService::getCoopPaged$',
             cmd: {
                 action: 'find',
@@ -647,7 +647,7 @@ export class CoopService extends CdService {
         const q = this.b.getQuery(req);
         this.logger.logInfo('CoopService::getCoopPaged()/q:', q);
         const serviceInput = {
-            serviceModel: CoopModel,
+            serviceModel: CoopStatModel,
             docName: 'CoopService::getCoopPaged',
             cmd: {
                 action: 'find',
@@ -696,7 +696,7 @@ export class CoopService extends CdService {
         const q = this.b.getQuery(req);
         this.logger.logInfo('CoopService::delete()/q:', q)
         const serviceInput = {
-            serviceModel: CoopModel,
+            serviceModel: CoopStatModel,
             docName: 'CoopService::delete',
             cmd: {
                 action: 'delete',
@@ -716,7 +716,7 @@ export class CoopService extends CdService {
         const q = this.b.getQuery(req);
         this.logger.logInfo('CoopService::deleteSL()/q:', q)
         const serviceInput = {
-            serviceModel: CoopModel,
+            serviceModel: CoopStatModel,
             docName: 'CoopService::deleteSL',
             cmd: {
                 action: 'delete',
@@ -744,10 +744,10 @@ export class CoopService extends CdService {
             q = this.b.getQuery(req);
         }
         this.logger.logInfo('CoopService::getCoopI/q:', q);
-        let serviceModel = new CoopViewModel();
+        let serviceModel = new CoopStatViewModel();
         const serviceInput: IServiceInput = this.b.siGet(q, this)
         serviceInput.serviceModelInstance = serviceModel
-        serviceInput.serviceModel = CoopViewModel
+        serviceInput.serviceModel = CoopStatViewModel
         try {
             let respData = await this.b.read(req, res, serviceInput)
             return { data: respData, error: null }
@@ -779,8 +779,8 @@ export class CoopService extends CdService {
         let svCdGeoLocationService = new CdGeoLocationService()
         let gData = await svCdGeoLocationService.getGeoLocationI(req, res, q)
         
-        // ,"order": {"coopDateLabel": "ASC"}
-        q.order = {"coopDateLabel": "ASC"}
+        // ,"order": {"coopStatDateLabel": "ASC"}
+        q.order = {"coopStatDateLabel": "ASC"}
         let cData = await this.getCoopI(req, res, q)
         let ret = {
             geoLocationData: gData.data,

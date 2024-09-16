@@ -1,16 +1,16 @@
 import { BaseService } from '../../../sys/base/base.service';
 import { CoopTypeService } from '../services/coop-type.service';
-import { CoopService } from '../services/coop.service';
+import { CoopStatService } from '../services/coop-stat.service';
 
-export class CoopController {
+export class CoopStatController {
 
     b: BaseService;
-    svCoop: CoopService;
+    svCoopStat: CoopStatService;
     svCoopType: CoopTypeService
 
     constructor() {
         this.b = new BaseService();
-        this.svCoop = new CoopService();
+        this.svCoopStat = new CoopStatService();
         this.svCoopType = new CoopTypeService();
 
 
@@ -26,7 +26,7 @@ export class CoopController {
     //             "f_vals": [
     //                 {
     //                     "data": {
-    //                         "CoopName": "/src/CdApi/sys/moduleman",
+    //                         "coopStatName": "/src/CdApi/sys/moduleman",
     //                         "CoopTypeId": "7ae902cd-5bc5-493b-a739-125f10ca0268",
     //                         "parentModuleGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b"
     //                     }
@@ -41,7 +41,7 @@ export class CoopController {
     //  */
     async Create(req, res) {
         try {
-            await this.svCoop.create(req, res);
+            await this.svCoopStat.create(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'CoopController:Create');
         }
@@ -54,7 +54,7 @@ export class CoopController {
      */
     async CreateM(req, res) {
         try {
-            await this.svCoop.createM(req, res);
+            await this.svCoopStat.createM(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'CoopController:CreateM');
         }
@@ -62,7 +62,7 @@ export class CoopController {
 
     async CreateSL(req, res) {
         try {
-            await this.svCoop.createSL(req, res);
+            await this.svCoopStat.createSL(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'CoopController:CreateSL');
         }
@@ -80,7 +80,7 @@ export class CoopController {
                 "f_vals": [
                     {
                         "query": {
-                            "where": {"coopName": "Kenya"}
+                            "where": {"coopStatName": "Kenya"}
                         }
                     }
                 ],
@@ -89,13 +89,13 @@ export class CoopController {
             "args": null
         }
 
-        curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App", "m": "Coops","c": "Coop","a": "Get","dat": {"f_vals": [{"query": {"where": {"coopName": "Kenya"}}}],"token":"08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
+        curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App", "m": "Coops","c": "Coop","a": "Get","dat": {"f_vals": [{"query": {"where": {"coopStatName": "Kenya"}}}],"token":"08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
      * @param req
      * @param res
      */
     async Get(req, res) {
         try {
-            await this.svCoop.getCoop(req, res);
+            await this.svCoopStat.getCoop(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'CoopController:Get');
         }
@@ -103,7 +103,7 @@ export class CoopController {
 
     async GetSL(req, res) {
         try {
-            await this.svCoop.getCoopSL(req, res);
+            await this.svCoopStat.getCoopSL(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'CoopController:GetSL');
         }
@@ -134,7 +134,7 @@ export class CoopController {
      */
     async GetType(req, res) {
         try {
-            await this.svCoop.getCoopType(req, res);
+            await this.svCoopStat.getCoopType(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'CoopController:Get');
         }
@@ -150,7 +150,7 @@ export class CoopController {
                 "f_vals": [
                     {
                         "query": {
-                            "select":["coopId","coopGuid"],
+                            "select":["coopStatId","coopStatGuid"],
                             "where": {},
                             "take": 5,
                             "skip": 1
@@ -162,14 +162,14 @@ export class CoopController {
             "args": null
         }
 
-     curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "Coops","c": "Coop","a": "GetCount","dat": {"f_vals": [{"query": {"select":["coopId","coopGuid"],"where": {}, "take":5,"skip": 1}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
+     curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "Coops","c": "Coop","a": "GetCount","dat": {"f_vals": [{"query": {"select":["coopStatId","coopStatGuid"],"where": {}, "take":5,"skip": 1}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
 
      * @param req
      * @param res
      */
     async GetCount(req, res) {
         try {
-            await this.svCoop.getCoopPaged(req, res);
+            await this.svCoopStat.getCoopPaged(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'ModuleController:Get');
         }
@@ -185,7 +185,7 @@ export class CoopController {
                 "f_vals": [
                     {
                         "query": {
-                            "select":["coopId","coopGuid"],
+                            "select":["coopStatId","coopStatGuid"],
                             "where": {},
                             "take": 5,
                             "skip": 1
@@ -197,14 +197,14 @@ export class CoopController {
             "args": null
         }
 
-     curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "Coops","c": "Coop","a": "GetPaged","dat": {"f_vals": [{"query": {"select":["coopId","coopGuid"],"where": {}, "take":5,"skip": 1}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
+     curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "Coops","c": "Coop","a": "GetPaged","dat": {"f_vals": [{"query": {"select":["coopStatId","coopStatGuid"],"where": {}, "take":5,"skip": 1}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
 
      * @param req
      * @param res
      */
     async GetPaged(req, res) {
         try {
-            await this.svCoop.getCoopPaged(req, res);
+            await this.svCoopStat.getCoopPaged(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'ModuleController:Get');
         }
@@ -212,7 +212,7 @@ export class CoopController {
 
     async GetPagedSL(req, res) {
         try {
-            await this.svCoop.getPagedSL(req, res);
+            await this.svCoopStat.getPagedSL(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'CoopController:GetSL');
         }
@@ -232,7 +232,7 @@ export class CoopController {
                                 "coopAssets": null
                             },
                             "where": {
-                                "coopId": 1
+                                "coopStatId": 1
                             }
                         }
                     }
@@ -242,7 +242,7 @@ export class CoopController {
             "args": {}
         }
 
-     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "Coops","c": "Coop","a": "Update","dat": {"f_vals": [{"query": {"update": {"coopAssets": null},"where": {"coopId": 1}}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": {}}' http://localhost:3001 -v  | jq '.'
+     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "Coops","c": "Coop","a": "Update","dat": {"f_vals": [{"query": {"update": {"coopAssets": null},"where": {"coopStatId": 1}}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": {}}' http://localhost:3001 -v  | jq '.'
      * @param req
      * @param res
      */
@@ -250,7 +250,7 @@ export class CoopController {
         console.log('CoopController::Update()/01');
         try {
             console.log('CoopController::Update()/02');
-            await this.svCoop.update(req, res);
+            await this.svCoopStat.update(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'ModuleController:Update');
         }
@@ -260,7 +260,7 @@ export class CoopController {
         console.log('CoopController::UpdateSL()/01');
         try {
             console.log('CoopController::UpdateSL()/02');
-            await this.svCoop.updateSL(req, res);
+            await this.svCoopStat.updateSL(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'CoopController:UpdateSL');
         }
@@ -276,7 +276,7 @@ export class CoopController {
                 "f_vals": [
                     {
                         "query": {
-                            "where": {"coopId": 69}
+                            "where": {"coopStatId": 69}
                         }
                     }
                 ],
@@ -284,13 +284,13 @@ export class CoopController {
             },
             "args": null
         }
-     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "Coops","c": "Coop","a": "Delete","dat": {"f_vals": [{"query": {"where": {"coopId": 69}}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": {}}' http://localhost:3001 -v  | jq '.'
+     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "Coops","c": "Coop","a": "Delete","dat": {"f_vals": [{"query": {"where": {"coopStatId": 69}}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": {}}' http://localhost:3001 -v  | jq '.'
      * @param req
      * @param res
      */
     async Delete(req, res) {
         try {
-            await this.svCoop.delete(req, res);
+            await this.svCoopStat.delete(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'ModuleController:Update');
         }
@@ -298,7 +298,7 @@ export class CoopController {
 
     async DeleteSL(req, res) {
         try {
-            await this.svCoop.deleteSL(req, res);
+            await this.svCoopStat.deleteSL(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'BillController:DeleteSL');
         }
@@ -348,7 +348,7 @@ export class CoopController {
 
     async GetStats(req, res) {
         try {
-            await this.svCoop.getCoopStats(req, res);
+            await this.svCoopStat.getCoopStats(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'CoopController:GetStats');
         }
@@ -356,7 +356,7 @@ export class CoopController {
 
     async StatsByGeoLocation(req, res) {
         try {
-            await this.svCoop.StatsByGeoLocation(req, res);
+            await this.svCoopStat.StatsByGeoLocation(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'CoopController:StatsByGeoLocation');
         }

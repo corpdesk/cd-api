@@ -5,7 +5,7 @@ import { UserService } from '../../../sys/user/services/user.service';
 import { CreateIParams, IQuery, IRespInfo, IServiceInput, IUser, ICdRequest } from '../../../sys/base/IBase';
 import { CoopTypeModel } from '../models/coop-type.model';
 // import { CoopViewModel, siGet } from '../models/coop-view.model';
-import { CoopViewModel } from '../models/coop-view.model';
+import { CoopStatViewModel } from '../models/coop-stat-view.model';
 import { siGet } from '../../../sys/base/base.model';
 import { Logging } from '../../../sys/base/winston.log';
 
@@ -50,9 +50,9 @@ export class CoopTypeService extends CdService {
             "f_vals": [
             {
                 "data": {
-                    "coopGuid":"",
-                    "coopName": "Benin", 
-                    "coopDescription":"2005",
+                    "coopStatGuid":"",
+                    "coopStatName": "Benin", 
+                    "coopStatDescription":"2005",
                     "cdGeoLocationId":null,
                     "coopWoccu": false,
                     "coopCount": null,
@@ -62,8 +62,8 @@ export class CoopTypeService extends CdService {
                     "coopReserves":null, 
                     "coopAssets": null,
                     "coopMemberPenetration":20.95,
-                    "coopDateLabel": "2005-12-31 23:59:59",
-                    "coopRefId":null
+                    "coopStatDateLabel": "2005-12-31 23:59:59",
+                    "coopStatRefId":null
 	            }
             }
             ],
@@ -147,9 +147,9 @@ export class CoopTypeService extends CdService {
             {
                 "data": [
                 {
-                    "coopGuid": "",
-                    "coopName": "Kenya",
-                    "coopDescription": "2006",
+                    "coopStatGuid": "",
+                    "coopStatName": "Kenya",
+                    "coopStatDescription": "2006",
                     "cdGeoLocationId": null,
                     "coopWoccu": false,
                     "coopCount": 2993,
@@ -159,13 +159,13 @@ export class CoopTypeService extends CdService {
                     "coopReserves": 102792479,
                     "coopAssets": 2146769999,
                     "coopMemberPenetration": 16.01,
-                    "coopDateLabel": "2006-12-31 23:59:59",
-                    "coopRefId": null
+                    "coopStatDateLabel": "2006-12-31 23:59:59",
+                    "coopStatRefId": null
                 },
                 {
-                    "coopGuid": "",
-                    "coopName": "Malawi",
-                    "coopDescription": "2006",
+                    "coopStatGuid": "",
+                    "coopStatName": "Malawi",
+                    "coopStatDescription": "2006",
                     "cdGeoLocationId": null,
                     "coopWoccu": false,
                     "coopCount": 70,
@@ -175,8 +175,8 @@ export class CoopTypeService extends CdService {
                     "coopReserves": 601936,
                     "coopAssets": 7407250,
                     "coopMemberPenetration": 0.9,
-                    "coopDateLabel": "2006-12-31 23:59:59",
-                    "coopRefId": null
+                    "coopStatDateLabel": "2006-12-31 23:59:59",
+                    "coopStatRefId": null
                 }
                 ]
             }
@@ -222,8 +222,8 @@ export class CoopTypeService extends CdService {
         // and the query can be set from the client side.
         let q = {
             // "select": [
-            //     "coopName",
-            //     "coopDescription"
+            //     "coopStatName",
+            //     "coopStatDescription"
             // ],
             "where": {},
             "take": 5,
@@ -253,8 +253,8 @@ export class CoopTypeService extends CdService {
     }
 
     async beforeCreateSL(req, res): Promise<any> {
-        this.b.setPlData(req, { key: 'coopGuid', value: this.b.getGuid() });
-        this.b.setPlData(req, { key: 'coopEnabled', value: true });
+        this.b.setPlData(req, { key: 'coopStatGuid', value: this.b.getGuid() });
+        this.b.setPlData(req, { key: 'coopStatEnabled', value: true });
         return true;
     }
 
@@ -467,7 +467,7 @@ export class CoopTypeService extends CdService {
     /**
      * 
      * curl test:
-     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App", "m": "Coops","c": "Coop","a": "Get","dat": {"f_vals": [{"query": {"where": {"coopName": "Kenya"}}}],"token":"08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
+     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App", "m": "Coops","c": "Coop","a": "Get","dat": {"f_vals": [{"query": {"where": {"coopStatName": "Kenya"}}}],"token":"08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
      * @param req 
      * @param res 
      * @param q 
@@ -578,7 +578,7 @@ export class CoopTypeService extends CdService {
         const q = this.b.getQuery(req);
         this.logger.logInfo('CoopTypeService::getCoopCount/q:', q);
         const serviceInput = {
-            serviceModel: CoopViewModel,
+            serviceModel: CoopStatViewModel,
             docName: 'CoopTypeService::getCoopCount$',
             cmd: {
                 action: 'find',

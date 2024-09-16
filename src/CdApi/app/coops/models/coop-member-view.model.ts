@@ -39,21 +39,21 @@ export class CoopMemberViewModel {
             name: 'coop_id'
         }
     )
-    coopId: number;
+    coopStatId: number;
 
     @ViewColumn(
         {
             name: 'coop_guid'
         }
     )
-    coopGuid: string;
+    coopStatGuid: string;
 
     @ViewColumn(
         {
             name: 'coop_name'
         }
     )
-    coopName: string;
+    coopStatName: string;
 
     @ViewColumn(
         {
@@ -67,7 +67,7 @@ export class CoopMemberViewModel {
             name: 'coop_description'
         }
     )
-    coopDescription: string;
+    coopStatDescription: string;
 
     @ViewColumn(
         {
@@ -116,7 +116,7 @@ export class CoopMemberViewModel {
             name: 'coop_enabled'
         }
     )
-    coopEnabled: number;
+    coopStatEnabled: number;
 
     @ViewColumn(
         {
@@ -137,7 +137,7 @@ export class CoopMemberViewModel {
             name: 'coop_guid_parent'
         }
     )
-    coopGuidParent: string;
+    coopStatGuidParent: string;
 
     @ViewColumn(
         {

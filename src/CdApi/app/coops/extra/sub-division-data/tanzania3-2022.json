@@ -1,8 +1,8 @@
 [
 	{
-		"coopGuid":"",
-		"coopName": "Arusha", 
-		"coopDescription":"2022",
+		"coopStatGuid":"",
+		"coopStatName": "Arusha", 
+		"coopStatDescription":"2022",
 		"cdGeoLocationId":null,
 		"coopWoccu": false,
 		"coopCount": 142,
@@ -12,13 +12,13 @@
 		"coopReserves":-1, 
 		"coopAssets": -1,
 		"coopMemberPenetration":0,
-		"coopDateLabel": "2022-12-31 23:59:59",
-		"coopRefId":null
+		"coopStatDateLabel": "2022-12-31 23:59:59",
+		"coopStatRefId":null
 	},
     {
-		"coopGuid":"",
-		"coopName": "Dar es Salaam", 
-		"coopDescription":"2022",
+		"coopStatGuid":"",
+		"coopStatName": "Dar es Salaam", 
+		"coopStatDescription":"2022",
 		"cdGeoLocationId":null,
 		"coopWoccu": false,
 		"coopCount": 142,
@@ -28,13 +28,13 @@
 		"coopReserves":-1, 
 		"coopAssets": -1,
 		"coopMemberPenetration":0,
-		"coopDateLabel": "2022-12-31 23:59:59",
-		"coopRefId":null
+		"coopStatDateLabel": "2022-12-31 23:59:59",
+		"coopStatRefId":null
 	},
     {
-		"coopGuid":"",
-		"coopName": "Dodoma", 
-		"coopDescription":"2022",
+		"coopStatGuid":"",
+		"coopStatName": "Dodoma", 
+		"coopStatDescription":"2022",
 		"cdGeoLocationId":null,
 		"coopWoccu": false,
 		"coopCount": 142,
@@ -44,13 +44,13 @@
 		"coopReserves":-1, 
 		"coopAssets": -1,
 		"coopMemberPenetration":0,
-		"coopDateLabel": "2022-12-31 23:59:59",
-		"coopRefId":null
+		"coopStatDateLabel": "2022-12-31 23:59:59",
+		"coopStatRefId":null
 	},
     {
-		"coopGuid":"",
-		"coopName": "Geita", 
-		"coopDescription":"2022",
+		"coopStatGuid":"",
+		"coopStatName": "Geita", 
+		"coopStatDescription":"2022",
 		"cdGeoLocationId":null,
 		"coopWoccu": false,
 		"coopCount": 142,
@@ -60,7 +60,7 @@
 		"coopReserves":-1, 
 		"coopAssets": -1,
 		"coopMemberPenetration":0,
-		"coopDateLabel": "2022-12-31 23:59:59",
-		"coopRefId":null
+		"coopStatDateLabel": "2022-12-31 23:59:59",
+		"coopStatRefId":null
 	}
 ]

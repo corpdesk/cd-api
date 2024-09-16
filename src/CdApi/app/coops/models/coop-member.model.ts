@@ -41,7 +41,7 @@ export class CoopMemberModel {
             nullable: true
         }
     )
-    coopGuidParent: string;
+    coopStatGuidParent: string;
 
     @Column(
         'varchar',
@@ -109,7 +109,7 @@ export class CoopMemberModel {
             nullable: true
         }
     )
-    coopIdParent: string;
+    coopStatIdParent: string;
 
     @Column(
         'varchar',

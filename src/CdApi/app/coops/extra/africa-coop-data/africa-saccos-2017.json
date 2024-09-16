@@ -1,8 +1,8 @@
 [
     {
-		"coopGuid":"",
-		"coopName": "Benin", 
-		"coopDescription":"2017",
+		"coopStatGuid":"",
+		"coopStatName": "Benin", 
+		"coopStatDescription":"2017",
 		"cdGeoLocationId":null,
 		"coopWoccu": false,
 		"coopCount": 66,
@@ -12,13 +12,13 @@
 		"coopReserves":null, 
 		"coopAssets": null,
 		"coopMemberPenetration":33.06,
-		"coopDateLabel": "2017-12-31 23:59:59",
-        "coopRefId":null
+		"coopStatDateLabel": "2017-12-31 23:59:59",
+        "coopStatRefId":null
     },
     {
-		"coopGuid":"",
-		"coopName": "BurkinaFaso", 
-		"coopDescription":"2017",
+		"coopStatGuid":"",
+		"coopStatName": "BurkinaFaso", 
+		"coopStatDescription":"2017",
 		"cdGeoLocationId":null,
 		"coopWoccu": false,
 		"coopCount": 72,
@@ -28,13 +28,13 @@
 		"coopReserves":null, 
 		"coopAssets": null,
 		"coopMemberPenetration":19.41,
-		"coopDateLabel": "2017-12-31 23:59:59",
-        "coopRefId":null
+		"coopStatDateLabel": "2017-12-31 23:59:59",
+        "coopStatRefId":null
     },
     {
-		"coopGuid":"",
-		"coopName": "Cameroon", 
-		"coopDescription":"2017",
+		"coopStatGuid":"",
+		"coopStatName": "Cameroon", 
+		"coopStatDescription":"2017",
 		"cdGeoLocationId":null,
 		"coopWoccu": false,
 		"coopCount": 229,
@@ -44,13 +44,13 @@
 		"coopReserves":22832824, 
 		"coopAssets": 352729260,
 		"coopMemberPenetration":3.66,
-		"coopDateLabel": "2017-12-31 23:59:59",
-        "coopRefId":null
+		"coopStatDateLabel": "2017-12-31 23:59:59",
+        "coopStatRefId":null
     },
     {
-		"coopGuid":"",
-		"coopName": "Ethiopia", 
-		"coopDescription":"2017",
+		"coopStatGuid":"",
+		"coopStatName": "Ethiopia", 
+		"coopStatDescription":"2017",
 		"cdGeoLocationId":null,
 		"coopWoccu": false,
 		"coopCount": 20193,
@@ -60,13 +60,13 @@
 		"coopReserves":119850426, 
 		"coopAssets": 577239175,
 		"coopMemberPenetration":7.36,
-		"coopDateLabel": "2017-12-31 23:59:59",
-        "coopRefId":null
+		"coopStatDateLabel": "2017-12-31 23:59:59",
+        "coopStatRefId":null
     },
     {
-		"coopGuid":"",
-		"coopName": "Gambia", 
-		"coopDescription":"2017",
+		"coopStatGuid":"",
+		"coopStatName": "Gambia", 
+		"coopStatDescription":"2017",
 		"cdGeoLocationId":null,
 		"coopWoccu": false,
 		"coopCount": 64,
@@ -76,13 +76,13 @@
 		"coopReserves":null, 
 		"coopAssets": 25636089,
 		"coopMemberPenetration":7.20,
-		"coopDateLabel": "2017-12-31 23:59:59",
-        "coopRefId":null
+		"coopStatDateLabel": "2017-12-31 23:59:59",
+        "coopStatRefId":null
     },
     {
-		"coopGuid":"",
-		"coopName": "Ghana", 
-		"coopDescription":"2017",
+		"coopStatGuid":"",
+		"coopStatName": "Ghana", 
+		"coopStatDescription":"2017",
 		"cdGeoLocationId":null,
 		"coopWoccu": false,
 		"coopCount": 481,
@@ -92,13 +92,13 @@
 		"coopReserves":20495302, 
 		"coopAssets": 187307016,
 		"coopMemberPenetration":3.53,
-		"coopDateLabel": "2017-12-31 23:59:59",
-        "coopRefId":null
+		"coopStatDateLabel": "2017-12-31 23:59:59",
+        "coopStatRefId":null
     },
     {
-		"coopGuid":"",
-		"coopName": "GuineaBissau", 
-		"coopDescription":"2017",
+		"coopStatGuid":"",
+		"coopStatName": "GuineaBissau", 
+		"coopStatDescription":"2017",
 		"cdGeoLocationId":null,
 		"coopWoccu": false,
 		"coopCount": 6,
@@ -108,13 +108,13 @@
 		"coopReserves":null, 
 		"coopAssets": null,
 		"coopMemberPenetration":1.03,
-		"coopDateLabel": "2017-12-31 23:59:59",
-        "coopRefId":null
+		"coopStatDateLabel": "2017-12-31 23:59:59",
+        "coopStatRefId":null
     },
     {
-		"coopGuid":"",
-		"coopName": "IvoryCoast", 
-		"coopDescription":"2017",
+		"coopStatGuid":"",
+		"coopStatName": "IvoryCoast", 
+		"coopStatDescription":"2017",
 		"cdGeoLocationId":null,
 		"coopWoccu": false,
 		"coopCount": 55,
@@ -124,13 +124,13 @@
 		"coopReserves":null, 
 		"coopAssets": null,
 		"coopMemberPenetration":9.01,
-		"coopDateLabel": "2017-12-31 23:59:59",
-        "coopRefId":null
+		"coopStatDateLabel": "2017-12-31 23:59:59",
+        "coopStatRefId":null
     },
     {
-		"coopGuid":"",
-		"coopName": "Kenya", 
-		"coopDescription":"2017",
+		"coopStatGuid":"",
+		"coopStatName": "Kenya", 
+		"coopStatDescription":"2017",
 		"cdGeoLocationId":null,
 		"coopWoccu": false,
 		"coopCount": 7035,
@@ -140,13 +140,13 @@
 		"coopReserves":599208989, 
 		"coopAssets": 6978078596,
 		"coopMemberPenetration":24.86,
-		"coopDateLabel": "2017-12-31 23:59:59",
-        "coopRefId":null
+		"coopStatDateLabel": "2017-12-31 23:59:59",
+        "coopStatRefId":null
     },
     {
-		"coopGuid":"",
-		"coopName": "Kenya", 
-		"coopDescription":"2017",
+		"coopStatGuid":"",
+		"coopStatName": "Kenya", 
+		"coopStatDescription":"2017",
 		"cdGeoLocationId":null,
 		"coopWoccu": false,
 		"coopCount": 7035,
@@ -156,13 +156,13 @@
 		"coopReserves":599208989, 
 		"coopAssets": 6978078596,
 		"coopMemberPenetration":24.86,
-		"coopDateLabel": "2017-12-31 23:59:59",
-        "coopRefId":null
+		"coopStatDateLabel": "2017-12-31 23:59:59",
+        "coopStatRefId":null
     },
     {
-		"coopGuid":"",
-		"coopName": "Lesotho", 
-		"coopDescription":"2017",
+		"coopStatGuid":"",
+		"coopStatName": "Lesotho", 
+		"coopStatDescription":"2017",
 		"cdGeoLocationId":null,
 		"coopWoccu": false,
 		"coopCount": 90,
@@ -172,13 +172,13 @@
 		"coopReserves":null, 
 		"coopAssets": 7300000,
 		"coopMemberPenetration":0.00,
-		"coopDateLabel": "2017-12-31 23:59:59",
-        "coopRefId":null
+		"coopStatDateLabel": "2017-12-31 23:59:59",
+        "coopStatRefId":null
     },
     {
-		"coopGuid":"",
-		"coopName": "Liberia", 
-		"coopDescription":"2017",
+		"coopStatGuid":"",
+		"coopStatName": "Liberia", 
+		"coopStatDescription":"2017",
 		"cdGeoLocationId":null,
 		"coopWoccu": false,
 		"coopCount": 45,
@@ -188,13 +188,13 @@
 		"coopReserves":null, 
 		"coopAssets": null,
 		"coopMemberPenetration":0.00,
-		"coopDateLabel": "2017-12-31 23:59:59",
-        "coopRefId":null
+		"coopStatDateLabel": "2017-12-31 23:59:59",
+        "coopStatRefId":null
     },
     {
-		"coopGuid":"",
-		"coopName": "Madagascar", 
-		"coopDescription":"2017",
+		"coopStatGuid":"",
+		"coopStatName": "Madagascar", 
+		"coopStatDescription":"2017",
 		"cdGeoLocationId":null,
 		"coopWoccu": false,
 		"coopCount": 6,
@@ -204,13 +204,13 @@
 		"coopReserves":null, 
 		"coopAssets": null,
 		"coopMemberPenetration":4.85,
-		"coopDateLabel": "2017-12-31 23:59:59",
-        "coopRefId":null
+		"coopStatDateLabel": "2017-12-31 23:59:59",
+        "coopStatRefId":null
     },
     {
-		"coopGuid":"",
-		"coopName": "Malawi", 
-		"coopDescription":"2017",
+		"coopStatGuid":"",
+		"coopStatName": "Malawi", 
+		"coopStatDescription":"2017",
 		"cdGeoLocationId":null,
 		"coopWoccu": false,
 		"coopCount": 39,
@@ -220,13 +220,13 @@
 		"coopReserves":3953882, 
 		"coopAssets": 20473117,
 		"coopMemberPenetration":1.07,
-		"coopDateLabel": "2017-12-31 23:59:59",
-        "coopRefId":null
+		"coopStatDateLabel": "2017-12-31 23:59:59",
+        "coopStatRefId":null
     },
     {
-		"coopGuid":"",
-		"coopName": "Mali", 
-		"coopDescription":"2017",
+		"coopStatGuid":"",
+		"coopStatName": "Mali", 
+		"coopStatDescription":"2017",
 		"cdGeoLocationId":null,
 		"coopWoccu": false,
 		"coopCount": 105,
@@ -236,13 +236,13 @@
 		"coopReserves":null, 
 		"coopAssets": null,
 		"coopMemberPenetration":12.35,
-		"coopDateLabel": "2017-12-31 23:59:59",
-        "coopRefId":null
+		"coopStatDateLabel": "2017-12-31 23:59:59",
+        "coopStatRefId":null
     },
     {
-		"coopGuid":"",
-		"coopName": "Mauritius", 
-		"coopDescription":"2017",
+		"coopStatGuid":"",
+		"coopStatName": "Mauritius", 
+		"coopStatDescription":"2017",
 		"cdGeoLocationId":null,
 		"coopWoccu": false,
 		"coopCount": 138,
@@ -252,13 +252,13 @@
 		"coopReserves":null, 
 		"coopAssets": 35000000,
 		"coopMemberPenetration":0.00,
-		"coopDateLabel": "2017-12-31 23:59:59",
-        "coopRefId":null
+		"coopStatDateLabel": "2017-12-31 23:59:59",
+        "coopStatRefId":null
     },
     {
-		"coopGuid":"",
-		"coopName": "Niger", 
-		"coopDescription":"2017",
+		"coopStatGuid":"",
+		"coopStatName": "Niger", 
+		"coopStatDescription":"2017",
 		"cdGeoLocationId":null,
 		"coopWoccu": false,
 		"coopCount": 40,
@@ -268,13 +268,13 @@
 		"coopReserves":null, 
 		"coopAssets": null,
 		"coopMemberPenetration":2.65,
-		"coopDateLabel": "2017-12-31 23:59:59",
-        "coopRefId":null
+		"coopStatDateLabel": "2017-12-31 23:59:59",
+        "coopStatRefId":null
     },
     {
-		"coopGuid":"",
-		"coopName": "Rwanda", 
-		"coopDescription":"2017",
+		"coopStatGuid":"",
+		"coopStatName": "Rwanda", 
+		"coopStatDescription":"2017",
 		"cdGeoLocationId":null,
 		"coopWoccu": false,
 		"coopCount": 416,
@@ -284,13 +284,13 @@
 		"coopReserves":27803247, 
 		"coopAssets": 137199202,
 		"coopMemberPenetration":0.00,
-		"coopDateLabel": "2017-12-31 23:59:59",
-        "coopRefId":null
+		"coopStatDateLabel": "2017-12-31 23:59:59",
+        "coopStatRefId":null
     },
     {
-		"coopGuid":"",
-		"coopName": "Senegal", 
-		"coopDescription":"2017",
+		"coopStatGuid":"",
+		"coopStatName": "Senegal", 
+		"coopStatDescription":"2017",
 		"cdGeoLocationId":null,
 		"coopWoccu": false,
 		"coopCount": 193,
@@ -300,13 +300,13 @@
 		"coopReserves":null, 
 		"coopAssets": null,
 		"coopMemberPenetration":30.78,
-		"coopDateLabel": "2017-12-31 23:59:59",
-        "coopRefId":null
+		"coopStatDateLabel": "2017-12-31 23:59:59",
+        "coopStatRefId":null
     },
     {
-		"coopGuid":"",
-		"coopName": "Seychelles", 
-		"coopDescription":"2017",
+		"coopStatGuid":"",
+		"coopStatName": "Seychelles", 
+		"coopStatDescription":"2017",
 		"cdGeoLocationId":null,
 		"coopWoccu": false,
 		"coopCount": 1,
@@ -316,13 +316,13 @@
 		"coopReserves":1817444, 
 		"coopAssets": 26541444,
 		"coopMemberPenetration":23.71,
-		"coopDateLabel": "2017-12-31 23:59:59",
-        "coopRefId":null
+		"coopStatDateLabel": "2017-12-31 23:59:59",
+        "coopStatRefId":null
     },
     {
-		"coopGuid":"",
-		"coopName": "SierraLeone", 
-		"coopDescription":"2017",
+		"coopStatGuid":"",
+		"coopStatName": "SierraLeone", 
+		"coopStatDescription":"2017",
 		"cdGeoLocationId":null,
 		"coopWoccu": false,
 		"coopCount": 31,
@@ -332,13 +332,13 @@
 		"coopReserves":null, 
 		"coopAssets": null,
 		"coopMemberPenetration":0.17,
-		"coopDateLabel": "2017-12-31 23:59:59",
-        "coopRefId":null
+		"coopStatDateLabel": "2017-12-31 23:59:59",
+        "coopStatRefId":null
     },
     {
-		"coopGuid":"",
-		"coopName": "SouthAfrica", 
-		"coopDescription":"2017",
+		"coopStatGuid":"",
+		"coopStatName": "SouthAfrica", 
+		"coopStatDescription":"2017",
 		"cdGeoLocationId":null,
 		"coopWoccu": false,
 		"coopCount": 30,
@@ -348,13 +348,13 @@
 		"coopReserves":null, 
 		"coopAssets": 22842375,
 		"coopMemberPenetration":0.00,
-		"coopDateLabel": "2017-12-31 23:59:59",
-        "coopRefId":null
+		"coopStatDateLabel": "2017-12-31 23:59:59",
+        "coopStatRefId":null
     },
     {
-		"coopGuid":"",
-		"coopName": "Eswatini", 
-		"coopDescription":"2017",
+		"coopStatGuid":"",
+		"coopStatName": "Eswatini", 
+		"coopStatDescription":"2017",
 		"cdGeoLocationId":null,
 		"coopWoccu": false,
 		"coopCount": 99,
@@ -364,13 +364,13 @@
 		"coopReserves":18018757, 
 		"coopAssets": 167195179,
 		"coopMemberPenetration":7.59,
-		"coopDateLabel": "2017-12-31 23:59:59",
-        "coopRefId":null
+		"coopStatDateLabel": "2017-12-31 23:59:59",
+        "coopStatRefId":null
     },
     {
-		"coopGuid":"",
-		"coopName": "Tanzania", 
-		"coopDescription":"2017",
+		"coopStatGuid":"",
+		"coopStatName": "Tanzania", 
+		"coopStatDescription":"2017",
 		"cdGeoLocationId":null,
 		"coopWoccu": false,
 		"coopCount": 5559,
@@ -380,13 +380,13 @@
 		"coopReserves":null, 
 		"coopAssets": 599500000,
 		"coopMemberPenetration":0.00,
-		"coopDateLabel": "2017-12-31 23:59:59",
-        "coopRefId":null
+		"coopStatDateLabel": "2017-12-31 23:59:59",
+        "coopStatRefId":null
     },
     {
-		"coopGuid":"",
-		"coopName": "Togo", 
-		"coopDescription":"2017",
+		"coopStatGuid":"",
+		"coopStatName": "Togo", 
+		"coopStatDescription":"2017",
 		"cdGeoLocationId":null,
 		"coopWoccu": false,
 		"coopCount": 76,
@@ -396,13 +396,13 @@
 		"coopReserves":null, 
 		"coopAssets": null,
 		"coopMemberPenetration":53.09,
-		"coopDateLabel": "2017-12-31 23:59:59",
-        "coopRefId":null
+		"coopStatDateLabel": "2017-12-31 23:59:59",
+        "coopStatRefId":null
     },
     {
-		"coopGuid":"",
-		"coopName": "Uganda", 
-		"coopDescription":"2017",
+		"coopStatGuid":"",
+		"coopStatName": "Uganda", 
+		"coopStatDescription":"2017",
 		"cdGeoLocationId":null,
 		"coopWoccu": false,
 		"coopCount": 1261,
@@ -412,13 +412,13 @@
 		"coopReserves":null, 
 		"coopAssets": null,
 		"coopMemberPenetration":3.76,
-		"coopDateLabel": "2017-12-31 23:59:59",
-        "coopRefId":null
+		"coopStatDateLabel": "2017-12-31 23:59:59",
+        "coopStatRefId":null
     },
     {
-		"coopGuid":"",
-		"coopName": "Zambia", 
-		"coopDescription":"2017",
+		"coopStatGuid":"",
+		"coopStatName": "Zambia", 
+		"coopStatDescription":"2017",
 		"cdGeoLocationId":null,
 		"coopWoccu": false,
 		"coopCount": 1197,
@@ -428,13 +428,13 @@
 		"coopReserves":4789432, 
 		"coopAssets": 25224541,
 		"coopMemberPenetration":17.24,
-		"coopDateLabel": "2017-12-31 23:59:59",
-        "coopRefId":null
+		"coopStatDateLabel": "2017-12-31 23:59:59",
+        "coopStatRefId":null
     },
     {
-		"coopGuid":"",
-		"coopName": "Zimbabwe", 
-		"coopDescription":"2017",
+		"coopStatGuid":"",
+		"coopStatName": "Zimbabwe", 
+		"coopStatDescription":"2017",
 		"cdGeoLocationId":null,
 		"coopWoccu": false,
 		"coopCount": 80,
@@ -444,8 +444,8 @@
 		"coopReserves":2927000, 
 		"coopAssets": 6500000,
 		"coopMemberPenetration":2.02,
-		"coopDateLabel": "2017-12-31 23:59:59",
-        "coopRefId":null
+		"coopStatDateLabel": "2017-12-31 23:59:59",
+        "coopStatRefId":null
     }
 ]
 

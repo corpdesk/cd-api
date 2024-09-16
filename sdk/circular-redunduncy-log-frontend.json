@@ -1,59 +1,59 @@
 7649.2a1085536635d442.js:1 DashboardComponent::coopCountSeriesFx/this.coopData: (88) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
 7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopCount: 64
-7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopDateLabel: 2017-12-31T20:59:59.000Z
+7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopStatDateLabel: 2017-12-31T20:59:59.000Z
 7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopCount: 72
-7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopDateLabel: 2018-12-31T20:59:59.000Z
+7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopStatDateLabel: 2018-12-31T20:59:59.000Z
 7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopCount: 69
-7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopDateLabel: 2019-12-31T20:59:59.000Z
+7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopStatDateLabel: 2019-12-31T20:59:59.000Z
 7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopCount: 71
-7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopDateLabel: 2020-12-31T20:59:59.000Z
+7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopStatDateLabel: 2020-12-31T20:59:59.000Z
 7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopCount: 71
-7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopDateLabel: 2021-12-31T20:59:59.000Z
+7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopStatDateLabel: 2021-12-31T20:59:59.000Z
 7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopCount: 71
-7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopDateLabel: 2022-12-31T20:59:59.000Z
+7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopStatDateLabel: 2022-12-31T20:59:59.000Z
 7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/this.coopData: (88) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
 7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopMembersCount: 76570
-7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopDateLabel: 2017-12-31T20:59:59.000Z
+7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopStatDateLabel: 2017-12-31T20:59:59.000Z
 7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopMembersCount: 78451
-7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopDateLabel: 2018-12-31T20:59:59.000Z
+7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopStatDateLabel: 2018-12-31T20:59:59.000Z
 7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopMembersCount: 84065
-7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopDateLabel: 2019-12-31T20:59:59.000Z
+7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopStatDateLabel: 2019-12-31T20:59:59.000Z
 7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopMembersCount: 91551
-7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopDateLabel: 2020-12-31T20:59:59.000Z
+7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopStatDateLabel: 2020-12-31T20:59:59.000Z
 7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopMembersCount: 91551
-7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopDateLabel: 2021-12-31T20:59:59.000Z
+7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopStatDateLabel: 2021-12-31T20:59:59.000Z
 7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopMembersCount: 102477
-7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopDateLabel: 2022-12-31T20:59:59.000Z
+7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopStatDateLabel: 2022-12-31T20:59:59.000Z
 7649.2a1085536635d442.js:1 DashboardComponent::coopDataSeriesFx/cds: {coopCountSeries: Array(6), membersCountSeries: Array(6), coopSavesSharesSeries: Array(6), coopAssetsSeries: Array(6), coopReservesSeries: Array(6), …}
 7649.2a1085536635d442.js:1 DashboardComponent::refreshDisplay()/selectedCoopParam coopCountSeries
 7649.2a1085536635d442.js:1 DashboardComponent::refreshDisplay()/seriesData (6) [64, 72, 69, 71, 71, 71]
 7649.2a1085536635d442.js:1 DashboardComponent::refreshDisplay()/si {name: 'Gambia', type: 'column', data: Array(6)}
 7649.2a1085536635d442.js:1 DashboardComponent::coopCountSeriesFx/this.coopData: (88) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
 7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopCount: 39
-7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopDateLabel: 2017-12-31T20:59:59.000Z
+7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopStatDateLabel: 2017-12-31T20:59:59.000Z
 7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopCount: 39
-7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopDateLabel: 2018-12-31T20:59:59.000Z
+7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopStatDateLabel: 2018-12-31T20:59:59.000Z
 7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopCount: 39
-7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopDateLabel: 2019-12-31T20:59:59.000Z
+7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopStatDateLabel: 2019-12-31T20:59:59.000Z
 7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopCount: 39
-7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopDateLabel: 2020-12-31T20:59:59.000Z
+7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopStatDateLabel: 2020-12-31T20:59:59.000Z
 7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopCount: 40
-7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopDateLabel: 2021-12-31T20:59:59.000Z
+7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopStatDateLabel: 2021-12-31T20:59:59.000Z
 7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopCount: 40
-7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopDateLabel: 2022-12-31T20:59:59.000Z
+7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopStatDateLabel: 2022-12-31T20:59:59.000Z
 7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/this.coopData: (88) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
 7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopMembersCount: 102421
-7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopDateLabel: 2017-12-31T20:59:59.000Z
+7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopStatDateLabel: 2017-12-31T20:59:59.000Z
 7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopMembersCount: 122905
-7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopDateLabel: 2018-12-31T20:59:59.000Z
+7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopStatDateLabel: 2018-12-31T20:59:59.000Z
 7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopMembersCount: 145385
-7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopDateLabel: 2019-12-31T20:59:59.000Z
+7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopStatDateLabel: 2019-12-31T20:59:59.000Z
 7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopMembersCount: 158972
-7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopDateLabel: 2020-12-31T20:59:59.000Z
+7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopStatDateLabel: 2020-12-31T20:59:59.000Z
 7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopMembersCount: 173245
-7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopDateLabel: 2021-12-31T20:59:59.000Z
+7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopStatDateLabel: 2021-12-31T20:59:59.000Z
 7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopMembersCount: 170165
-7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopDateLabel: 2022-12-31T20:59:59.000Z
+7649.2a1085536635d442.js:1 DashboardComponent::membersCountSeriesFx/coop.coopStatDateLabel: 2022-12-31T20:59:59.000Z
 7649.2a1085536635d442.js:1 DashboardComponent::coopDataSeriesFx/cds: {coopCountSeries: Array(6), membersCountSeries: Array(6), coopSavesSharesSeries: Array(6), coopAssetsSeries: Array(6), coopReservesSeries: Array(6), …}
 7649.2a1085536635d442.js:1 DashboardComponent::refreshDisplay()/selectedCoopParam coopCountSeries
 7649.2a1085536635d442.js:1 DashboardComponent::refreshDisplay()/seriesData (6) [39, 39, 39, 39, 40, 40]

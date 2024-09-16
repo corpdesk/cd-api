@@ -3,8 +3,8 @@ import { IQuery } from '../../../sys/base/IBase';
 
 export function siGet(q: IQuery) {
     return {
-        serviceModel: CoopViewModel,
-        docName: 'CoopModel::siGet',
+        serviceModel: CoopStatViewModel,
+        docName: 'CoopStatModel::siGet',
         cmd: {
             action: 'find',
             query: q
@@ -15,65 +15,67 @@ export function siGet(q: IQuery) {
 
 
 @ViewEntity({
-    name: 'coop_view',
+    name: 'coop_stat_view',
     synchronize: false,
     expression: `
-    select 
-    'coop'.'coop_id' AS 'coop_id', 
-    'coop'.'coop_guid' AS 'coop_guid', 
-    'coop'.'coop_name' AS 'coop_name', 
-    'coop'.'coop_description' AS 'coop_description', 
-    'coop'.'doc_id' AS 'doc_id', 
-    'coop'.'coop_type_id' AS 'coop_type_id', 
-    'coop'.'cd_geo_location_id' AS 'cd_geo_location_id', 
-    'coop'.'coop_count' AS 'coop_count', 
-    'coop'.'coop_members_count' AS 'coop_members_count', 
-    'coop'.'coop_saves_shares' AS 'coop_saves_shares', 
-    'coop'.'coop_loans' AS 'coop_loans', 
-    'coop'.'coop_assets' AS 'coop_assets', 
-    'coop'.'coop_member_penetration' AS 'coop_member_penetration', 
-    'coop'.'coop_date_label' AS 'coop_date_label', 
-    'coop'.'coop_woccu' AS 'coop_woccu', 
-    'coop'.'coop_reserves' AS 'coop_reserves', 
-    'coop_type'.'parent_guid' AS 'parent_guid', 
-    'coop_type'.'coop_type_name' AS 'coop_type_name',
-    'coop'.'coop_enabled' AS 'coop_enabled', 
-    'coop'.'coop_display' AS 'coop_display', 
-    'cd_geo_location'.'cd_geo_location_name' AS 'cd_geo_location_name',
-    'cd_geo_location'.'cd_geo_political_type_id' AS 'cd_geo_political_type_id'
-    from 
-    'coop'
-    INNER JOIN coop_type ON 'coop_type'.'coop_type_id' = 'coop'.'coop_type_id'
-    INNER JOIN cd_geo_location ON 'cd_geo_location'.'cd_geo_location_id' = 'coop'.'cd_geo_location_id';
+    SELECT 
+        'coop_stat'.'coop_stat_id' AS 'coop_id',
+        'coop_stat'.'coop_stat_guid' AS 'coop_guid',
+        'coop_stat'.'coop_stat_name' AS 'coop_name',
+        'coop_stat'.'coop_stat_description' AS 'coop_description',
+        'coop_stat'.'doc_id' AS 'doc_id',
+        'coop_stat'.'coop_type_id' AS 'coop_type_id',
+        'coop_stat'.'cd_geo_location_id' AS 'cd_geo_location_id',
+        'coop_stat'.'coop_count' AS 'coop_count',
+        'coop_stat'.'coop_members_count' AS 'coop_members_count',
+        'coop_stat'.'coop_saves_shares' AS 'coop_saves_shares',
+        'coop_stat'.'coop_loans' AS 'coop_loans',
+        'coop_stat'.'coop_assets' AS 'coop_assets',
+        'coop_stat'.'coop_member_penetration' AS 'coop_member_penetration',
+        'coop_stat'.'coop_stat_date_label' AS 'coop_date_label',
+        'coop_stat'.'coop_woccu' AS 'coop_woccu',
+        'coop_stat'.'coop_reserves' AS 'coop_reserves',
+        'coop_stat'.'coop_stat_enabled' AS 'coop_enabled',
+        'coop_stat'.'coop_stat_display' AS 'coop_display',
+        'coop_type'.'parent_guid' AS 'parent_guid',
+        'coop_type'.'coop_type_name' AS 'coop_type_name',
+        'cd_geo_location'.'cd_geo_location_name' AS 'cd_geo_location_name',
+        'cd_geo_location'.'cd_geo_location_enabled' AS 'cd_geo_location_enabled',
+        'cd_geo_location'.'cd_geo_location_display' AS 'cd_geo_location_display',
+        'cd_geo_location'.'cd_geo_political_type_id' AS 'cd_geo_political_type_id'
+    FROM
+        (('coop_stat'
+        JOIN 'coop_type' ON (('coop_type'.'coop_type_id' = 'coop_stat'.'coop_type_id')))
+        JOIN 'cd_geo_location' ON (('cd_geo_location'.'cd_geo_location_id' = 'coop_stat'.'cd_geo_location_id')))
     `
 })
 
 
-export class CoopViewModel {
+export class CoopStatViewModel {
     @ViewColumn(
         {
-            name: 'coop_id'
+            name: 'coop_stat_id'
         }
     )
-    coopId: number;
+    coopStatId: number;
 
     @ViewColumn(
         {
-            name: 'coop_guid'
+            name: 'coop_stat_guid'
         }
     )
-    coopGuid: number;
+    coopStatGuid: number;
 
     @ViewColumn(
         {
-            name: 'coop_name'
+            name: 'coop_stat_name'
         }
     )
-    coopName: string;
+    coopStatName: string;
 
     @ViewColumn(
         {
-            name: 'coop_type_id'
+            name: 'coop_type_guid'
         }
     )
     coopTypeGuid: string;
@@ -94,10 +96,10 @@ export class CoopViewModel {
 
     @ViewColumn(
         {
-            name: 'coop_description'
+            name: 'coop_stat_description'
         }
     )
-    coopDescription: string;
+    coopStatDescription: string;
 
 
     @ViewColumn(
@@ -158,10 +160,10 @@ export class CoopViewModel {
 
     @ViewColumn(
         {
-            name: 'coop_date_label'
+            name: 'coop_stat_date_label'
         }
     )
-    coopDateLabel: number;
+    coopStatDateLabel: number;
 
     @ViewColumn(
         {
@@ -204,17 +206,17 @@ export class CoopViewModel {
 
     @ViewColumn(
         {
-            name: 'coop_enabled'
+            name: 'coop_stat_enabled'
         }
     )
-    coopEnabled: boolean;
+    coopStatEnabled: boolean;
 
     @ViewColumn(
         {
-            name: 'coop_display'
+            name: 'coop_stat_display'
         }
     )
-    coopDisplay: boolean;
+    coopStatDisplay: boolean;
 
     @ViewColumn(
         {
