@@ -64,13 +64,13 @@ export class CdGeoPhysicalTypeModel {
     )
     docId?: number;
 
-    @Column(
-        {
-            name: 'cd_geo_physical_type_type_id',
-            default: null
-        }
-    )
-    cdGeoPhysicalTypeTypeId?: number;
+    // @Column(
+    //     {
+    //         name: 'cd_geo_physical_type_type_id',
+    //         default: null
+    //     }
+    // )
+    // cdGeoPhysicalTypeTypeId?: number;
 
 
 }

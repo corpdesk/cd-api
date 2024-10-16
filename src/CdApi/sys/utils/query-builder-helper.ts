@@ -294,4 +294,31 @@ export class QueryBuilderHelper {
     isEmptyObject(obj) {
         return Object.keys(obj).length === 0;
     }
+
+    addJSONSelect(jsonField: string, keys: string[]): this {
+        const queryBuilder = this.repository.createQueryBuilder(this.repository.metadata.name);
+        keys.forEach(key => {
+            queryBuilder.addSelect(`JSON_UNQUOTE(JSON_EXTRACT(${jsonField}, '$.${key}'))`, key);
+        });
+        return this;
+    }
+
+    updateJSONField(jsonField: string, updates: Record<string, any>): this {
+        // Use UpdateQueryBuilder for updating
+        const queryBuilder = this.repository.createQueryBuilder()
+            .update(this.repository.metadata.name);
+    
+        // Construct the JSON_SET update expression
+        const updateFields = Object.keys(updates)
+            .map(key => `JSON_SET(${jsonField}, '$.${key}', '${updates[key]}')`)
+            .join(', ');
+    
+        // Use set() properly with UpdateQueryBuilder
+        queryBuilder.set({ [jsonField]: () => updateFields });
+    
+        return this;
+    }
+    
+    
+    
 }

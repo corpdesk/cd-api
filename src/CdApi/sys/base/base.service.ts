@@ -1371,7 +1371,7 @@ export class BaseService {
             console.log('BaseService::readQB()/items:', items);
             const entityName = this.entityAdapter.getEntityName(serviceInput.serviceModel);
             items = this.entityAdapter.mapRawToEntity(entityName, items);
-            
+
             console.log('BaseService::readQB()/Fetched-Items:', items); // Debug logging for items
 
             // Fetching count
@@ -1393,6 +1393,267 @@ export class BaseService {
         this.logger.logDebug('BaseService::readQB$()/serviceInput:', serviceInput)
         return from(this.readQB(req, res, serviceInput));
     }
+
+    async readJSONColumnQB(req, res, serviceInput: IServiceInput, jsonField: string, keys: string[]): Promise<any> {
+        await this.init(req, res);
+        this.logger.logDebug('BaseService::readJSONColumnQB()/repo/model:', serviceInput.serviceModel);
+        await this.setRepo(serviceInput);
+
+        const queryBuilderHelper = new QueryBuilderHelper(this.repo);
+        const queryBuilder = queryBuilderHelper.createQueryBuilder(serviceInput);
+
+        // Use MySQL JSON_EXTRACT to extract specific fields from the JSON column
+        keys.forEach(key => {
+            queryBuilder.addSelect(`JSON_UNQUOTE(JSON_EXTRACT(${jsonField}, '$.${key}'))`, key);
+        });
+
+        try {
+            const items = await queryBuilder.getRawMany();
+            const entityName = this.entityAdapter.getEntityName(serviceInput.serviceModel);
+            const processedItems = this.entityAdapter.mapRawToEntity(entityName, items);
+
+            return {
+                items: processedItems,
+                count: await queryBuilder.getCount(),
+            };
+        } catch (err) {
+            return await this.serviceErr(req, res, err, 'BaseService:readJSONColumnQB');
+        }
+    }
+
+    /**
+     * 
+     * ///////////////////
+        const jsonStr = JSON.stringify({
+            name: 'test'
+        });
+
+        await this.packageEntity.createQueryBuilder()
+            .update('package')
+            .set({
+                patchUrls() {
+                    return `JSON_SET(\`patchUrls\`, '$."3-4"', CAST('${jsonStr}' AS JSON))`;
+                },
+            })
+            .where(`id = :id`, { id })
+            .execute();
+        ////////////////////
+     * 
+     * @param req 
+     * @param res 
+     * @param serviceInput 
+     * @param jsonField 
+     * @param updates 
+     * @returns 
+     */
+    // async updateJSONColumnQB(
+    //     req,
+    //     res,
+    //     serviceInput: IServiceInput,
+    //     jsonField: string,
+    //     updates: Record<string, any>
+    // ): Promise<any> {
+    //     await this.init(req, res);
+    //     console.log('BaseService::updateJSONColumnQB()/repo/model:', serviceInput.serviceModel);
+    //     await this.setRepo(serviceInput);
+
+    //     // Generate the JSON_SET update query for the jsonField
+    //     const updateFields = Object.keys(updates)
+    //         .map(key => `JSON_SET(${jsonField}, '$.${key}', '${updates[key]}')`)
+    //         .join(', ');
+
+    //     console.log("BaseService::updateJSONColumnQB()/updates:", JSON.stringify(updates))
+    //     console.log("BaseService::updateJSONColumnQB()/updateFields:", JSON.stringify(updateFields))
+    //     // Start building the query using the input provided in serviceInput.cmd.query
+    //     const queryBuilder = this.repo.createQueryBuilder()
+    //         .update(serviceInput.serviceModel);
+
+    //     // Handle dynamic update fields using the update property from QueryInput
+    //     if (serviceInput.cmd.query.update) {
+    //         queryBuilder.set(serviceInput.cmd.query.update);
+    //     } else {
+    //         // Fallback: use the JSON field update if no generic update is provided
+    //         queryBuilder.set({ [jsonField]: () => updateFields });
+    //     }
+
+    //     // Dynamically handle where conditions from QueryInput or use dynamic primary key
+    //     if (serviceInput.cmd.query.where) {
+    //         Object.keys(serviceInput.cmd.query.where).forEach(key => {
+    //             queryBuilder.andWhere(`${key} = :${key}`, { [key]: serviceInput.cmd.query.where[key] });
+    //         });
+    //     } else {
+    //         // Fallback: Use the primary key based on the service model's convention <controller>_id
+    //         const primaryKey = serviceInput.primaryKey; // Dynamically get primary key
+    //         queryBuilder.where(`${primaryKey} = :${primaryKey}`, { [primaryKey]: serviceInput.cmd.query[primaryKey] });
+    //     }
+
+    //     try {
+    //         // Execute the query
+    //         return await queryBuilder.execute();
+    //     } catch (err) {
+    //         return await this.serviceErr(req, res, err, 'BaseService:updateJSONColumnQB');
+    //     }
+    // }
+
+    // async updateJSONColumn(req, res, serviceInput: IServiceInput): Promise<any> {
+    //     await this.init(req, res);
+    //     this.logger.logDebug('BaseService::readQB()/repo/model:', serviceInput.serviceModel);
+    //     await this.setRepo(serviceInput);
+
+    //     // const userId: number = 1010
+    //     // const newProfileData: any = {
+    //     //     fieldPermissions: {
+    //     //         userPermissions: [{
+    //     //             userId: 1000,
+    //     //             field: "userName",
+    //     //             hidden: false,
+    //     //             read: true,
+    //     //             write: false,
+    //     //             execute: false
+    //     //         }],
+    //     //         groupPermissions: [{
+    //     //             groupId: 0, // "_public"
+    //     //             field: "userName",
+    //     //             hidden: false,
+    //     //             read: true,
+    //     //             write: false,
+    //     //             execute: false
+    //     //         }],
+    //     //     },
+    //     //     userData: {
+    //     //         userName: "",
+    //     //         fName: "",
+    //     //         lName: "",
+    //     //     }
+    //     // };
+    //     try {
+    //         // Use TypeORM's query builder to update the user_profile column
+    //         return await this.repo
+    //             .createQueryBuilder()
+    //             .update(serviceInput.serviceModel)
+    //             .set({
+    //                 userProfile: JSON.stringify(newProfileData), // This assumes that userProfile is correctly mapped in UserModel
+    //             })
+    //             .where("user_id = :userId", { userId }) // Replace :userId with the actual ID
+    //             .execute();
+
+    //         console.log(`User profile updated for user_id: ${userId}`);
+    //     } catch (err) {
+    //         // console.error(`Error updating user profile:`, error);
+    //         // throw new Error(`Failed to update user profile for user_id: ${userId}`);
+    //         return await this.serviceErr(req, res, err, 'BaseService:updateJSONColumn');
+    //     }
+
+    // }
+
+    async updateJSONColumnQB(
+        req,
+        res,
+        serviceInput: IServiceInput,
+        jsonField: string,
+        updates: Record<string, any>
+    ): Promise<any> {
+        await this.init(req, res);
+        console.log('BaseService::updateJSONColumnQB()/repo/model:', serviceInput.serviceModel);
+        await this.setRepo(serviceInput);
+
+        // Helper function to generate JSON_SET paths recursively
+        // const buildJsonSetPaths = (jsonField: string, obj: any, prefix: string = ''): string[] => {
+        //     return Object.keys(obj).map(key => {
+        //         const path = `${prefix}${prefix ? '.' : ''}${key}`;
+        //         if (typeof obj[key] === 'object' && obj[key] !== null) {
+        //             // Recursively handle nested objects
+        //             return buildJsonSetPaths(jsonField, obj[key], path).join(', ');
+        //         } else {
+        //             return `JSON_SET(${jsonField}, '$.${path}', '${obj[key]}')`;
+        //         }
+        //     }).filter(Boolean);
+        // };
+        const buildJsonSetPaths = (jsonField: string, obj: any, prefix: string = ''): string[] => {
+            return Object.keys(obj).map(key => {
+                const path = `${prefix}${prefix ? '.' : ''}${key}`;
+                if (typeof obj[key] === 'object' && obj[key] !== null) {
+                    // Recursively handle nested objects
+                    return buildJsonSetPaths(jsonField, obj[key], path).join(', ');
+                } else {
+                    // Use COALESCE to ensure JSON is initialized if null
+                    return `JSON_SET(COALESCE(${jsonField}, '{}'), '$.${path}', '${obj[key]}')`;
+                }
+            }).filter(Boolean);
+        };
+
+        // Generate the JSON_SET update query for the jsonField
+        const updateFields = buildJsonSetPaths(jsonField, updates).join(', ');
+
+        console.log("BaseService::updateJSONColumnQB()/updates:", JSON.stringify(updates))
+        console.log("BaseService::updateJSONColumnQB()/updateFields:", JSON.stringify(updateFields))
+
+        // Start building the query using the input provided in serviceInput.cmd.query
+        const queryBuilder = this.repo.createQueryBuilder()
+            .update(serviceInput.serviceModel);
+
+        // Handle dynamic update fields using the update property from QueryInput
+        if (serviceInput.cmd.query.update) {
+            queryBuilder.set(serviceInput.cmd.query.update);
+        } else {
+            // Fallback: use the JSON field update if no generic update is provided
+            queryBuilder.set({ [jsonField]: () => updateFields });
+        }
+
+        // Dynamically handle where conditions from QueryInput or use dynamic primary key
+        if (serviceInput.cmd.query.where) {
+            Object.keys(serviceInput.cmd.query.where).forEach(key => {
+                queryBuilder.andWhere(`${key} = :${key}`, { [key]: serviceInput.cmd.query.where[key] });
+            });
+        } else {
+            // Fallback: Use the primary key based on the service model's convention <controller>_id
+            const primaryKey = serviceInput.primaryKey; // Dynamically get primary key
+            queryBuilder.where(`${primaryKey} = :${primaryKey}`, { [primaryKey]: serviceInput.cmd.query[primaryKey] });
+        }
+
+        try {
+            // Execute the query
+            return await queryBuilder.execute();
+        } catch (err) {
+            return await this.serviceErr(req, res, err, 'BaseService:updateJSONColumnQB');
+        }
+    }
+
+    async deleteJSONColumnFieldQB(
+        req,
+        res,
+        serviceInput: IServiceInput,
+        jsonField: string,
+        keys: string[]
+    ): Promise<any> {
+        await this.init(req, res);
+        this.logger.logDebug('BaseService::deleteJSONColumnFieldQB()/repo/model:', serviceInput.serviceModel);
+        await this.setRepo(serviceInput);
+
+        // Generate the JSON_REMOVE query for the keys to remove from the jsonField
+        const removeFields = keys
+            .map(key => `JSON_REMOVE(${jsonField}, '$.${key}')`)
+            .join(', ');
+
+        // Create the query builder and update the JSON field
+        const queryBuilder = this.repo.createQueryBuilder();
+        queryBuilder.update(serviceInput.serviceModel)
+            .set({ [jsonField]: () => removeFields })
+            .where(`${serviceInput.primaryKey} = :${serviceInput.primaryKey}`, { id: serviceInput.cmd.query[serviceInput.primaryKey] });
+
+        try {
+            // Execute the query
+            return await queryBuilder.execute();
+        } catch (err) {
+            return await this.serviceErr(req, res, err, 'BaseService:deleteJSONColumnFieldQB');
+        }
+    }
+
+    // private getPrimaryKey(serviceModel: any): string {
+    //     // Assuming the serviceModel's name follows the convention of ending with "Controller"
+    //     const modelName = serviceModel.constructor.name.replace('Controller', '').toLowerCase();
+    //     return `${modelName}_id`; // e.g., "user_id" for a UserController
+    // }
 
     async readPaged(req, res, serviceInput): Promise<any> {
         await this.init(req, res);

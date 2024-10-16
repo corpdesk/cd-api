@@ -1,0 +1,58 @@
+{
+    "ctx": "Sys",
+    "m": "User",
+    "c": "User",
+    "a": "UpdateUserProfile",
+    "dat": {
+        "f_vals": [
+            {
+                "query": {
+                    "update": {},
+                    "where": {
+                        "userId": 1010
+                    }
+                },
+                "jsonUpdate": [
+                    {
+                        "path": [
+                            "userProfile",
+                            "fieldPermissions",
+                            "userPermissions",
+                            [
+                                "userName"
+                            ]
+                        ],
+                        "value": {
+                            "userId": 1000,
+                            "field": "userName",
+                            "hidden": false,
+                            "read": true,
+                            "write": false,
+                            "execute": false
+                        }
+                    },
+                    {
+                        "path": [
+                            "userProfile",
+                            "fieldPermissions",
+                            "groupPermissions",
+                            [
+                                "userName"
+                            ]
+                        ],
+                        "value": {
+                            "groupId": 0,
+                            "field": "userName",
+                            "hidden": false,
+                            "read": true,
+                            "write": false,
+                            "execute": false
+                        }
+                    }
+                ]
+            }
+        ],
+        "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+    },
+    "args": {}
+}

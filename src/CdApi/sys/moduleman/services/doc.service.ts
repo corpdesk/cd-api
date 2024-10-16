@@ -125,12 +125,14 @@ export class DocService extends CdService {
         if (result.length > 0) {
             this.logger.logInfo('DocService::getDocTypeId()/03')
             ret = result[0].docTypeId;
+            this.logger.logInfo('DocService::getDocTypeId()/ret:', {ret:ret})
         } else {
             this.logger.logInfo('DocService::getDocTypeId()/04')
-            const r = await this.createDocType(req, res);
+            const r:any = await this.createDocType(req, res);
             this.logger.logInfo('DocService::getDocTypeId()/05')
             this.logger.logInfo('DocService::getDocTypeId()/r:', r)
-            ret = r[0].docTypeId;
+            // ret = r[0].docTypeId;
+            ret = r.docTypeId;
         }
         this.logger.logInfo('DocService::getDocTypeId()/06')
         this.logger.logInfo('DocService::getDocTypeId()/ret:', {ret:ret})

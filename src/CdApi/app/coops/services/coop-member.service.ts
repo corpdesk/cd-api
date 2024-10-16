@@ -1,40 +1,47 @@
 import { getManager } from "typeorm";
 import { BaseService } from "../../../sys/base/base.service";
 import { CdService } from "../../../sys/base/cd.service";
-import { CreateIParams, IQuery, IServiceInput } from "../../../sys/base/IBase";
+import { CreateIParams, IQuery, IServiceInput, ISessionDataExt } from "../../../sys/base/IBase";
 import { CdObjTypeModel } from "../../../sys/moduleman/models/cd-obj-type.model";
 import { GroupModel } from "../../../sys/user/models/group.model";
-import { UserModel } from "../../../sys/user/models/user.model";
+import { IUserProfile, profileDefaultConfig, UserModel, userProfileDefault } from "../../../sys/user/models/user.model";
 import { SessionService } from "../../../sys/user/services/session.service";
 import { UserService } from "../../../sys/user/services/user.service";
-import { CoopMemberModel } from "../models/coop-member.model";
+import { CoopMemberModel, ICoopMemberProfile } from "../models/coop-member.model";
 import { CoopMemberViewModel } from "../models/coop-member-view.model";
+import { CoopModel } from "../models/coop.model";
+import { CoopMemberTypeModel } from "../models/coop-member-type.model";
+import { Logging } from "../../../sys/base/winston.log";
 
 
 export class CoopMemberService extends CdService {
+    logger: Logging;
     b: BaseService;
     cdToken: string;
     serviceModel: CoopMemberModel;
     srvSess: SessionService;
     validationCreateParams;
+    mergedProfile: ICoopMemberProfile;
 
     /*
      * create rules
      */
     cRules = {
         required: [
-            'memberGuid',
-            'groupGuidParent',
-            'cdObjTypeId',
+            'userId',
+            'coopId',
+            'coopMemberTypeId'
         ],
         noDuplicate: [
-            'memberGuid',
-            'groupGuidParent'
+            'userId',
+            'coopId',
+            'coopMemberTypeId'
         ],
     };
 
     constructor() {
         super()
+        this.logger = new Logging();
         this.b = new BaseService();
         this.serviceModel = new CoopMemberModel();
         this.srvSess = new SessionService();
@@ -73,30 +80,142 @@ export class CoopMemberService extends CdService {
      * @param req
      * @param res
      */
+
+
     async create(req, res) {
         const svSess = new SessionService();
-        if (await this.validateCreate(req, res)) {
-            await this.beforeCreate(req, res);
-            const serviceInput = { serviceModel: CoopMemberModel, serviceModelInstance: this.serviceModel, docName: 'Create group-member', dSource: 1 };
-            console.log('CoopMemberService::create()/req.post:', req.post)
-            const result = await this.b.create(req, res, serviceInput);
-            await this.afterCreate(req, res);
-            await this.b.successResponse(req, res, result, svSess)
+        const fValsArray = req.body.dat.f_vals || []; // Get the f_vals array
+        const results = [];
+
+        for (let fVal of fValsArray) {
+            req.body.dat.f_vals = [fVal];  // Set current fVal as a single object in the array
+
+            if (await this.validateCreate(req, res)) {
+                await this.beforeCreate(req, res);
+                const serviceInput = {
+                    serviceModel: CoopMemberModel,
+                    serviceModelInstance: this.serviceModel,
+                    docName: 'Create coop-member',
+                    dSource: 1
+                };
+                console.log('CoopMemberService::create()/req.post:', req.post);
+                const respData = await this.b.create(req, res, serviceInput);
+                console.log('CoopMemberService::create()/respData:', respData);
+
+                // Store the result for this fVal
+                results.push(respData);
+            } else {
+                // If validation fails, push the error state
+                results.push({ success: false, message: `Validation failed for userId: ${fVal.userId}` });
+            }
+        }
+
+        // Combine the responses from all f_vals creations
+        this.b.i.app_msg = 'Coop members processed';
+        this.b.setAppState(true, this.b.i, svSess.sessResp);
+        this.b.cdResp.data = results;
+        await this.b.respond(req, res);
+    }
+
+    async validateCreate(req, res) {
+        const svSess = new SessionService();
+        let pl: CoopMemberModel = this.b.getPlData(req);
+        console.log("CoopMemberService::validateCreate()/pl:", pl);
+
+        // Validation params for the different checks
+        const validationParams = [
+            {
+                field: 'userId',
+                query: { userId: pl.userId },
+                model: UserModel
+            },
+            {
+                field: 'coopId',
+                query: { coopId: pl.coopId },
+                model: CoopModel
+            },
+            {
+                field: 'coopMemberTypeId',
+                query: { coopMemberTypeId: pl.coopMemberTypeId },
+                model: CoopMemberTypeModel
+            }
+        ];
+
+        const valid = await this.validateExistence(req, res, validationParams);
+        console.log("CoopMemberService::validateCreate/this.b.err1:", JSON.stringify(this.b.err));
+
+        if (!valid) {
+            this.logger.logInfo('coop/CoopMemberService::validateCreate()/Validation failed');
+            await this.b.setAppState(false, this.b.i, svSess.sessResp);
+            return false;
+        }
+
+        // Validate against duplication and required fields
+        this.validationCreateParams = {
+            controllerInstance: this,
+            model: CoopMemberModel,
+        };
+
+        if (await this.b.validateUnique(req, res, this.validationCreateParams)) {
+            if (await this.b.validateRequired(req, res, this.cRules)) {
+                return true;
+            } else {
+                this.b.setAlertMessage(`Missing required fields: ${this.b.isInvalidFields.join(', ')}`, svSess, true);
+                return false;
+            }
         } else {
-            await this.b.respond(req, res);
+            this.b.setAlertMessage(`Duplicate entry for ${this.cRules.noDuplicate.join(', ')}`, svSess, false);
+            return false;
         }
     }
 
+
+
+    async validateExistence(req, res, validationParams) {
+        const promises = validationParams.map(param => {
+            const serviceInput = {
+                serviceModel: param.model,
+                docName: `CoopMemberService::validateExistence(${param.field})`,
+                cmd: {
+                    action: 'find',
+                    query: { where: param.query }
+                },
+                dSource: 1
+            };
+            console.log("CoopMemberService::validateExistence/param.model:", param.model);
+            console.log("CoopMemberService::validateExistence/serviceInput:", JSON.stringify(serviceInput));
+            const b = new BaseService();
+            return b.read(req, res, serviceInput).then(r => {
+                if (r.length > 0) {
+                    this.logger.logInfo(`coop/CoopMemberService::validateExistence() - ${param.field} exists`);
+                    return true;
+                } else {
+                    this.logger.logError(`coop/CoopMemberService::validateExistence() - Invalid ${param.field}`);
+                    this.b.i.app_msg = `${param.field} reference is invalid`;
+                    this.b.err.push(this.b.i.app_msg);
+                    console.log("CoopMemberService::validateExistence/this.b.err1:", JSON.stringify(this.b.err))
+                    return false;
+                }
+            });
+        });
+
+        const results = await Promise.all(promises);
+        console.log("CoopMemberService::validateExistence/results:", results)
+        console.log("CoopMemberService::validateExistence/this.b.err2:", JSON.stringify(this.b.err))
+        // If any of the validations fail, return false
+        return results.every(result => result === true);
+    }
+
     async beforeCreate(req, res): Promise<any> {
-        this.b.setPlData(req, { key: 'groupMemberGuid', value: this.b.getGuid() });
-        this.b.setPlData(req, { key: 'groupMemberEnabled', value: true });
+        this.b.setPlData(req, { key: 'coopMemberGuid', value: this.b.getGuid() });
+        this.b.setPlData(req, { key: 'coopMemberEnabled', value: true });
         return true;
     }
 
     async afterCreate(req, res) {
         const svSess = new SessionService()
         // flag invitation group as accepted
-        await this.b.setAlertMessage('new group-member created', svSess, true);
+        await this.b.setAlertMessage('new coop-member created', svSess, true);
     }
 
     async createI(req, res, createIParams: CreateIParams): Promise<CoopMemberModel | boolean> {
@@ -131,70 +250,7 @@ export class CoopMemberService extends CdService {
                 ///////////////////////////////////////////////////////////////////
                 // // 2. confirm the consumerTypeGuid referenced exists
                 const pl: CoopMemberModel = createIParams.controllerData;
-                let cdObjType: CdObjTypeModel[];
-                let q: any = { where: { cdObjTypeId: pl.cdObjTypeId } };
-                let serviceInput: IServiceInput = {
-                    serviceModel: CdObjTypeModel,
-                    modelName: "CdObjTypeModel",
-                    docName: 'CoopMemberService::validateCreateI',
-                    cmd: {
-                        action: 'find',
-                        query: q
-                    },
-                    dSource: 1
-                }
-                if ('cdObjTypeId' in pl) {
-                    console.log('CoopMemberService::validateCreateI()/04')
-                    cdObjType = await this.b.get(req, res, serviceInput)
-                    ret = await this.b.validateInputRefernce(`cdobj type reference is invalid`, cdObjType, svSess)
-                } else {
-                    console.log('CoopMemberService::validateCreateI()/04')
-                    this.b.setAlertMessage(`groupGuidParent is missing in payload`, svSess, false);
-                }
-                if ('memberGuid' in pl) {
-                    console.log('CoopMemberService::validateCreateI()/05')
-                    if (cdObjType[0].cdObjTypeName === 'group') {
-                        console.log('CoopMemberService::validateCreateI()/06')
-                        q = { where: { groupGuid: pl.memberGuid } };
-                        serviceInput.cmd.query = q;
-                        const group: GroupModel[] = await this.b.get(req, res, serviceInput);
-                        ret = await this.b.validateInputRefernce(`member reference is invalid`, group, svSess)
-                    }
-                    if (cdObjType[0].cdObjTypeName === 'user') {
-                        console.log('CoopMemberService::validateCreateI()/04')
-                        q = { where: { userGuid: pl.memberGuid } };
-                        serviceInput.cmd.query = q;
-                        const user: UserModel[] = await this.b.get(req, res, serviceInput);
-                        if (user.length > 0) {
-                            console.log('CoopMemberService::validateCreateI()/05')
-                            this.b.setPlData(req, { key: 'userIdMember', value: user[0].userId });
-                            ret = await this.b.validateInputRefernce(`member reference is invalid`, user, svSess)
-                        } else {
-                            console.log('CoopMemberService::validateCreateI()/06')
-                            ret = await this.b.validateInputRefernce(`member reference is invalid`, user, svSess)
-                        }
-                        console.log('CoopMemberService::validateCreateI()/07')
-                    }
-                } else {
-                    console.log('moduleman/CoopMemberService::validateCreateI()/11')
-                    this.b.setAlertMessage(`memberGuid is missing in payload`, svSess, false);
-                }
-                if ('groupGuidParent' in pl) {
-                    console.log('CoopMemberService::validateCreateI()/08')
-                    console.log('CoopMemberService::validateCreateI()/q:', q)
-                    q = { where: { groupGuid: pl.groupGuidParent } };
-                    serviceInput.cmd.query = q;
-                    const r: GroupModel[] = await this.b.get(req, res, serviceInput);
-                    console.log('CoopMemberService::validateCreateI()/09')
-                    ret = await this.b.validateInputRefernce(`parent reference is invalid`, r, svSess)
-                } else {
-                    console.log('CoopMemberService::validateCreateI()/10')
-                    this.b.setAlertMessage(`groupGuidParent is missing in payload`, svSess, false);
-                }
-                if (this.b.err.length > 0) {
-                    console.log('CoopMemberService::validateCreateI()/11')
-                    ret = false;
-                }
+
             } else {
                 console.log('CoopMemberService::validateCreateI()/12')
                 ret = false;
@@ -210,11 +266,11 @@ export class CoopMemberService extends CdService {
         return ret;
     }
 
-    async groupMemberExists(req, res, params): Promise<boolean> {
+    async coopMemberExists(req, res, params): Promise<boolean> {
         const serviceInput: IServiceInput = {
             serviceInstance: this,
             serviceModel: CoopMemberModel,
-            docName: 'CoopMemberService::group-memberExists',
+            docName: 'CoopMemberService::coop-memberExists',
             cmd: {
                 action: 'find',
                 query: { where: params.filter }
@@ -226,6 +282,76 @@ export class CoopMemberService extends CdService {
 
     async read(req, res, serviceInput: IServiceInput): Promise<any> {
         //
+    }
+
+    async activateCoop(req, res) {
+        try {
+            if(!this.validateActiveCoop(req, res)){
+                const e = "could not validate the request"
+                this.b.err.push(e.toString());
+                const i = {
+                    messages: this.b.err,
+                    code: 'CoopMemberService:activateCoop',
+                    app_msg: ''
+                };
+                await this.b.serviceErr(req, res, e, i.code)
+                await this.b.respond(req, res)
+            }
+            let pl: CoopMemberModel = this.b.getPlData(req);
+            console.log("CoopMemberService::activateCoop()/pl:", pl)
+            const coopId = pl.coopId
+            const svSess = new SessionService()
+            const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(req, res, true)
+            console.log("CoopMemberService::activateCoop()/sessionDataExt:", sessionDataExt)
+            // set all coops to inactive
+            const serviceInputDeactivate = {
+                serviceModel: CoopMemberModel,
+                docName: 'CoopMemberService::activateCoop',
+                cmd: {
+                    action: 'activateCoop',
+                    query: {
+                        update: { coopActive: false },
+                        where: { userId: sessionDataExt.currentUser.userId }
+                    },
+                },
+                dSource: 1
+            }
+            const retDeactivate = await this.updateI(req, res, serviceInputDeactivate)
+            console.log("CoopMemberService::activateCoop()/retDeactivate:", retDeactivate)
+            // set only one coop to true
+            const serviceInputActivate = {
+                serviceModel: CoopMemberModel,
+                docName: 'CoopMemberService::activateCoop',
+                cmd: {
+                    action: 'activateCoop',
+                    query: {
+                        update: { coopActive: true },
+                        where: { userId: sessionDataExt.currentUser.userId, coopId: coopId }
+                    },
+                },
+                dSource: 1
+            }
+            const retActivate = await this.updateI(req, res, serviceInputActivate)
+            console.log("CoopMemberService::activateCoop()/retActivate:", retActivate)
+            this.b.cdResp.data = {
+                coopCoopMemberProfile: await this.getCoopMemberProfileI(req, res)
+            };
+            this.b.respond(req, res)
+        } catch (e) {
+            console.log('CoopMemberService::activateCoop()/e:', e)
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'CoopMemberService:activateCoop',
+                app_msg: ''
+            };
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
+        }
+    }
+
+    async validateActiveCoop(req, res){
+        return true
     }
 
     update(req, res) {
@@ -249,6 +375,10 @@ export class CoopMemberService extends CdService {
             })
     }
 
+    async updateI(req, res, serviceInput: IServiceInput) {
+        return await this.b.update(req, res, serviceInput)
+    }
+
     /**
      * harmonise any data that can
      * result in type error;
@@ -256,8 +386,8 @@ export class CoopMemberService extends CdService {
      * @returns
      */
     beforeUpdate(q: any) {
-        if (q.update.groupMemberEnabled === '') {
-            q.update.groupMemberEnabled = null;
+        if (q.update.coopMemberEnabled === '') {
+            q.update.coopMemberEnabled = null;
         }
         return q;
     }
@@ -280,176 +410,6 @@ export class CoopMemberService extends CdService {
     rbDelete(): number {
         return 1;
     }
-
-    async validateCreate(req, res) {
-        console.log('CoopMemberService::validateCreate()/01')
-        const svSess = new SessionService();
-        ///////////////////////////////////////////////////////////////////
-        // 1. Validate against duplication
-        console.log('CoopMemberService::validateCreate()/011')
-        this.b.i.code = 'CoopMemberService::validateCreate';
-        let ret = false;
-        this.validationCreateParams = {
-            controllerInstance: this,
-            model: CoopMemberModel,
-        }
-        // const isUnique = await this.validateUniqueMultiple(req, res, this.validationCreateParams)
-        // await this.b.validateUnique(req, res, this.validationCreateParams)
-        if (await this.b.validateUnique(req, res, this.validationCreateParams)) {
-            console.log('CoopMemberService::validateCreate()/02')
-            if (await this.b.validateRequired(req, res, this.cRules)) {
-                console.log('CoopMemberService::validateCreate()/03')
-                ///////////////////////////////////////////////////////////////////
-                // // 2. confirm the consumerTypeGuid referenced exists
-                const pl: CoopMemberModel = await this.b.getPlData(req);
-                let cdObjType: CdObjTypeModel[];
-                let q: any = { where: { cdObjTypeId: pl.cdObjTypeId } };
-                let serviceInput: IServiceInput = {
-                    serviceModel: CdObjTypeModel,
-                    modelName: "CdObjTypeModel",
-                    docName: 'CoopMemberService::validateCreate',
-                    cmd: {
-                        action: 'find',
-                        query: q
-                    },
-                    dSource: 1
-                }
-                if ('cdObjTypeId' in pl) {
-                    console.log('CoopMemberService::validateCreate()/04')
-                    cdObjType = await this.b.get(req, res, serviceInput)
-                    ret = await this.b.validateInputRefernce(`cdobj type reference is invalid`, cdObjType, svSess)
-                } else {
-                    console.log('CoopMemberService::validateCreate()/05')
-                    this.b.setAlertMessage(`groupGuidParent is missing in payload`, svSess, false);
-                }
-                if ('memberGuid' in pl) {
-                    console.log('CoopMemberService::validateCreate()/06')
-
-                    q = { where: { groupGuid: pl.memberGuid } };
-                    serviceInput.serviceModel = GroupModel;
-                    serviceInput.cmd.query = q;
-                    if (cdObjType[0].cdObjTypeName === 'group') {
-                        console.log('CoopMemberService::validateCreate()/07')
-                        const group: GroupModel[] = await this.b.get(req, res, serviceInput);
-                        ret = await this.b.validateInputRefernce(`member reference is invalid`, group, svSess)
-                    }
-                    if (cdObjType[0].cdObjTypeName === 'user') {
-                        console.log('CoopMemberService::validateCreate()/08')
-                        console.log('CoopMemberService::validateCreate()/serviceInput:', serviceInput)
-                        /**
-                         * confirm if user exists
-                         */
-                        const pl: CoopMemberModel = this.b.getPlData(req);
-                        console.log('CoopMemberService::validateCreate()/pl:', pl)
-                        // const userServiceInput: IServiceInput = {
-                        //     serviceModel: new UserModel(),
-                        //     modelName: 'UserModel',
-                        //     docName: 'CoopMemberService::validateCreate',
-                        //     cmd: { action: 'find', query: { where: { userId: pl.userIdMember} } },
-                        //     dSource: 1
-                        // }
-                        // console.log('CoopMemberService::validateCreate()/userServiceInput:', userServiceInput)
-                        // // serviceInput.serviceModel = UserModel
-                        // const user: UserModel[] = await this.b.get(req, res, userServiceInput);
-                        const svUser = new UserService();
-                        const user = await svUser.getUserByID(req, res, pl.userIdMember)
-                        console.log('CoopMemberService::validateCreate()/user:', user)
-                        if (user.length > 0) {
-                            console.log('CoopMemberService::validateCreate()/09')
-                            this.b.setPlData(req, { key: 'userIdMember', value: user[0].userId });
-                            ret = await this.b.validateInputRefernce(`member reference is invalid`, user, svSess)
-                        } else {
-                            console.log('CoopMemberService::validateCreate()/10')
-                            ret = await this.b.validateInputRefernce(`member reference is invalid`, user, svSess)
-                        }
-                        console.log('CoopMemberService::validateCreate()/11')
-                    }
-                } else {
-                    console.log('moduleman/CoopMemberService::validateCreate()/12')
-                    this.b.setAlertMessage(`memberGuid is missing in payload`, svSess, false);
-                }
-                if ('groupGuidParent' in pl) {
-                    console.log('CoopMemberService::validateCreate()/13')
-                    const groupServiceInput: IServiceInput = {
-                        serviceModel: GroupModel,
-                        modelName: 'GroupModel',
-                        docName: 'CoopMemberService::validateCreate',
-                        cmd: { action: 'find', query: { where: { groupGuid: pl.groupGuidParent } } },
-                        dSource: 1
-                    }
-                    // const q: IQuery = { where: { groupGuid: pl.groupGuidParent } };
-
-                    // console.log('CoopMemberService::validateCreate()/q:', q)
-                    // serviceInput.serviceModel = GroupModel
-                    const group: GroupModel[] = await this.b.get(req, res, groupServiceInput);
-                    console.log('CoopMemberService::validateCreate()/14')
-                    console.log('CoopMemberService::validateCreate()/group:', group)
-                    if(group.length < 1){
-                        ret = await this.b.validateInputRefernce(`parent reference is invalid`, group, svSess)
-                    }
-                } else {
-                    console.log('CoopMemberService::validateCreate()/15')
-                    this.b.setAlertMessage(`groupGuidParent is missing in payload`, svSess, false);
-                }
-                if (this.b.err.length > 0) {
-                    console.log('CoopMemberService::validateCreate()/16')
-                    ret = false;
-                }
-            } else {
-                console.log('CoopMemberService::validateCreate()/17')
-                ret = false;
-                this.b.setAlertMessage(`the required fields ${this.b.isInvalidFields.join(', ')} is missing`, svSess, true);
-            }
-        } else {
-            console.log('CoopMemberService::validateCreate()/18')
-            ret = false;
-            this.b.setAlertMessage(`duplicate for ${this.cRules.noDuplicate.join(', ')} is not allowed`, svSess, false);
-        }
-        console.log('CoopMemberService::validateCreate()/19')
-        console.log('CoopMemberService::validateCreate()/ret', ret)
-        return ret;
-    }
-
-    // async validateUniqueMultiple(req, res){
-    //     let stateArr = [];
-    //     let buFVals = req.post.dat.f_vals
-    //     console.log('CoopMemberService::validateUniqueMultiple()/buFVals1:', buFVals)
-    //     await buFVals.forEach(async (plFVals, fValsIndex) => {
-    //         console.log('CoopMemberService::validateUniqueMultiple()/fValsIndex:', fValsIndex)
-    //         console.log('CoopMemberService::validateUniqueMultiple()/plFVals12:', plFVals)
-    //         // set the req
-    //         req.post.dat.f_vals[0] = plFVals
-    //         console.log('CoopMemberService::validateUniqueMultiple()/req.post.dat.f_vals[0]:', req.post.dat.f_vals[0])
-    //         const isUnq = await this.b.validateUnique(req, res, this.validationCreateParams)
-    //         console.log('CoopMemberService::validateUniqueMultiple()/isUnq:', isUnq)
-    //         const state = {
-    //             index: fValsIndex,
-    //             isUnique: isUnq
-    //         }
-    //         console.log('CoopMemberService::validateUniqueMultiple()/state:', state)
-    //         stateArr.push(state)
-    //     })
-    //     console.log('CoopMemberService::validateUniqueMultiple()/stateArr1:', stateArr)
-    //     // get valid FVal items
-    //     // const validStateArr = stateArr.filter((state) => state.isUnique)
-    //     // stateArr.forEach((state,i) => {
-    //     //     if(state.isUnique === false){
-    //     //         console.log('CoopMemberService::validateUniqueMultiple()/stateArr2:', stateArr)
-    //     //         buFVals.splice(i, 1); 
-    //     //         console.log('CoopMemberService::validateUniqueMultiple()/stateArr3:', stateArr)
-    //     //     }
-    //     // })
-    //     buFVals = buFVals.filter((fVals,i) => stateArr[i].isUnigue)
-    //     console.log('CoopMemberService::validateUniqueMultiple()/buFVals2:', buFVals)
-    //     // restor fVals...but only with valid items
-    //     req.post.dat.f_vals = buFVals;
-    //     if(buFVals.length > 0){
-    //         return true;
-    //     } else {
-    //         return false;
-    //     }
-
-    // }
 
     /**
      * $members = mCoopMember::getCoopMember2([$filter1, $filter2], $usersOnly)
@@ -484,15 +444,99 @@ export class CoopMemberService extends CdService {
                     this.b.respond(req, res)
                 })
         } catch (e) {
-            console.log('CoopMemberService::read$()/e:', e)
+            console.log('CoopMemberService::getCoopMember()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
-                code: 'BaseService:update',
+                code: 'CoopMemberService:getCoopMember',
                 app_msg: ''
             };
             await this.b.serviceErr(req, res, e, i.code)
             await this.b.respond(req, res)
+        }
+    }
+
+    async getCoopMemberProfile(req, res) {
+        try {
+            if(!this.validateGetCoopMemberProfile(req, res)){
+                const e = "could not validate the request"
+                this.b.err.push(e.toString());
+                const i = {
+                    messages: this.b.err,
+                    code: 'CoopMemberService:activateCoop',
+                    app_msg: ''
+                };
+                await this.b.serviceErr(req, res, e, i.code)
+                await this.b.respond(req, res)
+            }
+            await this.setCoopMemberProfileI(req, res)
+            this.b.i.code = 'CoopMemberController::getCoopMemberProfile';
+            const svSess = new SessionService();
+            svSess.sessResp.cd_token = req.post.dat.token;
+            svSess.sessResp.ttl = svSess.getTtl();
+            this.b.setAppState(true, this.b.i, svSess.sessResp);
+            this.b.cdResp.data = this.mergedProfile;
+            this.b.respond(req, res)
+        } catch (e) {
+            console.log('CoopMemberService::getCoopMemberProfile()/e:', e)
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'CoopMemberService:getCoopMemberProfile',
+                app_msg: ''
+            };
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
+        }
+    }
+
+    async validateGetCoopMemberProfile(req, res){
+        return true
+    }
+
+    async getCoopMemberProfileI(req, res) {
+        try {
+            await this.setCoopMemberProfileI(req, res)
+            return this.mergedProfile
+        } catch (e) {
+            console.log('CoopMemberService::getCoopMemberProfileI()/e:', e)
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'CoopmemberService:getCoopMemberProfileI',
+                app_msg: ''
+            };
+            await this.b.serviceErr(req, res, e, i.code)
+            return null
+        }
+    }
+
+    async getCoopMemberI(req, res, q: IQuery = null): Promise<CoopMemberViewModel[]> {
+        if (q === null) {
+            q = this.b.getQuery(req);
+        }
+        console.log('CoopMemberService::getCoopMember/q:', q);
+        const serviceInput = {
+            serviceModel: CoopMemberViewModel,
+            docName: 'CoopMemberService::getCoopMemberI',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        try {
+            return await this.b.read(req, res, serviceInput)
+        } catch (e) {
+            console.log('CoopMemberService::read$()/e:', e)
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'CoopMemberService:update',
+                app_msg: ''
+            };
+            await this.b.serviceErr(req, res, e, i.code)
+            return null;
         }
     }
 
@@ -569,6 +613,59 @@ export class CoopMemberService extends CdService {
 
     async getUserGroups(ret) {
         //
+    }
+
+    async setCoopMemberProfileI(req, res) {
+        console.log("CoopMemberService::setCoopMemberProfileI()/01")
+        // note that 'ignoreCache' is set to true because old data may introduce confussion
+        const svSess = new SessionService()
+        const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(req, res, true)
+        console.log("CoopMemberService::setCoopMemberProfileI()/sessionDataExt:", sessionDataExt)
+
+        //     - get and clone userProfile, then get coopMemberProfile data and append to cloned userProfile.
+        //   hint:
+        console.log("CoopMemberService::setCoopMemberProfileI()/02")
+        const svUser = new UserService();
+        const existingUserProfile = await svUser.existingUserProfile(req, res, sessionDataExt.currentUser.userId)
+        console.log("CoopMemberService::setCoopMemberProfileI()/existingUserProfile:", existingUserProfile)
+        let modifiedUserProfile;
+
+        if (await svUser.validateProfileData(req, res, existingUserProfile)) {
+            console.log("CoopMemberService::setCoopMemberProfileI()/03")
+            // merge coopMemberProfile data
+            this.mergedProfile = await this.mergeUserProfile(req, res, existingUserProfile)
+            console.log("CoopMemberService::setCoopMemberProfileI()/this.mergedProfile1:", this.mergedProfile)
+        } else {
+            console.log("CoopMemberService::setCoopMemberProfileI()/04")
+            const svSess = new SessionService()
+            const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(req, res)
+            const { password, userProfile, ...filteredUserData } = sessionDataExt.currentUser;
+            userProfileDefault.userData = filteredUserData;
+            console.log("CoopMemberService::setCoopMemberProfileI()/userProfileDefault:", userProfileDefault)
+            // use default, assign the userId
+            profileDefaultConfig[0].value.userId = sessionDataExt.currentUser.userId
+            modifiedUserProfile = await svUser.modifyUserProfile(userProfileDefault, profileDefaultConfig)
+            console.log("CoopMemberService::setCoopMemberProfileI()/modifiedUserProfile:", modifiedUserProfile)
+            this.mergedProfile = await this.mergeUserProfile(req, res, modifiedUserProfile)
+            console.log("CoopMemberService::setCoopMemberProfile()/this.mergedProfile2:", this.mergedProfile)
+        }
+    }
+
+    async mergeUserProfile(req, res, userProfile): Promise<ICoopMemberProfile> {
+        console.log("CoopMemberService::mergeUserProfile()/01")
+        const svSess = new SessionService()
+        console.log("CoopMemberService::mergeUserProfile()/02")
+        const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(req, res)
+        console.log("CoopMemberService::mergeUserProfile()/03")
+        const q = { where: { userId: sessionDataExt.currentUser.userId } }
+        console.log("CoopMemberService::mergeUserProfile()/q:", q)
+        const coopMemberData = await this.getCoopMemberI(req, res, q)
+        console.log("CoopMemberService::mergeUserProfile()/coopMemberData:", coopMemberData)
+        const mergedProfile: ICoopMemberProfile = {
+            userProfile: userProfile,
+            coopMemberData: coopMemberData
+        }
+        return await mergedProfile
     }
 
 }

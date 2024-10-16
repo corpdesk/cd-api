@@ -39,7 +39,7 @@ import { DocModel } from '../../moduleman/models/doc.model';
 )
 // @CdModel
 export class UserModel {
-    b: BaseService;
+    b?: BaseService;
 
     @PrimaryGeneratedColumn(
         {
@@ -72,7 +72,7 @@ export class UserModel {
             length: 60,
             default: null
         })
-    password: string;
+    password?: string;
 
     @Column(
         'varchar',
@@ -84,7 +84,7 @@ export class UserModel {
     )
 
     @IsEmail()
-    email: string;
+    email?: string;
 
     @Column(
         {
@@ -143,7 +143,7 @@ export class UserModel {
             default: null
         }
     )
-    fName: string;
+    fName?: string;
 
     @Column(
         {
@@ -159,7 +159,7 @@ export class UserModel {
             default: null
         }
     )
-    lName: string;
+    lName?: string;
 
     @Column(
         {
@@ -212,17 +212,138 @@ export class UserModel {
             default: null
         }
     )
-    // @IsInt()
-    userTypeId?: string;
+    userTypeId?: number;
+
+    @Column(
+        {
+            name: 'user_profile',
+            default: null
+        }
+    )
+    userProfile?: string;
 
     @OneToMany(type => DocModel, doc => doc.user) // note: we will create user property in the Docs class
-    docs: DocModel[];
+    docs?: DocModel[];
 
     // HOOKS
     @BeforeInsert()
     @BeforeUpdate()
-    async validate() {
+    async validate?() {
         await validateOrReject(this);
     }
 
 }
+
+
+export interface IUserProfileAccess {
+    userPermissions: IProfileUserAccess[],
+    groupPermissions: IProfileGroupAccess[]
+}
+
+/**
+ * Improved versin should have just one interface and 
+ * instead of userId or groupId, cdObjId is applied.
+ * This would then allow any object permissions to be set
+ * Automation and 'role' concept can then be used to manage permission process
+ */
+export interface IProfileUserAccess {
+    userId: number,
+    hidden: boolean,
+    field: string,
+    read: boolean,
+    write: boolean,
+    execute: boolean
+}
+
+export interface IProfileGroupAccess {
+    groupId: number,
+    field: string,
+    hidden: boolean,
+    read: boolean,
+    write: boolean,
+    execute: boolean
+}
+
+export interface IUserProfile {
+    fieldPermissions: IUserProfileAccess;
+    avatar?: string; // URL or base64-encoded image
+    userData: UserModel;
+    areasOfInterest?: string[];
+    bio?: string;
+    affiliatedInstitutions?: string[];
+    following?: string[]; // Limit to X entries (e.g., 1000) to avoid abuse
+    followers?: string[]; // Limit to X entries (e.g., 1000)
+    friends?: string[];   // Limit to X entries (e.g., 500)
+    groups?: string[];    // Limit to X entries (e.g., 100)
+}
+
+export const profileDefaultConfig =[
+    {
+      "path": [
+        "fieldPermissions",
+        "userPermissions",
+        [
+          "userName"
+        ]
+      ],
+      "value": {
+        "userId": 1000,
+        "field": "userName",
+        "hidden": false,
+        "read": true,
+        "write": false,
+        "execute": false
+      }
+    },
+    {
+      "path": [
+        "fieldPermissions",
+        "groupPermissions",
+        [
+          "userName"
+        ]
+      ],
+      "value": {
+        "groupId": 0,
+        "field": "userName",
+        "hidden": false,
+        "read": true,
+        "write": false,
+        "execute": false
+      }
+    }
+  ]
+
+/**
+ * the data below can be managed under with 'roles'
+ * there needs to be a function that set the default 'role' for a user
+ */
+export const userProfileDefault: IUserProfile = {
+    fieldPermissions: {
+        /**
+         * specified permission setting for given users to specified fields
+         */
+        userPermissions: [{
+            userId: 1000,
+            field: "userName",
+            hidden: false,
+            read: true,
+            write: false,
+            execute: false
+        }],
+        groupPermissions: [{
+            groupId: 0, // "_public"
+            field: "userName",
+            hidden: false,
+            read: true,
+            write: false,
+            execute: false
+        }],
+    },
+    userData: {
+        userName: "",
+        fName: "",
+        lName: "",
+    }
+}
+

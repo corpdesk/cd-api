@@ -9,7 +9,7 @@ export class UserController extends CdController {
     svUser: UserService;
     constructor() {
         super();
-        
+
         this.b = new BaseService();
         this.svUser = new UserService();
         this.logger = new Logging();
@@ -41,9 +41,9 @@ export class UserController extends CdController {
     async Login(req, res) {
         this.logger.logInfo('starting Login()')
         try {
-            await this.svUser.auth(req,res);
+            await this.svUser.auth(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e,'UserService:Login');
+            await this.b.serviceErr(req, res, e, 'UserService:Login');
         }
     }
 
@@ -75,7 +75,7 @@ export class UserController extends CdController {
         try {
             await this.svUser.create(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e,'UserService:Register');
+            await this.b.serviceErr(req, res, e, 'UserService:Register');
         }
     }
 
@@ -161,7 +161,17 @@ export class UserController extends CdController {
             // await this.svUser.getUserCount(req, res);
             await this.svUser.getUserQB(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'UserController:Get');
+            await this.b.serviceErr(req, res, e, 'UserController:GetCount');
+        }
+    }
+
+
+    async GetUserProfile(req, res) {
+        try {
+            // await this.svUser.getUserCount(req, res);
+            await this.svUser.getUserProfile(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'UserController:getUserProfile');
         }
     }
 
@@ -324,6 +334,42 @@ export class UserController extends CdController {
             await this.svUser.delete(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'UserController:Update');
+        }
+    }
+
+    // /**
+    //  * {
+    //         "ctx": "Sys",
+    //         "m": "User",
+    //         "c": "User",
+    //         "a": "UpdateUserProfile",
+    //         "dat": {
+    //             "f_vals": [
+    //                 {
+    //                     "query": {
+    //                         "update": {
+    //                             "userProfile": "{}"
+    //                         },
+    //                         "where": {
+    //                             "userId": 1010
+    //                         }
+    //                     }
+    //                 }
+    //             ],
+    //             "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+    //         },
+    //         "args": {}
+    //     }
+    //  * @param req
+    //  * @param res
+    //  */
+    async UpdateUserProfile(req, res) {
+        console.log('BillController::Update()/01');
+        try {
+            console.log('BillController::Update()/02');
+            await this.svUser.updateCurrentUserProfile(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'BillController:Update');
         }
     }
 }

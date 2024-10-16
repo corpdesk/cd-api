@@ -12,7 +12,7 @@ import * as R from 'ramda';
 import objectsToCsv from '../../base/objectsToCsv';
 import { configure, getLogger, Appender } from 'log4js';
 import { BaseService } from '../../base/base.service';
-import { UserModel } from '../models/user.model';
+import { UserModel, IUserProfile, userProfileDefault } from '../models/user.model';
 import { NotificationTemplate } from '../models/registerNotifTemplate';
 import { CdService } from '../../base/cd.service';
 import { MailService } from '../../comm/services/mail.service';
@@ -20,7 +20,7 @@ import userConfig from '../userConfig';
 import { Database } from '../../base/connect';
 import * as bcrypt from 'bcrypt';
 import { DocModel } from '../../moduleman/models/doc.model';
-import { IServiceInput, Fn, IRespInfo, CreateIParams, IQuery, ICdRequest } from '../../base/IBase';
+import { IServiceInput, Fn, IRespInfo, CreateIParams, IQuery, ICdRequest, ISessionDataExt } from '../../base/IBase';
 import { SessionService } from './session.service';
 import { SessionModel } from '../models/session.model';
 import { ISessResp } from '../../base/IBase';
@@ -194,10 +194,10 @@ export class UserService extends CdService {
     async regisrationNotification(req, res, newUser) {
         this.logger.logInfo('starting UserService::regisrationNotification()')
         if (userConfig.register.notification.email) {
-            this.logger.logInfo('UserService::regisrationNotification()/newUser:', {u:newUser})
+            this.logger.logInfo('UserService::regisrationNotification()/newUser:', { u: newUser })
             const nt = new NotificationTemplate();
             this.plData.msg = await nt.registerNotifTemplate(req, res, newUser);
-            const mailRet = await this.mail.sendEmailNotif(await req, res,this.plData.msg, newUser);
+            const mailRet = await this.mail.sendEmailNotif(await req, res, this.plData.msg, newUser);
         }
     }
 
@@ -233,13 +233,29 @@ export class UserService extends CdService {
         return await userRepository.save(await this.b.getPlData(req));
     }
 
-    getUserActiveCo() {
+    async getUserActiveCo() {
         return {};
     }
 
-    getContacts(cuid) {
+    async getContacts(cuid) {
         return [{}];
     }
+
+    // async getUserProfileI(req, res) {
+    //     const svSess = new SessionService()
+    //     const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(req, res)
+
+    //     const serviceInput: IServiceInput = {
+    //         serviceModel: UserModel,
+    //         docName: 'UserService::getUser$',
+    //         cmd: {
+    //             action: 'find',
+    //             query: { where: req.post.dat.f_vals[0] }
+    //         },
+    //         dSource: 1
+    //     }
+    //     return await this.read(req, res, serviceInput)
+    // }
 
     /**
      * Use BaseService for simple search
@@ -250,7 +266,7 @@ export class UserService extends CdService {
         return await this.b.read(req, res, serviceInput);
     }
 
-    update(req, res) {
+    async update(req, res) {
         // this.logger.logInfo('UserService::update()/01');
         let q = this.b.getQuery(req);
         q = this.beforeUpdate(q);
@@ -269,6 +285,10 @@ export class UserService extends CdService {
                 this.b.cdResp.data = ret;
                 this.b.respond(req, res)
             })
+    }
+
+    async updateI(req, res, serviceInput: IServiceInput) {
+        return await this.b.update(req, res, serviceInput)
     }
 
     /**
@@ -337,7 +357,7 @@ export class UserService extends CdService {
     async beforeUpdatePassword(req, res, q: IQuery) {
         this.plData = this.b.getPlData(req)
         // 1. get cUser
-        this.logger.logInfo('UserService::beforeUpdatePassword()/f:', q);
+        this.logger.logInfo('UserService::beforeUpdatePassword()/q:', q);
         this.requestPswd = req.post.dat.f_vals[0].oldPassword;
         this.logger.logInfo('UserService::beforeUpdatePassword()/this.requestPswd:', { requestPswd: this.requestPswd });
         // 1. confirm old password
@@ -373,24 +393,11 @@ export class UserService extends CdService {
 
     }
 
-    // async getUserI(req, res, q: IQuery): Promise<UserModel[]> {
-    //     const serviceInput: IServiceInput = {
-    //         serviceModel: UserModel,
-    //         docName: 'UserService::getUser$',
-    //         cmd: {
-    //             action: 'find',
-    //             query: q
-    //         },
-    //         dSource: 1
-    //     }
-    //     return await this.read(req, res, serviceInput)
-    // }
-
     async getUserI(req, res, q: IQuery = null): Promise<UserModel[]> {
         if (q == null) {
             q = this.b.getQuery(req);
         }
-        this.logger.logInfo('UserService::getUserI/f:', q);
+        console.log('UserService::getUserI/q:', q);
         const serviceInput = {
             serviceModel: UserModel,
             docName: 'UserService::getUserI',
@@ -610,43 +617,20 @@ export class UserService extends CdService {
             );
     }
 
-    // processResponse$(req, res, guest) {
-    //     this.b.logTimeStamp('UserService::processResponse$/01')
-    //     delete guest.password;
-    //     const sessData$: Rx.Observable<SessionModel> = Rx.from(this.srvSess.create(req, res, guest));
-    //     const modulesUserData$ = this.svModule.getModulesUserData$(req, res, guest);
-    //     const sessFlat = r => { return r };
-    //     this.b.logTimeStamp('ModuleService::processResponse$/02')
-    //     return Rx.forkJoin({
-    //         sessResult: sessData$,
-    //         modulesUserData: modulesUserData$
-    //     })
-    //         .pipe(
-    //             Rx.defaultIfEmpty({
-    //                 sessResult: sessData$.pipe(Rx.mergeMap(r => sessFlat(r))),
-    //                 modulesUserData: {
-    //                     consumer: [],
-    //                     menuData: [],
-    //                     userData: {}
-    //                 }
-    //             })
-    //         )
-    // }
-
     processResponse$(req, res, guest: UserModel): Rx.Observable<any> {
         this.b.logTimeStamp('UserService::processResponse$/01');
         delete guest.password;
-    
+
         // Create an observable for session data
         const sessData$: Rx.Observable<SessionModel> = Rx.from(this.srvSess.create(req, res, guest));
-    
+
         // Now using mergeMap to ensure sessData$ is resolved before passing it to getModulesUserData$
         return sessData$.pipe(
             Rx.mergeMap((sessData) => {
                 req.post.dat.token = sessData.cdToken
                 // Call getModulesUserData$ with sessData instead of guest
                 const modulesUserData$ = this.svModule.getModulesUserData$(req, res, sessData);
-    
+
                 // Use forkJoin to combine sessData and modulesUserData
                 return Rx.forkJoin({
                     sessResult: Rx.of(sessData),  // Wrapping sessData into an observable
@@ -663,9 +647,9 @@ export class UserService extends CdService {
             })
         );
     }
-    
 
-    async getUserByID(req, res, uid): Promise<UserModel[]> {
+
+    async getUserByID(req, res, uid) {
         const serviceInput = {
             serviceInstance: this,
             serviceModel: UserModel,
@@ -769,7 +753,7 @@ export class UserService extends CdService {
             },
             dSource: 1
         }
-        
+
         this.b.readQB$(req, res, serviceInput)
             .subscribe((r) => {
                 this.b.i.code = serviceInput.docName;
@@ -841,6 +825,404 @@ export class UserService extends CdService {
             dSource: 1,
         }
         return await this.b.read(req, res, serviceInput);
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////
+    // STARTING USER PROFILE FEATURES
+    // Public method to update user profile (e.g., avatar, bio)
+    async updateCurrentUserProfile(req, res): Promise<void> {
+        try {
+            // note that 'ignoreCache' is set to true because old data may introduce confussion
+            const svSess = new SessionService()
+            const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(req, res, true)
+            console.log("UserService::updateCurrentUserProfile()/sessionDataExt:", sessionDataExt)
+
+            // const pl:UserModel = this.b.getPlData(req)
+            const requestQuery: IQuery = req.post.dat.f_vals[0].query;
+            const jsonUpdate = req.post.dat.f_vals[0].jsonUpdate;
+            let modifiedUserProfile = {};
+            let strUserProfile = "{}";
+
+            /**
+             * fetch current data
+             */
+            // const getUserQuery: IQuery = requestQuery.where;
+            // console.log("UserService::updateCurrentUserProfile()/getUserQuery:", getUserQuery)
+            // let currentUser: UserModel[] = await this.getUserI(req, res, { where: getUserQuery })
+            // console.log("UserService::updateCurrentUserProfile()/currentUser:", currentUser)
+            // console.log("UserService::updateCurrentUserProfile()/00")
+
+            // // remove password
+            // currentUser = currentUser.map(({ password, ...user }) => user);
+
+            const existingUserProfile = await this.existingUserProfile(req, res, sessionDataExt.currentUser.userId)
+
+            if (await this.validateProfileData(req, res, existingUserProfile)) {
+                /*
+                - if not null and is valid data
+                    - use jsonUpdate to update currentUserProfile
+                        use the method modifyUserProfile(existingData: IUserProfile, jsonUpdate): string
+                    - use session data to modify 'userData' in the default user profile
+                    - 
+                */
+                console.log("UserService::updateCurrentUserProfile()/01")
+                console.log("UserService::updateCurrentUserProfile()/jsonUpdate:", jsonUpdate)
+                console.log("UserService::updateCurrentUserProfile()/existingUserProfile:", existingUserProfile)
+                modifiedUserProfile = await this.modifyUserProfile(existingUserProfile, jsonUpdate)
+                console.log("UserService::updateCurrentUserProfile()/strUserProfile2:", modifiedUserProfile)
+                strUserProfile = JSON.stringify(modifiedUserProfile)
+
+            } else {
+                /*
+                - if null or invalid, 
+                    - take the default json data defined in the UserModel, 
+                    - update userData using sessionData, then 
+                    - do update based on given jsonUpdate in the api request
+                    - converting to string and then updating the userProfile field in the row/s defined in query.where property.
+                */
+                // console.log("UserService::updateCurrentUserProfile()/02")
+
+
+
+                console.log("UserService::updateCurrentUserProfile()/021")
+                // const userData = sessionDataExt.currentUser
+                // userProfileDefault.userData = userData;
+                const { password, userProfile, ...filteredUserData } = sessionDataExt.currentUser;
+                userProfileDefault.userData = filteredUserData;
+                console.log("UserService::updateCurrentUserProfile()/userProfileDefault:", userProfileDefault)
+                modifiedUserProfile = await this.modifyUserProfile(userProfileDefault, jsonUpdate)
+                console.log("UserService::updateCurrentUserProfile()/modifiedUserProfile:", modifiedUserProfile)
+                strUserProfile = JSON.stringify(modifiedUserProfile)
+            }
+
+            console.log("UserService::updateCurrentUserProfile()/03")
+            requestQuery.update = { userProfile: strUserProfile }
+            console.log("UserService::updateCurrentUserProfile()/requestQuery:", requestQuery)
+
+            // update user profile
+            // const q: IQuery = query
+            const serviceInput: IServiceInput = {
+                serviceInstance: this,
+                serviceModel: UserModel,
+                docName: 'UserService::updateCurrentUserProfile',
+                cmd: {
+                    query: requestQuery
+                }
+            };
+            console.log("UserService::updateCurrentUserProfile()/serviceInput:", serviceInput)
+            // const ret = await this.b.updateJSONColumn(req, res, serviceInput)
+            const ret = await this.updateI(req, res, serviceInput)
+
+            // Respond with the retrieved profile data
+            this.b.cdResp.data = ret;
+            return await this.b.respond(req, res);
+        } catch (e) {
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'UserService:updateCurrentUserProfile',
+                app_msg: ''
+            };
+            await this.b.serviceErr(req, res, e, i.code);
+            await this.b.respond(req, res);
+        }
+    }
+
+    async existingUserProfile(req, res, cuid) {
+        let currentUser: UserModel[] = await this.getUserI(req, res, { where: { userId: cuid } })
+        console.log("UserService::updateCurrentUserProfile()/currentUser:", currentUser)
+        if (currentUser.length > 0) {
+            // remove password
+            currentUser = currentUser.map(({ password, ...user }) => user);
+            return currentUser[0].userProfile
+        } else {
+            return null
+        }
+    }
+
+    // async modifyUserProfile(existingData, jsonUpdate: any[]): Promise<string> {
+    //     console.log("UserService::modifyUserProfile()/existingData:", existingData)
+    //     console.log("UserService::modifyUserProfile()/jsonUpdate:", jsonUpdate)
+    //     try {
+    //         let updatedProfile = { ...existingData };
+    //         console.log("UserService::modifyUserProfile()/updatedProfile:", updatedProfile)
+
+    //         // Iterate over each update in jsonUpdate array
+    //         for (const update of jsonUpdate) {
+    //             console.log("UserService::modifyUserProfile()/update:", update)
+    //             const { path, value } = update;
+
+    //             // Use a helper function to recursively apply the update to the user profile
+    //             this.applyJsonUpdate(updatedProfile, path, value);
+    //         }
+
+    //         // Convert the updated profile to a string
+    //         return JSON.stringify(updatedProfile);
+    //     } catch (error) {
+    //         throw new Error(`Failed to modify user profile: ${error.message}`);
+    //     }
+    // }
+
+    async modifyUserProfile(existingData, profileDefaultConfig: any[]): Promise<string> {
+        console.log("UserService::modifyUserProfile()/existingData:", existingData)
+        console.log("UserService::modifyUserProfile()/profileDefaultConfig:", profileDefaultConfig)
+        try {
+            let updatedProfile = { ...existingData };
+
+            // Iterate over each update in jsonUpdate array
+            for (const update of profileDefaultConfig) {
+                const { path, value } = update;
+                const [firstKey, secondKey, ...remainingPath] = path;
+
+                if (firstKey === 'fieldPermissions') {
+                    // If updating userPermissions or groupPermissions
+                    if (secondKey === 'userPermissions') {
+                        updatedProfile = this.updatePermissions(
+                            updatedProfile, value, 'userPermissions', 'userId'
+                        );
+                    } else if (secondKey === 'groupPermissions') {
+                        updatedProfile = this.updatePermissions(
+                            updatedProfile, value, 'groupPermissions', 'groupId'
+                        );
+                    }
+                }
+
+                // Apply other updates normally
+                this.applyJsonUpdate(updatedProfile, path, value);
+            }
+
+            // Convert the updated profile to a string
+            return updatedProfile;
+        } catch (error) {
+            throw new Error(`Failed to modify user profile: ${error.message}`);
+        }
+    }
+
+    private updatePermissions(
+        profile: any, newValue: any, permissionType: 'userPermissions' | 'groupPermissions', idKey: 'userId' | 'groupId'
+    ) {
+        const permissionList = profile.fieldPermissions[permissionType];
+
+        // Check if the permission already exists (based on userId/groupId and field)
+        const existingIndex = permissionList.findIndex(permission =>
+            permission[idKey] === newValue[idKey] && permission.field === newValue.field
+        );
+
+        if (existingIndex > -1) {
+            // If exists, replace it with the new permission
+            permissionList[existingIndex] = newValue;
+        } else {
+            // Otherwise, add the new permission
+            permissionList.push(newValue);
+        }
+
+        return profile;
+    }
+
+
+    private applyJsonUpdate(profile: any, path: (string | number | string[])[], value: any) {
+        let current = profile;
+        console.log("UserService::applyJsonUpdate()/current1:", current)
+
+        // Traverse the path to get to the final key
+        for (let i = 0; i < path.length - 1; i++) {
+            let key = path[i];
+            console.log("UserService::applyJsonUpdate()/key:", key)
+
+            // Handle case where key is an array
+            if (Array.isArray(key)) {
+                key = key.join("."); // Or decide how to handle multiple keys (e.g., use the first element key[0])
+            }
+
+            // Ensure the path exists, create object or array if it doesn't
+            if (!current[key]) {
+                current[key] = (typeof path[i + 1] === 'number') ? [] : {};
+            }
+
+            current = current[key];
+        }
+
+        console.log("UserService::applyJsonUpdate()/current2:", current)
+
+        // Get the final key
+        let finalKey = path[path.length - 1];
+
+        // Handle case where finalKey is an array, if needed
+        if (Array.isArray(finalKey)) {
+            finalKey = finalKey.join("."); // Or pick an element, like finalKey[0]
+        }
+
+        // Set the value at the final location
+        current[finalKey] = value;
+        console.log("UserService::applyJsonUpdate()/current3:", current)
+    }
+
+    private findArrayElementIndex(array: any[], path: string[], elementKey: string) {
+        // Search for an array element matching a condition (e.g., by userName)
+        const index = array.findIndex((item) => item && item.field === elementKey);
+        if (index === -1) throw new Error(`Array element with key ${elementKey} not found`);
+        return index;
+    }
+
+    async getUserProfile(req, res) {
+        try {
+            const pl = this.b.getPlData(req)
+            const userId = pl.userId;
+
+            // Retrieve the user profile using an internal method
+            const profile = await this.getUserProfileI(req, res, userId);
+
+            // Respond with the retrieved profile data
+            this.b.cdResp.data = profile;
+            return await this.b.respond(req, res);
+        } catch (e) {
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'UserService:getProfile',
+                app_msg: ''
+            };
+            await this.b.serviceErr(req, res, e, i.code);
+            await this.b.respond(req, res);
+        }
+    }
+
+    // Public method to get a user profile
+    async getCurrentUserProfile(req, res) {
+        try {
+            const svSession = new SessionService()
+            const session = await svSession.getSession(req, res);
+            const userId = session[0].currentUserId;
+            console.log("UserServices::getCurrentUserProfile9)/userId:", userId)
+            // Retrieve the user profile using an internal method
+            const profile = await this.getUserProfileI(req, res, userId);
+
+            // Respond with the retrieved profile data
+            this.b.cdResp.data = profile;
+            return await this.b.respond(req, res);
+        } catch (e) {
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'UserService:getProfile',
+                app_msg: ''
+            };
+            await this.b.serviceErr(req, res, e, i.code);
+            await this.b.respond(req, res);
+        }
+    }
+
+    // Internal method to retrieve user profile
+    async getUserProfileI(req, res, userId: number): Promise<IUserProfile | null> {
+        try {
+            // // Use BaseService to retrieve user profile
+            // const result = await this.b.read(req, res, serviceInput);
+            const user = await this.getUserByID(req, res, userId)
+            console.log("UserServices::getUserProfileI()/user:", user)
+            console.log("UserServices::getUserProfileI()/00")
+            if (user && user[0].userProfile) {
+                console.log("UserServices::getUserProfileI()/01")
+                let userProfileJSON = user[0].userProfile
+
+                if ('userData' in userProfileJSON) {
+                    console.log("UserServices::getUserProfileI()/02")
+                    // profile data is valid
+
+                    // update with latest user data
+                    userProfileJSON.userData = user[0]
+
+                } else {
+                    console.log("UserServices::getUserProfileI()/03")
+                    // profile data is not set, so set it from default
+                    userProfileJSON = userProfileDefault
+                    /**
+                     * this stage should be modified to
+                     * filter data based on pwermission setting
+                     * permission data can further be relied on
+                     * by the front end for hidden or other features of accessibility
+                     * to user profile data.
+                     * This mechanism can be applied to all corpdesk resources
+                     */
+                    userProfileJSON.userData = user[0]
+                }
+                console.log("UserServices::getUserProfileI()/04")
+                return userProfileJSON;  // Parse the JSON field
+
+            } else {
+                console.log("UserServices::getUserProfileI()/05")
+                return null;
+            }
+
+        } catch (e) {
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'UserService:getProfile',
+                app_msg: ''
+            };
+            await this.b.serviceErr(req, res, e, i.code);
+            await this.b.respond(req, res);
+        }
+    }
+
+    // Internal method to handle profile updates
+    async updateUserProfileI(req, res, userId: string, newProfileData: Partial<IUserProfile>) {
+        try {
+            // Use BaseService method to handle JSON updates for user_profile field
+            const serviceInput = {
+                serviceModel: this.db.user,
+                cmd: {
+                    query: {
+                        where: { user_id: userId },
+                        update: { user_profile: newProfileData }
+                    }
+                }
+            };
+
+            await this.b.updateJSONColumnQB(req, res, serviceInput, 'user_profile', newProfileData);
+            return newProfileData;  // Return updated profile
+        } catch (error) {
+            throw new Error(`Error updating user profile: ${error.message}`);
+        }
+    }
+
+    // Helper method to validate profile data
+    async validateProfileData(req, res, profileData: any): Promise<boolean> {
+        console.log("UserService::validateProfileData()/profileData:", profileData)
+        // const profileData: IUserProfile = updateData.update.userProfile
+        // console.log("UserService::validateProfileData()/profileData:", profileData)
+        // Check if profileData is null or undefined
+        if (!profileData) {
+            console.log("UserService::validateProfileData()/01")
+            return false;
+        }
+
+        // Validate that the required fields of IUserProfile exist
+        if (!profileData.fieldPermissions || !profileData.userData) {
+            console.log("UserService::validateProfileData()/02")
+            return false;
+        }
+
+        // Example validation for bio length
+        if (profileData.bio && profileData.bio.length > 500) {
+            console.log("UserService::validateProfileData()/03")
+            const e = "Bio data is too long";
+            this.b.err.push(e);
+            const i = {
+                messages: this.b.err,
+                code: 'UserService:validateProfileData',
+                app_msg: ''
+            };
+            await this.b.serviceErr(req, res, e, i.code);
+            return false;  // Bio is too long
+        }
+        return true;
+    }
+
+
+    // Internal helper method to get a user by ID
+    async getUserByIdI(userId: string) {
+        return await this.db.user.findOne({ where: { user_id: userId } });
     }
 
 

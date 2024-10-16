@@ -82,6 +82,23 @@ export class CoopMemberController extends CdController {
         }
     }
 
+    async GetProfile(req, res) {
+        try {
+            await this.svCoopMember.getCoopMemberProfile(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'CoopMemberController:GetProfile');
+        }
+    }
+
+    
+    async ActivateCoop(req, res) {
+        try {
+            await this.svCoopMember.activateCoop(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'CoopMemberController:ActivateCoop');
+        }
+    }
+
     // async GetType(req, res) {
     //     try {
     //         await this.svCoopMember.getCoopMemberTypeCount(req, res);

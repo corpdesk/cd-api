@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs';
 import { AclModuleViewModel } from '../moduleman/models/acl-module-view.model';
 import { MenuViewModel } from '../moduleman/models/menu-view.model';
-import { UserModel } from '../user/models/user.model';
+import { IUserProfile, UserModel } from '../user/models/user.model';
 import { SessionModel } from '../user/models/session.model';
 import { ConsumerModel } from '../moduleman/models/consumer.model';
 import { CompanyModel } from '../moduleman/models/company.model';
@@ -27,19 +27,38 @@ export interface IModelRules {
     remove: object;
 }
 
-// cd request format
+// // cd request format
+// export interface ICdRequest {
+//     ctx: string;
+//     m: string;
+//     c: string;
+//     a: string;
+//     dat: IDat;
+//     args: object;
+// }
+
+// export interface IDat {
+//     f_vals: any;
+//     token: string;
+// }// cd request format
 export interface ICdRequest {
     ctx: string;
     m: string;
     c: string;
     a: string;
-    dat: IDat;
-    args: object;
+    dat: EnvelopDat;
+    args: any | null;
 }
 
-export interface IDat {
-    f_vals: any;
-    token: string;
+export interface EnvelopDat {
+    f_vals: EnvelopFValItem[];
+    token: string | null;
+}
+
+export interface EnvelopFValItem {
+    query?: IQuery,
+    data?: any,
+    extData?:any,
 }
 
 export interface ICdResponse {
@@ -71,6 +90,7 @@ export interface ISessResp {
 
 export interface ISessionDataExt {
     currentUser: UserModel;
+    currentUserProfile: IUserProfile;
     currentSession: SessionModel;
     currentConsumer: ConsumerModel;
     currentCompany: CompanyModel;
@@ -208,6 +228,7 @@ export interface PushEvent {
 }
 
 export interface IServiceInput {
+    primaryKey?: string;
     serviceInstance?: any;
     serviceModel: any;
     mapping?: any;
@@ -223,7 +244,7 @@ export interface IServiceInput {
 }
 
 export interface Cmd {
-    action: string;
+    action?: string;
     query: IQuery | IQbInput;
 }
 
@@ -241,6 +262,7 @@ export interface IQuery {
     select?: string[];
     update?: object;
     where: any;
+    jsonUpdate?: any;
     distinct?: boolean;
     take?: number;
     skip?: number;
@@ -339,6 +361,31 @@ export interface IAclCtx {
     module: any,
 }
 
+export interface IAclRole{
+    aclRoleName: string;
+    permissions: IAclPermission
+}
+
+export interface IAclPermission {
+    userPermissions: IPermissionData[],
+    groupPermissions: IPermissionData[]
+}
+
+/**
+ * Improved versin should have just one interface and 
+ * instead of userId or groupId, cdObjId is applied.
+ * This would then allow any object permissions to be set
+ * Automation and 'role' concept can then be used to manage permission process
+ */
+export interface IPermissionData{
+    cdObjId: number,
+    hidden: boolean,
+    field: string,
+    read: boolean,
+    write: boolean,
+    execute: boolean
+}
+
 export interface ISelectedMenu {
     moduleMenuData?: MenuViewModel[],
     selectedItem: MenuViewModel,
@@ -373,12 +420,21 @@ export interface IMenuRelations {
 //     class?: string;
 // }
 
+// export interface QueryInput {
+//     select?: string[];
+//     where?: any;
+//     take?: number;
+//     skip?: number;
+// }
+
 export interface QueryInput {
     select?: string[];
-    where?: any;
+    where?: any;    // Already exists, but we'll use it for dynamic WHERE conditions
+    update?: Record<string, any>; // New property to specify which fields to update
     take?: number;
     skip?: number;
 }
+
 
 // query builder filter
 export interface IQbFilter {
@@ -420,6 +476,8 @@ export interface JWT {
     checkTime: number;
     authorized: boolean;
 }
+
+
 
 
 

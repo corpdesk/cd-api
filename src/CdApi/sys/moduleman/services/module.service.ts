@@ -786,6 +786,7 @@ export class ModuleService extends CdService {
                     consumer: of(sessionDataExt.currentConsumer),
                     menuData: menuData$,
                     userData: of(sessionDataExt.currentUser),
+                    userProfile: of(sessionDataExt.currentUserProfile),
                     /////////////////////
                     // OPTIONAL ADDITIVES:
                     // notifData: notifdata,
