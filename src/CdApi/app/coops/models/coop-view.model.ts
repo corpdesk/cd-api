@@ -13,7 +13,6 @@ export function siGet(q: IQuery) {
     }
 }
 
-
 @ViewEntity({
     name: 'coop_view',
     synchronize: false,
@@ -21,11 +20,13 @@ export function siGet(q: IQuery) {
     SELECT
             'coop'.'coop_id',
             'coop'.'coop_name',
+            'coop'.'coop_description',
             'coop'.'coop_guid',
             'coop'.'coop_type_id',
             'coop'.'coop_enabled',
             'coop'.'company_id',
             'coop'.'cd_geo_location_id',
+            'coop_type'.'coop_type_guid',
             'company'.'company_type_id',
             'company'.'directory_category_guid',
             'company'.'company_name',
@@ -80,188 +81,161 @@ export function siGet(q: IQuery) {
     `
 })
 
-
-
 export class CoopViewModel {
-    // Previous fields...
+    @ViewColumn({ name: 'coop_id' })
+    coopId: number;
 
-    // `city_guid`,
-    @ViewColumn({
-        name: 'city_guid'
-    })
+    @ViewColumn({ name: 'coop_name' })
+    coopName: string;
+
+    @ViewColumn({ name: 'coop_description' })
+    coopDescription: string;
+
+    @ViewColumn({ name: 'coop_guid' })
+    coopGuid: string;
+
+    @ViewColumn({ name: 'coop_type_id' })
+    coopTypeId: number;
+
+    @ViewColumn({ name: 'coop_enabled' })
+    coopEnabled: boolean;
+
+    @ViewColumn({ name: 'coop_type_guid' })
+    coopTypeGuid: string;
+
+    @ViewColumn({ name: 'company_id' })
+    companyId: number;
+
+    @ViewColumn({ name: 'cd_geo_location_id' })
+    cdGeoLocationId: number;
+
+    @ViewColumn({ name: 'company_type_id' })
+    companyTypeId: number;
+
+    @ViewColumn({ name: 'directory_category_guid' })
+    directoryCategoryGuid: string;
+
+    @ViewColumn({ name: 'company_name' })
+    companyName: string;
+
+    @ViewColumn({ name: 'postal_address' })
+    postalAddress: string;
+
+    @ViewColumn({ name: 'phone' })
+    phone: string;
+
+    @ViewColumn({ name: 'email' })
+    email: string;
+
+    @ViewColumn({ name: 'website' })
+    website: string;
+
+    @ViewColumn({ name: 'physical_location' })
+    physicalLocation: string;
+
+    @ViewColumn({ name: 'city' })
+    city: string;
+
+    @ViewColumn({ name: 'country' })
+    country: string;
+
+    @ViewColumn({ name: 'logo' })
+    logo: string;
+
+    @ViewColumn({ name: 'company_enabled' })
+    companyEnabled: boolean;
+
+    @ViewColumn({ name: 'doc_id' })
+    docId: number;
+
+    @ViewColumn({ name: 'city_guid' })
     cityGuid: string;
 
-    // `county_guid`,
-    @ViewColumn({
-        name: 'county_guid'
-    })
+    @ViewColumn({ name: 'county_guid' })
     countyGuid: string;
 
-    // `company_guid`,
-    @ViewColumn({
-        name: 'company_guid'
-    })
+    @ViewColumn({ name: 'company_guid' })
     companyGuid: string;
 
-    // `company_description`,
-    @ViewColumn({
-        name: 'company_description'
-    })
+    @ViewColumn({ name: 'company_description' })
     companyDescription: string;
 
-    // `parent_guid`,
-    @ViewColumn({
-        name: 'parent_guid'
-    })
+    @ViewColumn({ name: 'parent_guid' })
     parentGuid: string;
 
-    // `consumer_id`,
-    @ViewColumn({
-        name: 'consumer_id'
-    })
+    @ViewColumn({ name: 'consumer_id' })
     consumerId: number;
 
-    // `mobile`,
-    @ViewColumn({
-        name: 'mobile'
-    })
+    @ViewColumn({ name: 'mobile' })
     mobile: string;
 
-    // `company_type_guid`,
-    @ViewColumn({
-        name: 'company_type_guid'
-    })
+    @ViewColumn({ name: 'company_type_guid' })
     companyTypeGuid: string;
 
-    // `consumer_guid`,
-    @ViewColumn({
-        name: 'consumer_guid'
-    })
+    @ViewColumn({ name: 'consumer_guid' })
     consumerGuid: string;
 
-    // `search_tags`,
-    @ViewColumn({
-        name: 'search_tags'
-    })
+    @ViewColumn({ name: 'search_tags' })
     searchTags: string;
 
-    // `cd_geo_location_guid`,
-    @ViewColumn({
-        name: 'cd_geo_location_guid'
-    })
+    @ViewColumn({ name: 'cd_geo_location_guid' })
     cdGeoLocationGuid: string;
 
-    // `cd_geo_location_name`,
-    @ViewColumn({
-        name: 'cd_geo_location_name'
-    })
+    @ViewColumn({ name: 'cd_geo_location_name' })
     cdGeoLocationName: string;
 
-    // `cd_geo_location_description`,
-    @ViewColumn({
-        name: 'cd_geo_location_description'
-    })
+    @ViewColumn({ name: 'cd_geo_location_description' })
     cdGeoLocationDescription: string;
 
-    // `lat`,
-    @ViewColumn({
-        name: 'lat'
-    })
+    @ViewColumn({ name: 'lat' })
     lat: number;
 
-    // `long`,
-    @ViewColumn({
-        name: 'long'
-    })
+    @ViewColumn({ name: 'long' })
     long: number;
 
-    // `cd_geo_boundary_data`,
-    @ViewColumn({
-        name: 'cd_geo_boundary_data'
-    })
+    @ViewColumn({ name: 'cd_geo_boundary_data' })
     cdGeoBoundaryData: string;
 
-    // `cd_geo_location_code`,
-    @ViewColumn({
-        name: 'cd_geo_location_code'
-    })
+    @ViewColumn({ name: 'cd_geo_location_code' })
     cdGeoLocationCode: string;
 
-    // `cd_geo_location_icon`,
-    @ViewColumn({
-        name: 'cd_geo_location_icon'
-    })
+    @ViewColumn({ name: 'cd_geo_location_icon' })
     cdGeoLocationIcon: string;
 
-    // `back4app_obectId`,
-    @ViewColumn({
-        name: 'back4app_obectId'
-    })
+    @ViewColumn({ name: 'back4app_obectId' })
     back4appObjectId: string;
 
-    // `cd_geo_political_type_id`,
-    @ViewColumn({
-        name: 'cd_geo_political_type_id'
-    })
+    @ViewColumn({ name: 'cd_geo_political_type_id' })
     cdGeoPoliticalTypeId: number;
 
-    // `cd_geo_political_parent_id`,
-    @ViewColumn({
-        name: 'cd_geo_political_parent_id'
-    })
+    @ViewColumn({ name: 'cd_geo_political_parent_id' })
     cdGeoPoliticalParentId: number;
 
-    // `cd_geo_location_name_alt`,
-    @ViewColumn({
-        name: 'cd_geo_location_name_alt'
-    })
+    @ViewColumn({ name: 'cd_geo_location_name_alt' })
     cdGeoLocationNameAlt: string;
 
-    // `geo_boundary_data`,
-    @ViewColumn({
-        name: 'geo_boundary_data'
-    })
+    @ViewColumn({ name: 'geo_boundary_data' })
     geoBoundaryData: string;
 
-    // `cd_geo_location_enabled`,
-    @ViewColumn({
-        name: 'cd_geo_location_enabled'
-    })
+    @ViewColumn({ name: 'cd_geo_location_enabled' })
     cdGeoLocationEnabled: boolean;
 
-    // `cd_geo_location_assoc`,
-    @ViewColumn({
-        name: 'cd_geo_location_assoc'
-    })
+    @ViewColumn({ name: 'cd_geo_location_assoc' })
     cdGeoLocationAssoc: string;
 
-    // `cd_geo_location_population`,
-    @ViewColumn({
-        name: 'cd_geo_location_population'
-    })
+    @ViewColumn({ name: 'cd_geo_location_population' })
     cdGeoLocationPopulation: number;
 
-    // `cd_geo_location_display`,
-    @ViewColumn({
-        name: 'cd_geo_location_display'
-    })
+    @ViewColumn({ name: 'cd_geo_location_display' })
     cdGeoLocationDisplay: string;
 
-    // `cd_geo_political_type_guid`,
-    @ViewColumn({
-        name: 'cd_geo_political_type_guid'
-    })
+    @ViewColumn({ name: 'cd_geo_political_type_guid' })
     cdGeoPoliticalTypeGuid: string;
 
-    // `cd_geo_political_type_name`,
-    @ViewColumn({
-        name: 'cd_geo_political_type_name'
-    })
+    @ViewColumn({ name: 'cd_geo_political_type_name' })
     cdGeoPoliticalTypeName: string;
 
-    // `cd_geo_political_type_description`,
-    @ViewColumn({
-        name: 'cd_geo_political_type_description'
-    })
+    @ViewColumn({ name: 'cd_geo_political_type_description' })
     cdGeoPoliticalTypeDescription: string;
 }
+

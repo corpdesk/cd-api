@@ -8,6 +8,7 @@ import { ViewEntity, ViewColumn } from 'typeorm';
             SELECT 
             coop_member.coop_member_id AS coop_member_id,
             coop_member.coop_active AS coop_active,
+            coop_member.coop_member_profile AS coop_member_profile,
             user.user_id AS user_id,
             user.user_guid AS user_guid,
             user.user_name AS user_name,
@@ -49,6 +50,9 @@ export class CoopMemberViewModel {
 
     @ViewColumn({ name: 'coop_active' })
     coopActive?: boolean;
+
+    @ViewColumn({ name: 'coop_member_profile' })
+    coopMemberProfile?: string;
 
     @ViewColumn({ name: 'user_id' })
     userId?: number;

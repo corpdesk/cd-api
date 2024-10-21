@@ -976,15 +976,15 @@ export class CoopService extends CdService {
             // const result = await this.b.read(req, res, serviceInput);
             // const user = await this.getCoopMemberI(userId)
             const q = {where: {coopMemberId: coopMemberId}}
-            const coopMember: CoopMemberViewModel = await this.getCoopMemberI(req, res, q)
-            if (coopMember && coopMember.coopMemberProfile) {
-                let coopMemberProfileJSON: ICoopMemberProfile = JSON.parse(coopMember.coopMemberProfile)
+            const coopMember: CoopMemberViewModel[] = await this.getCoopMemberI(req, res, q)
+            if (coopMember && coopMember[0].coopMemberProfile) {
+                let coopMemberProfileJSON: ICoopMemberProfile = JSON.parse(coopMember[0].coopMemberProfile)
 
                 if ('coopMemberData' in coopMemberProfileJSON) {
                     // profile data is valid
 
                     // update with latest user data
-                    coopMemberProfileJSON.coopMemberData = coopMember
+                    coopMemberProfileJSON[0].coopMemberData = coopMember
 
                 } else {
                     // profile data is not set, so set it from default
