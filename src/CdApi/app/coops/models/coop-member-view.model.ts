@@ -5,41 +5,47 @@ import { ViewEntity, ViewColumn } from 'typeorm';
         name: 'coop_member_view',
         synchronize: false,
         expression: `
-            SELECT 
-            coop_member.coop_member_id AS coop_member_id,
-            coop_member.coop_active AS coop_active,
-            coop_member.coop_member_profile AS coop_member_profile,
-            user.user_id AS user_id,
-            user.user_guid AS user_guid,
-            user.user_name AS user_name,
-            user.email AS email,
-            user.mobile AS mobile,
-            user.gender AS gender,
-            user.birth_date AS birth_date,
-            user.postal_addr AS postal_addr,
-            user.f_name AS f_name,
-            user.m_name AS m_name,
-            user.l_name AS l_name,
-            user.national_id AS national_id,
-            user.passport_id AS passport_id,
-            user.user_enabled AS user_enabled,
-            user.zip_code AS zip_code,
-            user.activation_key AS activation_key,
-            user.user_type_id AS user_type_id,
-            coop_view.coop_id AS coop_id,
-            coop_view.coop_guid AS coop_guid,
-            coop_view.coop_name AS coop_name,
-            coop_view.company_id AS company_id,
-            coop_view.company_name AS company_name,
-            coop_view.company_type_id AS company_type_id,
-            coop_view.cd_geo_location_id AS cd_geo_location_id,
-            coop_view.cd_geo_location_name AS cd_geo_location_name,
-            coop_view.cd_geo_political_type_name AS cd_geo_political_type_name,
-            coop_view.cd_geo_political_parent_id AS cd_geo_political_parent_id
+        SELECT 
+            'coop_member'.'coop_member_id' AS 'coop_member_id',
+            'coop_member'.'coop_member_guid' AS 'coop_member_guid',
+            'coop_member'.'coop_member_name' AS 'coop_member_name',
+            'coop_member'.'coop_active' AS 'coop_active',
+            'coop_member'.'coop_member_enabled' AS 'coop_member_enabled',
+            'coop_member'.'coop_member_profile' AS 'coop_member_profile',
+            'coop_member_type'.'coop_member_type_id' AS 'coop_member_type_id',
+            'coop_member_type'.'coop_member_type_guid' AS 'coop_member_type_guid',
+            'user'.'user_id' AS 'user_id',
+            'user'.'user_guid' AS 'user_guid',
+            'user'.'user_name' AS 'user_name',
+            'user'.'email' AS 'email',
+            'user'.'mobile' AS 'mobile',
+            'user'.'gender' AS 'gender',
+            'user'.'birth_date' AS 'birth_date',
+            'user'.'postal_addr' AS 'postal_addr',
+            'user'.'f_name' AS 'f_name',
+            'user'.'m_name' AS 'm_name',
+            'user'.'l_name' AS 'l_name',
+            'user'.'national_id' AS 'national_id',
+            'user'.'passport_id' AS 'passport_id',
+            'user'.'user_enabled' AS 'user_enabled',
+            'user'.'zip_code' AS 'zip_code',
+            'user'.'activation_key' AS 'activation_key',
+            'user'.'user_type_id' AS 'user_type_id',
+            'coop_view'.'coop_id' AS 'coop_id',
+            'coop_view'.'coop_guid' AS 'coop_guid',
+            'coop_view'.'coop_name' AS 'coop_name',
+            'coop_view'.'company_id' AS 'company_id',
+            'coop_view'.'company_name' AS 'company_name',
+            'coop_view'.'company_type_id' AS 'company_type_id',
+            'coop_view'.'cd_geo_location_id' AS 'cd_geo_location_id',
+            'coop_view'.'cd_geo_location_name' AS 'cd_geo_location_name',
+            'coop_view'.'cd_geo_political_type_name' AS 'cd_geo_political_type_name',
+            'coop_view'.'cd_geo_political_parent_id' AS 'cd_geo_political_parent_id'
         FROM
-            coop_member
-        JOIN user ON coop_member.user_id = user.user_id
-        JOIN coop_view ON coop_member.coop_id = coop_view.coop_id
+            'coop_member'
+            JOIN 'user' ON 'coop_member'.'user_id' = 'user'.'user_id'
+            JOIN 'coop_member_type' ON 'coop_member'.'coop_member_type_id' = 'coop_member_type'.'coop_member_type_id'
+            JOIN 'coop_view' ON 'coop_member'.'coop_id' = 'coop_view'.'coop_id'
     `
     })
 
@@ -47,6 +53,21 @@ export class CoopMemberViewModel {
 
     @ViewColumn({ name: 'coop_member_id' })
     coopMemberId?: number;
+
+    @ViewColumn({ name: 'coop_member_guid' })
+    coopMemberGuid?: string;
+
+    @ViewColumn({ name: 'coop_member_name' })
+    coopMemberName?: string;
+
+    @ViewColumn({ name: 'coop_member_enabled' })
+    coopMemberEnabled?: boolean;
+
+    @ViewColumn({ name: 'coop_member_type_id' })
+    coopMemberTypeId?: number;
+
+    @ViewColumn({ name: 'coop_member_type_guid' })
+    coopMemberTypeGuid?: string;
 
     @ViewColumn({ name: 'coop_active' })
     coopActive?: boolean;
