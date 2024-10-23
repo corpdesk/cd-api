@@ -28,6 +28,7 @@ export function siGet(q: IQuery) {
             'coop'.'cd_geo_location_id',
             'coop_type'.'coop_type_guid',
             'company'.'company_type_id',
+            'company'.'company_type_name',
             'company'.'directory_category_guid',
             'company'.'company_name',
             'company'.'postal_address',
@@ -111,6 +112,9 @@ export class CoopViewModel {
 
     @ViewColumn({ name: 'company_type_id' })
     companyTypeId: number;
+
+    @ViewColumn({ name: 'company_type_name' })
+    companyTypeName: number;
 
     @ViewColumn({ name: 'directory_category_guid' })
     directoryCategoryGuid: string;
