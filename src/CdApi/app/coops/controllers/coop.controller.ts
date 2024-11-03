@@ -134,7 +134,7 @@ export class CoopController {
      */
     async GetType(req, res) {
         try {
-            await this.svCoop.getCoopType(req, res);
+            // await this.svCoop.getCoopType(req, res);
             await this.svCoop.getCdObjTypeCount(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'CoopController:Get');
