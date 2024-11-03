@@ -659,6 +659,30 @@ export class CoopService extends CdService {
         }
     }
 
+    getCdObjTypeCount(req, res) {
+        const q = this.b.getQuery(req);
+        console.log('CoopService::getCdObjCount/q:', q);
+        const serviceInput = {
+            serviceModel: CoopTypeModel,
+            docName: 'CoopService::getCdObjCount$',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        this.b.readCount$(req, res, serviceInput)
+            .subscribe((r) => {
+                this.b.i.code = 'CoopService::getCdObjTypeCount';
+                const svSess = new SessionService();
+                svSess.sessResp.cd_token = req.post.dat.token;
+                svSess.sessResp.ttl = svSess.getTtl();
+                this.b.setAppState(true, this.b.i, svSess.sessResp);
+                this.b.cdResp.data = r;
+                this.b.respond(req, res)
+            })
+    }
+
     /**
      * 
      * @param req 
