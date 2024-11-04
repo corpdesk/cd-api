@@ -106,6 +106,15 @@ export class CdGeoTrackController {
         }
     }
 
+
+    async GetCount(req, res) {
+        try {
+            await this.svCdGeoTrack.getCdGeoTrackPaged(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'ModuleController:Get');
+        }
+    }
+
     
 
     /** Pageable request:

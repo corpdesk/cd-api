@@ -106,6 +106,15 @@ export class CdGeoLocationController {
         }
     }
 
+
+    async GetCount(req, res) {
+        try {
+            await this.svCdGeoLocation.getCdGeoLocationPaged(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'ModuleController:Get');
+        }
+    }
+
     
 
     /** Pageable request:

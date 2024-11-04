@@ -9,8 +9,6 @@ export class CdGeoTypeController {
     constructor() {
         this.b = new BaseService();
         this.svCdGeoType = new CdGeoTypeService();
-
-
     }
 
     // /**
@@ -106,7 +104,14 @@ export class CdGeoTypeController {
         }
     }
 
-    
+    async GetCount(req, res) {
+        try {
+            await this.svCdGeoType.getCdGeoTypePaged(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'ModuleController:Get');
+        }
+    }
+
 
     /** Pageable request:
      * {

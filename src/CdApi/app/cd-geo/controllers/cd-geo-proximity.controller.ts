@@ -9,8 +9,6 @@ export class CdGeoProximityController {
     constructor() {
         this.b = new BaseService();
         this.svCdGeoProximity = new CdGeoProximityService();
-
-
     }
 
     // /**
@@ -103,6 +101,15 @@ export class CdGeoProximityController {
             await this.svCdGeoProximity.getCdGeoProximitySL(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'CdGeoProximityController:GetSL');
+        }
+    }
+
+
+    async GetCount(req, res) {
+        try {
+            await this.svCdGeoProximity.getCdGeoProximityPaged(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'ModuleController:Get');
         }
     }
 

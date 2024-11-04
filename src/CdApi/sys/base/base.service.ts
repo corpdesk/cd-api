@@ -273,6 +273,7 @@ export class BaseService {
     async resolveCls(req, res, clsCtx) {
         try {
             this.logger.logInfo('BaseService::resolveCls()/01:')
+            console.log("BaseService::resolveCls/clsCtx.path:", clsCtx.path)
             const eImport = await import(clsCtx.path);
             this.logger.logInfo('BaseService::resolveCls()/02:')
             const eCls = eImport[clsCtx.clsName];
@@ -319,14 +320,17 @@ export class BaseService {
     }
 
     entryPath(pl: ICdRequest) {
+        console.log("BaseService::entryPath/pl:", pl)
         const ret = `../../${pl.ctx.toLowerCase()}/${this.toCdName(pl.m)}/controllers/${this.toCdName(pl.c)}.controller`;
-        // console.log('BaseService::entryPath()/ret:', ret);
+        console.log('BaseService::entryPath()/ret:', ret);
         return ret;
     }
 
     // from camel to hyphen seperated then to lower case
     toCdName(camel) {
+        console.log("BaseService::entryPath/camel:", camel)
         const ret = camel.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+        console.log('BaseService::toCdName()/ret:', ret);
         return ret;
     }
 

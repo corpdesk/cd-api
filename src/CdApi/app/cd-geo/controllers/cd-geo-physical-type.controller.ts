@@ -106,6 +106,14 @@ export class CdGeoPhysicalTypeController {
         }
     }
 
+    async GetCount(req, res) {
+        try {
+            await this.svCdGeoPhysicalType.getCdGeoPhysicalTypePaged(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'ModuleController:Get');
+        }
+    }
+
     
 
     /** Pageable request:

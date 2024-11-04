@@ -12,8 +12,6 @@ export class CdGeoController {
         this.b = new BaseService();
         this.svCdGeo = new CdGeoService();
         this.svCdGeoType = new CdGeoTypeService();
-
-
     }
 
     // /**
