@@ -1,0 +1,10 @@
+id	name
+--  -------------------
+11	coops_guest
+12	coops_user
+13	coops_member
+14	coops_sacco_admin
+15	coops_regional_admin
+16	coops_national_admin
+17	coops_continental_admin
+18	coops_global_admin

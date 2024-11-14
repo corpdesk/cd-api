@@ -90,7 +90,29 @@ export class CoopMemberController extends CdController {
         }
     }
 
-    
+    /**
+     * 
+     * {
+        "ctx": "App",
+        "m": "Coops",
+        "c": "CoopMember",
+        "a": "ActivateCoop",
+        "dat": {
+            "f_vals": [
+            {
+                "data": {
+                "coopId": 3
+                }
+            }
+            ],
+            "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+        },
+        "args": {}
+        }
+     * @param req 
+     * 
+     * @param res 
+     */
     async ActivateCoop(req, res) {
         try {
             await this.svCoopMember.activateCoop(req, res);
@@ -135,7 +157,7 @@ export class CoopMemberController extends CdController {
         try {
             await this.svCoopMember.getCoopMemberCount(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'ModuleController:Get');
+            await this.b.serviceErr(req, res, e, 'CoopMemberController:Get');
         }
     }
 
@@ -171,7 +193,7 @@ export class CoopMemberController extends CdController {
             console.log('CoopMemberController::Update()/02');
             await this.svCoopMember.update(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'ModuleController:Update');
+            await this.b.serviceErr(req, res, e, 'CoopMemberController:Update');
         }
     }
 
@@ -200,7 +222,80 @@ export class CoopMemberController extends CdController {
         try {
             await this.svCoopMember.delete(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'ModuleController:Update');
+            await this.b.serviceErr(req, res, e, 'CoopMemberController:Update');
+        }
+    }
+
+    /**
+     * {
+            "ctx": "Sys",
+            "m": "Coops",
+            "c": "CoopMember",
+            "a": "UpdateCoopMemberProfile",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "update": null,
+                            "where": {
+                                "userId": 1010
+                            }
+                        },
+                        "jsonUpdate": [
+                            {
+                                "path": [
+                                    "fieldPermissions",
+                                    "userPermissions",
+                                    [
+                                        "userName"
+                                    ]
+                                ],
+                                "value": {
+                                    "userId": 1010,
+                                    "field": "userName",
+                                    "hidden": false,
+                                    "read": true,
+                                    "write": false,
+                                    "execute": false
+                                }
+                            },
+                            {
+                                "path": [
+                                    "fieldPermissions",
+                                    "groupPermissions",
+                                    [
+                                        "userName"
+                                    ]
+                                ],
+                                "value": {
+                                    "groupId": 0,
+                                    "field": "userName",
+                                    "hidden": false,
+                                    "read": true,
+                                    "write": false,
+                                    "execute": false
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+            },
+            "args": {}
+        }
+     * @param req 
+     * @param res 
+     */
+    //  * @param req
+    //  * @param res
+    //  */
+    async UpdateCoopMemberProfile(req, res) {
+        console.log('CoopMemberController::UpdateCoopMemberProfile()/01');
+        try {
+            console.log('CoopMemberController::UpdateCoopMemberProfile()/02');
+            await this.svCoopMember.updateCoopMemberProfile(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'CoopMemberController::UpdateCoopMemberProfile');
         }
     }
 

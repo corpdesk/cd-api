@@ -131,18 +131,32 @@ export interface IProfileGroupAccess {
     execute: boolean
 }
 
-export interface ICoopMemberProfile {
-    userProfile: IUserProfile;
-    // coopMemberFieldPermissions: IMemberProfileAccess; // accessibility of personal data
-    coopMemberData: CoopMemberViewModel[]; // affilication with various SACCOS
-    coopMembership?: MemberMeta[];
+// export interface ICoopMemberProfile {
+//     userProfile: IUserProfile;
+//     // coopMemberFieldPermissions: IMemberProfileAccess; // accessibility of personal data
+//     coopMembership: { 
+//         memberData: CoopMemberViewModel[];
+//         acl: MemberMeta[]; // affilication with various SACCOS(privilage related data in various SACCOS)
+//     }
+// }
+
+export interface ICoopMemberProfile extends IUserProfile {
+    coopMembership: { 
+        memberData: CoopMemberViewModel[];
+        acl: MemberMeta[]; // affiliation with various SACCOS (privilege-related data in various SACCOS)
+    };
 }
 
 export interface MemberMeta {
-    coopId: number,
+    coopId: number|null,
     coopActive: boolean,
-    aclRole: IAclRole
+    coopRole: ICoopRole;
+    aclRole?: IAclRole
+    coopMemberData?: CoopMemberViewModel[]; // affilication with various SACCOS(selection of coop_member_view where the current user appears)
 }
+
+// Define a type that excludes 'coopMembership' from ICoopMemberProfile
+export type IUserProfileOnly = Omit<ICoopMemberProfile, 'coopMembership'>;
 
 /**
  * Note that coop membership prrofile is an extension of user profile
@@ -154,49 +168,93 @@ export interface MemberMeta {
  */
 
 export const coopMemberProfileDefault: ICoopMemberProfile = {
-    userProfile: userProfileDefault,
-    coopMemberData: [
-        {
-            userName: "",
-            fName: "",
-            lName: "",
-        }
-    ],
-    coopMembership: [
-        {
-            coopId: -1,
-            coopActive: false,
-            /**
-             * specified permission setting for given members to specified fields
-             */
-            aclRole: {
-                aclRoleName: "guest",
-                permissions: {
-                    userPermissions: [
-                        {
-                            cdObjId: 0,
-                            hidden: true,
-                            field: "",
-                            read: false,
-                            write: false,
-                            execute: false
-                        }
-                    ],
-                    groupPermissions: [
-                        {
-                            cdObjId: 0,
-                            hidden: true,
-                            field: "",
-                            read: false,
-                            write: false,
-                            execute: false
-                        }
+    ...userProfileDefault,  // Copy all properties from userProfileDefault
+    coopMembership:
+    {
+        memberData: [
+            {
+                userName: "",
+                fName: "",
+                lName: "",
+            }
+        ],
+        acl: [
+            {
+                coopId: -1,
+                coopActive: false,
+                coopRole: [
+                    { scope: CoopsAclScope.COOPS_GUEST, geoLocationId: null },
+                ],
+                /**
+                 * specified permission setting for given members to specified fields
+                 */
+                aclRole: {
+                    aclRoleName: "guest",
+                    permissions: {
+                        userPermissions: [
+                            {
+                                cdObjId: 0,
+                                hidden: true,
+                                field: "",
+                                read: false,
+                                write: false,
+                                execute: false
+                            }
+                        ],
+                        groupPermissions: [
+                            {
+                                cdObjId: 0,
+                                hidden: true,
+                                field: "",
+                                read: false,
+                                write: false,
+                                execute: false
+                            }
 
-                    ]
+                        ]
+                    }
                 }
             }
-        }
-    ]
+        ]
+    }
 }
+
+/**
+ * Example usage
+ * const role: CoopsRoles = CoopsRoles.COOPS_GUEST;
+ * console.log(role); // Output: 11
+ */
+
+// Enum for ACL Scope
+export const enum CoopsAclScope {
+    COOPS_GUEST = 11,
+    COOPS_USER = 12,
+    COOPS_MEMBER = 13,
+    COOPS_SACCO_ADMIN = 14,
+    COOPS_REGIONAL_ADMIN = 15,
+    COOPS_NATIONAL_ADMIN = 16,
+    COOPS_CONTINENTAL_ADMIN = 17,
+    COOPS_GLOBAL_ADMIN = 18
+}
+
+// Interface for ICoopAcl
+export interface ICoopAcl {
+    scope: CoopsAclScope;
+    geoLocationId: number | null;
+}
+
+
+/**
+ * Interface for CoopScope, which is an array of CoopAcl
+ * Usage:
+ * const coopScope: CoopScope = [
+  { scope: CoopsAclScope.COOPS_GUEST, geoLocationId: null },
+  { scope: CoopsAclScope.COOPS_SACCO_ADMIN, geoLocationId: 123 },
+  { scope: CoopsAclScope.COOPS_GLOBAL_ADMIN, geoLocationId: 456 }
+];
+
+console.log(coopScope);
+ */
+export interface ICoopRole extends Array<ICoopAcl> { }
 
 

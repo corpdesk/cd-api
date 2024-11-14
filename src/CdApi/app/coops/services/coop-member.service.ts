@@ -7,11 +7,12 @@ import { GroupModel } from "../../../sys/user/models/group.model";
 import { IUserProfile, profileDefaultConfig, UserModel, userProfileDefault } from "../../../sys/user/models/user.model";
 import { SessionService } from "../../../sys/user/services/session.service";
 import { UserService } from "../../../sys/user/services/user.service";
-import { CoopMemberModel, ICoopMemberProfile } from "../models/coop-member.model";
+import { CoopMemberModel, coopMemberProfileDefault, CoopsAclScope, ICoopAcl, ICoopMemberProfile, ICoopRole, IUserProfileOnly } from "../models/coop-member.model";
 import { CoopMemberViewModel } from "../models/coop-member-view.model";
 import { CoopModel } from "../models/coop.model";
 import { CoopMemberTypeModel } from "../models/coop-member-type.model";
 import { Logging } from "../../../sys/base/winston.log";
+import { ProfileServiceHelper } from "../../../sys/utils/profile-service-helper";
 
 
 export class CoopMemberService extends CdService {
@@ -286,7 +287,7 @@ export class CoopMemberService extends CdService {
 
     async activateCoop(req, res) {
         try {
-            if(!this.validateActiveCoop(req, res)){
+            if (!this.validateActiveCoop(req, res)) {
                 const e = "could not validate the request"
                 this.b.err.push(e.toString());
                 const i = {
@@ -350,7 +351,7 @@ export class CoopMemberService extends CdService {
         }
     }
 
-    async validateActiveCoop(req, res){
+    async validateActiveCoop(req, res) {
         return true
     }
 
@@ -458,7 +459,7 @@ export class CoopMemberService extends CdService {
 
     async getCoopMemberProfile(req, res) {
         try {
-            if(!this.validateGetCoopMemberProfile(req, res)){
+            if (!this.validateGetCoopMemberProfile(req, res)) {
                 const e = "could not validate the request"
                 this.b.err.push(e.toString());
                 const i = {
@@ -490,7 +491,7 @@ export class CoopMemberService extends CdService {
         }
     }
 
-    async validateGetCoopMemberProfile(req, res){
+    async validateGetCoopMemberProfile(req, res) {
         return true
     }
 
@@ -512,6 +513,35 @@ export class CoopMemberService extends CdService {
     }
 
     async getCoopMemberI(req, res, q: IQuery = null): Promise<CoopMemberViewModel[]> {
+        if (q === null) {
+            q = this.b.getQuery(req);
+        }
+        console.log('CoopMemberService::getCoopMember/q:', q);
+        const serviceInput = {
+            serviceModel: CoopMemberViewModel,
+            docName: 'CoopMemberService::getCoopMemberI',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        try {
+            return await this.b.read(req, res, serviceInput)
+        } catch (e) {
+            console.log('CoopMemberService::read$()/e:', e)
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'CoopMemberService:update',
+                app_msg: ''
+            };
+            await this.b.serviceErr(req, res, e, i.code)
+            return null;
+        }
+    }
+
+    async getI(req, res, q: IQuery = null): Promise<CoopMemberViewModel[]> {
         if (q === null) {
             q = this.b.getQuery(req);
         }
@@ -615,6 +645,11 @@ export class CoopMemberService extends CdService {
         //
     }
 
+    /**
+     * Assemble components of the profile from existing or use default to setup the first time
+     * @param req 
+     * @param res 
+     */
     async setCoopMemberProfileI(req, res) {
         console.log("CoopMemberService::setCoopMemberProfileI()/01")
         // note that 'ignoreCache' is set to true because old data may introduce confussion
@@ -644,10 +679,54 @@ export class CoopMemberService extends CdService {
             console.log("CoopMemberService::setCoopMemberProfileI()/userProfileDefault:", userProfileDefault)
             // use default, assign the userId
             profileDefaultConfig[0].value.userId = sessionDataExt.currentUser.userId
-            modifiedUserProfile = await svUser.modifyUserProfile(userProfileDefault, profileDefaultConfig)
+            modifiedUserProfile = await svUser.modifyProfile(userProfileDefault, profileDefaultConfig)
             console.log("CoopMemberService::setCoopMemberProfileI()/modifiedUserProfile:", modifiedUserProfile)
             this.mergedProfile = await this.mergeUserProfile(req, res, modifiedUserProfile)
             console.log("CoopMemberService::setCoopMemberProfile()/this.mergedProfile2:", this.mergedProfile)
+        }
+    }
+
+    async resetCoopMemberProfileI(req, res) {
+        console.log("CoopMemberService::resetCoopMemberProfileI()/01")
+        // note that 'ignoreCache' is set to true because old data may introduce confussion
+        const svSess = new SessionService()
+        const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(req, res, true)
+        console.log("CoopMemberService::resetCoopMemberProfileI()/sessionDataExt:", sessionDataExt)
+
+        //     - get and clone userProfile, then get coopMemberProfile data and append to cloned userProfile.
+        //   hint:
+        console.log("CoopMemberService::resetCoopMemberProfileI()/02")
+        const svUser = new UserService();
+        const existingUserProfile = await svUser.existingUserProfile(req, res, sessionDataExt.currentUser.userId)
+        console.log("CoopMemberService::resetCoopMemberProfileI()/existingUserProfile:", existingUserProfile)
+        let modifiedUserProfile;
+
+        if (await svUser.validateProfileData(req, res, existingUserProfile)) {
+            console.log("CoopMemberService::resetCoopMemberProfileI()/03")
+            const svSess = new SessionService()
+            const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(req, res)
+            const { password, userProfile, ...filteredUserData } = sessionDataExt.currentUser;
+            userProfileDefault.userData = filteredUserData;
+            console.log("CoopMemberService::resetCoopMemberProfileI()/userProfileDefault:", userProfileDefault)
+            // use default, assign the userId
+            profileDefaultConfig[0].value.userId = sessionDataExt.currentUser.userId
+            modifiedUserProfile = await svUser.modifyProfile(userProfileDefault, profileDefaultConfig)
+            console.log("CoopMemberService::resetCoopMemberProfileI()/modifiedUserProfile:", modifiedUserProfile)
+            this.mergedProfile = await this.mergeUserProfile(req, res, modifiedUserProfile)
+            console.log("CoopMemberService::resetCoopMemberProfileI()/this.mergedProfile1:", this.mergedProfile)
+        } else {
+            console.log("CoopMemberService::resetCoopMemberProfileI()/04")
+            const svSess = new SessionService()
+            const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(req, res)
+            const { password, userProfile, ...filteredUserData } = sessionDataExt.currentUser;
+            userProfileDefault.userData = filteredUserData;
+            console.log("CoopMemberService::resetCoopMemberProfileI()/userProfileDefault:", userProfileDefault)
+            // use default, assign the userId
+            profileDefaultConfig[0].value.userId = sessionDataExt.currentUser.userId
+            modifiedUserProfile = await svUser.modifyProfile(userProfileDefault, profileDefaultConfig)
+            console.log("CoopMemberService::resetCoopMemberProfileI()/modifiedUserProfile:", modifiedUserProfile)
+            this.mergedProfile = await this.mergeUserProfile(req, res, modifiedUserProfile)
+            console.log("CoopMemberService::resetCoopMemberProfileI()/this.mergedProfile2:", this.mergedProfile)
         }
     }
 
@@ -660,12 +739,474 @@ export class CoopMemberService extends CdService {
         const q = { where: { userId: sessionDataExt.currentUser.userId } }
         console.log("CoopMemberService::mergeUserProfile()/q:", q)
         const coopMemberData = await this.getCoopMemberI(req, res, q)
+        let aclData = await this.existingCoopMemberProfile(req, res, sessionDataExt.currentUser.userId)
+        console.log("CoopMemberService::mergeUserProfile()/aclData1:", aclData)
+        if (!aclData) {
+            aclData = coopMemberProfileDefault.coopMembership.acl
+        }
+        console.log("CoopMemberService::mergeUserProfile()/aclData2:", aclData)
         console.log("CoopMemberService::mergeUserProfile()/coopMemberData:", coopMemberData)
         const mergedProfile: ICoopMemberProfile = {
-            userProfile: userProfile,
-            coopMemberData: coopMemberData
+            ...userProfile,
+            coopMembership: {
+                acl: aclData,
+                memberData: coopMemberData
+            }
         }
+        console.log("CoopMemberService::mergeUserProfile()/mergedProfile:", mergedProfile)
         return await mergedProfile
     }
+
+    // /////////
+    // // Based on common ProfileServiceHelper class
+    // async existingCoopMemberProfile(req, res, memberId) {
+    //     const si: IServiceInput = {
+    //         serviceInstance: this,
+    //         serviceModel: CoopMemberModel,
+    //         docName: 'CoopMemberService::existingUserProfile',
+    //         cmd: {
+    //             query: { where: { coopMemberId: memberId } }
+    //         }
+    //     };
+    //     return ProfileServiceHelper.fetchProfile(req, res, si);
+    // }
+
+    // async modifyCoopMemberProfile(existingData, profileDefaultConfig) {
+    //     return ProfileServiceHelper.modifyProfile(existingData, profileDefaultConfig, {
+    //         memberPermissions: 'memberPermissions',
+    //         groupPermissions: 'groupPermissions',
+    //         memberId: 'memberId',
+    //         groupId: 'groupId'
+    //     });
+    // }
+
+    async updateCoopMemberProfile(req, res): Promise<void> {
+        try {
+
+            const svSess = new SessionService()
+            const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(req, res, true)
+            console.log("CoopMemberService::updateCurrentUserProfile()/sessionDataExt:", sessionDataExt)
+            const svUser = new UserService()
+            const requestQuery: IQuery = req.post.dat.f_vals[0].query;
+            const jsonUpdate = req.post.dat.f_vals[0].jsonUpdate;
+            let modifiedCoopMemberProfile: ICoopMemberProfile;
+            let strModifiedCoopMemberProfile;
+            let strUserProfile;
+            let strCoopMemberData;
+            let strAcl;
+
+            /**
+             * extract from db and merge with user profile to form coopMemberProfile
+             * 1. profile data from current user coop_member entity. 
+             * 2. membership data
+             */
+            await this.setCoopMemberProfileI(req, res)
+
+            if (await this.validateProfileData(req, res, this.mergedProfile)) {
+                /*
+                - if not null and is valid data
+                    - use jsonUpdate to update currentUserProfile
+                        use the method modifyUserProfile(existingData: IUserProfile, jsonUpdate): string
+                    - use session data to modify 'userData' in the default user profile
+                    - 
+                */
+                console.log("CoopMemberService::updateCoopMemberProfile()/01")
+                console.log("CoopMemberService::updateCoopMemberProfile()/jsonUpdate:", jsonUpdate)
+                modifiedCoopMemberProfile = await svUser.modifyProfile(this.mergedProfile, jsonUpdate)
+                console.log("CoopMemberService::updateCoopMemberProfile()/strUserProfile1:", modifiedCoopMemberProfile)
+
+
+
+                // modified profile
+                strModifiedCoopMemberProfile = JSON.stringify(modifiedCoopMemberProfile)
+                console.log("CoopMemberService::updateCoopMemberProfile()/strModifiedCoopMemberProfile:", strModifiedCoopMemberProfile)
+                // userProfile
+                strUserProfile = JSON.stringify(await this.extractUserProfile())
+                // acl
+                strCoopMemberData = JSON.stringify(modifiedCoopMemberProfile.coopMembership.memberData)
+                // memberData
+                strAcl = JSON.stringify(modifiedCoopMemberProfile.coopMembership.acl)
+
+            } else {
+                /*
+                - if null or invalid, 
+                    - take the default json data defined in the UserModel, 
+                    - update userData using sessionData, then 
+                    - do update based on given jsonUpdate in the api request
+                    - converting to string and then updating the userProfile field in the row/s defined in query.where property.
+                */
+                console.log("CoopMemberService::updateCoopMemberProfile()/021")
+                const { password, userProfile, ...filteredUserData } = sessionDataExt.currentUser;
+                userProfileDefault.userData = filteredUserData;
+                console.log("CoopMemberService::updateCoopMemberProfile()/userProfileDefault:", userProfileDefault)
+                modifiedCoopMemberProfile = await svUser.modifyProfile(userProfileDefault, jsonUpdate)
+                console.log("CoopMemberService::updateCoopMemberProfile()/modifiedCoopMemberProfile2:", modifiedCoopMemberProfile)
+                // strCoopMemberData = JSON.stringify(modifiedCoopMemberProfile)
+                // userProfile
+                strUserProfile = JSON.stringify(await this.extractUserProfile())
+                // acl
+                strCoopMemberData = JSON.stringify(modifiedCoopMemberProfile.coopMembership.memberData)
+                // memberData
+                strAcl = JSON.stringify(modifiedCoopMemberProfile.coopMembership.acl)
+            }
+
+            
+
+            console.log("CoopMemberService::updateCoopMemberProfile()/03")
+            requestQuery.update = { coopMemberProfile: strAcl }
+            console.log("CoopMemberService::updateCoopMemberProfile()/requestQuery:", requestQuery)
+            console.log("CoopMemberService::updateCoopMemberProfile()/strUserProfile1-0:", JSON.stringify(await modifiedCoopMemberProfile))
+
+            // update coopMemberProfile
+            let serviceInput: IServiceInput = {
+                serviceInstance: this,
+                serviceModel: CoopMemberModel,
+                docName: 'CoopMemberService::updateCoopMemberProfile',
+                cmd: {
+                    query: requestQuery
+                }
+            };
+            console.log("CoopMemberService::updateCoopMemberProfile()/serviceInput:", serviceInput)
+            const updateCoopMemberRet = await this.updateI(req, res, serviceInput)
+            const newCoopMemberProfile = await this.existingCoopMemberProfile(req, res, sessionDataExt.currentUser.userId)
+            console.log("CoopMemberService::updateCoopMemberProfile()/newCoopMemberProfile:", newCoopMemberProfile)
+            let retCoopMember = {
+                updateRet: updateCoopMemberRet,
+                newProfile: newCoopMemberProfile
+            }
+
+            const userUpdateQuery = {
+                "update": { userProfile: strUserProfile },
+                where: {
+                    userId: sessionDataExt.currentUser.userId
+                }
+            }
+            // update user
+            const userServiceInput: IServiceInput = {
+                serviceInstance: svUser,
+                serviceModel: UserModel,
+                docName: 'CoopMemberService::updateCoopMemberProfile',
+                cmd: {
+                    query: userUpdateQuery
+                }
+            };
+            console.log("CoopMemberService::updateCoopMemberProfile()/userServiceInput:", userServiceInput)
+            const userUpdateRet = await svUser.updateI(req, res, userServiceInput)
+            const fullProfile = await this.getI(req, res, {where: {userId: sessionDataExt.currentUser.userId}})
+            console.log("CoopMemberService::updateCoopMemberProfile()/fullProfile:", JSON.stringify(await fullProfile))
+            console.log("CoopMemberService::updateCoopMemberProfile()/strUserProfile1-1:", JSON.stringify(await modifiedCoopMemberProfile))
+            const finalRet = {
+                updateRet: updateCoopMemberRet,
+                userUpdateRet: userUpdateRet,
+                newProfile: await modifiedCoopMemberProfile
+            }
+
+            // Respond with the retrieved profile data
+            this.b.cdResp.data = finalRet;
+            return await this.b.respond(req, res);
+        } catch (e) {
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'CoopMemberService:updateCurrentUserProfile',
+                app_msg: ''
+            };
+            await this.b.serviceErr(req, res, e, i.code);
+            await this.b.respond(req, res);
+        }
+    }
+
+    async resetCoopMemberProfile(req, res): Promise<void> {
+        try {
+
+            const svSess = new SessionService()
+            const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(req, res, true)
+            console.log("CoopMemberService::updateCurrentUserProfile()/sessionDataExt:", sessionDataExt)
+            const svUser = new UserService()
+            const requestQuery: IQuery = req.post.dat.f_vals[0].query;
+            const jsonUpdate = req.post.dat.f_vals[0].jsonUpdate;
+            let modifiedCoopMemberProfile: ICoopMemberProfile;
+            let strUserProfile;
+            let strCoopMemberData;
+            let strAcl;
+
+            /**
+             * extract from db and merge with user profile to form coopMemberProfile
+             * 1. profile data from current user coop_member entity. 
+             * 2. membership data
+             */
+            await this.resetCoopMemberProfileI(req, res)
+
+            if (await this.validateProfileData(req, res, this.mergedProfile)) {
+                /*
+                - if not null and is valid data
+                    - use jsonUpdate to update currentUserProfile
+                        use the method modifyUserProfile(existingData: IUserProfile, jsonUpdate): string
+                    - use session data to modify 'userData' in the default user profile
+                    - 
+                */
+                console.log("CoopMemberService::updateCoopMemberProfile()/01")
+                console.log("CoopMemberService::updateCoopMemberProfile()/jsonUpdate:", jsonUpdate)
+                modifiedCoopMemberProfile = await svUser.modifyProfile(this.mergedProfile, jsonUpdate)
+                console.log("CoopMemberService::updateCoopMemberProfile()/strUserProfile3:", modifiedCoopMemberProfile)
+
+                
+                // userProfile
+                strUserProfile = JSON.stringify(await this.extractUserProfile())
+                // acl
+                strCoopMemberData = JSON.stringify(modifiedCoopMemberProfile.coopMembership.memberData)
+                // memberData
+                strAcl = JSON.stringify(modifiedCoopMemberProfile.coopMembership.acl)
+
+            } else {
+                /*
+                - if null or invalid, 
+                    - take the default json data defined in the UserModel, 
+                    - update userData using sessionData, then 
+                    - do update based on given jsonUpdate in the api request
+                    - converting to string and then updating the userProfile field in the row/s defined in query.where property.
+                */
+                console.log("CoopMemberService::updateCoopMemberProfile()/021")
+                const { password, userProfile, ...filteredUserData } = sessionDataExt.currentUser;
+                userProfileDefault.userData = filteredUserData;
+                console.log("CoopMemberService::updateCoopMemberProfile()/userProfileDefault:", userProfileDefault)
+                modifiedCoopMemberProfile = await svUser.modifyProfile(userProfileDefault, jsonUpdate)
+                console.log("CoopMemberService::updateCoopMemberProfile()/modifiedCoopMemberProfile4:", modifiedCoopMemberProfile)
+                // strCoopMemberData = JSON.stringify(modifiedCoopMemberProfile)
+                // userProfile
+                strUserProfile = JSON.stringify(await this.extractUserProfile())
+                // acl
+                strCoopMemberData = JSON.stringify(modifiedCoopMemberProfile.coopMembership.memberData)
+                // memberData
+                strAcl = JSON.stringify(modifiedCoopMemberProfile.coopMembership.acl)
+            }
+
+            // // userProfile
+            // strUserProfile = JSON.stringify(modifiedCoopMemberProfile.userProfile)
+            // // acl
+            // strCoopMemberData = JSON.stringify(modifiedCoopMemberProfile.coopMembership.memberData)
+            // // memberData
+            // strAcl = JSON.stringify(modifiedCoopMemberProfile.coopMembership.acl)
+
+            console.log("CoopMemberService::updateCoopMemberProfile()/modifiedCoopMemberProfile3:", modifiedCoopMemberProfile)
+
+            console.log("CoopMemberService::updateCoopMemberProfile()/03")
+            requestQuery.update = { coopMemberProfile: strAcl }
+            console.log("CoopMemberService::updateCoopMemberProfile()/requestQuery:", requestQuery)
+
+            // update coopMemberProfile
+            let serviceInput: IServiceInput = {
+                serviceInstance: this,
+                serviceModel: CoopMemberModel,
+                docName: 'CoopMemberService::updateCoopMemberProfile',
+                cmd: {
+                    query: requestQuery
+                }
+            };
+            console.log("CoopMemberService::updateCoopMemberProfile()/serviceInput:", serviceInput)
+            const updateCoopMemberRet = await this.updateI(req, res, serviceInput)
+            const newCoopMemberProfile = await this.existingCoopMemberProfile(req, res, sessionDataExt.currentUser.userId)
+            let retCoopMember = {
+                updateRet: updateCoopMemberRet,
+                newProfile: newCoopMemberProfile
+            }
+
+            const userUpdateQuery = {
+                "update": { userProfile: strUserProfile },
+                where: {
+                    userId: sessionDataExt.currentUser.userId
+                }
+            }
+            // update user
+            const userServiceInput: IServiceInput = {
+                serviceInstance: svUser,
+                serviceModel: UserModel,
+                docName: 'CoopMemberService::updateCoopMemberProfile',
+                cmd: {
+                    query: userUpdateQuery
+                }
+            };
+            console.log("CoopMemberService::updateCoopMemberProfile()/userServiceInput:", userServiceInput)
+            const userUpdateRet = await svUser.updateI(req, res, userServiceInput)
+            const fullProfile = await this.getI(req, res, {where: {userId: sessionDataExt.currentUser.userId}})
+            const finalRet = {
+                updateRet: updateCoopMemberRet,
+                userUpdateRet: userUpdateRet,
+                newProfile: modifiedCoopMemberProfile
+            }
+
+            // Respond with the retrieved profile data
+            this.b.cdResp.data = finalRet;
+            return await this.b.respond(req, res);
+        } catch (e) {
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'CoopMemberService:updateCurrentUserProfile',
+                app_msg: ''
+            };
+            await this.b.serviceErr(req, res, e, i.code);
+            await this.b.respond(req, res);
+        }
+    }
+
+    async extractUserProfile(){
+        // Create a new object without 'coopMembership'
+        const userProfileOnly: IUserProfileOnly = { ...this.mergedProfile };
+
+        // Remove 'coopMembership' property
+        delete (userProfileOnly as any).coopMembership; // Temporarily type-cast to allow deletion
+
+        // Now `userProfileOnly` is of type `IUserProfileOnly`, with `coopMembership` removed.
+        return userProfileOnly
+    }
+
+    /////////////////////////////////////////////
+    // NEW USER PROFILE METHODS...USING COMMON CLASS ProfileServiceHelper
+    //
+
+    async existingCoopMemberProfile(req, res, cuid) {
+        const si: IServiceInput = {
+            serviceInstance: this,
+            serviceModel: CoopMemberModel,
+            docName: 'CoopMemberService::existingUserProfile',
+            cmd: {
+                query: { where: { userId: cuid } }
+            },
+            mapping: { profileField: "coopMemberProfile" }
+        };
+        return ProfileServiceHelper.fetchProfile(req, res, si);
+    }
+
+    // async modifyUserProfile(existingData, profileDefaultConfig) {
+    //     return ProfileServiceHelper.modifyProfile(existingData, profileDefaultConfig, {
+    //         userPermissions: 'userPermissions',
+    //         groupPermissions: 'groupPermissions',
+    //         userId: 'userId',
+    //         groupId: 'groupId'
+    //     });
+    // }
+
+    // Helper method to validate profile data
+    async validateProfileData(req, res, profileData: any): Promise<boolean> {
+        console.log("CoopMemberService::validateProfileData()/profileData:", profileData)
+        // const profileData: IUserProfile = updateData.update.userProfile
+        // console.log("CoopMemberService::validateProfileData()/profileData:", profileData)
+        // Check if profileData is null or undefined
+        if (!profileData) {
+            console.log("CoopMemberService::validateProfileData()/01")
+            return false;
+        }
+
+        // Validate that the required fields of IUserProfile exist
+        if (!profileData.fieldPermissions || !profileData.userData) {
+            console.log("CoopMemberService::validateProfileData()/02")
+            console.log("CoopMemberService::validateProfileData()/profileData.userData:", profileData.userData)
+            console.log("CoopMemberService::validateProfileData()/profileData.fieldPermissions:", profileData.fieldPermissions)
+            return false;
+        }
+
+        // Example validation for bio length
+        if (profileData.bio && profileData.bio.length > 500) {
+            console.log("CoopMemberService::validateProfileData()/03")
+            const e = "Bio data is too long";
+            this.b.err.push(e);
+            const i = {
+                messages: this.b.err,
+                code: 'CoopMemberService:validateProfileData',
+                app_msg: ''
+            };
+            await this.b.serviceErr(req, res, e, i.code);
+            return false;  // Bio is too long
+        }
+        return true;
+    }
+
+    // CRUD Methods for coopRole within coopMembership
+    // // Usage examples
+    // const memberProfile = coopMemberProfileDefault;
+
+    // // Add a new role
+    // addCoopRole(memberProfile, -1, { scope: CoopsAclScope.COOPS_SACCO_ADMIN, geoLocationId: 101 });
+
+    // // Get all roles for a specific coopMembership by coopId
+    // console.log(getCoopRoles(memberProfile, -1));
+
+    // // Update an existing role
+    // const updated = updateCoopRole(memberProfile, -1, CoopsAclScope.COOPS_SACCO_ADMIN, { scope: CoopsAclScope.COOPS_SACCO_ADMIN, geoLocationId: 202 });
+    // console.log('Update successful:', updated);
+
+    // // Delete a role
+    // const deleted = deleteCoopRole(memberProfile, -1, CoopsAclScope.COOPS_GUEST);
+    // console.log('Delete successful:', deleted);
+
+    /**
+     * Add a new role to coopRole within a specific coopMembership identified by coopId
+     * @param profile The member profile to modify
+     * @param coopId The ID of the specific coopMembership
+     * @param newRole The new role to add to coopRole
+     */
+    addCoopRole(profile: ICoopMemberProfile, coopId: number, newRole: ICoopAcl): boolean {
+        const memberMeta = profile.coopMembership.acl?.find(m => m.coopId === coopId);
+        if (memberMeta) {
+            memberMeta.coopRole.push(newRole);
+            return true;
+        }
+        return false; // Return false if coopMembership with the given coopId was not found
+    }
+
+    /**
+     * Get all coop roles from a specific coopMembership identified by coopId
+     * @param profile The member profile to retrieve roles from
+     * @param coopId The ID of the specific coopMembership
+     * @returns An array of ICoopAcl representing all coop roles, or null if not found
+     */
+    getCoopRoles(profile: ICoopMemberProfile, coopId: number): ICoopRole | null {
+        const memberMeta = profile.coopMembership.acl?.find(m => m.coopId === coopId);
+        return memberMeta ? memberMeta.coopRole : null;
+    }
+
+    /**
+     * Update an existing role in coopRole within a specific coopMembership identified by coopId
+     * @param profile The member profile to modify
+     * @param coopId The ID of the specific coopMembership
+     * @param scope The scope of the role to update
+     * @param updatedRole The updated role data
+     * @returns boolean indicating success or failure
+     */
+    updateCoopRole(profile: ICoopMemberProfile, coopId: number, scope: CoopsAclScope, updatedRole: ICoopAcl): boolean {
+        const memberMeta = profile.coopMembership.acl?.find(m => m.coopId === coopId);
+        if (memberMeta) {
+            const roleIndex = memberMeta.coopRole.findIndex(role => role.scope === scope);
+            if (roleIndex !== -1) {
+                memberMeta.coopRole[roleIndex] = updatedRole;
+                return true;
+            }
+        }
+        return false; // Return false if role with the given scope was not found in coopRole
+    }
+
+    /**
+     * Remove a role from coopRole within a specific coopMembership identified by coopId
+     * @param profile The member profile to modify
+     * @param coopId The ID of the specific coopMembership
+     * @param scope The scope of the role to remove
+     * @returns boolean indicating success or failure
+     */
+    deleteCoopRole(profile: ICoopMemberProfile, coopId: number, scope: CoopsAclScope): boolean {
+        const memberMeta = profile.coopMembership.acl?.find(m => m.coopId === coopId);
+        if (memberMeta) {
+            const roleIndex = memberMeta.coopRole.findIndex(role => role.scope === scope);
+            if (roleIndex !== -1) {
+                memberMeta.coopRole.splice(roleIndex, 1);
+                return true;
+            }
+        }
+        return false; // Return false if role with the given scope was not found in coopRole
+    }
+
+
+
+
 
 }

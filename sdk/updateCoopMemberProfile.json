@@ -1,0 +1,56 @@
+{
+    "ctx": "App",
+    "m": "Coops",
+    "c": "CoopMember",
+    "a": "UpdateCoopMemberProfile",
+    "dat": {
+      "f_vals": [
+        {
+          "query": {
+            "update": null,
+            "where": {
+              "userId": 1010
+            }
+          },
+          "jsonUpdate": [
+            {
+              "path": [
+                "fieldPermissions",
+                "userPermissions",
+                [
+                  "userName"
+                ]
+              ],
+              "value": {
+                "userId": 1010,
+                "field": "userName",
+                "hidden": false,
+                "read": true,
+                "write": false,
+                "execute": false
+              }
+            },
+            {
+              "path": [
+                "fieldPermissions",
+                "groupPermissions",
+                [
+                  "userName"
+                ]
+              ],
+              "value": {
+                "groupId": 0,
+                "field": "userName",
+                "hidden": false,
+                "read": true,
+                "write": false,
+                "execute": false
+              }
+            }
+          ]
+        }
+      ],
+      "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+    },
+    "args": {}
+  }

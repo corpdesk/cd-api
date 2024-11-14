@@ -219,6 +219,7 @@ export interface CommTrack {
  * emittEvent: the event that handles message at the client
  * sFx: server function that handles a given message
  * cFx: client function that handles a given message
+ * extDat: extra data
  */
 export interface PushEvent {
     triggerEvent: string;
@@ -362,8 +363,8 @@ export interface IAclCtx {
 }
 
 export interface IAclRole{
-    aclRoleName: string;
-    permissions: IAclPermission
+    aclRoleName?: string;
+    permissions?: IAclPermission
 }
 
 export interface IAclPermission {

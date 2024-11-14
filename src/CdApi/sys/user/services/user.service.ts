@@ -31,6 +31,7 @@ import { GroupService } from './group.service';
 import { GroupModel } from '../models/group.model';
 import { Logging } from '../../base/winston.log';
 import config from '../../../../config';
+import { ProfileServiceHelper } from '../../utils/profile-service-helper'
 
 
 
@@ -415,6 +416,35 @@ export class UserService extends CdService {
             const i = {
                 messages: this.b.err,
                 code: 'UserService:getUserI',
+                app_msg: ''
+            };
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
+        }
+    }
+
+    async getI(req, res, q: IQuery = null): Promise<UserModel[]> {
+        if (q == null) {
+            q = this.b.getQuery(req);
+        }
+        console.log('UserService::getI/q:', q);
+        const serviceInput = {
+            serviceModel: UserModel,
+            docName: 'UserService::getI',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        try {
+            return this.b.read(req, res, serviceInput)
+        } catch (e) {
+            this.logger.logInfo('UserService::getI()/e:', e)
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'UserService:getI',
                 app_msg: ''
             };
             await this.b.serviceErr(req, res, e, i.code)
@@ -830,32 +860,20 @@ export class UserService extends CdService {
     //////////////////////////////////////////////////////////////////////////////////////////////////
     // STARTING USER PROFILE FEATURES
     // Public method to update user profile (e.g., avatar, bio)
-    async updateCurrentUserProfile(req, res): Promise<void> {
+    async updateUserProfile(req, res): Promise<void> {
         try {
             // note that 'ignoreCache' is set to true because old data may introduce confussion
             const svSess = new SessionService()
             const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(req, res, true)
             console.log("UserService::updateCurrentUserProfile()/sessionDataExt:", sessionDataExt)
 
-            // const pl:UserModel = this.b.getPlData(req)
             const requestQuery: IQuery = req.post.dat.f_vals[0].query;
             const jsonUpdate = req.post.dat.f_vals[0].jsonUpdate;
             let modifiedUserProfile = {};
             let strUserProfile = "{}";
 
-            /**
-             * fetch current data
-             */
-            // const getUserQuery: IQuery = requestQuery.where;
-            // console.log("UserService::updateCurrentUserProfile()/getUserQuery:", getUserQuery)
-            // let currentUser: UserModel[] = await this.getUserI(req, res, { where: getUserQuery })
-            // console.log("UserService::updateCurrentUserProfile()/currentUser:", currentUser)
-            // console.log("UserService::updateCurrentUserProfile()/00")
-
-            // // remove password
-            // currentUser = currentUser.map(({ password, ...user }) => user);
-
             const existingUserProfile = await this.existingUserProfile(req, res, sessionDataExt.currentUser.userId)
+            console.log("UserService:updateCurrentUserProfile()/existingUserProfile:", existingUserProfile)
 
             if (await this.validateProfileData(req, res, existingUserProfile)) {
                 /*
@@ -868,7 +886,7 @@ export class UserService extends CdService {
                 console.log("UserService::updateCurrentUserProfile()/01")
                 console.log("UserService::updateCurrentUserProfile()/jsonUpdate:", jsonUpdate)
                 console.log("UserService::updateCurrentUserProfile()/existingUserProfile:", existingUserProfile)
-                modifiedUserProfile = await this.modifyUserProfile(existingUserProfile, jsonUpdate)
+                modifiedUserProfile = await this.modifyProfile(existingUserProfile, jsonUpdate)
                 console.log("UserService::updateCurrentUserProfile()/strUserProfile2:", modifiedUserProfile)
                 strUserProfile = JSON.stringify(modifiedUserProfile)
 
@@ -880,17 +898,11 @@ export class UserService extends CdService {
                     - do update based on given jsonUpdate in the api request
                     - converting to string and then updating the userProfile field in the row/s defined in query.where property.
                 */
-                // console.log("UserService::updateCurrentUserProfile()/02")
-
-
-
                 console.log("UserService::updateCurrentUserProfile()/021")
-                // const userData = sessionDataExt.currentUser
-                // userProfileDefault.userData = userData;
                 const { password, userProfile, ...filteredUserData } = sessionDataExt.currentUser;
                 userProfileDefault.userData = filteredUserData;
                 console.log("UserService::updateCurrentUserProfile()/userProfileDefault:", userProfileDefault)
-                modifiedUserProfile = await this.modifyUserProfile(userProfileDefault, jsonUpdate)
+                modifiedUserProfile = await this.modifyProfile(userProfileDefault, jsonUpdate)
                 console.log("UserService::updateCurrentUserProfile()/modifiedUserProfile:", modifiedUserProfile)
                 strUserProfile = JSON.stringify(modifiedUserProfile)
             }
@@ -900,7 +912,6 @@ export class UserService extends CdService {
             console.log("UserService::updateCurrentUserProfile()/requestQuery:", requestQuery)
 
             // update user profile
-            // const q: IQuery = query
             const serviceInput: IServiceInput = {
                 serviceInstance: this,
                 serviceModel: UserModel,
@@ -911,7 +922,12 @@ export class UserService extends CdService {
             };
             console.log("UserService::updateCurrentUserProfile()/serviceInput:", serviceInput)
             // const ret = await this.b.updateJSONColumn(req, res, serviceInput)
-            const ret = await this.updateI(req, res, serviceInput)
+            const updateRet = await this.updateI(req, res, serviceInput)
+            const newProfile = await this.existingUserProfile(req, res, sessionDataExt.currentUser.userId)
+            const ret = {
+                updateRet: updateRet,
+                newProfile: newProfile
+            }
 
             // Respond with the retrieved profile data
             this.b.cdResp.data = ret;
@@ -928,17 +944,50 @@ export class UserService extends CdService {
         }
     }
 
+    /////////////////////////////////////////////
+    // NEW USER PROFILE METHODS...USING COMMON CLASS ProfileServiceHelper
+    //
+
     async existingUserProfile(req, res, cuid) {
-        let currentUser: UserModel[] = await this.getUserI(req, res, { where: { userId: cuid } })
-        console.log("UserService::updateCurrentUserProfile()/currentUser:", currentUser)
-        if (currentUser.length > 0) {
-            // remove password
-            currentUser = currentUser.map(({ password, ...user }) => user);
-            return currentUser[0].userProfile
-        } else {
-            return null
-        }
+        const si: IServiceInput = {
+            serviceInstance: this,
+            serviceModel: UserModel,
+            docName: 'UserService::existingUserProfile',
+            cmd: {
+                query: { where: { userId: cuid } }
+            },
+            mapping: { profileField: "userProfile" }
+        };
+        return ProfileServiceHelper.fetchProfile(req, res, si);
     }
+
+    async modifyProfile(existingData, profileConfig) {
+        return await ProfileServiceHelper.modifyProfile(existingData, profileConfig,
+            // {
+            //     userPermissions: 'userPermissions',
+            //     groupPermissions: 'groupPermissions',
+            //     userId: 'userId',
+            //     groupId: 'groupId'
+            // }
+        );
+    }
+
+
+    /////////////////////////////////////////////
+    // OLD USER PROFILE METHODS
+    //
+
+    // async existingUserProfileOld(req, res, cuid) {
+    //     let currentUser: UserModel[] = await this.getUserI(req, res, { where: { userId: cuid } })
+    //     console.log("UserService::updateCurrentUserProfile()/currentUser:", currentUser)
+    //     if (currentUser.length > 0) {
+    //         // remove password
+    //         currentUser = currentUser.map(({ password, ...user }) => user);
+    //         return currentUser[0].userProfile
+    //     } else {
+    //         return null
+    //     }
+    // }
 
     // async modifyUserProfile(existingData, jsonUpdate: any[]): Promise<string> {
     //     console.log("UserService::modifyUserProfile()/existingData:", existingData)
@@ -963,106 +1012,106 @@ export class UserService extends CdService {
     //     }
     // }
 
-    async modifyUserProfile(existingData, profileDefaultConfig: any[]): Promise<string> {
-        console.log("UserService::modifyUserProfile()/existingData:", existingData)
-        console.log("UserService::modifyUserProfile()/profileDefaultConfig:", profileDefaultConfig)
-        try {
-            let updatedProfile = { ...existingData };
+    // async modifyUserProfile(existingData, profileDefaultConfig: any[]): Promise<string> {
+    //     console.log("UserService::modifyUserProfile()/existingData:", existingData)
+    //     console.log("UserService::modifyUserProfile()/profileDefaultConfig:", profileDefaultConfig)
+    //     try {
+    //         let updatedProfile = { ...existingData };
 
-            // Iterate over each update in jsonUpdate array
-            for (const update of profileDefaultConfig) {
-                const { path, value } = update;
-                const [firstKey, secondKey, ...remainingPath] = path;
+    //         // Iterate over each update in jsonUpdate array
+    //         for (const update of profileDefaultConfig) {
+    //             const { path, value } = update;
+    //             const [firstKey, secondKey, ...remainingPath] = path;
 
-                if (firstKey === 'fieldPermissions') {
-                    // If updating userPermissions or groupPermissions
-                    if (secondKey === 'userPermissions') {
-                        updatedProfile = this.updatePermissions(
-                            updatedProfile, value, 'userPermissions', 'userId'
-                        );
-                    } else if (secondKey === 'groupPermissions') {
-                        updatedProfile = this.updatePermissions(
-                            updatedProfile, value, 'groupPermissions', 'groupId'
-                        );
-                    }
-                }
+    //             if (firstKey === 'fieldPermissions') {
+    //                 // If updating userPermissions or groupPermissions
+    //                 if (secondKey === 'userPermissions') {
+    //                     updatedProfile = this.updatePermissions(
+    //                         updatedProfile, value, 'userPermissions', 'userId'
+    //                     );
+    //                 } else if (secondKey === 'groupPermissions') {
+    //                     updatedProfile = this.updatePermissions(
+    //                         updatedProfile, value, 'groupPermissions', 'groupId'
+    //                     );
+    //                 }
+    //             }
 
-                // Apply other updates normally
-                this.applyJsonUpdate(updatedProfile, path, value);
-            }
+    //             // Apply other updates normally
+    //             this.applyJsonUpdate(updatedProfile, path, value);
+    //         }
 
-            // Convert the updated profile to a string
-            return updatedProfile;
-        } catch (error) {
-            throw new Error(`Failed to modify user profile: ${error.message}`);
-        }
-    }
+    //         // Convert the updated profile to a string
+    //         return updatedProfile;
+    //     } catch (error) {
+    //         throw new Error(`Failed to modify user profile: ${error.message}`);
+    //     }
+    // }
 
-    private updatePermissions(
-        profile: any, newValue: any, permissionType: 'userPermissions' | 'groupPermissions', idKey: 'userId' | 'groupId'
-    ) {
-        const permissionList = profile.fieldPermissions[permissionType];
+    // private updatePermissions(
+    //     profile: any, newValue: any, permissionType: 'userPermissions' | 'groupPermissions', idKey: 'userId' | 'groupId'
+    // ) {
+    //     const permissionList = profile.fieldPermissions[permissionType];
 
-        // Check if the permission already exists (based on userId/groupId and field)
-        const existingIndex = permissionList.findIndex(permission =>
-            permission[idKey] === newValue[idKey] && permission.field === newValue.field
-        );
+    //     // Check if the permission already exists (based on userId/groupId and field)
+    //     const existingIndex = permissionList.findIndex(permission =>
+    //         permission[idKey] === newValue[idKey] && permission.field === newValue.field
+    //     );
 
-        if (existingIndex > -1) {
-            // If exists, replace it with the new permission
-            permissionList[existingIndex] = newValue;
-        } else {
-            // Otherwise, add the new permission
-            permissionList.push(newValue);
-        }
+    //     if (existingIndex > -1) {
+    //         // If exists, replace it with the new permission
+    //         permissionList[existingIndex] = newValue;
+    //     } else {
+    //         // Otherwise, add the new permission
+    //         permissionList.push(newValue);
+    //     }
 
-        return profile;
-    }
+    //     return profile;
+    // }
 
 
-    private applyJsonUpdate(profile: any, path: (string | number | string[])[], value: any) {
-        let current = profile;
-        console.log("UserService::applyJsonUpdate()/current1:", current)
+    // private applyJsonUpdate(profile: any, path: (string | number | string[])[], value: any) {
+    //     let current = profile;
+    //     console.log("UserService::applyJsonUpdate()/current1:", current)
 
-        // Traverse the path to get to the final key
-        for (let i = 0; i < path.length - 1; i++) {
-            let key = path[i];
-            console.log("UserService::applyJsonUpdate()/key:", key)
+    //     // Traverse the path to get to the final key
+    //     for (let i = 0; i < path.length - 1; i++) {
+    //         let key = path[i];
+    //         console.log("UserService::applyJsonUpdate()/key:", key)
 
-            // Handle case where key is an array
-            if (Array.isArray(key)) {
-                key = key.join("."); // Or decide how to handle multiple keys (e.g., use the first element key[0])
-            }
+    //         // Handle case where key is an array
+    //         if (Array.isArray(key)) {
+    //             key = key.join("."); // Or decide how to handle multiple keys (e.g., use the first element key[0])
+    //         }
 
-            // Ensure the path exists, create object or array if it doesn't
-            if (!current[key]) {
-                current[key] = (typeof path[i + 1] === 'number') ? [] : {};
-            }
+    //         // Ensure the path exists, create object or array if it doesn't
+    //         if (!current[key]) {
+    //             current[key] = (typeof path[i + 1] === 'number') ? [] : {};
+    //         }
 
-            current = current[key];
-        }
+    //         current = current[key];
+    //     }
 
-        console.log("UserService::applyJsonUpdate()/current2:", current)
+    //     console.log("UserService::applyJsonUpdate()/current2:", current)
 
-        // Get the final key
-        let finalKey = path[path.length - 1];
+    //     // Get the final key
+    //     let finalKey = path[path.length - 1];
 
-        // Handle case where finalKey is an array, if needed
-        if (Array.isArray(finalKey)) {
-            finalKey = finalKey.join("."); // Or pick an element, like finalKey[0]
-        }
+    //     // Handle case where finalKey is an array, if needed
+    //     if (Array.isArray(finalKey)) {
+    //         finalKey = finalKey.join("."); // Or pick an element, like finalKey[0]
+    //     }
 
-        // Set the value at the final location
-        current[finalKey] = value;
-        console.log("UserService::applyJsonUpdate()/current3:", current)
-    }
+    //     // Set the value at the final location
+    //     current[finalKey] = value;
+    //     console.log("UserService::applyJsonUpdate()/current3:", current)
+    // }
 
-    private findArrayElementIndex(array: any[], path: string[], elementKey: string) {
-        // Search for an array element matching a condition (e.g., by userName)
-        const index = array.findIndex((item) => item && item.field === elementKey);
-        if (index === -1) throw new Error(`Array element with key ${elementKey} not found`);
-        return index;
-    }
+    // private findArrayElementIndex(array: any[], path: string[], elementKey: string) {
+    //     // Search for an array element matching a condition (e.g., by userName)
+    //     const index = array.findIndex((item) => item && item.field === elementKey);
+    //     if (index === -1) throw new Error(`Array element with key ${elementKey} not found`);
+    //     return index;
+    // }
 
     async getUserProfile(req, res) {
         try {

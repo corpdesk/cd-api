@@ -337,39 +337,76 @@ export class UserController extends CdController {
         }
     }
 
-    // /**
-    //  * {
-    //         "ctx": "Sys",
-    //         "m": "User",
-    //         "c": "User",
-    //         "a": "UpdateUserProfile",
-    //         "dat": {
-    //             "f_vals": [
-    //                 {
-    //                     "query": {
-    //                         "update": {
-    //                             "userProfile": "{}"
-    //                         },
-    //                         "where": {
-    //                             "userId": 1010
-    //                         }
-    //                     }
-    //                 }
-    //             ],
-    //             "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
-    //         },
-    //         "args": {}
-    //     }
+    /**
+     * {
+            "ctx": "Sys",
+            "m": "User",
+            "c": "User",
+            "a": "UpdateUserProfile",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "update": null,
+                            "where": {
+                                "userId": 1010
+                            }
+                        },
+                        "jsonUpdate": [
+                            {
+                                "path": [
+                                    "fieldPermissions",
+                                    "userPermissions",
+                                    [
+                                        "userName"
+                                    ]
+                                ],
+                                "value": {
+                                    "userId": 1010,
+                                    "field": "userName",
+                                    "hidden": false,
+                                    "read": true,
+                                    "write": false,
+                                    "execute": false
+                                }
+                            },
+                            {
+                                "path": [
+                                    "fieldPermissions",
+                                    "groupPermissions",
+                                    [
+                                        "userName"
+                                    ]
+                                ],
+                                "value": {
+                                    "groupId": 0,
+                                    "field": "userName",
+                                    "hidden": false,
+                                    "read": true,
+                                    "write": false,
+                                    "execute": false
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+            },
+            "args": {}
+        }
+     * @param req 
+     * @param res 
+     */
     //  * @param req
     //  * @param res
     //  */
     async UpdateUserProfile(req, res) {
-        console.log('BillController::Update()/01');
+        console.log('UserController::UpdateUserProfile()/01');
         try {
-            console.log('BillController::Update()/02');
-            await this.svUser.updateCurrentUserProfile(req, res);
+            console.log('UserController::UpdateUserProfile()/02');
+            await this.svUser.updateUserProfile(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'BillController:Update');
+            await this.b.serviceErr(req, res, e, 'UserController::UpdateUserProfile');
         }
     }
 }
