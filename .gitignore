@@ -37,3 +37,7 @@ package-lock.json
 
 # ENVIRONMENT
 .env
+
+# letsencrypt webserver
+/src/.well-known/acme-challenge/
+

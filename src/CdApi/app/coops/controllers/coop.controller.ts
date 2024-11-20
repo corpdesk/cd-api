@@ -170,9 +170,9 @@ export class CoopController {
      */
     async GetCount(req, res) {
         try {
-            await this.svCoop.getCoopPaged(req, res);
+            await this.svCoop.getCoopQB(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'ModuleController:Get');
+            await this.b.serviceErr(req, res, e, 'CoopController:GetCount');
         }
     }
 
