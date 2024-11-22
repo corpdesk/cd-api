@@ -988,14 +988,7 @@ export class UserService extends CdService {
     }
 
     async modifyProfile(existingData, profileConfig) {
-        return await ProfileServiceHelper.modifyProfile(existingData, profileConfig,
-            // {
-            //     userPermissions: 'userPermissions',
-            //     groupPermissions: 'groupPermissions',
-            //     userId: 'userId',
-            //     groupId: 'groupId'
-            // }
-        );
+        return await ProfileServiceHelper.modifyProfile(existingData, profileConfig);
     }
 
 
@@ -1296,8 +1289,8 @@ export class UserService extends CdService {
 
 
     // Internal helper method to get a user by ID
-    async getUserByIdI(userId: string) {
-        return await this.db.user.findOne({ where: { user_id: userId } });
+    async getUserByIdI(uid:number): Promise<UserModel> {
+        return await this.db.user.findOne({ where: { userId: uid } });
     }
 
 

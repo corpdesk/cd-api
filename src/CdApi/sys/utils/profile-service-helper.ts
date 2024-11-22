@@ -33,7 +33,7 @@ export class ProfileServiceHelper {
     /**
      * Modifies the profile based on the provided configuration.
      */
-    
+
 
     /**
      * 
@@ -75,14 +75,18 @@ export class ProfileServiceHelper {
         existingData: any,
         profileConfig: any[]
     ) {
+        console.log("ProfileServiceHelper::modifyProfile()/01")
         let updatedProfile = { ...existingData };
-
+        console.log("ProfileServiceHelper::modifyProfile()/02")
+        console.log("ProfileServiceHelper::modifyProfile()/existingData:", existingData)
+        console.log("ProfileServiceHelper::modifyProfile()/profileConfig:", profileConfig)
         for (const update of profileConfig) {
             const { path, value, action } = update;
             const [firstKey, ...remainingPath] = path;
-
+            console.log("ProfileServiceHelper::modifyProfile()/03")
             // Route based on the action specified in profileConfig
             if (firstKey === 'coopMembership' && remainingPath[0] === 'acl' && remainingPath[1] === 'coopRole') {
+                console.log("ProfileServiceHelper::modifyProfile()/04")
                 switch (action) {
                     case "create":
                         updatedProfile = await this.createCoopRole(updatedProfile, remainingPath, value);
@@ -100,10 +104,13 @@ export class ProfileServiceHelper {
                     default:
                         console.warn(`Unsupported action: ${action}`);
                 }
+                console.log("ProfileServiceHelper::modifyProfile()/05")
             } else {
+                console.log("ProfileServiceHelper::modifyProfile()/06")
                 this.applyJsonUpdate(updatedProfile, path, value);
             }
         }
+        console.log("ProfileServiceHelper::modifyProfile()/07")
         console.log("ProfileServiceHelper::modifyProfile()/updatedProfile2:", JSON.stringify(await updatedProfile))
         /**
          * Sync updated data with memberData which is still in the state it was retrieved from db.
@@ -167,13 +174,13 @@ export class ProfileServiceHelper {
     //     console.log("ProfileServiceHelper::createCoopRole()/aclList:", aclList)
 
 
-        
+
     //     // Remove existing role for the same coopId to avoid duplication
     //     const existingIndex = aclList.findIndex((acl: any) => acl.coopId === newValue.coopId);
     //     if (existingIndex !== -1) {
     //         aclList.splice(existingIndex, 1);
     //     }
-        
+
     //     console.log("ProfileServiceHelper::createCoopRole()/newValue.coopRole:", newValue.coopRole)
     //     // Add the new role
     //     aclList.push({
@@ -191,9 +198,9 @@ export class ProfileServiceHelper {
         console.log("ProfileServiceHelper::createCoopRole()/profile:", profile)
         console.log("ProfileServiceHelper::createCoopRole()/newValue:", newValue)
         const aclList: MemberMeta[] = profile.coopMembership.acl;
-        
+
         console.log("ProfileServiceHelper::createCoopRole()/aclList:", aclList)
-    
+
         // Validate and clean aclList
         for (let i = aclList.length - 1; i >= 0; i--) {
             if (!this.validateAclItem(aclList[i])) {
@@ -201,60 +208,60 @@ export class ProfileServiceHelper {
                 aclList.splice(i, 1); // Remove non-compliant item
             }
         }
-    
+
         // Remove existing role for the same coopId to avoid duplication
         const existingIndex = aclList.findIndex((acl) => acl.coopId === newValue.coopId);
         if (existingIndex !== -1) {
             aclList.splice(existingIndex, 1);
         }
-    
+
         console.log("ProfileServiceHelper::createCoopRole()/newValue.coopRole:", newValue.coopRole)
-    
+
         // Add the new role
         aclList.push({
             coopId: newValue.coopId,
             coopActive: true,
             coopRole: newValue.coopRole
         });
-    
+
         profile.coopMembership.acl = aclList
         console.log("ProfileServiceHelper::createCoopRole()/aclList2:", aclList)
         console.log("ProfileServiceHelper::createCoopRole()/profile:", JSON.stringify(await profile))
-        
+
         return await profile;
     }
-    
+
 
     static updateCoopRole(profile: any, path: (string | number | string[])[], newValue: any) {
         const aclList = profile.coopMembership.acl;
         const targetAcl = aclList.find((acl: any) => acl.coopId === newValue.coopId);
-    
+
         if (targetAcl) {
             targetAcl.coopRole = newValue.coopRole;
         } else {
             console.warn(`No existing coopRole found with coopId ${newValue.coopId} to update.`);
         }
-    
+
         return profile;
     }
 
     static deleteCoopRole(profile: any, path: (string | number | string[])[], coopId: number) {
         const aclList = profile.coopMembership.acl;
         const index = aclList.findIndex((acl: any) => acl.coopId === coopId);
-    
+
         if (index !== -1) {
             aclList.splice(index, 1);
         } else {
             console.warn(`No existing coopRole found with coopId ${coopId} to delete.`);
         }
-    
+
         return profile;
     }
 
     static readCoopRole(profile: any, path: (string | number | string[])[], coopId: number) {
         const aclList = profile.coopMembership.acl;
         const targetAcl = aclList.find((acl: any) => acl.coopId === coopId);
-    
+
         if (targetAcl) {
             console.log(`Read coopRole for coopId ${coopId}:`, targetAcl.coopRole);
             // Optionally, return the coopRole or perform further operations
@@ -270,21 +277,26 @@ export class ProfileServiceHelper {
         const isValidCoopRole = typeof item.coopRole === 'object' && item.coopRole !== null; // Assuming ICoopRole is an object
         const isValidAclRole = item.aclRole === undefined || (typeof item.aclRole === 'object' && item.aclRole !== null); // Optional property
         const isValidCoopMemberData = item.coopMemberData === undefined || Array.isArray(item.coopMemberData); // Optional property
-        
+
         return isValidCoopId && isValidCoopActive && isValidCoopRole && isValidAclRole && isValidCoopMemberData;
     }
 
     static syncCoopMemberProfiles(modifiedProfile: any) {
-        // Extract the modified acl from coopMembership
-        const updatedAcl = modifiedProfile.coopMembership.acl;
-        
-        // Go through each memberData item and replace its coopMemberProfile with updatedAcl
-        modifiedProfile.coopMembership.memberData.forEach((member: any) => {
-            member.coopMemberProfile = [...updatedAcl];  // Spread operator to create a copy of updatedAcl
-        });
-    
+        console.log("ProfileServiceHelper::syncCoopMemberProfiles()/01")
+        console.log("ProfileServiceHelper::syncCoopMemberProfiles()/modifiedProfile:", modifiedProfile)
+        if ('coopMembership' in modifiedProfile) {
+            // Extract the modified acl from coopMembership
+            const updatedAcl = modifiedProfile.coopMembership.acl;
+            console.log("ProfileServiceHelper::syncCoopMemberProfiles()/02")
+            // Go through each memberData item and replace its coopMemberProfile with updatedAcl
+            modifiedProfile.coopMembership.memberData.forEach((member: any) => {
+                console.log("ProfileServiceHelper::syncCoopMemberProfiles()/03")
+                member.coopMemberProfile = [...updatedAcl];  // Spread operator to create a copy of updatedAcl
+            });
+        }
+        console.log("ProfileServiceHelper::syncCoopMemberProfiles()/04")
         return modifiedProfile;
     }
-    
-    
+
+
 }

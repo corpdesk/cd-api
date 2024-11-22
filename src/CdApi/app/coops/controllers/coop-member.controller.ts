@@ -82,7 +82,7 @@ export class CoopMemberController extends CdController {
         }
     }
 
-    async GetProfile(req, res) {
+    async GetMemberProfile(req, res) {
         try {
             await this.svCoopMember.getCoopMemberProfile(req, res);
         } catch (e) {

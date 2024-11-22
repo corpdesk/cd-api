@@ -459,12 +459,13 @@ export class CoopMemberService extends CdService {
 
     async getCoopMemberProfile(req, res) {
         try {
+
             if (!this.validateGetCoopMemberProfile(req, res)) {
                 const e = "could not validate the request"
                 this.b.err.push(e.toString());
                 const i = {
                     messages: this.b.err,
-                    code: 'CoopMemberService:activateCoop',
+                    code: 'CoopMemberService:getCoopMemberProfile',
                     app_msg: ''
                 };
                 await this.b.serviceErr(req, res, e, i.code)
@@ -492,7 +493,11 @@ export class CoopMemberService extends CdService {
     }
 
     async validateGetCoopMemberProfile(req, res) {
-        return true
+        let ret = true
+        if (req.post.a !== 'GetMemberProfile' || !('userId' in this.b.getPlData(req))) {
+            ret = false
+        }
+        return ret
     }
 
     async getCoopMemberProfileI(req, res) {
@@ -652,16 +657,27 @@ export class CoopMemberService extends CdService {
      */
     async setCoopMemberProfileI(req, res) {
         console.log("CoopMemberService::setCoopMemberProfileI()/01")
+
         // note that 'ignoreCache' is set to true because old data may introduce confussion
         const svSess = new SessionService()
         const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(req, res, true)
         console.log("CoopMemberService::setCoopMemberProfileI()/sessionDataExt:", sessionDataExt)
+        let uid = sessionDataExt.currentUser.userId
 
         //     - get and clone userProfile, then get coopMemberProfile data and append to cloned userProfile.
-        //   hint:
+
         console.log("CoopMemberService::setCoopMemberProfileI()/02")
+        /**
+         * Asses if request for self or for another user
+         * - if request action is 'GetMemberProfile'
+         * - and 'userId' is set
+         */
+        if (this.validateGetCoopMemberProfile(req, res)) {
+            uid = this.b.getPlData(req)['userId']
+        }
+        console.log("CoopMemberService::setCoopMemberProfileI()/uid1:", uid)
         const svUser = new UserService();
-        const existingUserProfile = await svUser.existingUserProfile(req, res, sessionDataExt.currentUser.userId)
+        const existingUserProfile = await svUser.existingUserProfile(req, res, uid)
         console.log("CoopMemberService::setCoopMemberProfileI()/existingUserProfile:", existingUserProfile)
         let modifiedUserProfile;
 
@@ -672,14 +688,27 @@ export class CoopMemberService extends CdService {
             console.log("CoopMemberService::setCoopMemberProfileI()/this.mergedProfile1:", this.mergedProfile)
         } else {
             console.log("CoopMemberService::setCoopMemberProfileI()/04")
-            const svSess = new SessionService()
-            const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(req, res)
-            const { password, userProfile, ...filteredUserData } = sessionDataExt.currentUser;
-            userProfileDefault.userData = filteredUserData;
+            if (this.validateGetCoopMemberProfile(req, res)) {
+                console.log("CoopMemberService::setCoopMemberProfileI()/05")
+                console.log("CoopMemberService::setCoopMemberProfile()/uid:", uid)
+                const uRet = await svUser.getUserByID(req, res,uid);
+                console.log("CoopMemberService::setCoopMemberProfile()/uRet:", uRet)
+                const { password, userProfile, ...filteredUserData } = uRet[0]
+                userProfileDefault.userData = filteredUserData
+            } else {
+                console.log("CoopMemberService::setCoopMemberProfileI()/06")
+                const { password, userProfile, ...filteredUserData } = sessionDataExt.currentUser;
+                userProfileDefault.userData = filteredUserData;
+            }
+
+            console.log("CoopMemberService::setCoopMemberProfileI()/06")
             console.log("CoopMemberService::setCoopMemberProfileI()/userProfileDefault:", userProfileDefault)
+            console.log("CoopMemberService::setCoopMemberProfileI()/06")
             // use default, assign the userId
             profileDefaultConfig[0].value.userId = sessionDataExt.currentUser.userId
+            console.log("CoopMemberService::setCoopMemberProfileI()/07")
             modifiedUserProfile = await svUser.modifyProfile(userProfileDefault, profileDefaultConfig)
+            console.log("CoopMemberService::setCoopMemberProfileI()/08")
             console.log("CoopMemberService::setCoopMemberProfileI()/modifiedUserProfile:", modifiedUserProfile)
             this.mergedProfile = await this.mergeUserProfile(req, res, modifiedUserProfile)
             console.log("CoopMemberService::setCoopMemberProfile()/this.mergedProfile2:", this.mergedProfile)
@@ -688,7 +717,7 @@ export class CoopMemberService extends CdService {
 
     async resetCoopMemberProfileI(req, res) {
         console.log("CoopMemberService::resetCoopMemberProfileI()/01")
-        // note that 'ignoreCache' is set to true because old data may introduce confussion
+        // note that 'ignoreCache' is set to true because old data may introduce confusion
         const svSess = new SessionService()
         const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(req, res, true)
         console.log("CoopMemberService::resetCoopMemberProfileI()/sessionDataExt:", sessionDataExt)
@@ -735,11 +764,19 @@ export class CoopMemberService extends CdService {
         const svSess = new SessionService()
         console.log("CoopMemberService::mergeUserProfile()/02")
         const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(req, res)
+        let uid = sessionDataExt.currentUser.userId
         console.log("CoopMemberService::mergeUserProfile()/03")
-        const q = { where: { userId: sessionDataExt.currentUser.userId } }
+        /**
+         * Asses if request for self or for another user
+         * - if request action is 'GetMemberProfile'
+         */
+        if (req.post.a === 'GetMemberProfile') {
+            uid = this.b.getPlData(req)['userId']
+        }
+        const q = { where: { userId: uid } }
         console.log("CoopMemberService::mergeUserProfile()/q:", q)
         const coopMemberData = await this.getCoopMemberI(req, res, q)
-        let aclData = await this.existingCoopMemberProfile(req, res, sessionDataExt.currentUser.userId)
+        let aclData = await this.existingCoopMemberProfile(req, res, uid)
         console.log("CoopMemberService::mergeUserProfile()/aclData1:", aclData)
         if (!aclData) {
             aclData = coopMemberProfileDefault.coopMembership.acl
@@ -850,7 +887,7 @@ export class CoopMemberService extends CdService {
                 strAcl = JSON.stringify(modifiedCoopMemberProfile.coopMembership.acl)
             }
 
-            
+
 
             console.log("CoopMemberService::updateCoopMemberProfile()/03")
             requestQuery.update = { coopMemberProfile: strAcl }
@@ -892,7 +929,7 @@ export class CoopMemberService extends CdService {
             };
             console.log("CoopMemberService::updateCoopMemberProfile()/userServiceInput:", userServiceInput)
             const userUpdateRet = await svUser.updateI(req, res, userServiceInput)
-            const fullProfile = await this.getI(req, res, {where: {userId: sessionDataExt.currentUser.userId}})
+            const fullProfile = await this.getI(req, res, { where: { userId: sessionDataExt.currentUser.userId } })
             console.log("CoopMemberService::updateCoopMemberProfile()/fullProfile:", JSON.stringify(await fullProfile))
             console.log("CoopMemberService::updateCoopMemberProfile()/strUserProfile1-1:", JSON.stringify(await modifiedCoopMemberProfile))
             const finalRet = {
@@ -950,7 +987,7 @@ export class CoopMemberService extends CdService {
                 modifiedCoopMemberProfile = await svUser.modifyProfile(this.mergedProfile, jsonUpdate)
                 console.log("CoopMemberService::updateCoopMemberProfile()/strUserProfile3:", modifiedCoopMemberProfile)
 
-                
+
                 // userProfile
                 strUserProfile = JSON.stringify(await this.extractUserProfile())
                 // acl
@@ -1028,7 +1065,7 @@ export class CoopMemberService extends CdService {
             };
             console.log("CoopMemberService::updateCoopMemberProfile()/userServiceInput:", userServiceInput)
             const userUpdateRet = await svUser.updateI(req, res, userServiceInput)
-            const fullProfile = await this.getI(req, res, {where: {userId: sessionDataExt.currentUser.userId}})
+            const fullProfile = await this.getI(req, res, { where: { userId: sessionDataExt.currentUser.userId } })
             const finalRet = {
                 updateRet: updateCoopMemberRet,
                 userUpdateRet: userUpdateRet,
@@ -1050,7 +1087,7 @@ export class CoopMemberService extends CdService {
         }
     }
 
-    async extractUserProfile(){
+    async extractUserProfile() {
         // Create a new object without 'coopMembership'
         const userProfileOnly: IUserProfileOnly = { ...this.mergedProfile };
 
@@ -1204,9 +1241,5 @@ export class CoopMemberService extends CdService {
         }
         return false; // Return false if role with the given scope was not found in coopRole
     }
-
-
-
-
 
 }
