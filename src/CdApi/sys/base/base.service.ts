@@ -528,27 +528,60 @@ export class BaseService {
      * @returns 
      */
     getPlData(req, extData: string | null = null, fValsIndex: number | null = null) {
-        this.logger.logInfo('BaseService::setPlData()/01');
+        this.logger.logInfo('BaseService::getPlData()/01');
         let ret = null;
         const svSess = new SessionService()
         if (this.validatePlData(req, extData)) {
             try {
                 if (extData) {
-                    this.logger.logInfo('BaseService::setPlData()/02')
+                    this.logger.logInfo('BaseService::getPlData()/02')
                     if (fValsIndex) {
                         ret = req.post.dat.f_vals[fValsIndex][extData];
                     } else {
                         ret = req.post.dat.f_vals[0][extData];
                     }
                 } else {
-                    this.logger.logInfo('BaseService::setPlData()/03');
+                    this.logger.logInfo('BaseService::getPlData()/03');
                     if (fValsIndex) {
                         ret = req.post.dat.f_vals[fValsIndex].data;
                     } else {
                         ret = req.post.dat.f_vals[0].data;
                     }
                 }
-                this.logger.logInfo('BaseService::setPlData()/04');
+                this.logger.logInfo('BaseService::getPlData()/04');
+                return ret;
+            } catch (e) {
+                this.setAlertMessage(e.toString(), svSess, false)
+                return {}
+            }
+        } else {
+            this.setAlertMessage('invalid validation request', svSess, false)
+            return {}
+        }
+    }
+
+    getPlQuery(req, extData: string | null = null, fValsIndex: number | null = null) {
+        this.logger.logInfo('BaseService::getPlData()/01');
+        let ret = null;
+        const svSess = new SessionService()
+        if (this.validatePlData(req, extData)) {
+            try {
+                if (extData) {
+                    this.logger.logInfo('BaseService::getPlData()/02')
+                    if (fValsIndex) {
+                        ret = req.post.dat.f_vals[fValsIndex][extData];
+                    } else {
+                        ret = req.post.dat.f_vals[0][extData];
+                    }
+                } else {
+                    this.logger.logInfo('BaseService::getPlData()/03');
+                    if (fValsIndex) {
+                        ret = req.post.dat.f_vals[fValsIndex].query;
+                    } else {
+                        ret = req.post.dat.f_vals[0].query;
+                    }
+                }
+                this.logger.logInfo('BaseService::getPlData()/04');
                 return ret;
             } catch (e) {
                 this.setAlertMessage(e.toString(), svSess, false)

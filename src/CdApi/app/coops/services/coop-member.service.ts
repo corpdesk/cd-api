@@ -673,7 +673,10 @@ export class CoopMemberService extends CdService {
          * - and 'userId' is set
          */
         if (this.validateGetCoopMemberProfile(req, res)) {
-            uid = this.b.getPlData(req)['userId']
+            const plQuery: IQuery = await this.b.getPlQuery(req)
+            console.log("CoopMemberService::setCoopMemberProfileI()/plQuery:", plQuery)
+            uid = plQuery.where.userId
+            console.log("CoopMemberService::setCoopMemberProfileI()/uid0:", uid)
         }
         console.log("CoopMemberService::setCoopMemberProfileI()/uid1:", uid)
         const svUser = new UserService();
@@ -691,9 +694,10 @@ export class CoopMemberService extends CdService {
             if (this.validateGetCoopMemberProfile(req, res)) {
                 console.log("CoopMemberService::setCoopMemberProfileI()/05")
                 console.log("CoopMemberService::setCoopMemberProfile()/uid:", uid)
-                const uRet = await svUser.getUserByID(req, res,uid);
+                const uRet = await svUser.getUserByID(req, res, uid);
                 console.log("CoopMemberService::setCoopMemberProfile()/uRet:", uRet)
                 const { password, userProfile, ...filteredUserData } = uRet[0]
+                console.log("CoopMemberService::setCoopMemberProfile()/filteredUserData:", filteredUserData)
                 userProfileDefault.userData = filteredUserData
             } else {
                 console.log("CoopMemberService::setCoopMemberProfileI()/06")
@@ -702,16 +706,18 @@ export class CoopMemberService extends CdService {
             }
 
             console.log("CoopMemberService::setCoopMemberProfileI()/06")
-            console.log("CoopMemberService::setCoopMemberProfileI()/userProfileDefault:", userProfileDefault)
-            console.log("CoopMemberService::setCoopMemberProfileI()/06")
+            console.log("CoopMemberService::setCoopMemberProfileI()/userProfileDefault1:", userProfileDefault)
+            console.log("CoopMemberService::setCoopMemberProfileI()/06-1")
             // use default, assign the userId
-            profileDefaultConfig[0].value.userId = sessionDataExt.currentUser.userId
+            profileDefaultConfig[0].value.userId = uid
             console.log("CoopMemberService::setCoopMemberProfileI()/07")
+            console.log("CoopMemberService::setCoopMemberProfileI()/userProfileDefault2:", userProfileDefault)
+            console.log("CoopMemberService::setCoopMemberProfileI()/profileDefaultConfig:", profileDefaultConfig)
             modifiedUserProfile = await svUser.modifyProfile(userProfileDefault, profileDefaultConfig)
             console.log("CoopMemberService::setCoopMemberProfileI()/08")
             console.log("CoopMemberService::setCoopMemberProfileI()/modifiedUserProfile:", modifiedUserProfile)
             this.mergedProfile = await this.mergeUserProfile(req, res, modifiedUserProfile)
-            console.log("CoopMemberService::setCoopMemberProfile()/this.mergedProfile2:", this.mergedProfile)
+            console.log("CoopMemberService::setCoopMemberProfile()/this.mergedProfile2:", JSON.stringify(this.mergedProfile))
         }
     }
 
@@ -770,9 +776,11 @@ export class CoopMemberService extends CdService {
          * Asses if request for self or for another user
          * - if request action is 'GetMemberProfile'
          */
-        if (req.post.a === 'GetMemberProfile') {
-            uid = this.b.getPlData(req)['userId']
+        if (this.validateGetCoopMemberProfile) {
+            const plQuery = this.b.getPlQuery(req)
+            uid = plQuery.where.userId
         }
+        console.log("CoopMemberService::mergeUserProfile()/uid:", uid)
         const q = { where: { userId: uid } }
         console.log("CoopMemberService::mergeUserProfile()/q:", q)
         const coopMemberData = await this.getCoopMemberI(req, res, q)
