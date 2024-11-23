@@ -500,6 +500,15 @@ export class CoopMemberService extends CdService {
         return ret
     }
 
+    async validateUpdateCoopMemberProfile(req, res) {
+        let ret = true
+        const plQuery = this.b.getPlQuery(req)
+        if (req.post.a !== 'UpdateCoopMemberProfile' || !('userId' in plQuery.where)) {
+            ret = false
+        }
+        return ret
+    }
+
     async getCoopMemberProfileI(req, res) {
         try {
             await this.setCoopMemberProfileI(req, res)
@@ -672,8 +681,16 @@ export class CoopMemberService extends CdService {
          * - if request action is 'GetMemberProfile'
          * - and 'userId' is set
          */
-        if (this.validateGetCoopMemberProfile(req, res)) {
-            const plQuery: IQuery = await this.b.getPlQuery(req)
+        console.log("CoopMemberService::setCoopMemberProfileI()/req.post.a", req.post.a)
+        if (req.post.a === 'GetCoopMemberProfile') {
+            const plData = await this.b.getPlData(req)
+            console.log("CoopMemberService::setCoopMemberProfileI()/plData:", plData)
+            uid = plData.userId
+            console.log("CoopMemberService::setCoopMemberProfileI()/uid0:", uid)
+        }
+
+        if (req.post.a === 'UpdateCoopMemberProfile') {
+            const plQuery = await this.b.getPlQuery(req)
             console.log("CoopMemberService::setCoopMemberProfileI()/plQuery:", plQuery)
             uid = plQuery.where.userId
             console.log("CoopMemberService::setCoopMemberProfileI()/uid0:", uid)
@@ -776,7 +793,11 @@ export class CoopMemberService extends CdService {
          * Asses if request for self or for another user
          * - if request action is 'GetMemberProfile'
          */
-        if (this.validateGetCoopMemberProfile) {
+        if (req.post.a === 'GetCoopMemberProfile') {
+            const plData = this.b.getPlData(req)
+            uid = plData.userId
+        }
+        if (req.post.a === 'UpdateCoopMemberProfile') {
             const plQuery = this.b.getPlQuery(req)
             uid = plQuery.where.userId
         }
