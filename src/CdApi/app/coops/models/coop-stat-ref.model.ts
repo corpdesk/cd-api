@@ -14,7 +14,7 @@ import {
 
 @Entity(
     {
-        name: 'coop_ref',
+        name: 'coop_stat_ref',
         synchronize: false
     }
 )
@@ -23,13 +23,13 @@ export class CoopStatRefModel {
 
     @PrimaryGeneratedColumn(
         {
-            name: 'coop_ref_id'
+            name: 'coop_stat_ref_id'
         }
     )
     coopStatRefId?: number;
 
     @Column({
-        name: 'coop_ref_guid',
+        name: 'coop_stat_ref_guid',
         length: 36,
         default: uuidv4()
     })
@@ -38,7 +38,7 @@ export class CoopStatRefModel {
     @Column(
         'varchar',
         {
-            name: 'coop_ref_name',
+            name: 'coop_stat_ref_name',
             length: 50,
             nullable: true
         }
@@ -48,7 +48,7 @@ export class CoopStatRefModel {
     @Column(
         'varchar',
         {
-            name: 'coop_ref_description',
+            name: 'coop_stat_ref_description',
             length: 50,
             nullable: true
         }
