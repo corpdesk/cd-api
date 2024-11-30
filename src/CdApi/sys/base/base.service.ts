@@ -549,6 +549,7 @@ export class BaseService {
                     }
                 }
                 this.logger.logInfo('BaseService::getPlData()/04');
+                console.log("BaseService::getData()/ret:", ret)
                 return ret;
             } catch (e) {
                 this.setAlertMessage(e.toString(), svSess, false)
@@ -561,27 +562,28 @@ export class BaseService {
     }
 
     getPlQuery(req, extData: string | null = null, fValsIndex: number | null = null) {
-        this.logger.logInfo('BaseService::getPlData()/01');
+        this.logger.logInfo('BaseService::getPlQuery()/01');
         let ret = null;
         const svSess = new SessionService()
         if (this.validatePlData(req, extData)) {
             try {
                 if (extData) {
-                    this.logger.logInfo('BaseService::getPlData()/02')
+                    this.logger.logInfo('BaseService::getPlQuery()/02')
                     if (fValsIndex) {
                         ret = req.post.dat.f_vals[fValsIndex][extData];
                     } else {
                         ret = req.post.dat.f_vals[0][extData];
                     }
                 } else {
-                    this.logger.logInfo('BaseService::getPlData()/03');
+                    this.logger.logInfo('BaseService::getPlQuery()/03');
                     if (fValsIndex) {
                         ret = req.post.dat.f_vals[fValsIndex].query;
                     } else {
                         ret = req.post.dat.f_vals[0].query;
                     }
                 }
-                this.logger.logInfo('BaseService::getPlData()/04');
+                this.logger.logInfo('BaseService::getPlQuery()/04');
+                console.log("BaseService::getQuery()/ret:", ret)
                 return ret;
             } catch (e) {
                 this.setAlertMessage(e.toString(), svSess, false)
@@ -838,10 +840,14 @@ export class BaseService {
     }
 
     async validateRequired(req, res, cRules) {
+        console.log("BaseService::validateRequired()/cRules:", JSON.stringify(cRules))
         const svSess = new SessionService();
         await this.init(req, res);
         const rqFieldNames = cRules.required as string[];
+        console.log("BaseService::validateRequired()/rqFieldNames:", JSON.stringify(rqFieldNames))
         this.isInvalidFields = await rqFieldNames.filter((fieldName) => {
+            console.log("BaseService::validateRequired()/fieldName:", fieldName)
+            console.log("BaseService::validateRequired()/this.getPlData(req):", JSON.stringify(this.getPlData(req)))
             if (!(fieldName in this.getPlData(req))) { // required field is missing
                 return fieldName;
             }

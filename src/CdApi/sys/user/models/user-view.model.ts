@@ -113,14 +113,14 @@ export class UserViewModel {
             name: 'f_name'
         }
     )
-    fName: boolean;
+    fName: string;
 
     @ViewColumn(
         {
             name: 'm_name'
         }
     )
-    mName: number;
+    mName: string;
 
     @ViewColumn(
         {

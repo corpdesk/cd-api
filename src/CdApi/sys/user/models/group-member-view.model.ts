@@ -74,7 +74,7 @@ export class GroupMemberViewModel {
             name: 'group_owner_id'
         }
     )
-    groupOwner_id: number;
+    groupOwnerId: number;
 
     @ViewColumn(
         {
@@ -123,7 +123,7 @@ export class GroupMemberViewModel {
             name: 'group_member_id'
         }
     )
-    groupMember_id: number;
+    groupMemberId: number;
 
     @ViewColumn(
         {
