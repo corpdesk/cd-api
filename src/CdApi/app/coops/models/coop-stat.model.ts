@@ -39,7 +39,7 @@ export class CoopStatModel {
 
     @Column(
         {
-            name: 'coop_description',
+            name: 'coop_stat_description',
             length: 60,
             default: null
         })
