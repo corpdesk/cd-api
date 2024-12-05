@@ -12,8 +12,6 @@ export class CoopStatPublicFilterController {
         this.b = new BaseService();
         this.svCoopStatPublicFilter = new CoopStatPublicFilterService();
         this.svCoopType = new CoopTypeService();
-
-
     }
 
     // /**

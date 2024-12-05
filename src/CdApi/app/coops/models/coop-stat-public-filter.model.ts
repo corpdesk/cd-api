@@ -62,6 +62,22 @@ export class CoopStatPublicFilterModel {
         })
     docId: number;
 
+    @Column(
+        {
+            name: 'coop_stat_public_filter_specs',
+            nullable: true
+        }
+    )
+    coopStatPublicFilterSpecs: string;
+
+    @Column(
+        {
+            name: 'coop_stat_public_filter_enabled',
+            nullable: true
+        }
+    )
+    coopStatPublicFilterEnabled: boolean;
+
 
     // HOOKS
     @BeforeInsert()
