@@ -131,6 +131,13 @@ export class UserViewModel {
 
     @ViewColumn(
         {
+            name: 'user_profile'
+        }
+    )
+    userProfile: number;
+
+    @ViewColumn(
+        {
             name: 'national_id'
         }
     )
@@ -177,5 +184,7 @@ export class UserViewModel {
         }
     )
     companyId: number;
+
+    
 
 }
