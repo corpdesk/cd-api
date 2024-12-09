@@ -171,4 +171,11 @@ export class UserViewModel {
     )
     userTypeId: number;
 
+    @ViewColumn(
+        {
+            name: 'company_id'
+        }
+    )
+    companyId: number;
+
 }
