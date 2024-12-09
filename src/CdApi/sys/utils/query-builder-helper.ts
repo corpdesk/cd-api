@@ -86,49 +86,6 @@ export class QueryBuilderHelper {
         };
     }
 
-    // createQueryBuilder(serviceInput: IServiceInput): SelectQueryBuilder<any> {
-    //     // clean up the where clause...especially for request from browsers
-    //     // const q = this.transformQueryInput(serviceInput.cmd.query);
-    //     // serviceInput.cmd.query.where = q.where;
-    //     // console.log('QueryBuilderHelper::createQueryBuilder()/q:', q);
-
-    //     const query = serviceInput.cmd.query;
-    //     const queryBuilder = this.repository.createQueryBuilder(this.repository.metadata.name);
-
-    //     // Handling SELECT clause
-    //     if (query.select && query.select.length > 0) {
-    //         this.entityAdapter.registerMappingFromEntity(serviceInput.serviceModel);
-    //         const selectDB = this.entityAdapter.getDbSelect(this.repository.metadata.name, query.select);
-    //         queryBuilder.select(selectDB);
-    //     } else {
-    //         const allColumns = this.repository.metadata.columns.map(column => `${this.repository.metadata.name}.${column.databaseName}`);
-    //         queryBuilder.select(allColumns);
-    //     }
-
-    //     // Handling WHERE clause
-    //     if (query.where) {
-    //         if (typeof query.where === 'object' && !Array.isArray(query.where) && !this.isEmptyObject(query.where)) {
-    //             // If 'where' is an object
-    //             this.processObjectWhereClause(queryBuilder, query.where);
-    //         } else if (Array.isArray(query.where) && query.where.length > 0) {
-    //             // If 'where' is an array
-    //             this.processArrayWhereClause(queryBuilder, query.where);
-    //             // this.processArrayWhereClause2(queryBuilder, query.where);
-    //         }
-    //     }
-
-    //     // Handling TAKE and SKIP clauses
-    //     if (query.take) {
-    //         queryBuilder.take(query.take);
-    //     }
-
-    //     if (query.skip) {
-    //         queryBuilder.skip(query.skip);
-    //     }
-
-    //     return queryBuilder;
-    // }
-
     createQueryBuilder(serviceInput: IServiceInput): SelectQueryBuilder<any> {
         const query = serviceInput.cmd.query;
         const queryBuilder = this.repository.createQueryBuilder(this.repository.metadata.name);
@@ -170,27 +127,55 @@ export class QueryBuilderHelper {
     }
     
 
+    // private processObjectWhereClause(queryBuilder: SelectQueryBuilder<any>, where: any): void {
+    //     Object.keys(where).forEach((key, index) => {
+    //         const value = where[key];
+    //         const dbField = `${this.repository.metadata.name}.${this.getDatabaseColumnName(key)}`;
+
+    //         if (typeof value === 'string' && value.startsWith('Like(') && value.endsWith(')')) {
+    //             const match = value.match(/^Like\((.*)\)$/);
+    //             if (match) {
+    //                 const likeValue = match[1];
+    //                 if (index === 0) {
+    //                     queryBuilder.where(`${dbField} LIKE :${key}`, { [key]: likeValue });
+    //                 } else {
+    //                     queryBuilder.andWhere(`${dbField} LIKE :${key}`, { [key]: likeValue });
+    //                 }
+    //             }
+    //         } else {
+    //             if (index === 0) {
+    //                 queryBuilder.where(`${dbField} = :${key}`, { [key]: value });
+    //             } else {
+    //                 queryBuilder.andWhere(`${dbField} = :${key}`, { [key]: value });
+    //             }
+    //         }
+    //     });
+    // }
     private processObjectWhereClause(queryBuilder: SelectQueryBuilder<any>, where: any): void {
         Object.keys(where).forEach((key, index) => {
             const value = where[key];
-            const dbField = `${this.repository.metadata.name}.${this.getDatabaseColumnName(key)}`;
-
-            if (typeof value === 'string' && value.startsWith('Like(') && value.endsWith(')')) {
+            const dbField = `${this.repository.metadata.name}.${this.getDatabaseColumnName(key.replace(/[>< ]/g, ''))}`;
+    
+            if (key.includes('>')) {
+                // Handle greater than condition
+                queryBuilder[index === 0 ? 'where' : 'andWhere'](`${dbField} > :${key}`, { [key]: value });
+            } else if (key.includes('<')) {
+                // Handle less than condition
+                queryBuilder[index === 0 ? 'where' : 'andWhere'](`${dbField} < :${key}`, { [key]: value });
+            } else if (key.includes('BETWEEN') && value.start && value.end) {
+                // Handle between condition
+                queryBuilder[index === 0 ? 'where' : 'andWhere'](
+                    `${dbField} BETWEEN :${key}Start AND :${key}End`,
+                    { [`${key}Start`]: value.start, [`${key}End`]: value.end }
+                );
+            } else if (typeof value === 'string' && value.startsWith('Like(') && value.endsWith(')')) {
                 const match = value.match(/^Like\((.*)\)$/);
                 if (match) {
                     const likeValue = match[1];
-                    if (index === 0) {
-                        queryBuilder.where(`${dbField} LIKE :${key}`, { [key]: likeValue });
-                    } else {
-                        queryBuilder.andWhere(`${dbField} LIKE :${key}`, { [key]: likeValue });
-                    }
+                    queryBuilder[index === 0 ? 'where' : 'andWhere'](`${dbField} LIKE :${key}`, { [key]: likeValue });
                 }
             } else {
-                if (index === 0) {
-                    queryBuilder.where(`${dbField} = :${key}`, { [key]: value });
-                } else {
-                    queryBuilder.andWhere(`${dbField} = :${key}`, { [key]: value });
-                }
+                queryBuilder[index === 0 ? 'where' : 'andWhere'](`${dbField} = :${key}`, { [key]: value });
             }
         });
     }
