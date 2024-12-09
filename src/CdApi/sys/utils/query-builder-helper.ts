@@ -89,7 +89,7 @@ export class QueryBuilderHelper {
     createQueryBuilder(serviceInput: IServiceInput): SelectQueryBuilder<any> {
         const query = serviceInput.cmd.query;
         const queryBuilder = this.repository.createQueryBuilder(this.repository.metadata.name);
-    
+
         // Handling SELECT clause
         if (query.select && query.select.length > 0) {
             this.entityAdapter.registerMappingFromEntity(serviceInput.serviceModel);
@@ -99,12 +99,12 @@ export class QueryBuilderHelper {
             const allColumns = this.repository.metadata.columns.map(column => `${this.repository.metadata.name}.${column.databaseName}`);
             queryBuilder.select(allColumns);
         }
-    
+
         // Apply DISTINCT if specified
         if (query.distinct) {
             queryBuilder.distinct(true);
         }
-    
+
         // Handling WHERE clause
         if (query.where) {
             if (typeof query.where === 'object' && !Array.isArray(query.where) && !this.isEmptyObject(query.where)) {
@@ -113,72 +113,79 @@ export class QueryBuilderHelper {
                 this.processArrayWhereClause(queryBuilder, query.where);
             }
         }
-    
+
         // Handling TAKE and SKIP clauses
         if (query.take) {
             queryBuilder.take(query.take);
         }
-    
+
         if (query.skip) {
             queryBuilder.skip(query.skip);
         }
-    
+
         return queryBuilder;
     }
-    
 
-    // private processObjectWhereClause(queryBuilder: SelectQueryBuilder<any>, where: any): void {
-    //     Object.keys(where).forEach((key, index) => {
-    //         const value = where[key];
-    //         const dbField = `${this.repository.metadata.name}.${this.getDatabaseColumnName(key)}`;
 
-    //         if (typeof value === 'string' && value.startsWith('Like(') && value.endsWith(')')) {
-    //             const match = value.match(/^Like\((.*)\)$/);
-    //             if (match) {
-    //                 const likeValue = match[1];
-    //                 if (index === 0) {
-    //                     queryBuilder.where(`${dbField} LIKE :${key}`, { [key]: likeValue });
-    //                 } else {
-    //                     queryBuilder.andWhere(`${dbField} LIKE :${key}`, { [key]: likeValue });
-    //                 }
-    //             }
-    //         } else {
-    //             if (index === 0) {
-    //                 queryBuilder.where(`${dbField} = :${key}`, { [key]: value });
-    //             } else {
-    //                 queryBuilder.andWhere(`${dbField} = :${key}`, { [key]: value });
-    //             }
-    //         }
-    //     });
-    // }
+    /**
+     * Example of comparison usage
+     * 
+     * const query: IQuery = {
+            update: {
+                coopStatEnabled: true,
+            },
+            where: {
+                'coopStatDate%BETWEEN': { start: '2024-01-01', end: '2024-06-30' },
+            },
+        };
+        
+     * const query: IQuery = {
+            update: {
+                coopStatDisplay: false,
+            },
+            where: {
+                'coopStatDate%>': '2024-07-01',
+                'cdGeoLocationId%=': 102,
+            },
+        };
+     * @param queryBuilder 
+     * @param where 
+     */
     private processObjectWhereClause(queryBuilder: SelectQueryBuilder<any>, where: any): void {
         Object.keys(where).forEach((key, index) => {
+            const [field, operator] = key.split('%'); // Split field and operator
+            const dbField = `${this.repository.metadata.name}.${this.getDatabaseColumnName(field)}`;
             const value = where[key];
-            const dbField = `${this.repository.metadata.name}.${this.getDatabaseColumnName(key.replace(/[>< ]/g, ''))}`;
-    
-            if (key.includes('>')) {
-                // Handle greater than condition
-                queryBuilder[index === 0 ? 'where' : 'andWhere'](`${dbField} > :${key}`, { [key]: value });
-            } else if (key.includes('<')) {
-                // Handle less than condition
-                queryBuilder[index === 0 ? 'where' : 'andWhere'](`${dbField} < :${key}`, { [key]: value });
-            } else if (key.includes('BETWEEN') && value.start && value.end) {
-                // Handle between condition
-                queryBuilder[index === 0 ? 'where' : 'andWhere'](
-                    `${dbField} BETWEEN :${key}Start AND :${key}End`,
-                    { [`${key}Start`]: value.start, [`${key}End`]: value.end }
-                );
-            } else if (typeof value === 'string' && value.startsWith('Like(') && value.endsWith(')')) {
-                const match = value.match(/^Like\((.*)\)$/);
-                if (match) {
-                    const likeValue = match[1];
-                    queryBuilder[index === 0 ? 'where' : 'andWhere'](`${dbField} LIKE :${key}`, { [key]: likeValue });
-                }
+
+            const sqlOperator = this.getSqlOperator(operator); // Map symbol to SQL operator
+            const condition = operator === 'BETWEEN' && typeof value === 'object'
+                ? `${dbField} BETWEEN :${field}Start AND :${field}End`
+                : `${dbField} ${sqlOperator} :${field}`;
+
+            const params = operator === 'BETWEEN' && typeof value === 'object'
+                ? { [`${field}Start`]: value.start, [`${field}End`]: value.end }
+                : { [field]: value };
+
+            if (index === 0) {
+                queryBuilder.where(condition, params);
             } else {
-                queryBuilder[index === 0 ? 'where' : 'andWhere'](`${dbField} = :${key}`, { [key]: value });
+                queryBuilder.andWhere(condition, params);
             }
         });
     }
+
+    // Example SQL operator mapper
+    private getSqlOperator(symbol: string): string {
+        const operatorMap = {
+            '>': '>',
+            '<': '<',
+            '=': '=',
+            'BETWEEN': 'BETWEEN',
+            'LIKE': 'LIKE',
+        };
+        return operatorMap[symbol] || '=';
+    }
+
 
     processArrayWhereClause2(queryBuilder: SelectQueryBuilder<any>, where: any) {
         console.log('QueryBuilderHelper::processArrayWhereClause2/04:')
@@ -292,18 +299,18 @@ export class QueryBuilderHelper {
         // Use UpdateQueryBuilder for updating
         const queryBuilder = this.repository.createQueryBuilder()
             .update(this.repository.metadata.name);
-    
+
         // Construct the JSON_SET update expression
         const updateFields = Object.keys(updates)
             .map(key => `JSON_SET(${jsonField}, '$.${key}', '${updates[key]}')`)
             .join(', ');
-    
+
         // Use set() properly with UpdateQueryBuilder
         queryBuilder.set({ [jsonField]: () => updateFields });
-    
+
         return this;
     }
-    
-    
-    
+
+
+
 }
