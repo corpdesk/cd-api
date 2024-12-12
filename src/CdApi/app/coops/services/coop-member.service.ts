@@ -823,28 +823,6 @@ export class CoopMemberService extends CdService {
         return await mergedProfile
     }
 
-    // /////////
-    // // Based on common ProfileServiceHelper class
-    // async existingCoopMemberProfile(req, res, memberId) {
-    //     const si: IServiceInput = {
-    //         serviceInstance: this,
-    //         serviceModel: CoopMemberModel,
-    //         docName: 'CoopMemberService::existingUserProfile',
-    //         cmd: {
-    //             query: { where: { coopMemberId: memberId } }
-    //         }
-    //     };
-    //     return ProfileServiceHelper.fetchProfile(req, res, si);
-    // }
-
-    // async modifyCoopMemberProfile(existingData, profileDefaultConfig) {
-    //     return ProfileServiceHelper.modifyProfile(existingData, profileDefaultConfig, {
-    //         memberPermissions: 'memberPermissions',
-    //         groupPermissions: 'groupPermissions',
-    //         memberId: 'memberId',
-    //         groupId: 'groupId'
-    //     });
-    // }
 
     async updateCoopMemberProfile(req, res): Promise<void> {
         try {

@@ -64,11 +64,12 @@ export class CoopStatPublicFilterModel {
 
     @Column(
         {
+            type: 'json', 
             name: 'coop_stat_public_filter_specs',
             nullable: true
         }
     )
-    coopStatPublicFilterSpecs: string;
+    coopStatPublicFilterSpecs: object | string;
 
     @Column(
         {
@@ -86,4 +87,24 @@ export class CoopStatPublicFilterModel {
         await validateOrReject(this);
     }
 
+}
+
+export interface coopStatPublicFilterSpecs {
+    where: {
+        coopTypeId?: number;
+        coopStatRefId?: number;
+        cdGeoLocationId?: number;
+        coopStatDateLabel?: Date;
+        cdGeoPoliticalTypeId?: number;
+    };
+    update: {
+        coopStatEnabled: true;
+        coopStatDisplay: true;
+    };
+    exempted: {
+        guid: string;
+        cdObjId: number;
+        cdObjName?: string | null;
+        cdObjType: number;
+    }[]; // Updated to allow arrays with any length
 }
