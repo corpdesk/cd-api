@@ -10,6 +10,7 @@ import { CoopStatViewModel } from '../models/coop-stat-view.model';
 import { siGet } from '../../../sys/base/base.model';
 import { CdGeoLocationService } from '../../cd-geo/services/cd-geo-location.service';
 import { Logging } from '../../../sys/base/winston.log';
+import { CoopStatPublicFilterService } from './coop-stat-public-filter.service';
 
 export class CoopStatService extends CdService {
     logger: Logging;
@@ -40,8 +41,8 @@ export class CoopStatService extends CdService {
         this.logger = new Logging();
         this.serviceModel = new CoopStatModel();
     }
-    
-    async initSession(req, res){
+
+    async initSession(req, res) {
         const svSess = new SessionService();
         this.sessDataExt = await svSess.getSessionDataExt(req, res);
     }
@@ -219,7 +220,7 @@ export class CoopStatService extends CdService {
                 controllerData: coopQuery
             }
             let ret = await this.createI(req, res, createIParams)
-            this.logger.logInfo('CoopService::createM()/forLoop/ret:', {ret: ret})
+            this.logger.logInfo('CoopService::createM()/forLoop/ret:', { ret: ret })
         }
         // return current sample data
         // eg first 5
@@ -436,7 +437,7 @@ export class CoopStatService extends CdService {
                 },
                 dSource: 1
             }
-            this.logger.logInfo('coop/CoopService::validateCreate()/serviceInput:', {serviceInput: JSON.stringify(serviceInput)})
+            this.logger.logInfo('coop/CoopService::validateCreate()/serviceInput:', { serviceInput: JSON.stringify(serviceInput) })
             const r: any = await this.b.read(req, res, serviceInput)
             this.logger.logInfo('coop/CoopService::validateCreate()/r:', r)
             if (r.length > 0) {
@@ -775,12 +776,23 @@ export class CoopStatService extends CdService {
         if (q === null) {
             q = this.b.getQuery(req);
         }
-        
+
+        let svCoopStatPublicFilter = new CoopStatPublicFilterService()
         let svCdGeoLocationService = new CdGeoLocationService()
-        let gData = await svCdGeoLocationService.getGeoLocationI(req, res, q)
+
+        /**
+        * Apply public filter:
+        * This filter is meant to be applied against an in coming query for 
+        * coopStat. 
+        * Additional filters will be applied as per array settings hosted in 
+        * coopStatPublicFilter in the coopStatPublicFilterSpecs JSON field
+        * The setting also optionally include exemptions for selected users and groups
+        */
+        q = await svCoopStatPublicFilter.applyCoopStatFilter(req, res, q)
         
+        let gData = await svCdGeoLocationService.getGeoLocationI(req, res, q)
         // ,"order": {"coopStatDateLabel": "ASC"}
-        q.order = {"coopStatDateLabel": "ASC"}
+        q.order = { "coopStatDateLabel": "ASC" }
         let cData = await this.getCoopI(req, res, q)
         let ret = {
             geoLocationData: gData.data,

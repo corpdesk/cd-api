@@ -383,7 +383,7 @@ export class GroupMemberService extends CdService {
                     const group: GroupModel[] = await this.b.get(req, res, groupServiceInput);
                     console.log('GroupMemberService::validateCreate()/14')
                     console.log('GroupMemberService::validateCreate()/group:', group)
-                    if(group.length < 1){
+                    if (group.length < 1) {
                         ret = await this.b.validateInputRefernce(`parent reference is invalid`, group, svSess)
                     }
                 } else {
@@ -566,8 +566,39 @@ export class GroupMemberService extends CdService {
         return [{}];
     }
 
-    async getUserGroups(ret) {
-        //
+    // async getUserGroupsI(req, res, userId) {
+    //     /**
+    //      * get groups from group members where user_id_member=userId
+    //      */
+    // }
+    async getUserGroupsI(req, res, userId: number) {
+        // if (q === null) {
+        //     q = this.b.getQuery(req);
+        // }
+        const q = { where: { userIdMember: userId } }
+        console.log('GroupMemberService::getUserGroupsI/f:', q);
+        const serviceInput = {
+            serviceModel: GroupMemberViewModel,
+            docName: 'GroupMemberService::getUserGroupsI',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        try {
+            return this.b.read(req, res, serviceInput)
+        } catch (e) {
+            console.log('GroupMemberService::getUserGroupsI()/e:', e)
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'GroupMemberService:getUserGroupsI',
+                app_msg: ''
+            };
+            await this.b.serviceErr(req, res, e, i.code)
+            await this.b.respond(req, res)
+        }
     }
 
 }

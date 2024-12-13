@@ -9,6 +9,7 @@ import { CdGeoLocationModel } from '../models/cd-geo-location.model';
 import { siGet } from '../../../sys/base/base.model';
 import config from '../../../../config';
 import { Logging } from '../../../sys/base/winston.log';
+import { CoopStatPublicFilterService } from '../../coops/services/coop-stat-public-filter.service';
 
 export class CdGeoLocationService extends CdService {
     logger: Logging;

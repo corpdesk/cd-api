@@ -10,6 +10,12 @@ import { CoopTypeModel } from '../models/coop-type.model';
 import { siGet } from '../../../sys/base/base.model';
 import { CdGeoLocationService } from '../../cd-geo/services/cd-geo-location.service';
 import { Logging } from '../../../sys/base/winston.log';
+import { Between, LessThan, MoreThan, Not } from 'typeorm';
+import { UserModel } from '../../../sys/user/models/user.model';
+import { GroupModel } from '../../../sys/user/models/group.model';
+import { GroupService } from '../../../sys/user/services/group.service';
+import { GroupMemberService } from '../../../sys/user/services/group-member.service';
+import { GroupMemberModel } from '../../../sys/user/models/group-member.model';
 
 export class CoopStatPublicFilterService extends CdService {
     logger: Logging;
@@ -253,14 +259,14 @@ export class CoopStatPublicFilterService extends CdService {
     }
 
     async beforeCreate(req, res): Promise<any> {
-        this.b.setPlData(req, { key: 'CoopStatPublicFilterGuid', value: this.b.getGuid() });
-        this.b.setPlData(req, { key: 'CoopStatPublicFilterEnabled', value: true });
+        await this.b.setPlData(req, { key: 'coopStatPublicFilterGuid', value: this.b.getGuid() });
+        await this.b.setPlData(req, { key: 'coopStatPublicFilterEnabled', value: true });
         return true;
     }
 
     async beforeCreateSL(req, res): Promise<any> {
-        this.b.setPlData(req, { key: 'CoopStatPublicFilterGuid', value: this.b.getGuid() });
-        this.b.setPlData(req, { key: 'CoopStatPublicFilterEnabled', value: true });
+        await this.b.setPlData(req, { key: 'coopStatPublicFilterGuid', value: this.b.getGuid() });
+        await this.b.setPlData(req, { key: 'coopStatPublicFilterEnabled', value: true });
         return true;
     }
 
@@ -777,6 +783,139 @@ export class CoopStatPublicFilterService extends CdService {
             return { data: null, error: e }
         }
     }
+
+    /**
+     * 
+     * This filter is meant to be applied against an in coming query for 
+     * coopStat. 
+     * Additional filters will be applied as per array settings hosted in 
+     * coopStatPublicFilter in the coopStatPublicFilterSpecs JSON field
+     * The setting also optionally include exemptions for selected users and groups
+     * 
+     * @param req 
+     * @param res 
+     * @param q 
+     * @returns 
+     */
+    async applyCoopStatFilter(req, res, q: IQuery): Promise<IQuery> {
+        console.log("CoopStatPublicFilterService::applyCoopStatFilter()/BeforeFilter/q:", q)
+        const svSess = new SessionService()
+        const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(req, res, true)
+        console.log("CoopMemberService::setCoopMemberProfileI()/sessionDataExt:", sessionDataExt)
+        // let uid = sessionDataExt.currentUser.userId
+        const currentUser = sessionDataExt.currentUser
+
+        const svGroupMember = new GroupMemberService()
+
+        // // Get user groups
+        const userGroups: GroupMemberModel[] = await svGroupMember.getUserGroupsI(req, res, currentUser.userId);
+        // Fetch existing filter specifications
+        const existingFilters = await this.getCoopStatPublicFilterSpecsI(req, res, { where: {} });
+
+        if (!existingFilters || existingFilters.data.length === 0) {
+            console.log("No filters applied as no existing filters found.");
+            return q;
+        }
+
+        // Ensure `q.where` exists
+        q.where = q.where || {};
+
+        for (const filter of existingFilters.data) {
+            // Skip applying the filter if the user is exempted
+            const isExempted = await this.userIsExempted(req, res, filter,currentUser,userGroups,);
+            if (isExempted) {
+                console.log("User or group exempted from filter:", filter);
+                continue;
+            }
+
+            // Apply filters from existingFilters
+            if (filter.where.coopTypeId !== undefined) {
+                q.where.coopTypeId = Not(filter.where.coopTypeId);
+            }
+
+            if (filter.where.coopStatRefId !== undefined) {
+                q.where.coopStatRefId = Not(filter.where.coopStatRefId);
+            }
+
+            if (filter.where.cdGeoLocationId !== undefined) {
+                q.where.cdGeoLocationId = Not(filter.where.cdGeoLocationId);
+            }
+
+            if (filter.where.cdGeoPoliticalTypeId !== undefined) {
+                q.where.cdGeoPoliticalTypeId = Not(filter.where.cdGeoPoliticalTypeId);
+            }
+
+            if (filter.where.coopStatDateLabel !== undefined) {
+                const dateLabel = filter.where.coopStatDateLabel;
+
+                if (typeof dateLabel === 'string' && dateLabel.includes('%<')) {
+                    const dateValue = dateLabel.split('%<')[1];
+                    q.where.coopStatDateLabel = LessThan(new Date(dateValue));
+                } else if (typeof dateLabel === 'string' && dateLabel.includes('%>')) {
+                    const dateValue = dateLabel.split('%>')[1];
+                    q.where.coopStatDateLabel = MoreThan(new Date(dateValue));
+                } else if (typeof dateLabel === 'string' && dateLabel.includes('%BETWEEN')) {
+                    const [start, end] = dateLabel.split('%BETWEEN')[1].split(',');
+                    q.where.coopStatDateLabel = Between(new Date(start), new Date(end));
+                }
+            }
+        }
+
+        console.log("Filters applied to the where clause:", q.where);
+        console.log("CoopStatPublicFilterService::applyCoopStatFilter()/AfterFilter/q:", q)
+        return q;
+    }
+
+
+
+
+    async getCoopStatPublicFilterSpecsI(req, res, q: IQuery = null) {
+        if (q === null) {
+            q = this.b.getQuery(req);
+        }
+        this.logger.logInfo('CoopStatPublicFilterService::getCoopStatPublicFilterI/q:', q);
+        let serviceModel = new CoopStatPublicFilterModel();
+        const serviceInput: IServiceInput = this.b.siGet(q, this)
+        serviceInput.serviceModelInstance = serviceModel
+        serviceInput.serviceModel = CoopStatPublicFilterModel
+        try {
+            let respData = await this.b.read(req, res, serviceInput)
+            return { data: respData, error: null }
+        } catch (e) {
+            this.logger.logInfo('CoopStatPublicFilterService::getCoopStatPublicFilterI()/e:', e)
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'BCoopStatPublicFilterService::getCoopStatPublicFilterI()/e:',
+                app_msg: ''
+            };
+            return { data: null, error: e }
+        }
+    }
+
+    async userIsExempted(
+        req: Request,
+        res: Response,
+        existingFilter: coopStatPublicFilterSpecs,
+        currentUser: UserModel,
+        userGroups: GroupMemberModel[],
+    ): Promise<boolean> {
+
+        // Check if user is directly exempted
+        const isUserExempted = existingFilter.exempted.some(item =>
+            item.cdObjTypeId === 9 && item.cdObjId === currentUser.userId
+        );
+
+        // Check if any of the user's groups are exempted
+        const isGroupExempted = userGroups.some(group =>
+            existingFilter.exempted.some(item =>
+                item.cdObjTypeId === 10 && item.cdObjId === group.groupIdParent
+            )
+        );
+
+        return isUserExempted || isGroupExempted;
+    }
+
 
     /**
      * get data by geo-location

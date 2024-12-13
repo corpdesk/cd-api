@@ -30,8 +30,10 @@ export class CoopStatPublicFilterModel {
 
     @Column({
         name: 'coop_stat_public_filter_guid',
+        type: 'char',
         length: 36,
-        default: uuidv4()
+        nullable: false,
+        default: () => uuidv4(),
     })
     coopStatPublicFilterGuid?: string;
 
@@ -80,13 +82,6 @@ export class CoopStatPublicFilterModel {
     coopStatPublicFilterEnabled: boolean;
 
 
-    // HOOKS
-    @BeforeInsert()
-    @BeforeUpdate()
-    async validate() {
-        await validateOrReject(this);
-    }
-
 }
 
 export interface coopStatPublicFilterSpecs {
@@ -101,10 +96,12 @@ export interface coopStatPublicFilterSpecs {
         coopStatEnabled: true;
         coopStatDisplay: true;
     };
-    exempted: {
-        guid: string;
-        cdObjId: number;
-        cdObjName?: string | null;
-        cdObjType: number;
-    }[]; // Updated to allow arrays with any length
+    exempted: IExemptedItem[]; // Updated to allow arrays with any length
+}
+
+export interface IExemptedItem {
+    guid: string, // guid identity
+    cdObjId: number, // id of user or group
+    cdObjName?: string | null, // name of user or group
+    cdObjTypeId?: number, // determines whether it is user, 9 or group, 10
 }
