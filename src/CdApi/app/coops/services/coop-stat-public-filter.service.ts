@@ -10,7 +10,7 @@ import { CoopTypeModel } from '../models/coop-type.model';
 import { siGet } from '../../../sys/base/base.model';
 import { CdGeoLocationService } from '../../cd-geo/services/cd-geo-location.service';
 import { Logging } from '../../../sys/base/winston.log';
-import { Between, LessThan, MoreThan, Not } from 'typeorm';
+import { Between, FindOperator, LessThan, MoreThan, Not } from 'typeorm';
 import { UserModel } from '../../../sys/user/models/user.model';
 import { GroupModel } from '../../../sys/user/models/group.model';
 import { GroupService } from '../../../sys/user/services/group.service';
@@ -797,92 +797,205 @@ export class CoopStatPublicFilterService extends CdService {
      * @param q 
      * @returns 
      */
+    // async applyCoopStatFilter(req, res, q: IQuery): Promise<IQuery> {
+    //     console.log("CoopStatPublicFilterService::applyCoopStatFilter()/BeforeFilter/q:", q)
+    //     const svSess = new SessionService()
+    //     const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(req, res, true)
+    //     console.log("CoopMemberService::applyCoopStatFilter()/sessionDataExt:", sessionDataExt)
+    //     // let uid = sessionDataExt.currentUser.userId
+    //     const currentUser = sessionDataExt.currentUser
+    //     console.log("CoopMemberService::applyCoopStatFilter()/currentUser:", currentUser)
+
+    //     const svGroupMember = new GroupMemberService()
+
+    //     // // Get user groups
+    //     const userGroups: GroupMemberModel[] = await svGroupMember.getUserGroupsI(req, res, currentUser.userGuid);
+    //     console.log("CoopMemberService::applyCoopStatFilter()/userGroups:", userGroups)
+
+
+    //     // Fetch existing filter specifications
+    //     // only allow enabled data
+    //     const qCoopStatPublicFilterSpecs = { where: { coopStatPublicFilterEnabled: true } }
+    //     const existingFilters = await this.getCoopStatPublicFilterSpecsI(req, res, qCoopStatPublicFilterSpecs);
+    //     console.log("CoopMemberService::applyCoopStatFilter()/existingFilters:", existingFilters)
+    //     if (!existingFilters || existingFilters.data.length === 0) {
+    //         console.log("No filters applied as no existing filters found.");
+    //         return q;
+    //     }
+    //     // Ensure `q.where` exists
+    //     q.where = q.where || {};
+
+    //     for (const f of existingFilters.data) {
+    //         const filter = f.coopStatPublicFilterSpecs;
+    //         // Skip applying the filter if the user is exempted
+    //         const isExempted = await this.userIsExempted(req, res, filter, currentUser, userGroups,);
+    //         console.log("CoopMemberService::applyCoopStatFilter()/isExempted:", isExempted)
+    //         if (isExempted) {
+    //             console.log("User or group exempted from filter:", filter);
+    //             continue;
+    //         }
+
+    //         // Apply filters from existingFilters
+    //         if ('coopTypeId' in filter.where) {
+    //             q.where.coopTypeId = Not(filter.where.coopTypeId);
+    //         }
+    //         console.log("CoopMemberService::applyCoopStatFilter()/q1:", await q)
+
+    //         if ('coopStatRefId' in filter.where) {
+    //             q.where.coopStatRefId = Not(filter.where.coopStatRefId);
+    //         }
+    //         console.log("CoopMemberService::applyCoopStatFilter()/q2:", await q)
+
+    //         if ('cdGeoLocationId' in filter.where) {
+    //             q.where.cdGeoLocationId = Not(filter.where.cdGeoLocationId);
+    //         }
+    //         console.log("CoopMemberService::applyCoopStatFilter()/q3:", await q)
+
+    //         if ('cdGeoPoliticalTypeId' in filter.where) {
+    //             q.where.cdGeoPoliticalTypeId = Not(filter.where.cdGeoPoliticalTypeId);
+    //         }
+    //         console.log("CoopMemberService::applyCoopStatFilter()/q4:", await q)
+
+    //         if ('coopStatDateLabel' in filter.where) {
+    //             const dateLabel = filter.where.coopStatDateLabel;
+    //             console.log("CoopMemberService::applyCoopStatFilter()/dateLabel:", await dateLabel)
+
+    //             if (typeof dateLabel === 'string' && dateLabel.includes('%<')) {
+    //                 const dateValue = dateLabel.split('%<')[1];
+    //                 q.where.coopStatDateLabel = LessThan(new Date(dateValue));
+    //                 console.log("CoopMemberService::applyCoopStatFilter()/q5:", await q)
+    //             } else if (typeof dateLabel === 'string' && dateLabel.includes('%>')) {
+    //                 const dateValue = dateLabel.split('%>')[1];
+    //                 q.where.coopStatDateLabel = MoreThan(new Date(dateValue));
+    //                 console.log("CoopMemberService::applyCoopStatFilter()/q6:", await q)
+    //             } else if (typeof dateLabel === 'string' && dateLabel.includes('%BETWEEN')) {
+    //                 const [start, end] = dateLabel.split('%BETWEEN')[1].split(',');
+    //                 q.where.coopStatDateLabel = Between(new Date(start), new Date(end));
+    //                 console.log("CoopMemberService::applyCoopStatFilter()/q7:", await q)
+    //             }
+    //             console.log("CoopMemberService::applyCoopStatFilter()/q8:", await q)
+    //         }
+    //         console.log("CoopMemberService::applyCoopStatFilter()/q9:", await q)
+    //     }
+
+    //     console.log("Filters applied to the where clause:", await q.where);
+    //     console.log("CoopStatPublicFilterService::applyCoopStatFilter()/AfterFilter/q10:", await q)
+    //     return await q;
+    // }
+
     async applyCoopStatFilter(req, res, q: IQuery): Promise<IQuery> {
-        console.log("CoopStatPublicFilterService::applyCoopStatFilter()/BeforeFilter/q:", q)
-        const svSess = new SessionService()
-        const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(req, res, true)
-        console.log("CoopMemberService::applyCoopStatFilter()/sessionDataExt:", sessionDataExt)
-        // let uid = sessionDataExt.currentUser.userId
-        const currentUser = sessionDataExt.currentUser
-        console.log("CoopMemberService::applyCoopStatFilter()/currentUser:", currentUser)
+        console.log("CoopStatPublicFilterService::applyCoopStatFilter()/BeforeFilter/q:", q);
+        const svSess = new SessionService();
+        const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(req, res, true);
+        console.log("CoopMemberService::applyCoopStatFilter()/sessionDataExt:", sessionDataExt);
 
-        const svGroupMember = new GroupMemberService()
+        const currentUser = sessionDataExt.currentUser;
+        console.log("CoopMemberService::applyCoopStatFilter()/currentUser:", currentUser);
 
-        // // Get user groups
+        const svGroupMember = new GroupMemberService();
         const userGroups: GroupMemberModel[] = await svGroupMember.getUserGroupsI(req, res, currentUser.userGuid);
-        console.log("CoopMemberService::applyCoopStatFilter()/userGroups:", userGroups)
+        console.log("CoopMemberService::applyCoopStatFilter()/userGroups:", userGroups);
 
-
-        // Fetch existing filter specifications
-        // only allow enabled data
-        const allowedData: CoopStatPublicFilterModel = { coopStatPublicFilterEnabled: true }
-        const qCoopStatPublicFilterSpecs = { where: allowedData }
+        const qCoopStatPublicFilterSpecs = { where: { coopStatPublicFilterEnabled: true } };
         const existingFilters = await this.getCoopStatPublicFilterSpecsI(req, res, qCoopStatPublicFilterSpecs);
-        console.log("CoopMemberService::applyCoopStatFilter()/existingFilters:", existingFilters)
+        console.log("CoopMemberService::applyCoopStatFilter()/existingFilters:", existingFilters);
+
         if (!existingFilters || existingFilters.data.length === 0) {
             console.log("No filters applied as no existing filters found.");
             return q;
         }
-        // Ensure `q.where` exists
+
         q.where = q.where || {};
 
         for (const f of existingFilters.data) {
             const filter = f.coopStatPublicFilterSpecs;
-            // Skip applying the filter if the user is exempted
-            const isExempted = await this.userIsExempted(req, res, filter, currentUser, userGroups,);
-            console.log("CoopMemberService::applyCoopStatFilter()/isExempted:", isExempted)
+
+            const isExempted = await this.userIsExempted(req, res, filter, currentUser, userGroups);
+            console.log("CoopMemberService::applyCoopStatFilter()/isExempted:", isExempted);
+
             if (isExempted) {
                 console.log("User or group exempted from filter:", filter);
                 continue;
             }
 
-            // Apply filters from existingFilters
             if ('coopTypeId' in filter.where) {
                 q.where.coopTypeId = Not(filter.where.coopTypeId);
             }
-            console.log("CoopMemberService::applyCoopStatFilter()/q1:", await q)
 
             if ('coopStatRefId' in filter.where) {
                 q.where.coopStatRefId = Not(filter.where.coopStatRefId);
             }
-            console.log("CoopMemberService::applyCoopStatFilter()/q2:", await q)
 
             if ('cdGeoLocationId' in filter.where) {
                 q.where.cdGeoLocationId = Not(filter.where.cdGeoLocationId);
             }
-            console.log("CoopMemberService::applyCoopStatFilter()/q3:", await q)
 
             if ('cdGeoPoliticalTypeId' in filter.where) {
                 q.where.cdGeoPoliticalTypeId = Not(filter.where.cdGeoPoliticalTypeId);
             }
-            console.log("CoopMemberService::applyCoopStatFilter()/q4:", await q)
 
             if ('coopStatDateLabel' in filter.where) {
                 const dateLabel = filter.where.coopStatDateLabel;
-                console.log("CoopMemberService::applyCoopStatFilter()/dateLabel:", await dateLabel)
 
                 if (typeof dateLabel === 'string' && dateLabel.includes('%<')) {
                     const dateValue = dateLabel.split('%<')[1];
                     q.where.coopStatDateLabel = LessThan(new Date(dateValue));
-                    console.log("CoopMemberService::applyCoopStatFilter()/q5:", await q)
                 } else if (typeof dateLabel === 'string' && dateLabel.includes('%>')) {
                     const dateValue = dateLabel.split('%>')[1];
                     q.where.coopStatDateLabel = MoreThan(new Date(dateValue));
-                    console.log("CoopMemberService::applyCoopStatFilter()/q6:", await q)
                 } else if (typeof dateLabel === 'string' && dateLabel.includes('%BETWEEN')) {
                     const [start, end] = dateLabel.split('%BETWEEN')[1].split(',');
                     q.where.coopStatDateLabel = Between(new Date(start), new Date(end));
-                    console.log("CoopMemberService::applyCoopStatFilter()/q7:", await q)
                 }
-                console.log("CoopMemberService::applyCoopStatFilter()/q8:", await q)
             }
-            console.log("CoopMemberService::applyCoopStatFilter()/q9:", await q)
         }
 
-        console.log("Filters applied to the where clause:", await q.where);
-        console.log("CoopStatPublicFilterService::applyCoopStatFilter()/AfterFilter/q10:", await q)
-        return await q;
+        // Remove fields with _value: null from q.where
+        q.where = this.cleanWhereClause(q.where);
+
+        console.log("Filters applied to the where clause:", q.where);
+        console.log("CoopStatPublicFilterService::applyCoopStatFilter()/AfterFilter/q:", q);
+        return q;
     }
+
+    /**
+     * Recursively removes properties in the `where` object where `_value: null`.
+     */
+    cleanWhereClause(where: any): any {
+        if (typeof where !== 'object' || where === null) {
+            return where;
+        }
+
+        // Handle arrays
+        if (Array.isArray(where)) {
+            return where.map(this.cleanWhereClause).filter((item) => item !== undefined);
+        }
+
+        // Handle objects
+        const cleanedWhere = {};
+        for (const [key, value] of Object.entries(where)) {
+            if (value instanceof FindOperator) {
+                // Access the value using the public `value` getter
+                if (value.value !== null) {
+                    cleanedWhere[key] = value;
+                }
+            } else if (typeof value === 'object') {
+                // Recursively clean nested objects
+                const nested = this.cleanWhereClause(value);
+                if (nested !== undefined) {
+                    cleanedWhere[key] = nested;
+                }
+            } else if (value !== null) {
+                // Directly add non-null values
+                cleanedWhere[key] = value;
+            }
+        }
+
+        // Return the cleaned object or undefined if all properties are removed
+        return Object.keys(cleanedWhere).length > 0 ? cleanedWhere : undefined;
+    }
+
+
 
 
 

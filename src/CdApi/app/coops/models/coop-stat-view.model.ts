@@ -37,6 +37,7 @@ export function siGet(q: IQuery) {
         'coop_stat'.'coop_reserves' AS 'coop_reserves',
         'coop_stat'.'coop_stat_enabled' AS 'coop_enabled',
         'coop_stat'.'coop_stat_display' AS 'coop_display',
+        'coop_stat'.'coop_stat_ref_id' AS 'coop_ref_id',
         'coop_type'.'parent_guid' AS 'parent_guid',
         'coop_type'.'coop_type_name' AS 'coop_type_name',
         'cd_geo_location'.'cd_geo_location_name' AS 'cd_geo_location_name',
@@ -217,6 +218,13 @@ export class CoopStatViewModel {
         }
     )
     coopStatDisplay: boolean;
+
+    @ViewColumn(
+        {
+            name: 'coop_stat_ref_id'
+        }
+    )
+    coopStatRefId: number;
 
     @ViewColumn(
         {

@@ -1276,7 +1276,7 @@ export class BaseService {
         // const repo: any = await this.repo(req, res, serviceInput.serviceModel);
 
         await this.setRepo(serviceInput)
-        
+
         this.logger.logDebug('BaseService::read()/03')
         let r: any = null;
         switch (serviceInput.cmd.action) {
@@ -1355,7 +1355,7 @@ export class BaseService {
         return result;
     }
 
-    
+
     //////////////////////////////////////////////////////////////////////////////
 
     read$(req, res, serviceInput): Observable<any> {
@@ -2455,13 +2455,42 @@ export class BaseService {
      * @param model - The model object containing valid database fields.
      * @returns The validated query object.
      */
+    // async validateQuery<T>(q: { where: Record<string, any> | Record<string, any>[] }, model: T): Promise<{ where: Record<string, any> | Record<string, any>[] }> {
+    //     if (!q.where || (typeof q.where !== 'object' && !Array.isArray(q.where))) {
+    //         console.warn("Invalid 'where' clause in query object.");
+    //         return q;
+    //     }
+
+    //     // Get valid keys from the model
+    //     const modelKeys = new Set(Object.keys(model));
+
+    //     // Helper function to filter a single `where` object
+    //     const filterWhere = (whereClause: Record<string, any>) => {
+    //         return Object.keys(whereClause)
+    //             .filter(key => modelKeys.has(key))
+    //             .reduce((acc, key) => {
+    //                 acc[key] = whereClause[key];
+    //                 return acc;
+    //             }, {} as Record<string, any>);
+    //     };
+
+    //     // Handle `where` as an array (OR query)
+    //     if (Array.isArray(q.where)) {
+    //         q.where = q.where.map(whereClause => filterWhere(whereClause));
+    //     } else {
+    //         // Handle `where` as an object (AND query)
+    //         q.where = filterWhere(q.where);
+    //     }
+
+    //     return q;
+    // }
     async validateQuery<T>(q: { where: Record<string, any> | Record<string, any>[] }, model: T): Promise<{ where: Record<string, any> | Record<string, any>[] }> {
         if (!q.where || (typeof q.where !== 'object' && !Array.isArray(q.where))) {
             console.warn("Invalid 'where' clause in query object.");
             return q;
         }
 
-        // Get valid keys from the model
+        // Extract model keys using `Object.keys` directly on the model instance
         const modelKeys = new Set(Object.keys(model));
 
         // Helper function to filter a single `where` object
@@ -2484,6 +2513,8 @@ export class BaseService {
 
         return q;
     }
+
+
 
     //////////////////////////////////////////////////
 

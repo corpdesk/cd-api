@@ -1,3 +1,5 @@
+import cloneDeep from 'lodash.clonedeep'; // Ensure lodash.clonedeep is installed
+
 import { BaseService } from '../../../sys/base/base.service';
 import { CdService } from '../../../sys/base/cd.service';
 import { SessionService } from '../../../sys/user/services/session.service';
@@ -774,44 +776,98 @@ export class CoopStatService extends CdService {
      * @param req 
      * @param res 
      */
+    // async StatsByGeoLocation(req, res, q: IQuery = null) {
+    //     if (q === null) {
+    //         q = this.b.getQuery(req);
+    //     }
+
+    //     let svCoopStatPublicFilter = new CoopStatPublicFilterService()
+    //     let svCdGeoLocationService = new CdGeoLocationService()
+
+    //     /**
+    //     * Apply public filter:
+    //     * This filter is meant to be applied against an in coming query for 
+    //     * coopStat. 
+    //     * Additional filters will be applied as per array settings hosted in 
+    //     * coopStatPublicFilter in the coopStatPublicFilterSpecs JSON field
+    //     * The setting also optionally include exemptions for selected users and groups
+    //     */
+    //     q = await svCoopStatPublicFilter.applyCoopStatFilter(req, res, q)
+    //     console.log('CoopStatService::StatsByGeoLocation()/q1:', q)
+
+    //     // make sure the query is complient to CdGeoLocationModel
+    //     const geoLocationQuery = await this.b.validateQuery(q, CdGeoLocationModel);
+    //     console.log('CoopStatService::StatsByGeoLocation()/q2:', q)
+    //     console.log('CoopStatService::StatsByGeoLocation()/geoLocationQuery:', geoLocationQuery)
+    //     // fetch geo data
+    //     let gData = await svCdGeoLocationService.getGeoLocationI(req, res, geoLocationQuery)
+
+
+    //     // set order for results
+    //     q.order = { "coopStatDateLabel": "ASC" }
+    //     // make sure the query is compliant with CoopStatViewModel
+    //     const coopQuery = await this.b.validateQuery(q, CoopStatViewModel);
+    //     console.log('CoopStatService::StatsByGeoLocation()/coopQuery:', coopQuery)
+    //     console.log('CoopStatService::StatsByGeoLocation()/q3:', q)
+    //     // get statistical data
+    //     let cData = await this.getCoopI(req, res, q)
+
+    //     // set data response format
+    //     let ret = {
+    //         geoLocationData: gData.data,
+    //         coopData: cData.data,
+    //     }
+    //     this.logger.logInfo('CoopService::StatsByGeoLocation()/ret:', ret)
+    //     this.b.cdResp.data = await ret;
+    //     this.b.respond(req, res)
+    // }
+    
+
     async StatsByGeoLocation(req, res, q: IQuery = null) {
         if (q === null) {
             q = this.b.getQuery(req);
         }
 
-        let svCoopStatPublicFilter = new CoopStatPublicFilterService()
-        let svCdGeoLocationService = new CdGeoLocationService()
+        let svCoopStatPublicFilter = new CoopStatPublicFilterService();
+        let svCdGeoLocationService = new CdGeoLocationService();
 
-        /**
-        * Apply public filter:
-        * This filter is meant to be applied against an in coming query for 
-        * coopStat. 
-        * Additional filters will be applied as per array settings hosted in 
-        * coopStatPublicFilter in the coopStatPublicFilterSpecs JSON field
-        * The setting also optionally include exemptions for selected users and groups
-        */
-        q = await svCoopStatPublicFilter.applyCoopStatFilter(req, res, q)
-        
-        // make sure the query is complient to CdGeoLocationModel
-        const geoLocationQuery = await this.b.validateQuery(q, CdGeoLocationModel);
-        // fetch geo data
-        let gData = await svCdGeoLocationService.getGeoLocationI(req, res, geoLocationQuery)
+        // Apply public filter
+        q = await svCoopStatPublicFilter.applyCoopStatFilter(req, res, q);
+        console.log('CoopStatService::StatsByGeoLocation()/q1:', q);
 
+        // Create a clean copy of q for validation
+        let qCdGeoLocation = cloneDeep(q);
 
-        // set order for results
-        q.order = { "coopStatDateLabel": "ASC" }
-        // make sure the query is compliant with CoopStatViewModel
-        const coopQuery = await this.b.validateQuery(q, CoopStatViewModel);
-        // get statistical data
-        let cData = await this.getCoopI(req, res, coopQuery)
+        // Make sure the query is compliant to CdGeoLocationModel
+        qCdGeoLocation = await this.b.validateQuery(qCdGeoLocation, CdGeoLocationModel);
+        console.log('CoopStatService::StatsByGeoLocation()/q2:', q);
+        console.log('CoopStatService::StatsByGeoLocation()/qCdGeoLocation:', qCdGeoLocation);
 
-        // set data response format
+        // Fetch geo data
+        let gData = await svCdGeoLocationService.getGeoLocationI(req, res, qCdGeoLocation);
+
+        // Set order for results
+        q.order = { "coopStatDateLabel": "ASC" };
+
+        // Create a clean copy of q for validation
+        let qCoopStatView = cloneDeep(q);
+        console.log('CoopStatService::StatsByGeoLocation()/qCoopStatView1:', qCoopStatView);
+        // Make sure the query is compliant with CoopStatViewModel
+        qCoopStatView = await this.b.validateQuery(qCoopStatView, CoopStatViewModel);
+        console.log('CoopStatService::StatsByGeoLocation()/qCoopStatView2:', qCoopStatView);
+        console.log('CoopStatService::StatsByGeoLocation()/q3:', q);
+
+        // Get statistical data
+        let cData = await this.getCoopI(req, res, q);
+
+        // Set data response format
         let ret = {
             geoLocationData: gData.data,
             coopData: cData.data,
-        }
-        this.logger.logInfo('CoopService::StatsByGeoLocation()/ret:', ret)
+        };
+        this.logger.logInfo('CoopService::StatsByGeoLocation()/ret:', ret);
         this.b.cdResp.data = await ret;
-        this.b.respond(req, res)
+        this.b.respond(req, res);
     }
+
 }
