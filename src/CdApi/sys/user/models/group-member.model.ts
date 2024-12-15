@@ -41,7 +41,7 @@ export class GroupMemberModel {
             nullable: true
         }
     )
-    groupGuidParent: number;
+    groupGuidParent: string;
 
     @Column(
         'varchar',

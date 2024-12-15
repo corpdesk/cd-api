@@ -867,6 +867,7 @@ export class CdGeoLocationService extends CdService {
     }
 
     async getGeoLocationI(req, res, q: IQuery = null): Promise<any> {
+        
         if (q === null) {
             q = this.b.getQuery(req);
         }

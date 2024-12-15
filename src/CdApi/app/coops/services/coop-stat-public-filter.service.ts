@@ -801,69 +801,87 @@ export class CoopStatPublicFilterService extends CdService {
         console.log("CoopStatPublicFilterService::applyCoopStatFilter()/BeforeFilter/q:", q)
         const svSess = new SessionService()
         const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(req, res, true)
-        console.log("CoopMemberService::setCoopMemberProfileI()/sessionDataExt:", sessionDataExt)
+        console.log("CoopMemberService::applyCoopStatFilter()/sessionDataExt:", sessionDataExt)
         // let uid = sessionDataExt.currentUser.userId
         const currentUser = sessionDataExt.currentUser
+        console.log("CoopMemberService::applyCoopStatFilter()/currentUser:", currentUser)
 
         const svGroupMember = new GroupMemberService()
 
         // // Get user groups
-        const userGroups: GroupMemberModel[] = await svGroupMember.getUserGroupsI(req, res, currentUser.userId);
-        // Fetch existing filter specifications
-        const existingFilters = await this.getCoopStatPublicFilterSpecsI(req, res, { where: {} });
+        const userGroups: GroupMemberModel[] = await svGroupMember.getUserGroupsI(req, res, currentUser.userGuid);
+        console.log("CoopMemberService::applyCoopStatFilter()/userGroups:", userGroups)
 
+
+        // Fetch existing filter specifications
+        // only allow enabled data
+        const allowedData: CoopStatPublicFilterModel = { coopStatPublicFilterEnabled: true }
+        const qCoopStatPublicFilterSpecs = { where: allowedData }
+        const existingFilters = await this.getCoopStatPublicFilterSpecsI(req, res, qCoopStatPublicFilterSpecs);
+        console.log("CoopMemberService::applyCoopStatFilter()/existingFilters:", existingFilters)
         if (!existingFilters || existingFilters.data.length === 0) {
             console.log("No filters applied as no existing filters found.");
             return q;
         }
-
         // Ensure `q.where` exists
         q.where = q.where || {};
 
-        for (const filter of existingFilters.data) {
+        for (const f of existingFilters.data) {
+            const filter = f.coopStatPublicFilterSpecs;
             // Skip applying the filter if the user is exempted
-            const isExempted = await this.userIsExempted(req, res, filter,currentUser,userGroups,);
+            const isExempted = await this.userIsExempted(req, res, filter, currentUser, userGroups,);
+            console.log("CoopMemberService::applyCoopStatFilter()/isExempted:", isExempted)
             if (isExempted) {
                 console.log("User or group exempted from filter:", filter);
                 continue;
             }
 
             // Apply filters from existingFilters
-            if (filter.where.coopTypeId !== undefined) {
+            if ('coopTypeId' in filter.where) {
                 q.where.coopTypeId = Not(filter.where.coopTypeId);
             }
+            console.log("CoopMemberService::applyCoopStatFilter()/q1:", await q)
 
-            if (filter.where.coopStatRefId !== undefined) {
+            if ('coopStatRefId' in filter.where) {
                 q.where.coopStatRefId = Not(filter.where.coopStatRefId);
             }
+            console.log("CoopMemberService::applyCoopStatFilter()/q2:", await q)
 
-            if (filter.where.cdGeoLocationId !== undefined) {
+            if ('cdGeoLocationId' in filter.where) {
                 q.where.cdGeoLocationId = Not(filter.where.cdGeoLocationId);
             }
+            console.log("CoopMemberService::applyCoopStatFilter()/q3:", await q)
 
-            if (filter.where.cdGeoPoliticalTypeId !== undefined) {
+            if ('cdGeoPoliticalTypeId' in filter.where) {
                 q.where.cdGeoPoliticalTypeId = Not(filter.where.cdGeoPoliticalTypeId);
             }
+            console.log("CoopMemberService::applyCoopStatFilter()/q4:", await q)
 
-            if (filter.where.coopStatDateLabel !== undefined) {
+            if ('coopStatDateLabel' in filter.where) {
                 const dateLabel = filter.where.coopStatDateLabel;
+                console.log("CoopMemberService::applyCoopStatFilter()/dateLabel:", await dateLabel)
 
                 if (typeof dateLabel === 'string' && dateLabel.includes('%<')) {
                     const dateValue = dateLabel.split('%<')[1];
                     q.where.coopStatDateLabel = LessThan(new Date(dateValue));
+                    console.log("CoopMemberService::applyCoopStatFilter()/q5:", await q)
                 } else if (typeof dateLabel === 'string' && dateLabel.includes('%>')) {
                     const dateValue = dateLabel.split('%>')[1];
                     q.where.coopStatDateLabel = MoreThan(new Date(dateValue));
+                    console.log("CoopMemberService::applyCoopStatFilter()/q6:", await q)
                 } else if (typeof dateLabel === 'string' && dateLabel.includes('%BETWEEN')) {
                     const [start, end] = dateLabel.split('%BETWEEN')[1].split(',');
                     q.where.coopStatDateLabel = Between(new Date(start), new Date(end));
+                    console.log("CoopMemberService::applyCoopStatFilter()/q7:", await q)
                 }
+                console.log("CoopMemberService::applyCoopStatFilter()/q8:", await q)
             }
+            console.log("CoopMemberService::applyCoopStatFilter()/q9:", await q)
         }
 
-        console.log("Filters applied to the where clause:", q.where);
-        console.log("CoopStatPublicFilterService::applyCoopStatFilter()/AfterFilter/q:", q)
-        return q;
+        console.log("Filters applied to the where clause:", await q.where);
+        console.log("CoopStatPublicFilterService::applyCoopStatFilter()/AfterFilter/q10:", await q)
+        return await q;
     }
 
 
@@ -901,17 +919,22 @@ export class CoopStatPublicFilterService extends CdService {
         userGroups: GroupMemberModel[],
     ): Promise<boolean> {
 
+        console.log('CoopStatPublicFilterService::userIsExempted()/currentUser:', currentUser)
+        console.log('CoopStatPublicFilterService::userIsExempted()/userGroups:', userGroups)
+        console.log('CoopStatPublicFilterService::userIsExempted()/existingFilter:', existingFilter)
         // Check if user is directly exempted
         const isUserExempted = existingFilter.exempted.some(item =>
             item.cdObjTypeId === 9 && item.cdObjId === currentUser.userId
         );
+        console.log('CoopStatPublicFilterService::userIsExempted()/isUserExempted:', isUserExempted)
 
         // Check if any of the user's groups are exempted
         const isGroupExempted = userGroups.some(group =>
             existingFilter.exempted.some(item =>
-                item.cdObjTypeId === 10 && item.cdObjId === group.groupIdParent
+                item.cdObjTypeId === 10 && item.guid === group.groupGuidParent
             )
         );
+        console.log('CoopStatPublicFilterService::userIsExempted()/isGroupExempted:', isGroupExempted)
 
         return isUserExempted || isGroupExempted;
     }

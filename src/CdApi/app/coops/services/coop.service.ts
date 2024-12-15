@@ -16,6 +16,8 @@ import { CdGeoLocationModel } from '../../cd-geo/models/cd-geo-location.model';
 import { CoopMemberModel, coopMemberProfileDefault, ICoopMemberProfile } from '../models/coop-member.model';
 import { IUserProfile, userProfileDefault } from '../../../sys/user/models/user.model';
 import { CoopMemberViewModel } from '../models/coop-member-view.model';
+import { Like, Not } from 'typeorm';
+import { QueryTransformer } from '../../../sys/utils/query-transformer';
 
 export class CoopService extends CdService {
     logger: Logging;
@@ -29,7 +31,7 @@ export class CoopService extends CdService {
     sessModel;
     sessDataExt: ISessionDataExt;
     // moduleModel: ModuleModel;
-
+    arrLikeConditions: any[] = [];
     /*
      * create rules
      */
@@ -365,7 +367,7 @@ export class CoopService extends CdService {
 
     async setCompanyId(req, res) {
         const svCompany = new CompanyService();
-        if('extData' in req.post.dat.f_vals[0]){
+        if ('extData' in req.post.dat.f_vals[0]) {
             if ('company' in req.post.dat.f_vals[0].extData) {
                 const si = {
                     serviceInstance: svCompany,
@@ -379,7 +381,7 @@ export class CoopService extends CdService {
                     controllerData: req.post.dat.f_vals[0].extData.company
                 }
                 // Call CompanyService to create a new company
-                const c:any = await svCompany.createI(req, res, createIParams);
+                const c: any = await svCompany.createI(req, res, createIParams);
                 this.b.setPlData(req, { key: 'companyId', value: c.companyId });
             }
         }
@@ -659,6 +661,102 @@ export class CoopService extends CdService {
         }
     }
 
+    /////////////////////////////////////////////////////////////////////////////////////////
+    // Fetch all enabled CoopTypes
+    async getCoopType2(req: any, res: any): Promise<void> {
+        const q = this.b.getQuery(req);
+        const serviceInput: IServiceInput = {
+            serviceInstance: this,
+            serviceModel: CoopTypeModel,
+            docName: 'CoopTypeService::getCoopType2',
+            cmd: {
+                action: 'find',
+                query: q,
+            },
+            dSource: 1,
+        };
+
+        const dbResult = await this.b.read2(req, res, serviceInput);
+        this.b.i.code = 'CoopTypeService::getCoopType2';
+        const svSess = new SessionService();
+        svSess.sessResp.cd_token = req.post.dat.token;
+        svSess.sessResp.ttl = svSess.getTtl();
+        this.b.setAppState(true, this.b.i, svSess.sessResp);
+        this.b.cdResp.data = dbResult;
+        this.b.respond(req, res)
+    }
+
+    // Search CoopTypes with dynamic filtering
+    async searchCoopTypes(req: any, res: any): Promise<void> {
+        try {
+
+            await this.transformSearchQuery(req, res)
+            // const take = 10; // Limit
+            // const skip = 0;  // Offset
+
+            const serviceInput: IServiceInput = {
+                serviceInstance: this,
+                serviceModel: CoopTypeModel,
+                docName: 'CoopTypeService::searchCoopTypes',
+                cmd: {
+                    action: 'find',
+                    query: {
+                        where: this.arrLikeConditions,
+                    },
+                },
+                dSource: 1,
+            };
+
+            console.log("CoopTypeService::searchCoopTypes()/serviceInput.cmd.query:", serviceInput.cmd.query);
+
+            const dbResult = await this.b.read2(req, res, serviceInput);
+            this.b.i.code = 'CoopTypeService::searchCoopTypes';
+            const svSess = new SessionService();
+            svSess.sessResp.cd_token = req.post.dat.token;
+            svSess.sessResp.ttl = svSess.getTtl();
+            this.b.setAppState(true, this.b.i, svSess.sessResp);
+            this.b.cdResp.data = dbResult;
+            this.b.respond(req, res);
+        } catch (e) {
+            this.logger.logInfo('CoopTypeService::searchCoopTypes()/e:', e);
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'CoopTypeService::searchCoopTypes',
+                app_msg: ''
+            };
+            this.b.serviceErr(req, res, e, i.code);
+            this.b.respond(req, res);
+        }
+    }
+
+    async transformSearchQuery(req, res) {
+        const q: IQuery = this.b.getPlQuery(req);
+        const tq = QueryTransformer.transformQuery(q)
+        const COOP_TYPE_SEARCH_FIELDS = tq.searchFields;
+        const searchTerm = tq.searchTerm;
+        COOP_TYPE_SEARCH_FIELDS.forEach(field => {
+            this.arrLikeConditions.push({ [field]: Like(`%${searchTerm}%`) });
+        });
+    }
+
+
+    // Utility: Generate OR conditions for a search term and fields
+    orConditions(searchTerm: string, fields: string[]): any[] {
+        return fields.map(field => ({
+            [field]: `%${searchTerm}%`,
+        }));
+    }
+
+    // Utility: Add additional OR conditions to existing conditions
+    addOrConditions(where: any[], extraConditions: { [key: string]: any }): any[] {
+        return where.map(condition => ({
+            ...condition,
+            ...extraConditions,
+        }));
+    }
+    //////////////////////////////////////////////////////////////////////////////////////////
+
     getCdObjTypeCount(req, res) {
         const q = this.b.getQuery(req);
         console.log('CoopService::getCdObjCount/q:', q);
@@ -725,7 +823,7 @@ export class CoopService extends CdService {
             },
             dSource: 1
         }
-        
+
         this.b.readQB$(req, res, serviceInput)
             .subscribe((r) => {
                 this.b.i.code = serviceInput.docName;
@@ -1025,7 +1123,7 @@ export class CoopService extends CdService {
             // // Use BaseService to retrieve user member profile
             // const result = await this.b.read(req, res, serviceInput);
             // const user = await this.getCoopMemberI(userId)
-            const q = {where: {coopMemberId: coopMemberId}}
+            const q = { where: { coopMemberId: coopMemberId } }
             const coopMember: CoopMemberViewModel[] = await this.getCoopMemberI(req, res, q)
             if (coopMember && coopMember[0].coopMemberProfile) {
                 let coopMemberProfileJSON: ICoopMemberProfile = JSON.parse(coopMember[0].coopMemberProfile)
@@ -1074,7 +1172,7 @@ export class CoopService extends CdService {
             const serviceInput = {
                 serviceInstance: this,
                 serviceModel: CoopMemberModel,
-                    docName: 'CoopMemberService::updateUserProfileI',
+                docName: 'CoopMemberService::updateUserProfileI',
                 cmd: {
                     query: newProfileData
                     // query: {
@@ -1105,4 +1203,8 @@ export class CoopService extends CdService {
     // async getCoopMemberByIdI(userId: number) {
     //     return await this.db.user.findOne({ where: { user_id: userId } });
     // }
+}
+
+function transformed(q: IQuery) {
+    throw new Error('Function not implemented.');
 }

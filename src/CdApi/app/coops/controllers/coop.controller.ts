@@ -141,6 +141,24 @@ export class CoopController {
         }
     }
 
+    async GetType2(req, res) {
+        try {
+            // await this.svCoop.getCoopType(req, res);
+            await this.svCoop.getCoopType2(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'CoopController:GetType2');
+        }
+    }
+
+    async SearchCoopTypes(req, res) {
+        try {
+            // await this.svCoop.getCoopType(req, res);
+            await this.svCoop.searchCoopTypes(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'CoopController:GetType2');
+        }
+    }
+
     /** Pageable request:
      * {
             "ctx": "App",

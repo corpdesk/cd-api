@@ -11,6 +11,8 @@ import { siGet } from '../../../sys/base/base.model';
 import { CdGeoLocationService } from '../../cd-geo/services/cd-geo-location.service';
 import { Logging } from '../../../sys/base/winston.log';
 import { CoopStatPublicFilterService } from './coop-stat-public-filter.service';
+import { CdGeoLocationModel } from '../../cd-geo/models/cd-geo-location.model';
+import { CoopModel } from '../models/coop.model';
 
 export class CoopStatService extends CdService {
     logger: Logging;
@@ -790,10 +792,20 @@ export class CoopStatService extends CdService {
         */
         q = await svCoopStatPublicFilter.applyCoopStatFilter(req, res, q)
         
-        let gData = await svCdGeoLocationService.getGeoLocationI(req, res, q)
-        // ,"order": {"coopStatDateLabel": "ASC"}
+        // make sure the query is complient to CdGeoLocationModel
+        const geoLocationQuery = await this.b.validateQuery(q, CdGeoLocationModel);
+        // fetch geo data
+        let gData = await svCdGeoLocationService.getGeoLocationI(req, res, geoLocationQuery)
+
+
+        // set order for results
         q.order = { "coopStatDateLabel": "ASC" }
-        let cData = await this.getCoopI(req, res, q)
+        // make sure the query is compliant with CoopStatViewModel
+        const coopQuery = await this.b.validateQuery(q, CoopStatViewModel);
+        // get statistical data
+        let cData = await this.getCoopI(req, res, coopQuery)
+
+        // set data response format
         let ret = {
             geoLocationData: gData.data,
             coopData: cData.data,

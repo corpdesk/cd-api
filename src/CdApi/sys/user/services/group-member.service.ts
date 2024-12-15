@@ -571,14 +571,14 @@ export class GroupMemberService extends CdService {
     //      * get groups from group members where user_id_member=userId
     //      */
     // }
-    async getUserGroupsI(req, res, userId: number) {
+    async getUserGroupsI(req, res, userGuid: string) {
         // if (q === null) {
         //     q = this.b.getQuery(req);
         // }
-        const q = { where: { userIdMember: userId } }
+        const q = { where: { memberGuid: userGuid } }
         console.log('GroupMemberService::getUserGroupsI/f:', q);
         const serviceInput = {
-            serviceModel: GroupMemberViewModel,
+            serviceModel: GroupMemberModel,
             docName: 'GroupMemberService::getUserGroupsI',
             cmd: {
                 action: 'find',

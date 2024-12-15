@@ -1276,27 +1276,7 @@ export class BaseService {
         // const repo: any = await this.repo(req, res, serviceInput.serviceModel);
 
         await this.setRepo(serviceInput)
-        // const init = async (event) => {
-        // const AppDataSource = await getDataSource();
-        // const repo = AppDataSource.getRepository(serviceInput.serviceModel);
-        // this.repo = repo;
-        // Your business logic
-        // console.log('BaseService::read()/0031')
-        // let r: any = await repo.find(serviceInput.cmd.query);
-        // console.log('BaseService::read()/004/r:', r)
-        // if (serviceInput.extraInfo) {
-        //     console.log('BaseService::read()/005')
-        //     return {
-        //         result: r,
-        //         fieldMap: await this.feildMap(serviceInput)
-        //     }
-        // } else {
-        //     console.log('BaseService::read()/006')
-        //     return await r;
-        // }
-        // };
-        // this.repo = MysqlDataSource.getRepository(serviceInput.serviceModel)
-        // const repo: any = this.repo;
+        
         this.logger.logDebug('BaseService::read()/03')
         let r: any = null;
         switch (serviceInput.cmd.action) {
@@ -1341,6 +1321,42 @@ export class BaseService {
 
         // this.serviceErr(res, err, 'BaseService:read');
     }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    // Read method
+    async read2(req: any, res: any, si: IServiceInput): Promise<any> {
+        await this.init(req, res);
+        // const repo = this.getRepository(si.serviceModel);
+        await this.setRepo(si)
+        let result;
+
+        switch (si.cmd?.action) {
+            case 'find':
+                result = await this.repo.find(si.cmd.query);
+                break;
+            case 'findOne':
+                result = await this.repo.findOne(si.cmd.query);
+                break;
+            case 'queryBuilder':
+                const qb = this.repo.createQueryBuilder();
+                if (si.cmd.query) {
+                    // Apply`IQbInput`-style conditions to QueryBuilder
+                    const { select, where, take, skip } = si.cmd.query as any;
+                    qb.select(select).where(where);
+                    if (take) qb.take(take);
+                    if (skip) qb.skip(skip);
+                }
+                result = await qb.getMany();
+                break;
+            default:
+                throw new Error(`Unknown action: ${si.cmd?.action}`);
+        }
+
+        return result;
+    }
+
+    
+    //////////////////////////////////////////////////////////////////////////////
 
     read$(req, res, serviceInput): Observable<any> {
         return from(this.read(req, res, serviceInput));
@@ -2427,6 +2443,46 @@ export class BaseService {
             await this.serviceErr(req, res, e, i.code)
             return this.cdResp;
         }
+    }
+
+    // the modified query is a collection of filters that are based
+    // on several parameters. When applied against some models, some parameters may not be compatible
+    // validateQuery() removes parameters that are not valid for given models
+    /**
+     * Validates the `where` clause of a query object by removing fields that do not match properties in the model.
+     * Supports both conjunction (AND) and disjunction (OR) queries.
+     * @param q - The query object with a `where` clause.
+     * @param model - The model object containing valid database fields.
+     * @returns The validated query object.
+     */
+    async validateQuery<T>(q: { where: Record<string, any> | Record<string, any>[] }, model: T): Promise<{ where: Record<string, any> | Record<string, any>[] }> {
+        if (!q.where || (typeof q.where !== 'object' && !Array.isArray(q.where))) {
+            console.warn("Invalid 'where' clause in query object.");
+            return q;
+        }
+
+        // Get valid keys from the model
+        const modelKeys = new Set(Object.keys(model));
+
+        // Helper function to filter a single `where` object
+        const filterWhere = (whereClause: Record<string, any>) => {
+            return Object.keys(whereClause)
+                .filter(key => modelKeys.has(key))
+                .reduce((acc, key) => {
+                    acc[key] = whereClause[key];
+                    return acc;
+                }, {} as Record<string, any>);
+        };
+
+        // Handle `where` as an array (OR query)
+        if (Array.isArray(q.where)) {
+            q.where = q.where.map(whereClause => filterWhere(whereClause));
+        } else {
+            // Handle `where` as an object (AND query)
+            q.where = filterWhere(q.where);
+        }
+
+        return q;
     }
 
     //////////////////////////////////////////////////

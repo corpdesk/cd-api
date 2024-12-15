@@ -67,7 +67,15 @@ export class CoopTypeModel {
             name: 'parent_guid',
             default: null
         })
-        parentGuid: number;
+    parentGuid: string;
+
+    @Column(
+        {
+            name: 'coop_type_enabled',
+            default: null
+        })
+    coopTypeEnabled: boolean;
+
 
 
     // HOOKS

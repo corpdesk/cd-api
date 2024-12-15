@@ -45,7 +45,7 @@ export class CoopStatPublicFilterModel {
             nullable: true
         }
     )
-    coopStatPublicFilterName: string;
+    coopStatPublicFilterName?: string;
 
     @Column(
         'varchar',
@@ -55,14 +55,14 @@ export class CoopStatPublicFilterModel {
             nullable: true
         }
     )
-    coopStatPublicFilterDescription: string;
+    coopStatPublicFilterDescription?: string;
 
     @Column(
         {
             name: 'doc_id',
             default: null
         })
-    docId: number;
+    docId?: number;
 
     @Column(
         {
@@ -71,7 +71,7 @@ export class CoopStatPublicFilterModel {
             nullable: true
         }
     )
-    coopStatPublicFilterSpecs: object | string;
+    coopStatPublicFilterSpecs?: object | string | coopStatPublicFilterSpecs;
 
     @Column(
         {
@@ -79,9 +79,7 @@ export class CoopStatPublicFilterModel {
             nullable: true
         }
     )
-    coopStatPublicFilterEnabled: boolean;
-
-
+    coopStatPublicFilterEnabled?: boolean;
 }
 
 export interface coopStatPublicFilterSpecs {
