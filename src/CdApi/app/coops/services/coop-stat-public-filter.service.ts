@@ -416,10 +416,19 @@ export class CoopStatPublicFilterService extends CdService {
      * @returns
      */
     beforeUpdate(q: any) {
-        if (q.update.CoopEnabled === '') {
-            q.update.CoopEnabled = null;
+        if('coopEnabled' in q.update){
+            if (q.update.coopEnabled === '') {
+                q.update.coopEnabled = null;
+            }
+            return q;
         }
-        return q;
+        else if('coopStatPublicFilterEnabled' in q.update){
+            return q;
+        }
+        else{
+            return q;
+        }
+        
     }
 
     beforeUpdateSL(q: any) {

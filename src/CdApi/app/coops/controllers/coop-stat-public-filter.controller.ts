@@ -254,16 +254,6 @@ export class CoopStatPublicFilterController {
         }
     }
 
-    async DisableFilter(req, res) {
-        console.log('CoopStatPublicFilterController::DisableFilter()/01');
-        try {
-            console.log('CoopStatPublicFilterController::DisableFilter()/02');
-            await this.svCoopStatPublicFilter.disableFilter(req, res);
-        } catch (e) {
-            await this.b.serviceErr(req, res, e, 'CoopRetController:DisableFilter');
-        }
-    }
-
     async EnableFilter(req, res) {
         console.log('CoopStatPublicFilterController::EnableFilter()/01');
         try {
@@ -271,6 +261,16 @@ export class CoopStatPublicFilterController {
             await this.svCoopStatPublicFilter.enableFilter(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'CoopRetController:EnableFilter');
+        }
+    }
+
+    async DisableFilter(req, res) {
+        console.log('CoopStatPublicFilterController::DisableFilter()/01');
+        try {
+            console.log('CoopStatPublicFilterController::DisableFilter()/02');
+            await this.svCoopStatPublicFilter.disableFilter(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'CoopRetController:DisableFilter');
         }
     }
 
