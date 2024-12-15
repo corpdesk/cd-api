@@ -338,7 +338,7 @@ export class CoopStatPublicFilterService extends CdService {
     disableFilter(req, res) {
         // this.logger.logInfo('CoopStatPublicFilterService::update()/01');
         let q:IQuery = this.b.getQuery(req);
-        q = this.beforeUpdate(q);
+        // q = this.beforeUpdate(q);
         const serviceInput = {
             serviceModel: CoopStatPublicFilterModel,
             docName: 'CoopStatPublicFilterService::disableFilter',
@@ -364,7 +364,7 @@ export class CoopStatPublicFilterService extends CdService {
     enableFilter(req, res) {
         // this.logger.logInfo('CoopStatPublicFilterService::update()/01');
         let q:IQuery = this.b.getQuery(req);
-        q = this.beforeUpdate(q);
+        // q = this.beforeUpdate(q);
         const serviceInput = {
             serviceModel: CoopStatPublicFilterModel,
             docName: 'CoopStatPublicFilterService::enableFilter',
