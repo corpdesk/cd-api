@@ -335,6 +335,58 @@ export class CoopStatPublicFilterService extends CdService {
             })
     }
 
+    disableFilter(req, res) {
+        // this.logger.logInfo('CoopStatPublicFilterService::update()/01');
+        let q:IQuery = this.b.getQuery(req);
+        q = this.beforeUpdate(q);
+        const serviceInput = {
+            serviceModel: CoopStatPublicFilterModel,
+            docName: 'CoopStatPublicFilterService::disableFilter',
+            cmd: {
+                action: 'update',
+                query: {
+                    update: {
+                        coopStatPublicFilterEnabled: 0
+                    },
+                    where: q.where
+                }
+            },
+            dSource: 1
+        }
+        // this.logger.logInfo('CoopStatPublicFilterService::update()/02')
+        this.b.update$(req, res, serviceInput)
+            .subscribe((ret) => {
+                this.b.cdResp.data = ret;
+                this.b.respond(req, res)
+            })
+    }
+
+    enableFilter(req, res) {
+        // this.logger.logInfo('CoopStatPublicFilterService::update()/01');
+        let q:IQuery = this.b.getQuery(req);
+        q = this.beforeUpdate(q);
+        const serviceInput = {
+            serviceModel: CoopStatPublicFilterModel,
+            docName: 'CoopStatPublicFilterService::enableFilter',
+            cmd: {
+                action: 'update',
+                query: {
+                    update: {
+                        coopStatPublicFilterEnabled: 1
+                    },
+                    where: q.where
+                }
+            },
+            dSource: 1
+        }
+        // this.logger.logInfo('CoopStatPublicFilterService::update()/02')
+        this.b.update$(req, res, serviceInput)
+            .subscribe((ret) => {
+                this.b.cdResp.data = ret;
+                this.b.respond(req, res)
+            })
+    }
+
     updateSL(req, res) {
         this.logger.logInfo('CoopStatPublicFilterService::update()/01');
         let q = this.b.getQuery(req);
@@ -797,92 +849,6 @@ export class CoopStatPublicFilterService extends CdService {
      * @param q 
      * @returns 
      */
-    // async applyCoopStatFilter(req, res, q: IQuery): Promise<IQuery> {
-    //     console.log("CoopStatPublicFilterService::applyCoopStatFilter()/BeforeFilter/q:", q)
-    //     const svSess = new SessionService()
-    //     const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(req, res, true)
-    //     console.log("CoopMemberService::applyCoopStatFilter()/sessionDataExt:", sessionDataExt)
-    //     // let uid = sessionDataExt.currentUser.userId
-    //     const currentUser = sessionDataExt.currentUser
-    //     console.log("CoopMemberService::applyCoopStatFilter()/currentUser:", currentUser)
-
-    //     const svGroupMember = new GroupMemberService()
-
-    //     // // Get user groups
-    //     const userGroups: GroupMemberModel[] = await svGroupMember.getUserGroupsI(req, res, currentUser.userGuid);
-    //     console.log("CoopMemberService::applyCoopStatFilter()/userGroups:", userGroups)
-
-
-    //     // Fetch existing filter specifications
-    //     // only allow enabled data
-    //     const qCoopStatPublicFilterSpecs = { where: { coopStatPublicFilterEnabled: true } }
-    //     const existingFilters = await this.getCoopStatPublicFilterSpecsI(req, res, qCoopStatPublicFilterSpecs);
-    //     console.log("CoopMemberService::applyCoopStatFilter()/existingFilters:", existingFilters)
-    //     if (!existingFilters || existingFilters.data.length === 0) {
-    //         console.log("No filters applied as no existing filters found.");
-    //         return q;
-    //     }
-    //     // Ensure `q.where` exists
-    //     q.where = q.where || {};
-
-    //     for (const f of existingFilters.data) {
-    //         const filter = f.coopStatPublicFilterSpecs;
-    //         // Skip applying the filter if the user is exempted
-    //         const isExempted = await this.userIsExempted(req, res, filter, currentUser, userGroups,);
-    //         console.log("CoopMemberService::applyCoopStatFilter()/isExempted:", isExempted)
-    //         if (isExempted) {
-    //             console.log("User or group exempted from filter:", filter);
-    //             continue;
-    //         }
-
-    //         // Apply filters from existingFilters
-    //         if ('coopTypeId' in filter.where) {
-    //             q.where.coopTypeId = Not(filter.where.coopTypeId);
-    //         }
-    //         console.log("CoopMemberService::applyCoopStatFilter()/q1:", await q)
-
-    //         if ('coopStatRefId' in filter.where) {
-    //             q.where.coopStatRefId = Not(filter.where.coopStatRefId);
-    //         }
-    //         console.log("CoopMemberService::applyCoopStatFilter()/q2:", await q)
-
-    //         if ('cdGeoLocationId' in filter.where) {
-    //             q.where.cdGeoLocationId = Not(filter.where.cdGeoLocationId);
-    //         }
-    //         console.log("CoopMemberService::applyCoopStatFilter()/q3:", await q)
-
-    //         if ('cdGeoPoliticalTypeId' in filter.where) {
-    //             q.where.cdGeoPoliticalTypeId = Not(filter.where.cdGeoPoliticalTypeId);
-    //         }
-    //         console.log("CoopMemberService::applyCoopStatFilter()/q4:", await q)
-
-    //         if ('coopStatDateLabel' in filter.where) {
-    //             const dateLabel = filter.where.coopStatDateLabel;
-    //             console.log("CoopMemberService::applyCoopStatFilter()/dateLabel:", await dateLabel)
-
-    //             if (typeof dateLabel === 'string' && dateLabel.includes('%<')) {
-    //                 const dateValue = dateLabel.split('%<')[1];
-    //                 q.where.coopStatDateLabel = LessThan(new Date(dateValue));
-    //                 console.log("CoopMemberService::applyCoopStatFilter()/q5:", await q)
-    //             } else if (typeof dateLabel === 'string' && dateLabel.includes('%>')) {
-    //                 const dateValue = dateLabel.split('%>')[1];
-    //                 q.where.coopStatDateLabel = MoreThan(new Date(dateValue));
-    //                 console.log("CoopMemberService::applyCoopStatFilter()/q6:", await q)
-    //             } else if (typeof dateLabel === 'string' && dateLabel.includes('%BETWEEN')) {
-    //                 const [start, end] = dateLabel.split('%BETWEEN')[1].split(',');
-    //                 q.where.coopStatDateLabel = Between(new Date(start), new Date(end));
-    //                 console.log("CoopMemberService::applyCoopStatFilter()/q7:", await q)
-    //             }
-    //             console.log("CoopMemberService::applyCoopStatFilter()/q8:", await q)
-    //         }
-    //         console.log("CoopMemberService::applyCoopStatFilter()/q9:", await q)
-    //     }
-
-    //     console.log("Filters applied to the where clause:", await q.where);
-    //     console.log("CoopStatPublicFilterService::applyCoopStatFilter()/AfterFilter/q10:", await q)
-    //     return await q;
-    // }
-
     async applyCoopStatFilter(req, res, q: IQuery): Promise<IQuery> {
         console.log("CoopStatPublicFilterService::applyCoopStatFilter()/BeforeFilter/q:", q);
         const svSess = new SessionService();
@@ -995,11 +961,6 @@ export class CoopStatPublicFilterService extends CdService {
         return Object.keys(cleanedWhere).length > 0 ? cleanedWhere : undefined;
     }
 
-
-
-
-
-
     async getCoopStatPublicFilterSpecsI(req, res, q: IQuery = null) {
         if (q === null) {
             q = this.b.getQuery(req);
@@ -1080,153 +1041,5 @@ export class CoopStatPublicFilterService extends CdService {
         this.b.cdResp.data = await ret;
         this.b.respond(req, res)
     }
-
-    // async updateCoopStatPublicFilterSpecs(req, res): Promise<void> {
-    //     try {
-    //         const svSess = new SessionService();
-    //         const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(req, res, true);
-    //         console.log("CoopStatPublicFilterService::updateCoopStatPublicFilterSpecs()/sessionDataExt:", sessionDataExt);
-
-    //         const svUser = new UserService();
-    //         const requestQuery: IQuery = req.post.dat.f_vals[0].query;
-    //         const jsonUpdate = req.post.dat.f_vals[0].jsonUpdate;
-    //         let modifiedCoopStatPublicFilterSpecs: coopStatPublicFilterSpecs;
-    //         let strModifiedCoopStatPublicFilterSpecs;
-
-    //         // Extract the current CoopStatPublicFilterSpecs
-    //         await this.setCoopStatPublicFilterSpecs(req, res);
-
-    //         if (await this.validateSpecsData(req, res, this.mergedSpecs)) {
-    //             console.log("CoopStatPublicFilterService::updateCoopStatPublicFilterSpecs()/jsonUpdate:", jsonUpdate);
-    //             modifiedCoopStatPublicFilterSpecs = await svUser.modifyProfile(this.mergedSpecs, jsonUpdate);
-    //             console.log("CoopStatPublicFilterService::updateCoopStatPublicFilterSpecs()/modifiedSpecs:", modifiedCoopStatPublicFilterSpecs);
-
-    //             strModifiedCoopStatPublicFilterSpecs = JSON.stringify(modifiedCoopStatPublicFilterSpecs);
-    //         } else {
-    //             console.log("CoopStatPublicFilterService::updateCoopStatPublicFilterSpecs()/Default Specs Handling");
-    //             const defaultSpecs: coopStatPublicFilterSpecs = {
-    //                 where: {},
-    //                 update: { coopStatEnabled: true, coopStatDisplay: true },
-    //                 exempted: []
-    //             };
-    //             modifiedCoopStatPublicFilterSpecs = await svUser.modifyProfile(defaultSpecs, jsonUpdate);
-    //             console.log("CoopStatPublicFilterService::updateCoopStatPublicFilterSpecs()/DefaultModifiedSpecs:", modifiedCoopStatPublicFilterSpecs);
-
-    //             strModifiedCoopStatPublicFilterSpecs = JSON.stringify(modifiedCoopStatPublicFilterSpecs);
-    //         }
-
-    //         console.log("CoopStatPublicFilterService::updateCoopStatPublicFilterSpecs()/Final Query Preparation");
-    //         requestQuery.update = { coopStatPublicFilterSpecs: strModifiedCoopStatPublicFilterSpecs };
-
-    //         // Prepare service input for updating the database
-    //         const serviceInput: IServiceInput = {
-    //             serviceInstance: this,
-    //             serviceModel: CoopStatPublicFilterModel,
-    //             docName: 'CoopStatPublicFilterService::updateCoopStatPublicFilterSpecs',
-    //             cmd: {
-    //                 query: requestQuery
-    //             }
-    //         };
-    //         console.log("CoopStatPublicFilterService::updateCoopStatPublicFilterSpecs()/serviceInput:", serviceInput);
-
-    //         // Execute the update
-    //         const updateResult = await this.updateI(req, res, serviceInput);
-    //         const newSpecs = await this.existingCoopStatPublicFilterSpecs(req, res, requestQuery.where.coopStatPublicFilterId);
-    //         console.log("CoopStatPublicFilterService::updateCoopStatPublicFilterSpecs()/newSpecs:", newSpecs);
-
-    //         const finalResponse = {
-    //             updateResult,
-    //             newSpecs
-    //         };
-
-    //         // Respond with the updated specs
-    //         this.b.cdResp.data = finalResponse;
-    //         return await this.b.respond(req, res);
-    //     } catch (e) {
-    //         this.b.err.push(e.toString());
-    //         const i = {
-    //             messages: this.b.err,
-    //             code: 'CoopStatPublicFilterService:updateCoopStatPublicFilterSpecs',
-    //             app_msg: ''
-    //         };
-    //         await this.b.serviceErr(req, res, e, i.code);
-    //         await this.b.respond(req, res);
-    //     }
-    // }
-
-    // async setCoopStatPublicFilterI(req, res) {
-    //     console.log("CoopMemberService::setCoopStatPublicFilterI()/01")
-
-    //     // // note that 'ignoreCache' is set to true because old data may introduce confussion
-    //     // const svSess = new SessionService()
-    //     // const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(req, res, true)
-    //     // console.log("CoopMemberService::setCoopStatPublicFilterI()/sessionDataExt:", sessionDataExt)
-    //     // let uid = sessionDataExt.currentUser.userId
-    //     let id = 0;
-
-    //     //     - get and clone userProfile, then get coopMemberProfile data and append to cloned userProfile.
-
-    //     console.log("CoopMemberService::setCoopStatPublicFilterI()/02")
-    //     /**
-    //      * Asses if request for self or for another user
-    //      * - if request action is 'GetMemberProfile'
-    //      * - and 'userId' is set
-    //      */
-    //     console.log("CoopMemberService::setCoopStatPublicFilterI()/req.post.a", req.post.a)
-    //     if (req.post.a === 'GetCoopStatPublicFilter') {
-    //         const plData = await this.b.getPlData(req)
-    //         console.log("CoopMemberService::setCoopStatPublicFilterI()/plData:", plData)
-    //         id = plData.coopStatPublicFilterId
-    //         console.log("CoopMemberService::setCoopStatPublicFilterI()/id0:", id)
-    //     }
-
-    //     if (req.post.a === 'UpdateCoopStatPublicFilter') {
-    //         const plQuery = await this.b.getPlQuery(req)
-    //         console.log("CoopMemberService::setCoopStatPublicFilterI()/plQuery:", plQuery)
-    //         id = plQuery.where.coopStatPublicFilterId
-    //         console.log("CoopMemberService::setCoopStatPublicFilterI()/id0:", id)
-    //     }
-    //     console.log("CoopMemberService::setCoopStatPublicFilterI()/uid1:", id)
-    //     const svUser = new UserService();
-    //     const existingCoopStatPublicFilterSpecs = await svUser.existingCoopStatPublicFilterSpecs(req, res, id)
-    //     console.log("CoopMemberService::setCoopStatPublicFilterI()/existingCoopStatPublicFilterSpecs:", existingCoopStatPublicFilterSpecs)
-    //     let modifiedCoopStatPublicFilterSpecs;
-
-    //     if (await svUser.validateProfileData(req, res, existingCoopStatPublicFilterSpecs)) {
-    //         console.log("CoopMemberService::setCoopStatPublicFilterI()/03")
-    //         // merge coopMemberProfile data
-    //         this.mergedProfile = await this.mergeCoopStatPublicFilterSpecs(req, res, existingCoopStatPublicFilterSpecs)
-    //         console.log("CoopMemberService::setCoopStatPublicFilterI()/this.mergedProfile1:", this.mergedProfile)
-    //     } else {
-    //         console.log("CoopMemberService::setCoopStatPublicFilterI()/04")
-    //         if (this.validateGetCoopStatPublicFilter(req, res)) {
-    //             console.log("CoopMemberService::setCoopStatPublicFilterI()/05")
-    //             console.log("CoopMemberService::setCoopStatPublicFilter()/uid:", uid)
-    //             const uRet = await svUser.getUserByID(req, res, uid);
-    //             console.log("CoopMemberService::setCoopStatPublicFilter()/uRet:", uRet)
-    //             const { password, userProfile, ...filteredUserData } = uRet[0]
-    //             console.log("CoopMemberService::setCoopStatPublicFilter()/filteredUserData:", filteredUserData)
-    //             userProfileDefault.userData = filteredUserData
-    //         } else {
-    //             console.log("CoopMemberService::setCoopStatPublicFilterI()/06")
-    //             const { password, userProfile, ...filteredUserData } = sessionDataExt.currentUser;
-    //             userProfileDefault.userData = filteredUserData;
-    //         }
-
-    //         console.log("CoopMemberService::setCoopStatPublicFilterI()/06")
-    //         console.log("CoopMemberService::setCoopStatPublicFilterI()/userProfileDefault1:", userProfileDefault)
-    //         console.log("CoopMemberService::setCoopStatPublicFilterI()/06-1")
-    //         // use default, assign the userId
-    //         profileDefaultConfig[0].value.userId = uid
-    //         console.log("CoopMemberService::setCoopStatPublicFilterI()/07")
-    //         console.log("CoopMemberService::setCoopStatPublicFilterI()/userProfileDefault2:", userProfileDefault)
-    //         console.log("CoopMemberService::setCoopStatPublicFilterI()/profileDefaultConfig:", profileDefaultConfig)
-    //         modifiedCoopStatPublicFilterSpecs = await svUser.modifyProfile(userProfileDefault, profileDefaultConfig)
-    //         console.log("CoopMemberService::setCoopStatPublicFilterI()/08")
-    //         console.log("CoopMemberService::setCoopStatPublicFilterI()/modifiedCoopStatPublicFilterSpecs:", modifiedCoopStatPublicFilterSpecs)
-    //         this.mergedProfile = await this.mergeCoopStatPublicFilterSpecs(req, res, modifiedCoopStatPublicFilterSpecs)
-    //         console.log("CoopMemberService::setCoopStatPublicFilter()/this.mergedProfile2:", JSON.stringify(this.mergedProfile))
-    //     }
-    // }
 
 }
