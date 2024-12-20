@@ -1,3 +1,6 @@
+/**
+ * This is the core source for Corpdesk
+ */
 import { Observable } from 'rxjs';
 import { AclModuleViewModel } from '../moduleman/models/acl-module-view.model';
 import { MenuViewModel } from '../moduleman/models/menu-view.model';
@@ -5,6 +8,249 @@ import { IUserProfile, UserModel } from '../user/models/user.model';
 import { SessionModel } from '../user/models/session.model';
 import { ConsumerModel } from '../moduleman/models/consumer.model';
 import { CompanyModel } from '../moduleman/models/company.model';
+
+
+/**
+ * -------------------------------------------------------------------------------------------------------------------------
+ * interface ICdRequest:
+ * -------------------------------------------------------------------------------------------------------------------------
+ * This is the interface for network request.
+ * The request can target an Corpdesk API, cd-api, 
+ * or sent via Corpdesk Websocket server, cd-sio to target another
+ * frontend corpdesk module. When used in cd-sio, it can have multiple targets.
+ * A given request can also nest another request as per developer requrements.
+ * 
+ * "Sys" as a value for ICdRequest.ctx implies the target module resides in the system directory of the target api.
+ * System directory hosts modules that are meant to offer common services to general applications.
+ * Corpdesk system directory can be visualised as the operating system packages shipped with Corpdesk to support "Apps".
+ * There are also "Apps" developed by corpdesk developers but resides in "app" directory. 
+ * These application are the types that are not core to operation of any Corpdesk application. 
+ * For example accounts package or any application for business operation
+ * "App" as a value for ICdRequest.ctx implies the target module resides in the application directory of the target api.
+ * Applications are general applications that can be developed by 3rd party developers.
+ * 
+ * Case convention:
+ * ctx: camel case with first character being capital.
+ * m: camel case with first character being capital.
+ * c: camel case with first character being capital.
+ * a: camel case with first character being capital.
+ * 
+ * TODO:
+ * It must be said that these solutions are constantly being tested and refined. 
+ * There are several finer points which were implemented much earlier but later refinment of policy makes them anti-pattern. Changing them can break existing application.
+ * Such modifications will requre careful planning
+ * Below are some identified areas for change:
+ * token name: Session token key name needs to be standardised. During corpdesk development it has aquired a number of references.
+ * Eg "token", "cdToken", "cd-token", "sid". 
+ * There is need to standardise how it gets refered and identified by consistent name
+ * 
+ * Example:
+ * In the example below, the request is targeting "User" module, "User" controller and the action is "Login"
+ * The data input is based on the IUserModule at the api. In this case what is requred is userName, password
+ * The way it has been used here is an anti-pattern.
+ * consumerGuid is part of IConsumer interface.
+ * If you examine the interface EnvelopFValItem, which form part of ICdRequest, there is the option of extData
+ * So the base place for consumerGuid is extData.
+ * The object below is how it was coded before refinement of interface policy.
+ * This correction will have to be made at a later date.
+ * 
+ * {
+    "ctx": "Sys",
+    "m": "User",
+    "c": "User",
+    "a": "Login",
+    "dat": {
+        "f_vals": [
+        {
+            "data": {
+            "userName": "karl",
+            "password": "secret",
+            "consumerGuid": "B0B3DA99-1859-A499-90F6-1E3F69575DCD"
+            }
+        }
+        ],
+        "token": null
+    },
+    "args": null
+    }
+ */
+export interface ICdRequest {
+    ctx: string; // can be either "Sys" or "App"
+    m: string; // target module name. Note that at the source codes, the full name has "Module" word following the given name here.
+    c: string; // target controler name. Note that at the source codes, the full name has "Controller" word following the given name here.
+    a: string; // target action name
+    dat: EnvelopDat; // payload data
+    args: any | null; // for future or forseable extension. Was set at design time but has not been used so far. Recommended to be kept as is
+}
+
+export interface EnvelopDat {
+    f_vals: EnvelopFValItem[]; // settings for the command. The array dimension was meant to have capacity for sending multiple commands in the future
+    token: string | null; // session token. 
+}
+
+export interface EnvelopFValItem {
+    query?: IQuery, // see  IQuery notes
+    data?: any, // set according to the interface of a given Corpdesk controller interface. This is synonimous with model of a given entity targeting a database table or similar
+    extData?:any, // for use in scenario where extra data is used to complete the command. For example when the target action need pre or post process. The details are set by develper at the controller action
+}
+
+
+/**
+ * for setting up query akin to sql query but can also be used against non-sql queries. 
+ * At its best the syntx should not be dependent on target data store type.
+ */
+export interface IQuery {
+    select?: string[];
+    update?: object;
+    where: any;
+    jsonUpdate?: IJsonUpdate[]; // This was developed for JSON columns. Its use can be found in the implementation of UserProfile and how CoopMemberProfile has extended UserProfile
+    distinct?: boolean;
+    take?: number;
+    skip?: number;
+    jFilters?: IJFilter[];
+    order?:any;
+    class?:string;
+}
+
+// custom json update
+export interface IJsonUpdate{
+    path:any; // path to a target item in JSON data
+    value: any; // value to apply to a tarteg item
+}
+
+
+
+/**
+ * -------------------------------------------------------------------------------------------------------------------------
+ * interface ICdResponse
+ * -------------------------------------------------------------------------------------------------------------------------
+ * This is the interface for response data
+ * It has two sections.
+ * 1. app_state
+ * 2. data
+ * 
+ */
+export interface ICdResponse {
+    app_state: {
+        success: boolean; // tels whether the process was successfull or not
+        info: IRespInfo; // status messages including error details if any or standard message of success
+        sess: ISessResp; // session status data
+        cache: object;
+        sConfig?: IServerConfig;
+    };
+    data: object;
+}
+
+export interface IRespInfo {
+    messages: string[]; // array of errors encountered
+    code: string; // error code. Corpdesk use this to code the exact spot of error by controller and action
+    app_msg: any; // general response message (can be set with string, or null)
+}
+
+export interface ISessResp {
+    cd_token?: string; // corpdesk token
+    userId?: number | null; // current user id
+    jwt: { jwtToken: string, checked: boolean, checkTime: number, authorized: boolean, } | null // jwt data
+    ttl: number; // server settings for session lifetime
+    initUuid?: string; // initialization guid of session
+    initTime?: string; // when the session started
+}
+
+export interface ISessionDataExt {
+    currentUser: UserModel;
+    currentUserProfile: IUserProfile;
+    currentSession: SessionModel;
+    currentConsumer: ConsumerModel;
+    currentCompany: CompanyModel;
+}
+
+
+
+export interface IServerConfig {
+    usePush: boolean;
+    usePolling: boolean;
+    useCacheStore: boolean;
+}
+
+/**
+ * 
+ * -------------------------------------------------------------------------------------------------------------------------
+ * interface IJFilter
+ * -------------------------------------------------------------------------------------------------------------------------
+ * This interface was meant to integrate with laid procedure for selecting item nesed in JSON field
+ * Below is a sample of how request can be made to a test method in InteRact module
+ * 
+     * {
+            "ctx": "Sys",
+            "m": "InteRact",
+            "c": "InteRactMedia",
+            "a": "TestJsonQuery",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "select": [
+                                "inte_ractPubId",
+                                "inte_ractPubName",
+                                "inte_ractPubDescription",
+                                "inte_ractPubGuid",
+                                "docId",
+                                "inteRactPubTypeId",
+                                "public",
+                                "m",
+                                "c",
+                                "j_val"
+                            ],
+                            "where": [
+                                {
+                                    "conjType": "",// options null, or omit the property
+                                    "dataType":"json",
+                                    "field": "j_val",
+                                    "jPath": "'$.domain.group.doc_id'",
+                                    "operator": "=",
+                                    "val": 11091
+                                },
+                                {
+                                    "field": "doc_id",
+                                    "fieldType": "json",
+                                    "operator": "=",
+                                    "val": 11121,
+                                    "conjType": "and" 
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "token": "fc735ce6-b52f-4293-9332-0181a49231c4"
+            },
+            "args": {}
+        }
+    
+        References:
+        file path: cd-api/src/CdApi/sys/inte-ract/controllers/inte-ract-pub.controller.ts
+        method: TestJsonQuery
+        file: cd-api/src/CdApi/sys/inte-ract/services/inte-ract-media.service.ts
+        method: testJsonQuery
+
+     * 
+     */
+        
+// json field filter
+export interface IJFilter {
+    jField: string;
+    jPath: string;
+    pathValue: any;
+}
+
+// query builder input
+export interface IQbInput {
+    select?: string[];
+    update?: object;
+    where: IQbFilter[];
+    distinct?: boolean;
+    take?: number;
+    skip?: number;
+}
 
 export const CDOBJ_TYPE_USER = 9
 export const CDOBJ_TYPE_GROUP = 10
@@ -25,87 +271,6 @@ export interface IModelRules {
     create: object;
     update: object;
     remove: object;
-}
-
-// // cd request format
-// export interface ICdRequest {
-//     ctx: string;
-//     m: string;
-//     c: string;
-//     a: string;
-//     dat: IDat;
-//     args: object;
-// }
-
-// export interface IDat {
-//     f_vals: any;
-//     token: string;
-// }// cd request format
-export interface ICdRequest {
-    ctx: string;
-    m: string;
-    c: string;
-    a: string;
-    dat: EnvelopDat;
-    args: any | null;
-}
-
-export interface EnvelopDat {
-    f_vals: EnvelopFValItem[];
-    token: string | null;
-}
-
-export interface EnvelopFValItem {
-    query?: IQuery,
-    data?: any,
-    extData?:any,
-}
-
-export interface ICdResponse {
-    app_state: {
-        success: boolean;
-        info: IRespInfo;
-        sess: ISessResp;
-        cache: object;
-        sConfig?: IServerConfig;
-    };
-    data: object;
-}
-
-// export interface ISessResp {
-//     cd_token?: string;
-//     userId?: number | null;
-//     jwt?: string;
-//     ttl: number;
-// }
-
-export interface ISessResp {
-    cd_token?: string;
-    userId?: number | null;
-    jwt: { jwtToken: string, checked: boolean, checkTime: number, authorized: boolean, } | null
-    ttl: number;
-    initUuid?: string;
-    initTime?: string;
-}
-
-export interface ISessionDataExt {
-    currentUser: UserModel;
-    currentUserProfile: IUserProfile;
-    currentSession: SessionModel;
-    currentConsumer: ConsumerModel;
-    currentCompany: CompanyModel;
-}
-
-export interface IRespInfo {
-    messages: string[];
-    code: string;
-    app_msg: any;
-}
-
-export interface IServerConfig {
-    usePush: boolean;
-    usePolling: boolean;
-    useCacheStore: boolean;
 }
 
 export const DEFAULT_CD_REQUEST: ICdRequest = {
@@ -249,28 +414,7 @@ export interface Cmd {
     query: IQuery | IQbInput;
 }
 
-// query builder input
-export interface IQbInput {
-    select?: string[];
-    update?: object;
-    where: IQbFilter[];
-    distinct?: boolean;
-    take?: number;
-    skip?: number;
-}
 
-export interface IQuery {
-    select?: string[];
-    update?: object;
-    where: any;
-    jsonUpdate?: any;
-    distinct?: boolean;
-    take?: number;
-    skip?: number;
-    jFilters?: IJFilter[];
-    order?:any;
-    class?:string;
-}
 
 export interface IFetchInput{
     url: string;
@@ -447,12 +591,7 @@ export interface IQbFilter {
     jPath?: string;
 }
 
-// json field filter
-export interface IJFilter {
-    jField: string;
-    jPath: string;
-    pathValue: any;
-}
+
 
 export interface ObjectItem {
     key: string,

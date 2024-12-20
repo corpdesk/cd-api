@@ -192,6 +192,7 @@ export class Main {
         //     }
         // });
 
+        
         app.post('/sio/p-reg/', async (req: any, res: any) => {
             res.setHeader('Content-Type', 'application/json');
             res.setHeader("Access-Control-Allow-Credentials", "true");
@@ -200,12 +201,7 @@ export class Main {
             CdInit(req, res);
         });
 
-        // Handle POST requests
-        // app.post('/sio/p-reg', (req: Request, res: Response) => {
-        //     const { name, email } = req.body;
-        //     console.log(`Received registration: Name: ${name}, Email: ${email}`);
-        //     res.send({ message: 'Registration successful' });
-        // });
+        
 
 
         // set api entry point
