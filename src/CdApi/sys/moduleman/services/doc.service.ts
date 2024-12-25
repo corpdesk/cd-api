@@ -113,32 +113,40 @@ export class DocService extends CdService {
         return true;
     }
 
+    /**
+     * This method is mostly used during "Create" process of any controller
+     * It is used to save meta data of the Create transaction.
+     * @param req 
+     * @param res 
+     * @returns 
+     */
     async getDocTypeId(req, res): Promise<number> {
         let ret = 0;
         const m = req.post.m;
         const c = req.post.c;
         const a = req.post.a;
-        this.logger.logInfo('DocService::getDocTypeId()/01')
         const result: DocTypeModel[] = await this.getDocTypeByName(req, res, `${c}_${a}`)
-        this.logger.logInfo('DocService::getDocTypeId()/02')
-        this.logger.logInfo('DocService::getDocTypeId()/result:', result);
         if (result.length > 0) {
-            this.logger.logInfo('DocService::getDocTypeId()/03')
             ret = result[0].docTypeId;
-            this.logger.logInfo('DocService::getDocTypeId()/ret:', {ret:ret})
         } else {
-            this.logger.logInfo('DocService::getDocTypeId()/04')
             const r:any = await this.createDocType(req, res);
-            this.logger.logInfo('DocService::getDocTypeId()/05')
-            this.logger.logInfo('DocService::getDocTypeId()/r:', r)
             // ret = r[0].docTypeId;
             ret = r.docTypeId;
         }
-        this.logger.logInfo('DocService::getDocTypeId()/06')
-        this.logger.logInfo('DocService::getDocTypeId()/ret:', {ret:ret})
         return await ret;
     }
 
+    /**
+     * This process is attempted during any create operation.
+     * Note that the naming of doc type is dectated by `${c}_${a}`
+     * Which is the controller name (without the tail "Controller") then uderstore followed by action.
+     * If the name already exists, it will not be created.
+     * In the end what is needed for recording transaction is the doc_type_id. So it it already exists, the id will be extracted using getDocTypeId(req, res)
+     * 
+     * @param req 
+     * @param res 
+     * @returns 
+     */
     async createDocType(req, res): Promise<DocTypeModel[]> {
         const m = req.post.m;
         const c = req.post.c;

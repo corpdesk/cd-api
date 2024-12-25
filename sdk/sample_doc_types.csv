@@ -1,0 +1,52 @@
+doc_type_id,doc_type_name,module_guid,doc_guid,doc_id,doc_type_controller,doc_type_action,doc_type_enabled,enable_notification,nk_name,doc_type_icon
+3928,cd_accts_transact_media_type__read,252,NULL,NULL,cd_accts_transact_media_type,_read,NULL,NULL,NULL,"fa fa-circle"
+3929,cd_accts_transact_media__read,252,NULL,NULL,cd_accts_transact_media,_read,NULL,NULL,NULL,"fa fa-circle"
+3930,cd_accts_transact__read,252,NULL,NULL,cd_accts_transact,_read,NULL,NULL,NULL,"fa fa-circle"
+3931,cd_accts_transact_type__read,252,NULL,NULL,cd_accts_transact_type,_read,NULL,NULL,NULL,"fa fa-circle"
+3932,cd_accts_transact_media__create,252,NULL,NULL,cd_accts_transact_media,_create,NULL,NULL,NULL,"fa fa-circle"
+3933,cd_accts_bank_DT,252,NULL,NULL,cd_accts_bank,DT,NULL,NULL,NULL,"fa fa-circle"
+3934,cd_accts_bank_type_DT,252,NULL,NULL,cd_accts_bank_type,DT,NULL,NULL,NULL,"fa fa-circle"
+3935,cd_accts_services_type__read,252,NULL,NULL,cd_accts_services_type,_read,NULL,NULL,NULL,"fa fa-circle"
+3936,cd_accts_services__read,252,NULL,NULL,cd_accts_services,_read,NULL,NULL,NULL,"fa fa-circle"
+3937,cd_accts_bank_type__create,252,NULL,NULL,cd_accts_bank_type,_create,NULL,NULL,NULL,"fa fa-circle"
+3938,cd_accts_bank_type__update,252,NULL,NULL,cd_accts_bank_type,_update,NULL,NULL,NULL,"fa fa-circle"
+3939,cd_accts_transact__create,252,NULL,NULL,cd_accts_transact,_create,NULL,NULL,NULL,"fa fa-circle"
+3940,cd_accts_transact_,252,NULL,NULL,cd_accts_transact,NULL,NULL,NULL,NULL,"fa fa-circle"
+122581,groupinvitation_actionCreate,45,NULL,NULL,groupinvitation,actionCreate,NULL,NULL,NULL,"fa fa-user-friends"
+122582,notification_actionCreate,44,NULL,NULL,notification,actionCreate,NULL,NULL,NULL,"fa fa-circle"
+122583,groupmember_actionCreate,45,NULL,NULL,groupmember,actionCreate,NULL,NULL,NULL,"fa fa-circle"
+122584,groupinvitation_actionAccept,45,NULL,NULL,groupinvitation,actionAccept,NULL,NULL,NULL,"fa fa-circle"
+122585,interactpub_actionCreate,357,NULL,NULL,interactpub,actionCreate,NULL,NULL,NULL,"fa fa-circle"
+122586,interactmedia_actionCreate,357,NULL,NULL,interactmedia,actionCreate,NULL,NULL,NULL,"fa fa-circle"
+122587,interactreact_actionCreate,357,NULL,NULL,interactreact,actionCreate,NULL,NULL,NULL,"fa fa-circle"
+122588,project_actionCreate,354,NULL,NULL,project,actionCreate,NULL,NULL,NULL,"fa fa-circle"
+122589,project_actionCreate,354,NULL,NULL,project,actionCreate,NULL,NULL,NULL,"fa fa-circle"
+122590,group_actionCreate,45,NULL,NULL,group,actionCreate,NULL,NULL,NULL,"fa fa-circle"
+122591,group_actionCreate,45,NULL,NULL,group,actionCreate,NULL,NULL,NULL,"fa fa-circle"
+122592,Module_Create,00e7c6a8-83e4-40e2-bd27-51fcff9ce63b,c90b7a5f-3386-431d-aa4c-8d5eeed602ed,NULL,Module,Create,1,1,NULL,NULL
+122593,User_Login,-dkkm6,33fd127c-c98e-4e22-9c6d-df4583926b2b,NULL,User,Login,1,1,NULL,NULL
+122594,Menu_Create,00e7c6a8-83e4-40e2-bd27-51fcff9ce63b,cd9be475-ab80-4c06-b32f-901e2d921486,NULL,Menu,Create,1,1,NULL,NULL
+122595,CdObj_Create,00e7c6a8-83e4-40e2-bd27-51fcff9ce63b,eee3d308-c038-4ad4-8877-318f5be01299,NULL,CdObj,Create,1,1,NULL,NULL
+122596,Company_Create,00e7c6a8-83e4-40e2-bd27-51fcff9ce63b,eb44654d-582d-4f12-a5aa-40bc6607f0b2,NULL,Company,Create,1,1,NULL,NULL
+122597,Consumer_Create,00e7c6a8-83e4-40e2-bd27-51fcff9ce63b,ebec7d85-bbef-4071-8117-ee35a21990ef,NULL,Consumer,Create,1,1,NULL,NULL
+122598,ConsumerResource_Create,00e7c6a8-83e4-40e2-bd27-51fcff9ce63b,48332051-511f-4097-aa94-8b2447763cf8,NULL,ConsumerResource,Create,1,1,NULL,NULL
+122599,Group_Create,-dkkm6,0e49ee90-f925-4bcf-811a-41d9255e5093,NULL,Group,Create,1,1,NULL,NULL
+122600,GroupMember_Create,-dkkm6,f02ecb21-a416-4446-8615-514289800d0e,NULL,GroupMember,Create,1,1,NULL,NULL
+122601,Websocket_Create,d3cf6b1b-2359-454c-a419-4fcaa1ddb5d2,fa65eb39-3385-482d-86ac-81ca6924ad4a,NULL,Websocket,Create,1,1,NULL,NULL
+122602,Bill_Create,05CCE4BE-8210-67C1-F377-0671A83E68CB,e615a837-7e3d-40f9-b0d4-982479991480,NULL,Bill,Create,1,1,NULL,NULL
+122603,BillItem_Create,05CCE4BE-8210-67C1-F377-0671A83E68CB,6d6a941d-8c58-4827-88fb-1c838019285f,NULL,BillItem,Create,1,1,NULL,NULL
+122604,Output_Pdf,8q3khu,5f41dbaa-6813-4c07-8591-846757052d9c,NULL,Output,Pdf,1,1,NULL,NULL
+122605,CdAcctsPayment_Create,E1D56521-3117-616E-FA44-E6E7BF927B2D,2cc01a21-3d39-493f-a70a-efdb43960d6a,NULL,CdAcctsPayment,Create,1,1,NULL,NULL
+122606,CdAcctsReceipt_Create,E1D56521-3117-616E-FA44-E6E7BF927B2D,49e3aad9-8561-4d1c-bc35-953af52bd526,NULL,CdAcctsReceipt,Create,1,1,NULL,NULL
+122607,User_Register,-dkkm6,05a209a4-79ab-4445-9495-2c99c91eb2a6,NULL,User,Register,1,1,NULL,NULL
+122608,GroupInvitation_Create,-dkkm6,d66bad80-1ecd-44ce-9e80-a49d706dcac8,NULL,GroupInvitation,Create,1,1,NULL,NULL
+122609,GroupInvitation_Accept,-dkkm6,a3639a5e-b7ed-4d2d-a268-7007391d1f7c,NULL,GroupInvitation,Accept,1,1,NULL,NULL
+122610,InteRactPub_Create,BE1E6690-0DA0-F35B-1E93-7140CFD27C09,2bdda381-0c51-43b2-b128-465a8acb8e5b,NULL,InteRactPub,Create,1,1,NULL,NULL
+122611,Coop_CreateM,0ea49de0-7fa4-4e92-81af-2d5f05a54c,3f7c1088-a82d-42ce-8c9f-59ee79e390b7,NULL,Coop,CreateM,1,1,NULL,NULL
+122612,Coop_Create,0ea49de0-7fa4-4e92-81af-2d5f05a54c,bbb683fd-e20a-405e-aee5-d54513850d10,NULL,Coop,Create,1,1,NULL,NULL
+122613,Coop_CreateType,0ea49de0-7fa4-4e92-81af-2d5f05a54c,9c6e3bba-c2ae-4a53-919d-baa5ce269c57,NULL,Coop,CreateType,1,1,NULL,NULL
+122614,CdGeoLocation_Create,C620F2D8-A0AE-0406-7DB7-7ECE806722AA,40f1ed98-c82d-4f22-a0e1-d620972ec708,NULL,CdGeoLocation,Create,1,1,NULL,NULL
+122615,CdGeoLocation_CreateM,C620F2D8-A0AE-0406-7DB7-7ECE806722AA,75eb05be-9007-48f7-a5eb-77c28f04cd95,NULL,CdGeoLocation,CreateM,1,1,NULL,NULL
+122616,CoopMember_Create,0ea49de0-7fa4-4e92-81af-2d5f05a54c,f4e1ee07-8854-453d-a8f4-6622646ad13b,NULL,CoopMember,Create,1,1,NULL,NULL
+122617,CoopRef_Create,0ea49de0-7fa4-4e92-81af-2d5f05a54c,a9f85319-5b64-4f81-951b-f5864b960a58,NULL,CoopRef,Create,1,1,NULL,NULL
+122618,CoopStatPublicFilter_Create,0ea49de0-7fa4-4e92-81af-2d5f05a54c,83f9a08e-de68-4f0e-8667-9ea34eea557e,NULL,CoopStatPublicFilter,Create,1,1,NULL,NULL

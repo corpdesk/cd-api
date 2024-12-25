@@ -6,8 +6,6 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 't
         synchronize: false
     }
 )
-// SELECT doc_type_id, doc_type_name, module_guid, doc_guid, doc_id, doc_type_controller, doc_type_action, doc_type_enabled, enable_notification, nk_name, doc_type_icon
-
 export class DocTypeModel {
 
     @PrimaryGeneratedColumn(
