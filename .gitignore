@@ -41,3 +41,6 @@ package-lock.json
 # letsencrypt webserver
 /src/.well-known/acme-challenge/
 
+# app directory has independent repositories
+/src/CdApi/app/
+
