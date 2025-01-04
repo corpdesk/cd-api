@@ -62,22 +62,6 @@ export class CdCliTypeModel {
         })
     docId: number;
 
-    @Column(
-        {
-            name: 'parent_guid',
-            default: null
-        })
-    parentGuid: string;
-
-    @Column(
-        {
-            name: 'cd_cli_type_enabled',
-            default: null
-        })
-    cdCliTypeEnabled: boolean;
-
-
-
     // HOOKS
     @BeforeInsert()
     @BeforeUpdate()

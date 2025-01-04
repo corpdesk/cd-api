@@ -34,6 +34,18 @@ export class CdCliProfileModel {
     })
     cdCliProfileGuid?: string;
 
+    @Column({
+        name: 'cd_cli_profile_name',
+        length: 40,
+    })
+    cdCliProfileName?: string;
+
+    @Column({
+        name: 'cd_cli_profile_data',
+        nullable: true
+    })
+    cdCliProfileData?: string;
+
     @Column(
         {
             name: 'cd_cli_profile_type_id',
@@ -41,14 +53,6 @@ export class CdCliProfileModel {
         }
     )
     cdCliProfileTypeId: number;
-
-    @Column(
-        {
-            name: 'cd_cli_id',
-            nullable: true
-        }
-    )
-    cdCliId: number;
 
     @Column(
         {
@@ -74,29 +78,7 @@ export class CdCliProfileModel {
     )
     cdCliProfileEnabled: boolean;
 
-    @Column(
-        {
-            name: 'abcd_id',
-            nullable: true
-        }
-    )
-    abcdId: number;
-
-    @Column(
-        {
-            name: 'abcd_active',
-            nullable: true
-        }
-    )
-    abcdActive: boolean;
-
-    @Column(
-        {
-            name: 'cd_cli_profile_profile',
-            nullable: true
-        }
-    )
-    cdCliProfileProfile: string;
+    
 
 }
 

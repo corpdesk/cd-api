@@ -9,10 +9,9 @@ import {
 } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 
-
 @Entity(
     {
-        name: 'cdCli',
+        name: 'cd_cli',
         synchronize: false
     }
 )
@@ -68,14 +67,6 @@ export class CdCliModel {
         }
     )
     cdCliTypeId?: number;
-
-    @Column(
-        {
-            name: 'company_id',
-            default: null
-        }
-    )
-    companyId?: number;
 
     @Column(
         'boolean',

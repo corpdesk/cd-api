@@ -6,11 +6,17 @@ import { DataSource, DatabaseType } from 'typeorm';
 import path from 'path';
 dotenv.config();
 
+/**
+ * this section needs to be automated.
+ * the automation should be integrated during installation of given module
+ * both front end and backend should be considered in installation process of given module.
+ */
 const ENTITIES = [
     __dirname + '/CdApi/sys/user/models/*.model.ts',
     __dirname + '/CdApi/sys/moduleman/models/*.model.ts',
     __dirname + '/CdApi/sys/comm/models/*.model.ts',
     __dirname + '/CdApi/sys/scheduler/models/*.model.ts',
+    __dirname + '/CdApi/sys/cd-cli/models/*.model.ts',
     __dirname + '/CdApi/app/cd-accts/models/*.model.ts',
     __dirname + '/CdApi/app/coops/models/*.model.ts',
     __dirname + '/CdApi/app/cd-geo/models/*.model.ts',
