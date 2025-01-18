@@ -22,10 +22,10 @@ import {
   CdCliProfileModel,
   ICdCliProfileProfile,
   IUserProfileOnly,
-} from "../models/cd-cli-profile.model";
-import { CdCliProfileViewModel } from "../models/cd-cli-profile-view.model";
-import { CdCliModel } from "../models/cd-cli.model";
-import { CdCliProfileTypeModel } from "../models/cd-cli-profile-type.model";
+} from "../models/cd-dev-project.model";
+import { CdCliProfileViewModel } from "../models/cd-dev-project-view.model";
+import { CdCliModel } from "../models/cd-dev.model";
+import { CdCliProfileTypeModel } from "../models/cd-dev-project-type.model";
 import { Logging } from "../../base/winston.log";
 import { ProfileServiceHelper } from "../../utils/profile-service-helper";
 

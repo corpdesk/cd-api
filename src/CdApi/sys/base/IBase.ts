@@ -114,6 +114,7 @@ export interface IQuery {
 
 // custom json update
 export interface IJsonUpdate{
+    modelField?; // name of the json column. Capacity to update multiple json columns in a given row
     path:any; // path to a target item in JSON data
     value: any; // value to apply to a tarteg item
 }

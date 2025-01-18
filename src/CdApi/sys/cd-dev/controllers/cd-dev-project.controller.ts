@@ -1,7 +1,7 @@
 
 import { BaseService } from '../../base/base.service';
 import { CdController } from '../../base/cd.controller';
-import { CdCliProfileService } from '../services/cd-cli-profile.service';
+import { CdCliProfileService } from '../services/cd-dev-project.service';
 
 export class CdCliProfileController extends CdController {
     b: BaseService;

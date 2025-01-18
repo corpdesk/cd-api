@@ -9,7 +9,7 @@ import {
 } from 'class-validator';
 import { IUserProfile, userProfileDefault } from '../../user/models/user.model';
 import { IAclRole } from '../../base/IBase';
-import { CdCliProfileViewModel } from './cd-cli-profile-view.model';
+import { CdCliProfileViewModel } from './cd-dev-project-view.model';
 
 @Entity(
     {
