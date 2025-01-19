@@ -1,5 +1,5 @@
 // Data used to process acl in a abcds module methods
-export interface ICdCliAclData {
+export interface ICdDevAclData {
     abcdStatId: number,
     abcdTypeId: number,
     countryId: number,

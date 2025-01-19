@@ -19,43 +19,43 @@ import {
 import { SessionService } from "../../user/services/session.service";
 import { UserService } from "../../user/services/user.service";
 import {
-  CdCliProfileModel,
-  ICdCliProfileProfile,
+  CdDevProjectModel,
+  ICdDevProjectProfile,
   IUserProfileOnly,
 } from "../models/cd-dev-project.model";
-import { CdCliProfileViewModel } from "../models/cd-dev-project-view.model";
-import { CdCliModel } from "../models/cd-dev.model";
-import { CdCliProfileTypeModel } from "../models/cd-dev-project-type.model";
+import { CdDevProjectViewModel } from "../models/cd-dev-project-view.model";
+import { CdDevModel } from "../models/cd-dev.model";
+import { CdDevProjectTypeModel } from "../models/cd-dev-project-type.model";
 import { Logging } from "../../base/winston.log";
 import { ProfileServiceHelper } from "../../utils/profile-service-helper";
 
-export class CdCliProfileService extends CdService {
+export class CdDevProjectService extends CdService {
   logger: Logging;
   b: BaseService;
   cdToken: string;
-  serviceModel: CdCliProfileModel;
+  serviceModel: CdDevProjectModel;
   srvSess: SessionService;
   validationCreateParams;
-  mergedProfile: ICdCliProfileProfile;
+  mergedProfile: ICdDevProjectProfile;
 
   /*
    * create rules
    */
   cRules = {
     required: [
-      "cdCliProfileName",
-      "cdCliProfileData",
+      "cdDevProjectName",
+      "cdDevProjectData",
       "userId",
-      "cdCliProfileTypeId",
+      "cdDevProjectTypeId",
     ],
-    noDuplicate: ["userId", "cdCliProfileName", "cdCliProfileTypeId"],
+    noDuplicate: ["userId", "cdDevProjectName", "cdDevProjectTypeId"],
   };
 
   constructor() {
     super();
     this.logger = new Logging();
     this.b = new BaseService();
-    this.serviceModel = new CdCliProfileModel();
+    this.serviceModel = new CdDevProjectModel();
     this.srvSess = new SessionService();
   }
 
@@ -64,7 +64,7 @@ export class CdCliProfileService extends CdService {
      * {
             "ctx": "Sys",
             "m": "Moduleman",
-            "c": "CdCliProfile",
+            "c": "CdDevProject",
             "a": "Create",
             "dat": {
                 "f_vals": [
@@ -102,47 +102,47 @@ export class CdCliProfileService extends CdService {
       req.body.dat.f_vals = [fVal]; // Set current fVal as a single object in the array
 
       if (await this.validateCreate(req, res)) {
-        console.log("CdCliProfileService::create()/validation succedded");
+        console.log("CdDevProjectService::create()/validation succedded");
         console.log(
-          "cdCli/CdCliProfileService::create()/this.b.err1:",
+          "cdDev/CdDevProjectService::create()/this.b.err1:",
           this.b.err
         );
         await this.beforeCreate(req, res);
         console.log(
-          "cdCli/CdCliProfileService::create()/this.b.err2:",
+          "cdDev/CdDevProjectService::create()/this.b.err2:",
           this.b.err
         );
         const serviceInput = {
-          serviceModel: CdCliProfileModel,
+          serviceModel: CdDevProjectModel,
           serviceModelInstance: this.serviceModel,
-          docName: "Create cdCliProfile",
+          docName: "Create cdDevProject",
           dSource: 1,
         };
-        console.log("CdCliProfileService::create()/req.post:", req.post);
+        console.log("CdDevProjectService::create()/req.post:", req.post);
         const respData = await this.b.create(req, res, serviceInput);
-        console.log("CdCliProfileService::create()/respData:", respData);
+        console.log("CdDevProjectService::create()/respData:", respData);
 
         // Store the result for this fVal
         await results.push(respData);
-        this.b.i.app_msg = "cd-cli profile created";
+        this.b.i.app_msg = "cd-dev profile created";
         await this.b.setAppState(true, this.b.i, svSess.sessResp);
         this.b.cdResp.data = results;
         await this.b.respond(req, res);
       } else {
         // If validation fails, push the error state
-        console.log("CdCliProfileService::create()/validation failed");
+        console.log("CdDevProjectService::create()/validation failed");
         console.log(
-          "cdCli/CdCliProfileService::create()/this.b.err3:",
+          "cdDev/CdDevProjectService::create()/this.b.err3:",
           this.b.err
         );
         // await results.push({ success: false, message: `Validation failed` });
         results = [];
 
-        // this.b.i.app_msg = "cd-cli profile creation failed";
+        // this.b.i.app_msg = "cd-dev profile creation failed";
         const i = {
           messages: this.b.err,
-          code: "CdCliProfileService:create",
-          app_msg: "cd-cli profile creation failed",
+          code: "CdDevProjectService:create",
+          app_msg: "cd-dev profile creation failed",
         };
         await this.b.setAppState(false, i, svSess.sessResp);
         // this.b.cdResp.app_state.info.messages = this.b.err
@@ -154,8 +154,8 @@ export class CdCliProfileService extends CdService {
 
   async validateCreate(req, res) {
     const svSess = new SessionService();
-    let pl: CdCliProfileModel = this.b.getPlData(req);
-    console.log("CdCliProfileService::validateCreate()/pl:", pl);
+    let pl: CdDevProjectModel = this.b.getPlData(req);
+    console.log("CdDevProjectService::validateCreate()/pl:", pl);
 
     // Validation params for the different checks
     // When reference of for example userId is given as 1010, the userId=1010 must be existing
@@ -167,21 +167,21 @@ export class CdCliProfileService extends CdService {
         model: UserModel,
       },
       {
-        field: "cdCliProfileTypeId",
-        query: { cdCliProfileTypeId: pl.cdCliProfileTypeId },
-        model: CdCliProfileTypeModel,
+        field: "cdDevProjectTypeId",
+        query: { cdDevProjectTypeId: pl.cdDevProjectTypeId },
+        model: CdDevProjectTypeModel,
       },
     ];
 
     const valid = await this.validateExistence(req, res, validationParams);
     console.log(
-      "CdCliProfileService::validateCreate/this.b.err1:",
+      "CdDevProjectService::validateCreate/this.b.err1:",
       JSON.stringify(this.b.err)
     );
 
     if (!valid) {
       this.logger.logInfo(
-        "cdCli/CdCliProfileService::validateCreate()/Reference validation failed"
+        "cdDev/CdDevProjectService::validateCreate()/Reference validation failed"
       );
       const e = "reference validation for fields failed!";
       this.b.err.push(e.toString());
@@ -198,7 +198,7 @@ export class CdCliProfileService extends CdService {
     // Validate against duplication and required fields
     this.validationCreateParams = {
       controllerInstance: this,
-      model: CdCliProfileModel,
+      model: CdDevProjectModel,
     };
 
     if (await this.b.validateUnique(req, res, this.validationCreateParams)) {
@@ -212,13 +212,13 @@ export class CdCliProfileService extends CdService {
         );
 
         this.logger.logInfo(
-          "cdCli/CdCliProfileService::validateCreate()/Required fields validation failed"
+          "cdDev/CdDevProjectService::validateCreate()/Required fields validation failed"
         );
         const e = "required fields validation for fields failed!";
         this.b.err.push(e.toString());
         const i = {
           messages: this.b.err,
-          code: "CdCliProfileService:validateCreate",
+          code: "CdDevProjectService:validateCreate",
           app_msg: "",
         };
         // await this.b.serviceErr(req, res, e, i.code)
@@ -235,13 +235,13 @@ export class CdCliProfileService extends CdService {
       this.b.err.push(e.toString());
       const i = {
         messages: this.b.err,
-        code: "CdCliProfileService:validateCreate",
+        code: "CdDevProjectService:validateCreate",
         app_msg: "",
       };
       // await this.b.serviceErr(req, res, e, i.code)
       await this.b.setAppState(false, i, svSess.sessResp);
       console.log(
-        "cdCli/CdCliProfileService::validateCreate()/this.b.err1:",
+        "cdDev/CdDevProjectService::validateCreate()/this.b.err1:",
         this.b.err
       );
       return false;
@@ -252,7 +252,7 @@ export class CdCliProfileService extends CdService {
     const promises = validationParams.map((param) => {
       const serviceInput = {
         serviceModel: param.model,
-        docName: `CdCliProfileService::validateExistence(${param.field})`,
+        docName: `CdDevProjectService::validateExistence(${param.field})`,
         cmd: {
           action: "find",
           query: { where: param.query },
@@ -260,28 +260,28 @@ export class CdCliProfileService extends CdService {
         dSource: 1,
       };
       console.log(
-        "CdCliProfileService::validateExistence/param.model:",
+        "CdDevProjectService::validateExistence/param.model:",
         param.model
       );
       console.log(
-        "CdCliProfileService::validateExistence/serviceInput:",
+        "CdDevProjectService::validateExistence/serviceInput:",
         JSON.stringify(serviceInput)
       );
       const b = new BaseService();
       return b.read(req, res, serviceInput).then((r) => {
         if (r.length > 0) {
           this.logger.logInfo(
-            `cdCli/CdCliProfileService::validateExistence() - ${param.field} exists`
+            `cdDev/CdDevProjectService::validateExistence() - ${param.field} exists`
           );
           return true;
         } else {
           this.logger.logError(
-            `cdCli/CdCliProfileService::validateExistence() - Invalid ${param.field}`
+            `cdDev/CdDevProjectService::validateExistence() - Invalid ${param.field}`
           );
           this.b.i.app_msg = `${param.field} reference is invalid`;
           this.b.err.push(this.b.i.app_msg);
           console.log(
-            "CdCliProfileService::validateExistence/this.b.err1:",
+            "CdDevProjectService::validateExistence/this.b.err1:",
             JSON.stringify(this.b.err)
           );
           return false;
@@ -290,9 +290,9 @@ export class CdCliProfileService extends CdService {
     });
 
     const results = await Promise.all(promises);
-    console.log("CdCliProfileService::validateExistence/results:", results);
+    console.log("CdDevProjectService::validateExistence/results:", results);
     console.log(
-      "CdCliProfileService::validateExistence/this.b.err2:",
+      "CdDevProjectService::validateExistence/this.b.err2:",
       JSON.stringify(this.b.err)
     );
     // If any of the validations fail, return false
@@ -300,27 +300,27 @@ export class CdCliProfileService extends CdService {
   }
 
   async beforeCreate(req, res): Promise<any> {
-    const plData: CdCliProfileModel = this.b.getPlData(req);
+    const plData: CdDevProjectModel = this.b.getPlData(req);
     this.b.setPlData(req, {
-      key: "cdCliProfileData",
-      value: JSON.stringify(plData.cdCliProfileData),
+      key: "cdDevProjectData",
+      value: JSON.stringify(plData.cdDevProjectData),
     });
-    this.b.setPlData(req, { key: "cdCliProfileGuid", value: this.b.getGuid() });
-    this.b.setPlData(req, { key: "cdCliProfileEnabled", value: true });
+    this.b.setPlData(req, { key: "cdDevProjectGuid", value: this.b.getGuid() });
+    this.b.setPlData(req, { key: "cdDevProjectEnabled", value: true });
     return true;
   }
 
   async afterCreate(req, res) {
     const svSess = new SessionService();
     // flag invitation group as accepted
-    await this.b.setAlertMessage("new cdCli-member created", svSess, true);
+    await this.b.setAlertMessage("new cdDev-member created", svSess, true);
   }
 
   async createI(
     req,
     res,
     createIParams: CreateIParams
-  ): Promise<CdCliProfileModel | boolean> {
+  ): Promise<CdDevProjectModel | boolean> {
     // const svSess = new SessionService()
     // if (this.validateCreateI(req, res, createIParams)) {
     //     return await this.b.createI(req, res, createIParams)
@@ -331,29 +331,29 @@ export class CdCliProfileService extends CdService {
   }
 
   async validateCreateI(req, res, createIParams: CreateIParams) {
-    console.log("CdCliProfileService::validateCreateI()/01");
+    console.log("CdDevProjectService::validateCreateI()/01");
     const svSess = new SessionService();
     ///////////////////////////////////////////////////////////////////
     // 1. Validate against duplication
-    console.log("CdCliProfileService::validateCreateI()/011");
-    this.b.i.code = "CdCliProfileService::validateCreateI";
+    console.log("CdDevProjectService::validateCreateI()/011");
+    this.b.i.code = "CdDevProjectService::validateCreateI";
     let ret = false;
     this.validationCreateParams = {
       controllerInstance: this,
-      model: CdCliProfileModel,
+      model: CdDevProjectModel,
       data: createIParams.controllerData,
     };
     // const isUnique = await this.validateUniqueMultiple(req, res, this.validationCreateParams)
     // await this.b.validateUnique(req, res, this.validationCreateParams)
     if (await this.b.validateUniqueI(req, res, this.validationCreateParams)) {
-      console.log("CdCliProfileService::validateCreateI()/02");
+      console.log("CdDevProjectService::validateCreateI()/02");
       if (await this.b.validateRequired(req, res, this.cRules)) {
-        console.log("CdCliProfileService::validateCreateI()/03");
+        console.log("CdDevProjectService::validateCreateI()/03");
         ///////////////////////////////////////////////////////////////////
         // // 2. confirm the consumerTypeGuid referenced exists
-        const pl: CdCliProfileModel = createIParams.controllerData;
+        const pl: CdDevProjectModel = createIParams.controllerData;
       } else {
-        console.log("CdCliProfileService::validateCreateI()/12");
+        console.log("CdDevProjectService::validateCreateI()/12");
         ret = false;
         this.b.setAlertMessage(
           `the required fields ${this.b.isInvalidFields.join(", ")} is missing`,
@@ -362,7 +362,7 @@ export class CdCliProfileService extends CdService {
         );
       }
     } else {
-      console.log("CdCliProfileService::validateCreateI()/13");
+      console.log("CdDevProjectService::validateCreateI()/13");
       ret = false;
       this.b.setAlertMessage(
         `duplicate for ${this.cRules.noDuplicate.join(", ")} is not allowed`,
@@ -370,16 +370,16 @@ export class CdCliProfileService extends CdService {
         false
       );
     }
-    console.log("CdCliProfileService::validateCreateI()/14");
-    console.log("CdCliProfileService::validateCreateI()/ret", ret);
+    console.log("CdDevProjectService::validateCreateI()/14");
+    console.log("CdDevProjectService::validateCreateI()/ret", ret);
     return ret;
   }
 
-  async cdCliProfileExists(req, res, params): Promise<boolean> {
+  async cdDevProjectExists(req, res, params): Promise<boolean> {
     const serviceInput: IServiceInput = {
       serviceInstance: this,
-      serviceModel: CdCliProfileModel,
-      docName: "CdCliProfileService::cdCli-memberExists",
+      serviceModel: CdDevProjectModel,
+      docName: "CdDevProjectService::cdDev-memberExists",
       cmd: {
         action: "find",
         query: { where: params.filter },
@@ -393,65 +393,65 @@ export class CdCliProfileService extends CdService {
     //
   }
 
-  // async activateCdCli(req, res) {
+  // async activateCdDev(req, res) {
   //     try {
-  //         if (!this.validateActiveCdCli(req, res)) {
+  //         if (!this.validateActiveCdDev(req, res)) {
   //             const e = "could not validate the request"
   //             this.b.err.push(e.toString());
   //             const i = {
   //                 messages: this.b.err,
-  //                 code: 'CdCliProfileService:activateCdCli',
+  //                 code: 'CdDevProjectService:activateCdDev',
   //                 app_msg: ''
   //             };
   //             await this.b.serviceErr(req, res, e, i.code)
   //             await this.b.respond(req, res)
   //         }
-  //         let pl: CdCliProfileModel = this.b.getPlData(req);
-  //         console.log("CdCliProfileService::activateCdCli()/pl:", pl)
-  //         const cdCliId = pl.cdCliId
+  //         let pl: CdDevProjectModel = this.b.getPlData(req);
+  //         console.log("CdDevProjectService::activateCdDev()/pl:", pl)
+  //         const cdDevId = pl.cdDevId
   //         const svSess = new SessionService()
   //         const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(req, res, true)
-  //         console.log("CdCliProfileService::activateCdCli()/sessionDataExt:", sessionDataExt)
-  //         // set all cdClis to inactive
+  //         console.log("CdDevProjectService::activateCdDev()/sessionDataExt:", sessionDataExt)
+  //         // set all cdDevs to inactive
   //         const serviceInputDeactivate = {
-  //             serviceModel: CdCliProfileModel,
-  //             docName: 'CdCliProfileService::activateCdCli',
+  //             serviceModel: CdDevProjectModel,
+  //             docName: 'CdDevProjectService::activateCdDev',
   //             cmd: {
-  //                 action: 'activateCdCli',
+  //                 action: 'activateCdDev',
   //                 query: {
-  //                     update: { cdCliActive: false },
+  //                     update: { cdDevActive: false },
   //                     where: { userId: sessionDataExt.currentUser.userId }
   //                 },
   //             },
   //             dSource: 1
   //         }
   //         const retDeactivate = await this.updateI(req, res, serviceInputDeactivate)
-  //         console.log("CdCliProfileService::activateCdCli()/retDeactivate:", retDeactivate)
-  //         // set only one cdCli to true
+  //         console.log("CdDevProjectService::activateCdDev()/retDeactivate:", retDeactivate)
+  //         // set only one cdDev to true
   //         const serviceInputActivate = {
-  //             serviceModel: CdCliProfileModel,
-  //             docName: 'CdCliProfileService::activateCdCli',
+  //             serviceModel: CdDevProjectModel,
+  //             docName: 'CdDevProjectService::activateCdDev',
   //             cmd: {
-  //                 action: 'activateCdCli',
+  //                 action: 'activateCdDev',
   //                 query: {
-  //                     update: { cdCliActive: true },
-  //                     where: { userId: sessionDataExt.currentUser.userId, cdCliId: cdCliId }
+  //                     update: { cdDevActive: true },
+  //                     where: { userId: sessionDataExt.currentUser.userId, cdDevId: cdDevId }
   //                 },
   //             },
   //             dSource: 1
   //         }
   //         const retActivate = await this.updateI(req, res, serviceInputActivate)
-  //         console.log("CdCliProfileService::activateCdCli()/retActivate:", retActivate)
+  //         console.log("CdDevProjectService::activateCdDev()/retActivate:", retActivate)
   //         this.b.cdResp.data = {
-  //             cdCliCdCliProfileProfile: await this.getCdCliProfileProfileI(req, res)
+  //             cdDevCdDevProjectProfile: await this.getCdDevProjectProfileI(req, res)
   //         };
   //         this.b.respond(req, res)
   //     } catch (e) {
-  //         console.log('CdCliProfileService::activateCdCli()/e:', e)
+  //         console.log('CdDevProjectService::activateCdDev()/e:', e)
   //         this.b.err.push(e.toString());
   //         const i = {
   //             messages: this.b.err,
-  //             code: 'CdCliProfileService:activateCdCli',
+  //             code: 'CdDevProjectService:activateCdDev',
   //             app_msg: ''
   //         };
   //         await this.b.serviceErr(req, res, e, i.code)
@@ -459,24 +459,24 @@ export class CdCliProfileService extends CdService {
   //     }
   // }
 
-  async validateActiveCdCli(req, res) {
+  async validateActiveCdDev(req, res) {
     return true;
   }
 
   update(req, res) {
-    // console.log('CdCliProfileService::update()/01');
+    // console.log('CdDevProjectService::update()/01');
     let q = this.b.getQuery(req);
     q = this.beforeUpdate(q);
     const serviceInput = {
-      serviceModel: CdCliProfileModel,
-      docName: "CdCliProfileService::update",
+      serviceModel: CdDevProjectModel,
+      docName: "CdDevProjectService::update",
       cmd: {
         action: "update",
         query: q,
       },
       dSource: 1,
     };
-    // console.log('CdCliProfileService::update()/02')
+    // console.log('CdDevProjectService::update()/02')
     this.b.update$(req, res, serviceInput).subscribe((ret) => {
       this.b.cdResp.data = ret;
       this.b.respond(req, res);
@@ -486,9 +486,9 @@ export class CdCliProfileService extends CdService {
   /**
  * curl -k -X POST -H 'Content-Type: application/json' -d '{
   "ctx": "Sys",
-  "m": "CdCli",
-  "c": "CdCliProfile",
-  "a": "UpdateCdCliProfile",
+  "m": "CdDev",
+  "c": "CdDevProject",
+  "a": "UpdateCdDevProject",
   "dat": {
     "f_vals": [
       {
@@ -496,12 +496,12 @@ export class CdCliProfileService extends CdService {
           "update": null,
           "where": {
             "userId": 1010,
-            "cdCliProfileId": 2
+            "cdDevProjectId": 2
           }
         },
         "jsonUpdate": [
           {
-            "modelField": "cdCliProfileData",
+            "modelField": "cdDevProjectData",
             "path": [
               "cdVault",
               "[0]",
@@ -510,7 +510,7 @@ export class CdCliProfileService extends CdService {
             "value": "123456abcdefgABC"
           },
           {
-            "modelField": "cdCliProfileData",
+            "modelField": "cdDevProjectData",
             "path": [
               "cdVault",
               "[0]",
@@ -533,7 +533,7 @@ export class CdCliProfileService extends CdService {
   * @param req 
   * @param res 
   */
-  async updateCdCliProfile(req, res) {
+  async updateCdDevProject(req, res) {
     try {
       // Validate request data
       if (await this.validateUpdateProfileData(req, res)) {
@@ -544,11 +544,11 @@ export class CdCliProfileService extends CdService {
         const jsonUpdate: IJsonUpdate[] = req.post.dat.f_vals[0].jsonUpdate;
 
         console.log(
-          "CdCliProfileService::updateCdCliProfile()/requestQuery:",
+          "CdDevProjectService::updateCdDevProject()/requestQuery:",
           requestQuery
         );
         console.log(
-          "CdCliProfileService::updateCdCliProfile()/jsonUpdate:",
+          "CdDevProjectService::updateCdDevProject()/jsonUpdate:",
           jsonUpdate
         );
 
@@ -562,7 +562,7 @@ export class CdCliProfileService extends CdService {
           this.b.err.push(e);
           const i = {
             messages: this.b.err,
-            code: "CdCliProfileService:updateCdCliProfile",
+            code: "CdDevProjectService:updateCdDevProject",
             app_msg: "",
           };
           await this.b.serviceErr(req, res, e, i.code);
@@ -572,15 +572,15 @@ export class CdCliProfileService extends CdService {
         /**
          * 2. Get the profile data to update
          */
-        const profileData: CdCliProfileViewModel[] =
-          await this.getCdCliProfileI(req, res, requestQuery);
+        const profileData: CdDevProjectViewModel[] =
+          await this.getCdDevProjectI(req, res, requestQuery);
         console.log(
-          "CdCliProfileService::updateCdCliProfile()/profileData:",
+          "CdDevProjectService::updateCdDevProject()/profileData:",
           profileData
         );
         console.log(
-          "CdCliProfileService::updateCdCliProfile()/profileData[0].cdCliProfileData1:",
-          profileData[0].cdCliProfileData
+          "CdDevProjectService::updateCdDevProject()/profileData[0].cdDevProjectData1:",
+          profileData[0].cdDevProjectData
         );
 
         if (!profileData) {
@@ -588,7 +588,7 @@ export class CdCliProfileService extends CdService {
           this.b.err.push(e);
           const i = {
             messages: this.b.err,
-            code: "CdCliProfileService:updateCdCliProfile",
+            code: "CdDevProjectService:updateCdDevProject",
             app_msg: "",
           };
           await this.b.serviceErr(req, res, e, i.code);
@@ -598,25 +598,25 @@ export class CdCliProfileService extends CdService {
         /**
          * 3. Use jsonUpdate derived above to update the profileData
          */
-        // let updatedProfileData = profileData[0].cdCliProfileData
+        // let updatedProfileData = profileData[0].cdDevProjectData
         let modifiedProfile;
         for (const update of jsonUpdate) {
           console.log(
-            "CdCliProfileService::updateCdCliProfile()/update:",
+            "CdDevProjectService::updateCdDevProject()/update:",
             update
           );
           console.log(
-            "CdCliProfileService::updateCdCliProfile()/profileData[0].cdCliProfileData2:",
-            profileData[0].cdCliProfileData
+            "CdDevProjectService::updateCdDevProject()/profileData[0].cdDevProjectData2:",
+            profileData[0].cdDevProjectData
           );
 
           modifiedProfile = await this.b.updateJsonData(
             update,
-            profileData[0].cdCliProfileData
+            profileData[0].cdDevProjectData
           );
 
           console.log(
-            "CdCliProfileService::updateCdCliProfile()/modifiedProfile1:",
+            "CdDevProjectService::updateCdDevProject()/modifiedProfile1:",
             modifiedProfile
           );
 
@@ -627,7 +627,7 @@ export class CdCliProfileService extends CdService {
             this.b.err.push(e);
             const i = {
               messages: this.b.err,
-              code: "CdCliProfileService:updateCdCliProfile",
+              code: "CdDevProjectService:updateCdDevProject",
               app_msg: "",
             };
             await this.b.serviceErr(req, res, e, i.code);
@@ -639,18 +639,18 @@ export class CdCliProfileService extends CdService {
          * 4. Once the profile is updated successfully, update the row with the amended profileData
          */
         requestQuery.update = {
-          cdCliProfileData: JSON.stringify(modifiedProfile), // Updated profileData to be saved
+          cdDevProjectData: JSON.stringify(modifiedProfile), // Updated profileData to be saved
         };
         let serviceInput: IServiceInput = {
           serviceInstance: this,
-          serviceModel: CdCliProfileModel,
-          docName: "CdCliProfileService::updateCdCliProfile",
+          serviceModel: CdDevProjectModel,
+          docName: "CdDevProjectService::updateCdDevProject",
           cmd: {
             query: requestQuery,
           },
         };
         console.log(
-          "CdCliProfileService::updateCdCliProfile()/requestQuery:",
+          "CdDevProjectService::updateCdDevProject()/requestQuery:",
           requestQuery
         );
 
@@ -670,7 +670,7 @@ export class CdCliProfileService extends CdService {
           this.b.err.push(e.toString());
           const i = {
             messages: this.b.err,
-            code: "CdCliProfileService:updateCdCliProfile",
+            code: "CdDevProjectService:updateCdDevProject",
             app_msg: "",
           };
           await this.b.serviceErr(req, res, e, i.code);
@@ -681,7 +681,7 @@ export class CdCliProfileService extends CdService {
         this.b.err.push(e);
         const i = {
           messages: this.b.err,
-          code: "CdCliProfileService:updateCdCliProfile",
+          code: "CdDevProjectService:updateCdDevProject",
           app_msg: "",
         };
         await this.b.serviceErr(req, res, e, i.code);
@@ -691,7 +691,7 @@ export class CdCliProfileService extends CdService {
       this.b.err.push(e.toString());
       const i = {
         messages: this.b.err,
-        code: "CdCliProfileService:updateCdCliProfile",
+        code: "CdDevProjectService:updateCdDevProject",
         app_msg: "",
       };
       await this.b.serviceErr(req, res, e, i.code);
@@ -719,17 +719,17 @@ export class CdCliProfileService extends CdService {
         return false;
       }
 
-      const { userId, cdCliProfileId } = requestQuery.where;
+      const { userId, cdDevProjectId } = requestQuery.where;
 
-      // 2. Validate `userId` and `cdCliProfileId`
+      // 2. Validate `userId` and `cdDevProjectId`
       if (
         typeof userId !== "number" ||
         userId <= 0 ||
-        typeof cdCliProfileId !== "number" ||
-        cdCliProfileId <= 0
+        typeof cdDevProjectId !== "number" ||
+        cdDevProjectId <= 0
       ) {
         const e =
-          "Invalid request: userId and cdCliProfileId must be positive integers.";
+          "Invalid request: userId and cdDevProjectId must be positive integers.";
         this.b.err.push(e);
         valid = false;
       }
@@ -794,8 +794,8 @@ export class CdCliProfileService extends CdService {
    * @returns
    */
   beforeUpdate(q: any) {
-    if (q.update.cdCliProfileEnabled === "") {
-      q.update.cdCliProfileEnabled = null;
+    if (q.update.cdDevProjectEnabled === "") {
+      q.update.cdDevProjectEnabled = null;
     }
     return q;
   }
@@ -820,19 +820,19 @@ export class CdCliProfileService extends CdService {
   }
 
   /**
-   * $members = mCdCliProfile::getCdCliProfile2([$filter1, $filter2], $usersOnly)
+   * $members = mCdDevProject::getCdDevProject2([$filter1, $filter2], $usersOnly)
    * @param req
    * @param res
    * @param q
    */
-  async getCdCliProfile(req, res, q: IQuery = null) {
+  async getCdDevProject(req, res, q: IQuery = null) {
     if (q === null) {
       q = this.b.getQuery(req);
     }
-    console.log("CdCliProfileService::getCdCliProfile/f:", q);
+    console.log("CdDevProjectService::getCdDevProject/f:", q);
     const serviceInput = {
-      serviceModel: CdCliProfileViewModel,
-      docName: "CdCliProfileService::getCdCliProfile$",
+      serviceModel: CdDevProjectViewModel,
+      docName: "CdDevProjectService::getCdDevProject$",
       cmd: {
         action: "find",
         query: q,
@@ -841,8 +841,8 @@ export class CdCliProfileService extends CdService {
     };
     try {
       this.b.read$(req, res, serviceInput).subscribe((r) => {
-        console.log("CdCliProfileService::read$()/r:", r);
-        this.b.i.code = "CdCliProfileController::Get";
+        console.log("CdDevProjectService::read$()/r:", r);
+        this.b.i.code = "CdDevProjectController::Get";
         const svSess = new SessionService();
         svSess.sessResp.cd_token = req.post.dat.token;
         svSess.sessResp.ttl = svSess.getTtl();
@@ -851,11 +851,11 @@ export class CdCliProfileService extends CdService {
         this.b.respond(req, res);
       });
     } catch (e) {
-      console.log("CdCliProfileService::getCdCliProfile()/e:", e);
+      console.log("CdDevProjectService::getCdDevProject()/e:", e);
       this.b.err.push(e.toString());
       const i = {
         messages: this.b.err,
-        code: "CdCliProfileService:getCdCliProfile",
+        code: "CdDevProjectService:getCdDevProject",
         app_msg: "",
       };
       await this.b.serviceErr(req, res, e, i.code);
@@ -863,22 +863,22 @@ export class CdCliProfileService extends CdService {
     }
   }
 
-  // async getCdCliProfileProfile(req, res) {
+  // async getCdDevProjectProfile(req, res) {
   //     try {
 
-  //         if (!this.validateGetCdCliProfileProfile(req, res)) {
+  //         if (!this.validateGetCdDevProjectProfile(req, res)) {
   //             const e = "could not validate the request"
   //             this.b.err.push(e.toString());
   //             const i = {
   //                 messages: this.b.err,
-  //                 code: 'CdCliProfileService:getCdCliProfileProfile',
+  //                 code: 'CdDevProjectService:getCdDevProjectProfile',
   //                 app_msg: ''
   //             };
   //             await this.b.serviceErr(req, res, e, i.code)
   //             await this.b.respond(req, res)
   //         }
-  //         await this.setCdCliProfileProfileI(req, res)
-  //         this.b.i.code = 'CdCliProfileController::getCdCliProfileProfile';
+  //         await this.setCdDevProjectProfileI(req, res)
+  //         this.b.i.code = 'CdDevProjectController::getCdDevProjectProfile';
   //         const svSess = new SessionService();
   //         svSess.sessResp.cd_token = req.post.dat.token;
   //         svSess.sessResp.ttl = svSess.getTtl();
@@ -886,11 +886,11 @@ export class CdCliProfileService extends CdService {
   //         this.b.cdResp.data = this.mergedProfile;
   //         this.b.respond(req, res)
   //     } catch (e) {
-  //         console.log('CdCliProfileService::getCdCliProfileProfile()/e:', e)
+  //         console.log('CdDevProjectService::getCdDevProjectProfile()/e:', e)
   //         this.b.err.push(e.toString());
   //         const i = {
   //             messages: this.b.err,
-  //             code: 'CdCliProfileService:getCdCliProfileProfile',
+  //             code: 'CdDevProjectService:getCdDevProjectProfile',
   //             app_msg: ''
   //         };
   //         await this.b.serviceErr(req, res, e, i.code)
@@ -898,7 +898,7 @@ export class CdCliProfileService extends CdService {
   //     }
   // }
 
-  async validateGetCdCliProfileProfile(req, res) {
+  async validateGetCdDevProjectProfile(req, res) {
     let ret = true;
     if (
       req.post.a !== "GetMemberProfile" ||
@@ -909,11 +909,11 @@ export class CdCliProfileService extends CdService {
     return ret;
   }
 
-  async validateUpdateCdCliProfileProfile(req, res) {
+  async validateUpdateCdDevProjectProfile(req, res) {
     let ret = true;
     const plQuery = this.b.getPlQuery(req);
     if (
-      req.post.a !== "UpdateCdCliProfileProfile" ||
+      req.post.a !== "UpdateCdDevProjectProfile" ||
       !("userId" in plQuery.where)
     ) {
       ret = false;
@@ -921,16 +921,16 @@ export class CdCliProfileService extends CdService {
     return ret;
   }
 
-  // async getCdCliProfileProfileI(req, res) {
+  // async getCdDevProjectProfileI(req, res) {
   //     try {
-  //         await this.setCdCliProfileProfileI(req, res)
+  //         await this.setCdDevProjectProfileI(req, res)
   //         return this.mergedProfile
   //     } catch (e) {
-  //         console.log('CdCliProfileService::getCdCliProfileProfileI()/e:', e)
+  //         console.log('CdDevProjectService::getCdDevProjectProfileI()/e:', e)
   //         this.b.err.push(e.toString());
   //         const i = {
   //             messages: this.b.err,
-  //             code: 'CdClimemberService:getCdCliProfileProfileI',
+  //             code: 'CdDevmemberService:getCdDevProjectProfileI',
   //             app_msg: ''
   //         };
   //         await this.b.serviceErr(req, res, e, i.code)
@@ -938,18 +938,18 @@ export class CdCliProfileService extends CdService {
   //     }
   // }
 
-  async getCdCliProfileI(
+  async getCdDevProjectI(
     req,
     res,
     q: IQuery = null
-  ): Promise<CdCliProfileViewModel[]> {
+  ): Promise<CdDevProjectViewModel[]> {
     if (q === null) {
       q = this.b.getQuery(req);
     }
-    console.log("CdCliProfileService::getCdCliProfile/q:", q);
+    console.log("CdDevProjectService::getCdDevProject/q:", q);
     const serviceInput = {
-      serviceModel: CdCliProfileViewModel,
-      docName: "CdCliProfileService::getCdCliProfileI",
+      serviceModel: CdDevProjectViewModel,
+      docName: "CdDevProjectService::getCdDevProjectI",
       cmd: {
         action: "find",
         query: q,
@@ -959,11 +959,11 @@ export class CdCliProfileService extends CdService {
     try {
       return await this.b.read(req, res, serviceInput);
     } catch (e) {
-      console.log("CdCliProfileService::read$()/e:", e);
+      console.log("CdDevProjectService::read$()/e:", e);
       this.b.err.push(e.toString());
       const i = {
         messages: this.b.err,
-        code: "CdCliProfileService:update",
+        code: "CdDevProjectService:update",
         app_msg: "",
       };
       await this.b.serviceErr(req, res, e, i.code);
@@ -971,14 +971,14 @@ export class CdCliProfileService extends CdService {
     }
   }
 
-  async getI(req, res, q: IQuery = null): Promise<CdCliProfileViewModel[]> {
+  async getI(req, res, q: IQuery = null): Promise<CdDevProjectViewModel[]> {
     if (q === null) {
       q = this.b.getQuery(req);
     }
-    console.log("CdCliProfileService::getCdCliProfile/q:", q);
+    console.log("CdDevProjectService::getCdDevProject/q:", q);
     const serviceInput = {
-      serviceModel: CdCliProfileViewModel,
-      docName: "CdCliProfileService::getCdCliProfileI",
+      serviceModel: CdDevProjectViewModel,
+      docName: "CdDevProjectService::getCdDevProjectI",
       cmd: {
         action: "find",
         query: q,
@@ -988,11 +988,11 @@ export class CdCliProfileService extends CdService {
     try {
       return await this.b.read(req, res, serviceInput);
     } catch (e) {
-      console.log("CdCliProfileService::read$()/e:", e);
+      console.log("CdDevProjectService::read$()/e:", e);
       this.b.err.push(e.toString());
       const i = {
         messages: this.b.err,
-        code: "CdCliProfileService:update",
+        code: "CdDevProjectService:update",
         app_msg: "",
       };
       await this.b.serviceErr(req, res, e, i.code);
@@ -1000,9 +1000,9 @@ export class CdCliProfileService extends CdService {
     }
   }
 
-  async getCdCliProfileCount(req, res) {
+  async getCdDevProjectCount(req, res) {
     const q: IQuery = this.b.getQuery(req);
-    console.log("CdCliProfileService::getCdCliProfileCount/q1:", q);
+    console.log("CdDevProjectService::getCdDevProjectCount/q1:", q);
     if (q.where.userId == -1) {
       const svSess = new SessionService();
       const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(
@@ -1012,10 +1012,10 @@ export class CdCliProfileService extends CdService {
       );
       q.where.userId = sessionDataExt.currentUser.userId;
     }
-    console.log("CdCliProfileService::getCdCliProfileCount/q2:", q);
+    console.log("CdDevProjectService::getCdDevProjectCount/q2:", q);
     const serviceInput = {
-      serviceModel: CdCliProfileViewModel,
-      docName: "CdCliProfileService::getCdCliProfileCount$",
+      serviceModel: CdDevProjectViewModel,
+      docName: "CdDevProjectService::getCdDevProjectCount$",
       cmd: {
         action: "find",
         query: q,
@@ -1023,7 +1023,7 @@ export class CdCliProfileService extends CdService {
       dSource: 1,
     };
     this.b.readCount$(req, res, serviceInput).subscribe((r) => {
-      this.b.i.code = "CdCliProfileController::Get";
+      this.b.i.code = "CdDevProjectController::Get";
       const svSess = new SessionService();
       svSess.sessResp.cd_token = req.post.dat.token;
       svSess.sessResp.ttl = svSess.getTtl();
@@ -1033,12 +1033,12 @@ export class CdCliProfileService extends CdService {
     });
   }
 
-  async getCdCliProfileTypeCount(req, res) {
+  async getCdDevProjectTypeCount(req, res) {
     const q: IQuery = this.b.getQuery(req);
-    console.log("CdCliProfileService::getCdCliProfileTypeCount/q1:", q);
+    console.log("CdDevProjectService::getCdDevProjectTypeCount/q1:", q);
     const serviceInput = {
-      serviceModel: CdCliProfileTypeModel,
-      docName: "CdCliProfileService::getCdCliProfileTypeCount$",
+      serviceModel: CdDevProjectTypeModel,
+      docName: "CdDevProjectService::getCdDevProjectTypeCount$",
       cmd: {
         action: "find",
         query: q,
@@ -1046,7 +1046,7 @@ export class CdCliProfileService extends CdService {
       dSource: 1,
     };
     this.b.readCount$(req, res, serviceInput).subscribe((r) => {
-      this.b.i.code = "CdCliProfileController::Get";
+      this.b.i.code = "CdDevProjectController::Get";
       const svSess = new SessionService();
       svSess.sessResp.cd_token = req.post.dat.token;
       svSess.sessResp.ttl = svSess.getTtl();
@@ -1058,10 +1058,10 @@ export class CdCliProfileService extends CdService {
 
   delete(req, res) {
     const q = this.b.getQuery(req);
-    console.log("CdCliProfileService::delete()/q:", q);
+    console.log("CdDevProjectService::delete()/q:", q);
     const serviceInput = {
-      serviceModel: CdCliProfileModel,
-      docName: "CdCliProfileService::delete",
+      serviceModel: CdDevProjectModel,
+      docName: "CdDevProjectService::delete",
       cmd: {
         action: "delete",
         query: q,
@@ -1078,7 +1078,7 @@ export class CdCliProfileService extends CdService {
     return [{}];
   }
 
-  getCdCliProfiles(moduleGroupGuid) {
+  getCdDevProjects(moduleGroupGuid) {
     return [{}];
   }
 
@@ -1087,10 +1087,10 @@ export class CdCliProfileService extends CdService {
   }
 
   async isMember(req, res, params): Promise<boolean> {
-    console.log("starting CdCliProfileService::isMember(req, res, data)");
+    console.log("starting CdDevProjectService::isMember(req, res, data)");
     const entityManager = getManager();
     const opts = { where: params };
-    const result = await entityManager.count(CdCliProfileModel, opts);
+    const result = await entityManager.count(CdDevProjectModel, opts);
     if (result > 0) {
       return true;
     } else {
@@ -1111,186 +1111,186 @@ export class CdCliProfileService extends CdService {
    * @param req
    * @param res
    */
-  // async setCdCliProfileProfileI(req, res) {
-  //     console.log("CdCliProfileService::setCdCliProfileProfileI()/01")
+  // async setCdDevProjectProfileI(req, res) {
+  //     console.log("CdDevProjectService::setCdDevProjectProfileI()/01")
 
   //     // note that 'ignoreCache' is set to true because old data may introduce confussion
   //     const svSess = new SessionService()
   //     const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(req, res, true)
-  //     console.log("CdCliProfileService::setCdCliProfileProfileI()/sessionDataExt:", sessionDataExt)
+  //     console.log("CdDevProjectService::setCdDevProjectProfileI()/sessionDataExt:", sessionDataExt)
   //     let uid = sessionDataExt.currentUser.userId
 
-  //     //     - get and clone userProfile, then get cdCliProfileProfile data and append to cloned userProfile.
+  //     //     - get and clone userProfile, then get cdDevProjectProfile data and append to cloned userProfile.
 
-  //     console.log("CdCliProfileService::setCdCliProfileProfileI()/02")
+  //     console.log("CdDevProjectService::setCdDevProjectProfileI()/02")
   //     /**
   //      * Asses if request for self or for another user
   //      * - if request action is 'GetMemberProfile'
   //      * - and 'userId' is set
   //      */
-  //     console.log("CdCliProfileService::setCdCliProfileProfileI()/req.post.a", req.post.a)
-  //     if (req.post.a === 'GetCdCliProfileProfile') {
+  //     console.log("CdDevProjectService::setCdDevProjectProfileI()/req.post.a", req.post.a)
+  //     if (req.post.a === 'GetCdDevProjectProfile') {
   //         const plData = await this.b.getPlData(req)
-  //         console.log("CdCliProfileService::setCdCliProfileProfileI()/plData:", plData)
+  //         console.log("CdDevProjectService::setCdDevProjectProfileI()/plData:", plData)
   //         uid = plData.userId
-  //         console.log("CdCliProfileService::setCdCliProfileProfileI()/uid0:", uid)
+  //         console.log("CdDevProjectService::setCdDevProjectProfileI()/uid0:", uid)
   //     }
 
-  //     if (req.post.a === 'UpdateCdCliProfileProfile') {
+  //     if (req.post.a === 'UpdateCdDevProjectProfile') {
   //         const plQuery = await this.b.getPlQuery(req)
-  //         console.log("CdCliProfileService::setCdCliProfileProfileI()/plQuery:", plQuery)
+  //         console.log("CdDevProjectService::setCdDevProjectProfileI()/plQuery:", plQuery)
   //         uid = plQuery.where.userId
-  //         console.log("CdCliProfileService::setCdCliProfileProfileI()/uid0:", uid)
+  //         console.log("CdDevProjectService::setCdDevProjectProfileI()/uid0:", uid)
   //     }
-  //     console.log("CdCliProfileService::setCdCliProfileProfileI()/uid1:", uid)
+  //     console.log("CdDevProjectService::setCdDevProjectProfileI()/uid1:", uid)
   //     const svUser = new UserService();
   //     const existingUserProfile = await svUser.existingUserProfile(req, res, uid)
-  //     console.log("CdCliProfileService::setCdCliProfileProfileI()/existingUserProfile:", existingUserProfile)
+  //     console.log("CdDevProjectService::setCdDevProjectProfileI()/existingUserProfile:", existingUserProfile)
   //     let modifiedUserProfile;
 
   //     if (await svUser.validateProfileData(req, res, existingUserProfile)) {
-  //         console.log("CdCliProfileService::setCdCliProfileProfileI()/03")
-  //         // merge cdCliProfileProfile data
+  //         console.log("CdDevProjectService::setCdDevProjectProfileI()/03")
+  //         // merge cdDevProjectProfile data
   //         this.mergedProfile = await this.mergeUserProfile(req, res, existingUserProfile)
-  //         console.log("CdCliProfileService::setCdCliProfileProfileI()/this.mergedProfile1:", this.mergedProfile)
+  //         console.log("CdDevProjectService::setCdDevProjectProfileI()/this.mergedProfile1:", this.mergedProfile)
   //     } else {
-  //         console.log("CdCliProfileService::setCdCliProfileProfileI()/04")
-  //         if (this.validateGetCdCliProfileProfile(req, res)) {
-  //             console.log("CdCliProfileService::setCdCliProfileProfileI()/05")
-  //             console.log("CdCliProfileService::setCdCliProfileProfile()/uid:", uid)
+  //         console.log("CdDevProjectService::setCdDevProjectProfileI()/04")
+  //         if (this.validateGetCdDevProjectProfile(req, res)) {
+  //             console.log("CdDevProjectService::setCdDevProjectProfileI()/05")
+  //             console.log("CdDevProjectService::setCdDevProjectProfile()/uid:", uid)
   //             const uRet = await svUser.getUserByID(req, res, uid);
-  //             console.log("CdCliProfileService::setCdCliProfileProfile()/uRet:", uRet)
+  //             console.log("CdDevProjectService::setCdDevProjectProfile()/uRet:", uRet)
   //             const { password, userProfile, ...filteredUserData } = uRet[0]
-  //             console.log("CdCliProfileService::setCdCliProfileProfile()/filteredUserData:", filteredUserData)
+  //             console.log("CdDevProjectService::setCdDevProjectProfile()/filteredUserData:", filteredUserData)
   //             userProfileDefault.userData = filteredUserData
   //         } else {
-  //             console.log("CdCliProfileService::setCdCliProfileProfileI()/06")
+  //             console.log("CdDevProjectService::setCdDevProjectProfileI()/06")
   //             const { password, userProfile, ...filteredUserData } = sessionDataExt.currentUser;
   //             userProfileDefault.userData = filteredUserData;
   //         }
 
-  //         console.log("CdCliProfileService::setCdCliProfileProfileI()/06")
-  //         console.log("CdCliProfileService::setCdCliProfileProfileI()/userProfileDefault1:", userProfileDefault)
-  //         console.log("CdCliProfileService::setCdCliProfileProfileI()/06-1")
+  //         console.log("CdDevProjectService::setCdDevProjectProfileI()/06")
+  //         console.log("CdDevProjectService::setCdDevProjectProfileI()/userProfileDefault1:", userProfileDefault)
+  //         console.log("CdDevProjectService::setCdDevProjectProfileI()/06-1")
   //         // use default, assign the userId
   //         profileDefaultConfig[0].value.userId = uid
-  //         console.log("CdCliProfileService::setCdCliProfileProfileI()/07")
-  //         console.log("CdCliProfileService::setCdCliProfileProfileI()/userProfileDefault2:", userProfileDefault)
-  //         console.log("CdCliProfileService::setCdCliProfileProfileI()/profileDefaultConfig:", profileDefaultConfig)
+  //         console.log("CdDevProjectService::setCdDevProjectProfileI()/07")
+  //         console.log("CdDevProjectService::setCdDevProjectProfileI()/userProfileDefault2:", userProfileDefault)
+  //         console.log("CdDevProjectService::setCdDevProjectProfileI()/profileDefaultConfig:", profileDefaultConfig)
   //         modifiedUserProfile = await svUser.modifyProfile(userProfileDefault, profileDefaultConfig)
-  //         console.log("CdCliProfileService::setCdCliProfileProfileI()/08")
-  //         console.log("CdCliProfileService::setCdCliProfileProfileI()/modifiedUserProfile:", modifiedUserProfile)
+  //         console.log("CdDevProjectService::setCdDevProjectProfileI()/08")
+  //         console.log("CdDevProjectService::setCdDevProjectProfileI()/modifiedUserProfile:", modifiedUserProfile)
   //         this.mergedProfile = await this.mergeUserProfile(req, res, modifiedUserProfile)
-  //         console.log("CdCliProfileService::setCdCliProfileProfile()/this.mergedProfile2:", JSON.stringify(this.mergedProfile))
+  //         console.log("CdDevProjectService::setCdDevProjectProfile()/this.mergedProfile2:", JSON.stringify(this.mergedProfile))
   //     }
   // }
 
-  // async resetCdCliProfileProfileI(req, res) {
-  //     console.log("CdCliProfileService::resetCdCliProfileProfileI()/01")
+  // async resetCdDevProjectProfileI(req, res) {
+  //     console.log("CdDevProjectService::resetCdDevProjectProfileI()/01")
   //     // note that 'ignoreCache' is set to true because old data may introduce confusion
   //     const svSess = new SessionService()
   //     const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(req, res, true)
-  //     console.log("CdCliProfileService::resetCdCliProfileProfileI()/sessionDataExt:", sessionDataExt)
+  //     console.log("CdDevProjectService::resetCdDevProjectProfileI()/sessionDataExt:", sessionDataExt)
 
-  //     //     - get and clone userProfile, then get cdCliProfileProfile data and append to cloned userProfile.
+  //     //     - get and clone userProfile, then get cdDevProjectProfile data and append to cloned userProfile.
   //     //   hint:
-  //     console.log("CdCliProfileService::resetCdCliProfileProfileI()/02")
+  //     console.log("CdDevProjectService::resetCdDevProjectProfileI()/02")
   //     const svUser = new UserService();
   //     const existingUserProfile = await svUser.existingUserProfile(req, res, sessionDataExt.currentUser.userId)
-  //     console.log("CdCliProfileService::resetCdCliProfileProfileI()/existingUserProfile:", existingUserProfile)
+  //     console.log("CdDevProjectService::resetCdDevProjectProfileI()/existingUserProfile:", existingUserProfile)
   //     let modifiedUserProfile;
 
   //     if (await svUser.validateProfileData(req, res, existingUserProfile)) {
-  //         console.log("CdCliProfileService::resetCdCliProfileProfileI()/03")
+  //         console.log("CdDevProjectService::resetCdDevProjectProfileI()/03")
   //         const svSess = new SessionService()
   //         const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(req, res)
   //         const { password, userProfile, ...filteredUserData } = sessionDataExt.currentUser;
   //         userProfileDefault.userData = filteredUserData;
-  //         console.log("CdCliProfileService::resetCdCliProfileProfileI()/userProfileDefault:", userProfileDefault)
+  //         console.log("CdDevProjectService::resetCdDevProjectProfileI()/userProfileDefault:", userProfileDefault)
   //         // use default, assign the userId
   //         profileDefaultConfig[0].value.userId = sessionDataExt.currentUser.userId
   //         modifiedUserProfile = await svUser.modifyProfile(userProfileDefault, profileDefaultConfig)
-  //         console.log("CdCliProfileService::resetCdCliProfileProfileI()/modifiedUserProfile:", modifiedUserProfile)
+  //         console.log("CdDevProjectService::resetCdDevProjectProfileI()/modifiedUserProfile:", modifiedUserProfile)
   //         this.mergedProfile = await this.mergeUserProfile(req, res, modifiedUserProfile)
-  //         console.log("CdCliProfileService::resetCdCliProfileProfileI()/this.mergedProfile1:", this.mergedProfile)
+  //         console.log("CdDevProjectService::resetCdDevProjectProfileI()/this.mergedProfile1:", this.mergedProfile)
   //     } else {
-  //         console.log("CdCliProfileService::resetCdCliProfileProfileI()/04")
+  //         console.log("CdDevProjectService::resetCdDevProjectProfileI()/04")
   //         const svSess = new SessionService()
   //         const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(req, res)
   //         const { password, userProfile, ...filteredUserData } = sessionDataExt.currentUser;
   //         userProfileDefault.userData = filteredUserData;
-  //         console.log("CdCliProfileService::resetCdCliProfileProfileI()/userProfileDefault:", userProfileDefault)
+  //         console.log("CdDevProjectService::resetCdDevProjectProfileI()/userProfileDefault:", userProfileDefault)
   //         // use default, assign the userId
   //         profileDefaultConfig[0].value.userId = sessionDataExt.currentUser.userId
   //         modifiedUserProfile = await svUser.modifyProfile(userProfileDefault, profileDefaultConfig)
-  //         console.log("CdCliProfileService::resetCdCliProfileProfileI()/modifiedUserProfile:", modifiedUserProfile)
+  //         console.log("CdDevProjectService::resetCdDevProjectProfileI()/modifiedUserProfile:", modifiedUserProfile)
   //         this.mergedProfile = await this.mergeUserProfile(req, res, modifiedUserProfile)
-  //         console.log("CdCliProfileService::resetCdCliProfileProfileI()/this.mergedProfile2:", this.mergedProfile)
+  //         console.log("CdDevProjectService::resetCdDevProjectProfileI()/this.mergedProfile2:", this.mergedProfile)
   //     }
   // }
 
-  // async mergeUserProfile(req, res, userProfile): Promise<ICdCliProfileProfile> {
-  //     console.log("CdCliProfileService::mergeUserProfile()/01")
+  // async mergeUserProfile(req, res, userProfile): Promise<ICdDevProjectProfile> {
+  //     console.log("CdDevProjectService::mergeUserProfile()/01")
   //     const svSess = new SessionService()
-  //     console.log("CdCliProfileService::mergeUserProfile()/02")
+  //     console.log("CdDevProjectService::mergeUserProfile()/02")
   //     const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(req, res)
   //     let uid = sessionDataExt.currentUser.userId
-  //     console.log("CdCliProfileService::mergeUserProfile()/03")
+  //     console.log("CdDevProjectService::mergeUserProfile()/03")
   //     /**
   //      * Asses if request for self or for another user
   //      * - if request action is 'GetMemberProfile'
   //      */
-  //     if (req.post.a === 'GetCdCliProfileProfile') {
+  //     if (req.post.a === 'GetCdDevProjectProfile') {
   //         const plData = this.b.getPlData(req)
   //         uid = plData.userId
   //     }
-  //     if (req.post.a === 'UpdateCdCliProfileProfile') {
+  //     if (req.post.a === 'UpdateCdDevProjectProfile') {
   //         const plQuery = this.b.getPlQuery(req)
   //         uid = plQuery.where.userId
   //     }
-  //     console.log("CdCliProfileService::mergeUserProfile()/uid:", uid)
+  //     console.log("CdDevProjectService::mergeUserProfile()/uid:", uid)
   //     const q = { where: { userId: uid } }
-  //     console.log("CdCliProfileService::mergeUserProfile()/q:", q)
-  //     const cdCliProfileData = await this.getCdCliProfileI(req, res, q)
-  //     let aclData = await this.existingCdCliProfileProfile(req, res, uid)
-  //     console.log("CdCliProfileService::mergeUserProfile()/aclData1:", aclData)
+  //     console.log("CdDevProjectService::mergeUserProfile()/q:", q)
+  //     const cdDevProjectData = await this.getCdDevProjectI(req, res, q)
+  //     let aclData = await this.existingCdDevProjectProfile(req, res, uid)
+  //     console.log("CdDevProjectService::mergeUserProfile()/aclData1:", aclData)
   //     if (!aclData) {
-  //         aclData = cdCliProfileProfileDefault.cdCliProfileship.acl
+  //         aclData = cdDevProjectProfileDefault.cdDevProjectship.acl
   //     }
-  //     console.log("CdCliProfileService::mergeUserProfile()/aclData2:", aclData)
-  //     console.log("CdCliProfileService::mergeUserProfile()/cdCliProfileData:", cdCliProfileData)
-  //     const mergedProfile: ICdCliProfileProfile = {
+  //     console.log("CdDevProjectService::mergeUserProfile()/aclData2:", aclData)
+  //     console.log("CdDevProjectService::mergeUserProfile()/cdDevProjectData:", cdDevProjectData)
+  //     const mergedProfile: ICdDevProjectProfile = {
   //         ...userProfile,
-  //         cdCliProfileship: {
+  //         cdDevProjectship: {
   //             acl: aclData,
-  //             memberData: cdCliProfileData
+  //             memberData: cdDevProjectData
   //         }
   //     }
-  //     console.log("CdCliProfileService::mergeUserProfile()/mergedProfile:", mergedProfile)
+  //     console.log("CdDevProjectService::mergeUserProfile()/mergedProfile:", mergedProfile)
   //     return await mergedProfile
   // }
 
-  // async updateCdCliProfileProfile(req, res): Promise<void> {
+  // async updateCdDevProjectProfile(req, res): Promise<void> {
   //     try {
 
   //         const svSess = new SessionService()
   //         const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(req, res, true)
-  //         console.log("CdCliProfileService::updateCurrentUserProfile()/sessionDataExt:", sessionDataExt)
+  //         console.log("CdDevProjectService::updateCurrentUserProfile()/sessionDataExt:", sessionDataExt)
   //         const svUser = new UserService()
   //         const requestQuery: IQuery = req.post.dat.f_vals[0].query;
   //         const jsonUpdate = req.post.dat.f_vals[0].jsonUpdate;
-  //         let modifiedCdCliProfileProfile: ICdCliProfileProfile;
-  //         let strModifiedCdCliProfileProfile;
+  //         let modifiedCdDevProjectProfile: ICdDevProjectProfile;
+  //         let strModifiedCdDevProjectProfile;
   //         let strUserProfile;
-  //         let strCdCliProfileData;
+  //         let strCdDevProjectData;
   //         let strAcl;
 
   //         /**
-  //          * extract from db and merge with user profile to form cdCliProfileProfile
-  //          * 1. profile data from current user cdCli_member entity.
+  //          * extract from db and merge with user profile to form cdDevProjectProfile
+  //          * 1. profile data from current user cdDev_member entity.
   //          * 2. membership data
   //          */
-  //         await this.setCdCliProfileProfileI(req, res)
+  //         await this.setCdDevProjectProfileI(req, res)
 
   //         if (await this.validateProfileData(req, res, this.mergedProfile)) {
   //             /*
@@ -1300,20 +1300,20 @@ export class CdCliProfileService extends CdService {
   //                 - use session data to modify 'userData' in the default user profile
   //                 -
   //             */
-  //             console.log("CdCliProfileService::updateCdCliProfileProfile()/01")
-  //             console.log("CdCliProfileService::updateCdCliProfileProfile()/jsonUpdate:", jsonUpdate)
-  //             modifiedCdCliProfileProfile = await svUser.modifyProfile(this.mergedProfile, jsonUpdate)
-  //             console.log("CdCliProfileService::updateCdCliProfileProfile()/strUserProfile1:", modifiedCdCliProfileProfile)
+  //             console.log("CdDevProjectService::updateCdDevProjectProfile()/01")
+  //             console.log("CdDevProjectService::updateCdDevProjectProfile()/jsonUpdate:", jsonUpdate)
+  //             modifiedCdDevProjectProfile = await svUser.modifyProfile(this.mergedProfile, jsonUpdate)
+  //             console.log("CdDevProjectService::updateCdDevProjectProfile()/strUserProfile1:", modifiedCdDevProjectProfile)
 
   //             // modified profile
-  //             strModifiedCdCliProfileProfile = JSON.stringify(modifiedCdCliProfileProfile)
-  //             console.log("CdCliProfileService::updateCdCliProfileProfile()/strModifiedCdCliProfileProfile:", strModifiedCdCliProfileProfile)
+  //             strModifiedCdDevProjectProfile = JSON.stringify(modifiedCdDevProjectProfile)
+  //             console.log("CdDevProjectService::updateCdDevProjectProfile()/strModifiedCdDevProjectProfile:", strModifiedCdDevProjectProfile)
   //             // userProfile
   //             strUserProfile = JSON.stringify(await this.extractUserProfile())
   //             // acl
-  //             strCdCliProfileData = JSON.stringify(modifiedCdCliProfileProfile.cdCliProfileship.memberData)
+  //             strCdDevProjectData = JSON.stringify(modifiedCdDevProjectProfile.cdDevProjectship.memberData)
   //             // memberData
-  //             strAcl = JSON.stringify(modifiedCdCliProfileProfile.cdCliProfileship.acl)
+  //             strAcl = JSON.stringify(modifiedCdDevProjectProfile.cdDevProjectship.acl)
 
   //         } else {
   //             /*
@@ -1323,42 +1323,42 @@ export class CdCliProfileService extends CdService {
   //                 - do update based on given jsonUpdate in the api request
   //                 - converting to string and then updating the userProfile field in the row/s defined in query.where property.
   //             */
-  //             console.log("CdCliProfileService::updateCdCliProfileProfile()/021")
+  //             console.log("CdDevProjectService::updateCdDevProjectProfile()/021")
   //             const { password, userProfile, ...filteredUserData } = sessionDataExt.currentUser;
   //             userProfileDefault.userData = filteredUserData;
-  //             console.log("CdCliProfileService::updateCdCliProfileProfile()/userProfileDefault:", userProfileDefault)
-  //             modifiedCdCliProfileProfile = await svUser.modifyProfile(userProfileDefault, jsonUpdate)
-  //             console.log("CdCliProfileService::updateCdCliProfileProfile()/modifiedCdCliProfileProfile2:", modifiedCdCliProfileProfile)
-  //             // strCdCliProfileData = JSON.stringify(modifiedCdCliProfileProfile)
+  //             console.log("CdDevProjectService::updateCdDevProjectProfile()/userProfileDefault:", userProfileDefault)
+  //             modifiedCdDevProjectProfile = await svUser.modifyProfile(userProfileDefault, jsonUpdate)
+  //             console.log("CdDevProjectService::updateCdDevProjectProfile()/modifiedCdDevProjectProfile2:", modifiedCdDevProjectProfile)
+  //             // strCdDevProjectData = JSON.stringify(modifiedCdDevProjectProfile)
   //             // userProfile
   //             strUserProfile = JSON.stringify(await this.extractUserProfile())
   //             // acl
-  //             strCdCliProfileData = JSON.stringify(modifiedCdCliProfileProfile.cdCliProfileship.memberData)
+  //             strCdDevProjectData = JSON.stringify(modifiedCdDevProjectProfile.cdDevProjectship.memberData)
   //             // memberData
-  //             strAcl = JSON.stringify(modifiedCdCliProfileProfile.cdCliProfileship.acl)
+  //             strAcl = JSON.stringify(modifiedCdDevProjectProfile.cdDevProjectship.acl)
   //         }
 
-  //         console.log("CdCliProfileService::updateCdCliProfileProfile()/03")
-  //         requestQuery.update = { cdCliProfileProfile: strAcl }
-  //         console.log("CdCliProfileService::updateCdCliProfileProfile()/requestQuery:", requestQuery)
-  //         console.log("CdCliProfileService::updateCdCliProfileProfile()/strUserProfile1-0:", JSON.stringify(await modifiedCdCliProfileProfile))
+  //         console.log("CdDevProjectService::updateCdDevProjectProfile()/03")
+  //         requestQuery.update = { cdDevProjectProfile: strAcl }
+  //         console.log("CdDevProjectService::updateCdDevProjectProfile()/requestQuery:", requestQuery)
+  //         console.log("CdDevProjectService::updateCdDevProjectProfile()/strUserProfile1-0:", JSON.stringify(await modifiedCdDevProjectProfile))
 
-  //         // update cdCliProfileProfile
+  //         // update cdDevProjectProfile
   //         let serviceInput: IServiceInput = {
   //             serviceInstance: this,
-  //             serviceModel: CdCliProfileModel,
-  //             docName: 'CdCliProfileService::updateCdCliProfileProfile',
+  //             serviceModel: CdDevProjectModel,
+  //             docName: 'CdDevProjectService::updateCdDevProjectProfile',
   //             cmd: {
   //                 query: requestQuery
   //             }
   //         };
-  //         console.log("CdCliProfileService::updateCdCliProfileProfile()/serviceInput:", serviceInput)
-  //         const updateCdCliProfileRet = await this.updateI(req, res, serviceInput)
-  //         const newCdCliProfileProfile = await this.existingCdCliProfileProfile(req, res, sessionDataExt.currentUser.userId)
-  //         console.log("CdCliProfileService::updateCdCliProfileProfile()/newCdCliProfileProfile:", newCdCliProfileProfile)
-  //         let retCdCliProfile = {
-  //             updateRet: updateCdCliProfileRet,
-  //             newProfile: newCdCliProfileProfile
+  //         console.log("CdDevProjectService::updateCdDevProjectProfile()/serviceInput:", serviceInput)
+  //         const updateCdDevProjectRet = await this.updateI(req, res, serviceInput)
+  //         const newCdDevProjectProfile = await this.existingCdDevProjectProfile(req, res, sessionDataExt.currentUser.userId)
+  //         console.log("CdDevProjectService::updateCdDevProjectProfile()/newCdDevProjectProfile:", newCdDevProjectProfile)
+  //         let retCdDevProject = {
+  //             updateRet: updateCdDevProjectRet,
+  //             newProfile: newCdDevProjectProfile
   //         }
 
   //         const userUpdateQuery = {
@@ -1371,20 +1371,20 @@ export class CdCliProfileService extends CdService {
   //         const userServiceInput: IServiceInput = {
   //             serviceInstance: svUser,
   //             serviceModel: UserModel,
-  //             docName: 'CdCliProfileService::updateCdCliProfileProfile',
+  //             docName: 'CdDevProjectService::updateCdDevProjectProfile',
   //             cmd: {
   //                 query: userUpdateQuery
   //             }
   //         };
-  //         console.log("CdCliProfileService::updateCdCliProfileProfile()/userServiceInput:", userServiceInput)
+  //         console.log("CdDevProjectService::updateCdDevProjectProfile()/userServiceInput:", userServiceInput)
   //         const userUpdateRet = await svUser.updateI(req, res, userServiceInput)
   //         const fullProfile = await this.getI(req, res, { where: { userId: sessionDataExt.currentUser.userId } })
-  //         console.log("CdCliProfileService::updateCdCliProfileProfile()/fullProfile:", JSON.stringify(await fullProfile))
-  //         console.log("CdCliProfileService::updateCdCliProfileProfile()/strUserProfile1-1:", JSON.stringify(await modifiedCdCliProfileProfile))
+  //         console.log("CdDevProjectService::updateCdDevProjectProfile()/fullProfile:", JSON.stringify(await fullProfile))
+  //         console.log("CdDevProjectService::updateCdDevProjectProfile()/strUserProfile1-1:", JSON.stringify(await modifiedCdDevProjectProfile))
   //         const finalRet = {
-  //             updateRet: updateCdCliProfileRet,
+  //             updateRet: updateCdDevProjectRet,
   //             userUpdateRet: userUpdateRet,
-  //             newProfile: await modifiedCdCliProfileProfile
+  //             newProfile: await modifiedCdDevProjectProfile
   //         }
 
   //         // Respond with the retrieved profile data
@@ -1394,7 +1394,7 @@ export class CdCliProfileService extends CdService {
   //         this.b.err.push(e.toString());
   //         const i = {
   //             messages: this.b.err,
-  //             code: 'CdCliProfileService:updateCurrentUserProfile',
+  //             code: 'CdDevProjectService:updateCurrentUserProfile',
   //             app_msg: ''
   //         };
   //         await this.b.serviceErr(req, res, e, i.code);
@@ -1402,26 +1402,26 @@ export class CdCliProfileService extends CdService {
   //     }
   // }
 
-  // async resetCdCliProfileProfile(req, res): Promise<void> {
+  // async resetCdDevProjectProfile(req, res): Promise<void> {
   //     try {
 
   //         const svSess = new SessionService()
   //         const sessionDataExt: ISessionDataExt = await svSess.getSessionDataExt(req, res, true)
-  //         console.log("CdCliProfileService::updateCurrentUserProfile()/sessionDataExt:", sessionDataExt)
+  //         console.log("CdDevProjectService::updateCurrentUserProfile()/sessionDataExt:", sessionDataExt)
   //         const svUser = new UserService()
   //         const requestQuery: IQuery = req.post.dat.f_vals[0].query;
   //         const jsonUpdate = req.post.dat.f_vals[0].jsonUpdate;
-  //         let modifiedCdCliProfileProfile: ICdCliProfileProfile;
+  //         let modifiedCdDevProjectProfile: ICdDevProjectProfile;
   //         let strUserProfile;
-  //         let strCdCliProfileData;
+  //         let strCdDevProjectData;
   //         let strAcl;
 
   //         /**
-  //          * extract from db and merge with user profile to form cdCliProfileProfile
-  //          * 1. profile data from current user cdCli_member entity.
+  //          * extract from db and merge with user profile to form cdDevProjectProfile
+  //          * 1. profile data from current user cdDev_member entity.
   //          * 2. membership data
   //          */
-  //         await this.resetCdCliProfileProfileI(req, res)
+  //         await this.resetCdDevProjectProfileI(req, res)
 
   //         if (await this.validateProfileData(req, res, this.mergedProfile)) {
   //             /*
@@ -1431,17 +1431,17 @@ export class CdCliProfileService extends CdService {
   //                 - use session data to modify 'userData' in the default user profile
   //                 -
   //             */
-  //             console.log("CdCliProfileService::updateCdCliProfileProfile()/01")
-  //             console.log("CdCliProfileService::updateCdCliProfileProfile()/jsonUpdate:", jsonUpdate)
-  //             modifiedCdCliProfileProfile = await svUser.modifyProfile(this.mergedProfile, jsonUpdate)
-  //             console.log("CdCliProfileService::updateCdCliProfileProfile()/strUserProfile3:", modifiedCdCliProfileProfile)
+  //             console.log("CdDevProjectService::updateCdDevProjectProfile()/01")
+  //             console.log("CdDevProjectService::updateCdDevProjectProfile()/jsonUpdate:", jsonUpdate)
+  //             modifiedCdDevProjectProfile = await svUser.modifyProfile(this.mergedProfile, jsonUpdate)
+  //             console.log("CdDevProjectService::updateCdDevProjectProfile()/strUserProfile3:", modifiedCdDevProjectProfile)
 
   //             // userProfile
   //             strUserProfile = JSON.stringify(await this.extractUserProfile())
   //             // acl
-  //             strCdCliProfileData = JSON.stringify(modifiedCdCliProfileProfile.cdCliProfileship.memberData)
+  //             strCdDevProjectData = JSON.stringify(modifiedCdDevProjectProfile.cdDevProjectship.memberData)
   //             // memberData
-  //             strAcl = JSON.stringify(modifiedCdCliProfileProfile.cdCliProfileship.acl)
+  //             strAcl = JSON.stringify(modifiedCdDevProjectProfile.cdDevProjectship.acl)
 
   //         } else {
   //             /*
@@ -1451,49 +1451,49 @@ export class CdCliProfileService extends CdService {
   //                 - do update based on given jsonUpdate in the api request
   //                 - converting to string and then updating the userProfile field in the row/s defined in query.where property.
   //             */
-  //             console.log("CdCliProfileService::updateCdCliProfileProfile()/021")
+  //             console.log("CdDevProjectService::updateCdDevProjectProfile()/021")
   //             const { password, userProfile, ...filteredUserData } = sessionDataExt.currentUser;
   //             userProfileDefault.userData = filteredUserData;
-  //             console.log("CdCliProfileService::updateCdCliProfileProfile()/userProfileDefault:", userProfileDefault)
-  //             modifiedCdCliProfileProfile = await svUser.modifyProfile(userProfileDefault, jsonUpdate)
-  //             console.log("CdCliProfileService::updateCdCliProfileProfile()/modifiedCdCliProfileProfile4:", modifiedCdCliProfileProfile)
-  //             // strCdCliProfileData = JSON.stringify(modifiedCdCliProfileProfile)
+  //             console.log("CdDevProjectService::updateCdDevProjectProfile()/userProfileDefault:", userProfileDefault)
+  //             modifiedCdDevProjectProfile = await svUser.modifyProfile(userProfileDefault, jsonUpdate)
+  //             console.log("CdDevProjectService::updateCdDevProjectProfile()/modifiedCdDevProjectProfile4:", modifiedCdDevProjectProfile)
+  //             // strCdDevProjectData = JSON.stringify(modifiedCdDevProjectProfile)
   //             // userProfile
   //             strUserProfile = JSON.stringify(await this.extractUserProfile())
   //             // acl
-  //             strCdCliProfileData = JSON.stringify(modifiedCdCliProfileProfile.cdCliProfileship.memberData)
+  //             strCdDevProjectData = JSON.stringify(modifiedCdDevProjectProfile.cdDevProjectship.memberData)
   //             // memberData
-  //             strAcl = JSON.stringify(modifiedCdCliProfileProfile.cdCliProfileship.acl)
+  //             strAcl = JSON.stringify(modifiedCdDevProjectProfile.cdDevProjectship.acl)
   //         }
 
   //         // // userProfile
-  //         // strUserProfile = JSON.stringify(modifiedCdCliProfileProfile.userProfile)
+  //         // strUserProfile = JSON.stringify(modifiedCdDevProjectProfile.userProfile)
   //         // // acl
-  //         // strCdCliProfileData = JSON.stringify(modifiedCdCliProfileProfile.cdCliProfileship.memberData)
+  //         // strCdDevProjectData = JSON.stringify(modifiedCdDevProjectProfile.cdDevProjectship.memberData)
   //         // // memberData
-  //         // strAcl = JSON.stringify(modifiedCdCliProfileProfile.cdCliProfileship.acl)
+  //         // strAcl = JSON.stringify(modifiedCdDevProjectProfile.cdDevProjectship.acl)
 
-  //         console.log("CdCliProfileService::updateCdCliProfileProfile()/modifiedCdCliProfileProfile3:", modifiedCdCliProfileProfile)
+  //         console.log("CdDevProjectService::updateCdDevProjectProfile()/modifiedCdDevProjectProfile3:", modifiedCdDevProjectProfile)
 
-  //         console.log("CdCliProfileService::updateCdCliProfileProfile()/03")
-  //         requestQuery.update = { cdCliProfileProfile: strAcl }
-  //         console.log("CdCliProfileService::updateCdCliProfileProfile()/requestQuery:", requestQuery)
+  //         console.log("CdDevProjectService::updateCdDevProjectProfile()/03")
+  //         requestQuery.update = { cdDevProjectProfile: strAcl }
+  //         console.log("CdDevProjectService::updateCdDevProjectProfile()/requestQuery:", requestQuery)
 
-  //         // update cdCliProfileProfile
+  //         // update cdDevProjectProfile
   //         let serviceInput: IServiceInput = {
   //             serviceInstance: this,
-  //             serviceModel: CdCliProfileModel,
-  //             docName: 'CdCliProfileService::updateCdCliProfileProfile',
+  //             serviceModel: CdDevProjectModel,
+  //             docName: 'CdDevProjectService::updateCdDevProjectProfile',
   //             cmd: {
   //                 query: requestQuery
   //             }
   //         };
-  //         console.log("CdCliProfileService::updateCdCliProfileProfile()/serviceInput:", serviceInput)
-  //         const updateCdCliProfileRet = await this.updateI(req, res, serviceInput)
-  //         const newCdCliProfileProfile = await this.existingCdCliProfileProfile(req, res, sessionDataExt.currentUser.userId)
-  //         let retCdCliProfile = {
-  //             updateRet: updateCdCliProfileRet,
-  //             newProfile: newCdCliProfileProfile
+  //         console.log("CdDevProjectService::updateCdDevProjectProfile()/serviceInput:", serviceInput)
+  //         const updateCdDevProjectRet = await this.updateI(req, res, serviceInput)
+  //         const newCdDevProjectProfile = await this.existingCdDevProjectProfile(req, res, sessionDataExt.currentUser.userId)
+  //         let retCdDevProject = {
+  //             updateRet: updateCdDevProjectRet,
+  //             newProfile: newCdDevProjectProfile
   //         }
 
   //         const userUpdateQuery = {
@@ -1506,18 +1506,18 @@ export class CdCliProfileService extends CdService {
   //         const userServiceInput: IServiceInput = {
   //             serviceInstance: svUser,
   //             serviceModel: UserModel,
-  //             docName: 'CdCliProfileService::updateCdCliProfileProfile',
+  //             docName: 'CdDevProjectService::updateCdDevProjectProfile',
   //             cmd: {
   //                 query: userUpdateQuery
   //             }
   //         };
-  //         console.log("CdCliProfileService::updateCdCliProfileProfile()/userServiceInput:", userServiceInput)
+  //         console.log("CdDevProjectService::updateCdDevProjectProfile()/userServiceInput:", userServiceInput)
   //         const userUpdateRet = await svUser.updateI(req, res, userServiceInput)
   //         const fullProfile = await this.getI(req, res, { where: { userId: sessionDataExt.currentUser.userId } })
   //         const finalRet = {
-  //             updateRet: updateCdCliProfileRet,
+  //             updateRet: updateCdDevProjectRet,
   //             userUpdateRet: userUpdateRet,
-  //             newProfile: modifiedCdCliProfileProfile
+  //             newProfile: modifiedCdDevProjectProfile
   //         }
 
   //         // Respond with the retrieved profile data
@@ -1527,7 +1527,7 @@ export class CdCliProfileService extends CdService {
   //         this.b.err.push(e.toString());
   //         const i = {
   //             messages: this.b.err,
-  //             code: 'CdCliProfileService:updateCurrentUserProfile',
+  //             code: 'CdDevProjectService:updateCurrentUserProfile',
   //             app_msg: ''
   //         };
   //         await this.b.serviceErr(req, res, e, i.code);
@@ -1536,13 +1536,13 @@ export class CdCliProfileService extends CdService {
   // }
 
   async extractUserProfile() {
-    // Create a new object without 'cdCliProfileship'
+    // Create a new object without 'cdDevProjectship'
     const userProfileOnly: IUserProfileOnly = { ...this.mergedProfile };
 
-    // Remove 'cdCliProfileship' property
-    delete (userProfileOnly as any).cdCliProfileship; // Temporarily type-cast to allow deletion
+    // Remove 'cdDevProjectship' property
+    delete (userProfileOnly as any).cdDevProjectship; // Temporarily type-cast to allow deletion
 
-    // Now `userProfileOnly` is of type `IUserProfileOnly`, with `cdCliProfileship` removed.
+    // Now `userProfileOnly` is of type `IUserProfileOnly`, with `cdDevProjectship` removed.
     return userProfileOnly;
   }
 
@@ -1550,15 +1550,15 @@ export class CdCliProfileService extends CdService {
   // NEW USER PROFILE METHODS...USING COMMON CLASS ProfileServiceHelper
   //
 
-  async existingCdCliProfileProfile(req, res, cuid) {
+  async existingCdDevProjectProfile(req, res, cuid) {
     const si: IServiceInput = {
       serviceInstance: this,
-      serviceModel: CdCliProfileModel,
-      docName: "CdCliProfileService::existingUserProfile",
+      serviceModel: CdDevProjectModel,
+      docName: "CdDevProjectService::existingUserProfile",
       cmd: {
         query: { where: { userId: cuid } },
       },
-      mapping: { profileField: "cdCliProfileProfile" },
+      mapping: { profileField: "cdDevProjectProfile" },
     };
     return ProfileServiceHelper.fetchProfile(req, res, si);
   }
@@ -1575,26 +1575,26 @@ export class CdCliProfileService extends CdService {
   // Helper method to validate profile data
   async validateProfileData(req, res, profileData: any): Promise<boolean> {
     console.log(
-      "CdCliProfileService::validateProfileData()/profileData:",
+      "CdDevProjectService::validateProfileData()/profileData:",
       profileData
     );
     // const profileData: IUserProfile = updateData.update.userProfile
-    // console.log("CdCliProfileService::validateProfileData()/profileData:", profileData)
+    // console.log("CdDevProjectService::validateProfileData()/profileData:", profileData)
     // Check if profileData is null or undefined
     if (!profileData) {
-      console.log("CdCliProfileService::validateProfileData()/01");
+      console.log("CdDevProjectService::validateProfileData()/01");
       return false;
     }
 
     // Validate that the required fields of IUserProfile exist
     if (!profileData.fieldPermissions || !profileData.userData) {
-      console.log("CdCliProfileService::validateProfileData()/02");
+      console.log("CdDevProjectService::validateProfileData()/02");
       console.log(
-        "CdCliProfileService::validateProfileData()/profileData.userData:",
+        "CdDevProjectService::validateProfileData()/profileData.userData:",
         profileData.userData
       );
       console.log(
-        "CdCliProfileService::validateProfileData()/profileData.fieldPermissions:",
+        "CdDevProjectService::validateProfileData()/profileData.fieldPermissions:",
         profileData.fieldPermissions
       );
       return false;
@@ -1602,12 +1602,12 @@ export class CdCliProfileService extends CdService {
 
     // Example validation for bio length
     if (profileData.bio && profileData.bio.length > 500) {
-      console.log("CdCliProfileService::validateProfileData()/03");
+      console.log("CdDevProjectService::validateProfileData()/03");
       const e = "Bio data is too long";
       this.b.err.push(e);
       const i = {
         messages: this.b.err,
-        code: "CdCliProfileService:validateProfileData",
+        code: "CdDevProjectService:validateProfileData",
         app_msg: "",
       };
       await this.b.serviceErr(req, res, e, i.code);
@@ -1616,86 +1616,86 @@ export class CdCliProfileService extends CdService {
     return true;
   }
 
-  // CRUD Methods for cdCliRole within cdCliProfileship
+  // CRUD Methods for cdDevRole within cdDevProjectship
   // // Usage examples
-  // const memberProfile = cdCliProfileProfileDefault;
+  // const memberProfile = cdDevProjectProfileDefault;
 
   // // Add a new role
-  // addCdCliRole(memberProfile, -1, { scope: CdClisAclScope.COOPS_SACCO_ADMIN, geoLocationId: 101 });
+  // addCdDevRole(memberProfile, -1, { scope: CdDevsAclScope.COOPS_SACCO_ADMIN, geoLocationId: 101 });
 
-  // // Get all roles for a specific cdCliProfileship by cdCliId
-  // console.log(getCdCliRoles(memberProfile, -1));
+  // // Get all roles for a specific cdDevProjectship by cdDevId
+  // console.log(getCdDevRoles(memberProfile, -1));
 
   // // Update an existing role
-  // const updated = updateCdCliRole(memberProfile, -1, CdClisAclScope.COOPS_SACCO_ADMIN, { scope: CdClisAclScope.COOPS_SACCO_ADMIN, geoLocationId: 202 });
+  // const updated = updateCdDevRole(memberProfile, -1, CdDevsAclScope.COOPS_SACCO_ADMIN, { scope: CdDevsAclScope.COOPS_SACCO_ADMIN, geoLocationId: 202 });
   // console.log('Update successful:', updated);
 
   // // Delete a role
-  // const deleted = deleteCdCliRole(memberProfile, -1, CdClisAclScope.COOPS_GUEST);
+  // const deleted = deleteCdDevRole(memberProfile, -1, CdDevsAclScope.COOPS_GUEST);
   // console.log('Delete successful:', deleted);
 
   /**
-   * Add a new role to cdCliRole within a specific cdCliProfileship identified by cdCliId
+   * Add a new role to cdDevRole within a specific cdDevProjectship identified by cdDevId
    * @param profile The member profile to modify
-   * @param cdCliId The ID of the specific cdCliProfileship
-   * @param newRole The new role to add to cdCliRole
+   * @param cdDevId The ID of the specific cdDevProjectship
+   * @param newRole The new role to add to cdDevRole
    */
-  // addCdCliRole(profile: ICdCliProfileProfile, cdCliId: number, newRole: ICdCliAcl): boolean {
-  //     const memberMeta = profile.cdCliProfileship.acl?.find(m => m.cdCliId === cdCliId);
+  // addCdDevRole(profile: ICdDevProjectProfile, cdDevId: number, newRole: ICdDevAcl): boolean {
+  //     const memberMeta = profile.cdDevProjectship.acl?.find(m => m.cdDevId === cdDevId);
   //     if (memberMeta) {
-  //         memberMeta.cdCliRole.push(newRole);
+  //         memberMeta.cdDevRole.push(newRole);
   //         return true;
   //     }
-  //     return false; // Return false if cdCliProfileship with the given cdCliId was not found
+  //     return false; // Return false if cdDevProjectship with the given cdDevId was not found
   // }
 
   /**
-   * Get all cdCli roles from a specific cdCliProfileship identified by cdCliId
+   * Get all cdDev roles from a specific cdDevProjectship identified by cdDevId
    * @param profile The member profile to retrieve roles from
-   * @param cdCliId The ID of the specific cdCliProfileship
-   * @returns An array of ICdCliAcl representing all cdCli roles, or null if not found
+   * @param cdDevId The ID of the specific cdDevProjectship
+   * @returns An array of ICdDevAcl representing all cdDev roles, or null if not found
    */
-  // getCdCliRoles(profile: ICdCliProfileProfile, cdCliId: number): ICdCliRole | null {
-  //     const memberMeta = profile.cdCliProfileship.acl?.find(m => m.cdCliId === cdCliId);
-  //     return memberMeta ? memberMeta.cdCliRole : null;
+  // getCdDevRoles(profile: ICdDevProjectProfile, cdDevId: number): ICdDevRole | null {
+  //     const memberMeta = profile.cdDevProjectship.acl?.find(m => m.cdDevId === cdDevId);
+  //     return memberMeta ? memberMeta.cdDevRole : null;
   // }
 
   /**
-   * Update an existing role in cdCliRole within a specific cdCliProfileship identified by cdCliId
+   * Update an existing role in cdDevRole within a specific cdDevProjectship identified by cdDevId
    * @param profile The member profile to modify
-   * @param cdCliId The ID of the specific cdCliProfileship
+   * @param cdDevId The ID of the specific cdDevProjectship
    * @param scope The scope of the role to update
    * @param updatedRole The updated role data
    * @returns boolean indicating success or failure
    */
-  // updateCdCliRole(profile: ICdCliProfileProfile, cdCliId: number, scope: CdClisAclScope, updatedRole: ICdCliAcl): boolean {
-  //     const memberMeta = profile.cdCliProfileship.acl?.find(m => m.cdCliId === cdCliId);
+  // updateCdDevRole(profile: ICdDevProjectProfile, cdDevId: number, scope: CdDevsAclScope, updatedRole: ICdDevAcl): boolean {
+  //     const memberMeta = profile.cdDevProjectship.acl?.find(m => m.cdDevId === cdDevId);
   //     if (memberMeta) {
-  //         const roleIndex = memberMeta.cdCliRole.findIndex(role => role.scope === scope);
+  //         const roleIndex = memberMeta.cdDevRole.findIndex(role => role.scope === scope);
   //         if (roleIndex !== -1) {
-  //             memberMeta.cdCliRole[roleIndex] = updatedRole;
+  //             memberMeta.cdDevRole[roleIndex] = updatedRole;
   //             return true;
   //         }
   //     }
-  //     return false; // Return false if role with the given scope was not found in cdCliRole
+  //     return false; // Return false if role with the given scope was not found in cdDevRole
   // }
 
   /**
-   * Remove a role from cdCliRole within a specific cdCliProfileship identified by cdCliId
+   * Remove a role from cdDevRole within a specific cdDevProjectship identified by cdDevId
    * @param profile The member profile to modify
-   * @param cdCliId The ID of the specific cdCliProfileship
+   * @param cdDevId The ID of the specific cdDevProjectship
    * @param scope The scope of the role to remove
    * @returns boolean indicating success or failure
    */
-  // deleteCdCliRole(profile: ICdCliProfileProfile, cdCliId: number, scope: CdClisAclScope): boolean {
-  //     const memberMeta = profile.cdCliProfileship.acl?.find(m => m.cdCliId === cdCliId);
+  // deleteCdDevRole(profile: ICdDevProjectProfile, cdDevId: number, scope: CdDevsAclScope): boolean {
+  //     const memberMeta = profile.cdDevProjectship.acl?.find(m => m.cdDevId === cdDevId);
   //     if (memberMeta) {
-  //         const roleIndex = memberMeta.cdCliRole.findIndex(role => role.scope === scope);
+  //         const roleIndex = memberMeta.cdDevRole.findIndex(role => role.scope === scope);
   //         if (roleIndex !== -1) {
-  //             memberMeta.cdCliRole.splice(roleIndex, 1);
+  //             memberMeta.cdDevRole.splice(roleIndex, 1);
   //             return true;
   //         }
   //     }
-  //     return false; // Return false if role with the given scope was not found in cdCliRole
+  //     return false; // Return false if role with the given scope was not found in cdDevRole
   // }
 }

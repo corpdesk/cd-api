@@ -538,7 +538,7 @@ export class BaseService {
 
     // Validate each update item
     jsonUpdate.forEach((update) => {
-      if (!update.modelField || update.modelField !== "cdCliProfileData") {
+      if (!update.modelField || update.modelField !== "cdDevProjectData") {
         errors.push(`Invalid modelField: '${update.modelField}'`);
         return;
       }

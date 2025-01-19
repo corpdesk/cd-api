@@ -19,21 +19,21 @@ import {
     }
 )
 // @CdModel
-export class CdCliTypeModel {
+export class CdDevTypeModel {
 
     @PrimaryGeneratedColumn(
         {
             name: 'cd_cli_type_id'
         }
     )
-    cdCliTypeId?: number;
+    cdDevTypeId?: number;
 
     @Column({
         name: 'cd_cli_type_guid',
         length: 36,
         default: uuidv4()
     })
-    cdCliTypeGuid?: string;
+    cdDevTypeGuid?: string;
 
     @Column(
         'varchar',
@@ -43,7 +43,7 @@ export class CdCliTypeModel {
             nullable: true
         }
     )
-    cdCliTypeName: string;
+    cdDevTypeName: string;
 
     @Column(
         'varchar',
@@ -53,7 +53,7 @@ export class CdCliTypeModel {
             nullable: true
         }
     )
-    cdCliTypeDescription: string;
+    cdDevTypeDescription: string;
 
     @Column(
         {

@@ -1,6 +1,6 @@
 /**
  * Root Entity
- * Base Name: cdCli
+ * Base Name: cdDev
  */
 import {
     Entity,
@@ -15,20 +15,20 @@ import { v4 as uuidv4 } from 'uuid';
         synchronize: false
     }
 )
-export class CdCliModel {
+export class CdDevModel {
     @PrimaryGeneratedColumn(
         {
             name: 'cd_cli_id'
         }
     )
-    cdCliId?: number;
+    cdDevId?: number;
 
     @Column({
         name: 'cd_cli_guid',
         length: 36,
         default: uuidv4()
     })
-    cdCliGuid?: string;
+    cdDevGuid?: string;
 
     @Column(
         {
@@ -37,7 +37,7 @@ export class CdCliModel {
             nullable: true
         }
     )
-    cdCliName: string;
+    cdDevName: string;
 
     @Column(
         {
@@ -45,7 +45,7 @@ export class CdCliModel {
             length: 60,
             default: null
         })
-    cdCliDescription: string;
+    cdDevDescription: string;
 
     /**
      *link to DocModel
@@ -66,7 +66,7 @@ export class CdCliModel {
             default: null
         }
     )
-    cdCliTypeId?: number;
+    cdDevTypeId?: number;
 
     @Column(
         'boolean',
@@ -75,5 +75,5 @@ export class CdCliModel {
             default: null
         }
     )
-    cdCliEnabled?: boolean;  
+    cdDevEnabled?: boolean;  
 }

@@ -3,31 +3,31 @@ import { CdService } from '../../base/cd.service';
 import { SessionService } from '../../user/services/session.service';
 import { UserService } from '../../user/services/user.service';
 import { CreateIParams, IQuery, IRespInfo, IServiceInput, IUser, ICdRequest, ISessionDataExt } from '../../base/IBase';
-import { CdCliModel } from '../models/cd-dev.model';
-// import { CdCliViewModel, siGet } from '../models/cdCli-view.model';
-import { CdCliTypeModel } from '../models/cd-dev-type.model';
-import { CdCliViewModel } from '../models/cd-dev-view.model';
+import { CdDevModel } from '../models/cd-dev.model';
+// import { CdDevViewModel, siGet } from '../models/cdDev-view.model';
+import { CdDevTypeModel } from '../models/cd-dev-type.model';
+import { CdDevViewModel } from '../models/cd-dev-view.model';
 import { siGet } from '../../base/base.model';
 // import { CdGeoLocationService } from '../../cd-geo/services/cd-geo-location.service';
 import { Logging } from '../../base/winston.log';
 import { CompanyService } from '../../moduleman/services/company.service';
 import { CompanyModel } from '../../moduleman/models/company.model';
 // import { CdGeoLocationModel } from '../../cd-geo/models/cd-geo-location.model';
-import { CdCliProfileModel, ICdCliProfileProfile } from '../models/cd-dev-project.model';
+import { CdDevProjectModel, ICdDevProjectProfile } from '../models/cd-dev-project.model';
 import { IUserProfile, userProfileDefault } from '../../user/models/user.model';
-import { CdCliProfileViewModel } from '../models/cd-dev-project-view.model';
+import { CdDevProjectViewModel } from '../models/cd-dev-project-view.model';
 import { Like, Not } from 'typeorm';
 import { QueryTransformer } from '../../utils/query-transformer';
 
-export class CdCliService extends CdService {
+export class CdDevService extends CdService {
     logger: Logging;
     b: any; // instance of BaseService
     cdToken: string;
     srvSess: SessionService;
     srvUser: UserService;
     user: IUser;
-    serviceModel: CdCliModel;
-    modelName: "CdCliModel";
+    serviceModel: CdDevModel;
+    modelName: "CdDevModel";
     sessModel;
     sessDataExt: ISessionDataExt;
     // moduleModel: ModuleModel;
@@ -36,8 +36,8 @@ export class CdCliService extends CdService {
      * create rules
      */
     cRules: any = {
-        required: ['cdCliName', 'cdCliTypeId'],
-        noDuplicate: ['cdCliName', 'cdCliTypeId']
+        required: ['cdDevName', 'cdDevTypeId'],
+        noDuplicate: ['cdDevName', 'cdDevTypeId']
     };
     uRules: any[];
     dRules: any[];
@@ -46,7 +46,7 @@ export class CdCliService extends CdService {
         super()
         this.b = new BaseService();
         this.logger = new Logging();
-        this.serviceModel = new CdCliModel();
+        this.serviceModel = new CdDevModel();
     }
 
     async initSession(req, res) {
@@ -56,33 +56,33 @@ export class CdCliService extends CdService {
 
     /**
      * Create from new company:
-     *  - Create company, then create cdCli
+     *  - Create company, then create cdDev
      * 
      * Create from existing company
-     *  - select company then create cdCli
+     *  - select company then create cdDev
     * {
        "ctx": "App",
-       "m": "CdClis",
-       "c": "CdCli",
+       "m": "CdDevs",
+       "c": "CdDev",
        "a": "Create",
        "dat": {
            "f_vals": [
            {
                "data": {
-                   "cdCliGuid":"",
-                   "cdCliName": "Benin", 
-                   "cdCliDescription":"2005",
+                   "cdDevGuid":"",
+                   "cdDevName": "Benin", 
+                   "cdDevDescription":"2005",
                    "cdGeoLocationId":null,
-                   "cdCliWoccu": false,
-                   "cdCliCount": null,
-                   "cdCliEfgsCount": 881232, 
-                   "cdCliSavesShares":56429394,
-                   "cdCliLoans":45011150,
-                   "cdCliReserves":null, 
-                   "cdCliAssets": null,
-                   "cdCliEfgPenetration":20.95,
-                   "cdCliDateLabel": "2005-12-31 23:59:59",
-                   "cdCliRefId":null
+                   "cdDevWoccu": false,
+                   "cdDevCount": null,
+                   "cdDevEfgsCount": 881232, 
+                   "cdDevSavesShares":56429394,
+                   "cdDevLoans":45011150,
+                   "cdDevReserves":null, 
+                   "cdDevAssets": null,
+                   "cdDevEfgPenetration":20.95,
+                   "cdDevDateLabel": "2005-12-31 23:59:59",
+                   "cdDevRefId":null
                }
            }
            ],
@@ -94,46 +94,46 @@ export class CdCliService extends CdService {
     * @param res
     */
     async create(req, res) {
-        this.logger.logInfo('cdCli/create::validateCreate()/01')
+        this.logger.logInfo('cdDev/create::validateCreate()/01')
 
         const svSess = new SessionService();
         if (await this.validateCreate(req, res)) {
             await this.beforeCreate(req, res);
             const serviceInput = {
-                serviceModel: CdCliModel,
-                modelName: "CdCliModel",
+                serviceModel: CdDevModel,
+                modelName: "CdDevModel",
                 serviceModelInstance: this.serviceModel,
-                docName: 'Create CdCli',
+                docName: 'Create CdDev',
                 dSource: 1,
             }
-            this.logger.logInfo('CdCliService::create()/serviceInput:', serviceInput)
+            this.logger.logInfo('CdDevService::create()/serviceInput:', serviceInput)
             const respData = await this.b.create(req, res, serviceInput);
-            this.b.i.app_msg = 'new CdCli created';
+            this.b.i.app_msg = 'new CdDev created';
             this.b.setAppState(true, this.b.i, svSess.sessResp);
             this.b.cdResp.data = await respData;
             const r = await this.b.respond(req, res);
         } else {
-            this.logger.logInfo('cdCli/create::validateCreate()/02')
+            this.logger.logInfo('cdDev/create::validateCreate()/02')
             const r = await this.b.respond(req, res);
         }
     }
 
     async validateCreate(req, res) {
-        this.logger.logInfo('cdCli/CdCliService::validateCreate()/01');
+        this.logger.logInfo('cdDev/CdDevService::validateCreate()/01');
         const svSess = new SessionService();
         // const svCompany = new CompanyService();
         let companyParams;
 
         // const fValItem = req.body.dat.f_vals[0];
-        let pl: CdCliModel = this.b.getPlData(req);
-        console.log("CdCliService::validateCreate()/pl:", pl)
+        let pl: CdDevModel = this.b.getPlData(req);
+        console.log("CdDevService::validateCreate()/pl:", pl)
 
         // Validation params for the different checks
         const validationParams = [
             {
-                field: 'cdCliTypeId',
-                query: { cdCliTypeId: pl.cdCliTypeId },
-                model: CdCliTypeModel
+                field: 'cdDevTypeId',
+                query: { cdDevTypeId: pl.cdDevTypeId },
+                model: CdDevTypeModel
             }
         ];
 
@@ -149,13 +149,13 @@ export class CdCliService extends CdService {
         const valid = await this.validateExistence(req, res, validationParams);
 
         if (!valid) {
-            this.logger.logInfo('cdCli/CdCliService::validateCreate()/Validation failed');
+            this.logger.logInfo('cdDev/CdDevService::validateCreate()/Validation failed');
             this.b.setAppState(false, this.b.i, svSess.sessResp);
             return false;
         }
 
-        // Proceed with further CdCli-specific validation or creation logic
-        this.logger.logInfo('cdCli/CdCliService::validateCreate()/Validation passed');
+        // Proceed with further CdDev-specific validation or creation logic
+        this.logger.logInfo('cdDev/CdDevService::validateCreate()/Validation passed');
 
         // Other validation logic (e.g., duplicate checks, required field checks, etc.)
 
@@ -166,22 +166,22 @@ export class CdCliService extends CdService {
         const promises = validationParams.map(param => {
             const serviceInput = {
                 serviceModel: param.model,
-                docName: `CdCliService::validateExistence(${param.field})`,
+                docName: `CdDevService::validateExistence(${param.field})`,
                 cmd: {
                     action: 'find',
                     query: { where: param.query }
                 },
                 dSource: 1
             };
-            console.log("CdCliService::validateExistence/param.model:", param.model);
-            console.log("CdCliService::validateExistence/serviceInput:", JSON.stringify(serviceInput));
+            console.log("CdDevService::validateExistence/param.model:", param.model);
+            console.log("CdDevService::validateExistence/serviceInput:", JSON.stringify(serviceInput));
             const b = new BaseService();
             return b.read(req, res, serviceInput).then(r => {
                 if (r.length > 0) {
-                    this.logger.logInfo(`cdCli/CdCliService::validateExistence() - ${param.field} exists`);
+                    this.logger.logInfo(`cdDev/CdDevService::validateExistence() - ${param.field} exists`);
                     return true;
                 } else {
-                    this.logger.logError(`cdCli/CdCliService::validateExistence() - Invalid ${param.field}`);
+                    this.logger.logError(`cdDev/CdDevService::validateExistence() - Invalid ${param.field}`);
                     this.b.i.app_msg = `${param.field} reference is invalid`;
                     this.b.err.push(this.b.i.app_msg);
                     return false;
@@ -202,9 +202,9 @@ export class CdCliService extends CdService {
             await this.beforeCreateSL(req, res);
             const serviceInput = {
                 serviceInstance: this,
-                serviceModel: CdCliModel,
+                serviceModel: CdDevModel,
                 serviceModelInstance: this.serviceModel,
-                docName: 'Create CdCli',
+                docName: 'Create CdDev',
                 dSource: 1,
             }
             const result = await this.b.createSL(req, res, serviceInput)
@@ -218,7 +218,7 @@ export class CdCliService extends CdService {
         }
     }
 
-    async createI(req, res, createIParams: CreateIParams): Promise<CdCliModel | boolean> {
+    async createI(req, res, createIParams: CreateIParams): Promise<CdDevModel | boolean> {
         return await this.b.createI(req, res, createIParams)
     }
 
@@ -235,44 +235,44 @@ export class CdCliService extends CdService {
      * 
      * {
         "ctx": "App",
-        "m": "CdClis",
-        "c": "CdCli",
+        "m": "CdDevs",
+        "c": "CdDev",
         "a": "CreateM",
         "dat": {
             "f_vals": [
             {
                 "data": [
                 {
-                    "cdCliGuid": "",
-                    "cdCliName": "Kenya",
-                    "cdCliDescription": "2006",
+                    "cdDevGuid": "",
+                    "cdDevName": "Kenya",
+                    "cdDevDescription": "2006",
                     "cdGeoLocationId": null,
-                    "cdCliWoccu": false,
-                    "cdCliCount": 2993,
-                    "cdCliEfgsCount": 3265545,
-                    "cdCliSavesShares": 1608009012,
-                    "cdCliLoans": 1604043550,
-                    "cdCliReserves": 102792479,
-                    "cdCliAssets": 2146769999,
-                    "cdCliEfgPenetration": 16.01,
-                    "cdCliDateLabel": "2006-12-31 23:59:59",
-                    "cdCliRefId": null
+                    "cdDevWoccu": false,
+                    "cdDevCount": 2993,
+                    "cdDevEfgsCount": 3265545,
+                    "cdDevSavesShares": 1608009012,
+                    "cdDevLoans": 1604043550,
+                    "cdDevReserves": 102792479,
+                    "cdDevAssets": 2146769999,
+                    "cdDevEfgPenetration": 16.01,
+                    "cdDevDateLabel": "2006-12-31 23:59:59",
+                    "cdDevRefId": null
                 },
                 {
-                    "cdCliGuid": "",
-                    "cdCliName": "Malawi",
-                    "cdCliDescription": "2006",
+                    "cdDevGuid": "",
+                    "cdDevName": "Malawi",
+                    "cdDevDescription": "2006",
                     "cdGeoLocationId": null,
-                    "cdCliWoccu": false,
-                    "cdCliCount": 70,
-                    "cdCliEfgsCount": 62736,
-                    "cdCliSavesShares": 6175626,
-                    "cdCliLoans": 4946246,
-                    "cdCliReserves": 601936,
-                    "cdCliAssets": 7407250,
-                    "cdCliEfgPenetration": 0.9,
-                    "cdCliDateLabel": "2006-12-31 23:59:59",
-                    "cdCliRefId": null
+                    "cdDevWoccu": false,
+                    "cdDevCount": 70,
+                    "cdDevEfgsCount": 62736,
+                    "cdDevSavesShares": 6175626,
+                    "cdDevLoans": 4946246,
+                    "cdDevReserves": 601936,
+                    "cdDevAssets": 7407250,
+                    "cdDevEfgPenetration": 0.9,
+                    "cdDevDateLabel": "2006-12-31 23:59:59",
+                    "cdDevRefId": null
                 }
                 ]
             }
@@ -287,29 +287,29 @@ export class CdCliService extends CdService {
      * @param res 
      */
     async createM(req, res) {
-        this.logger.logInfo('CdCliService::createM()/01')
+        this.logger.logInfo('CdDevService::createM()/01')
         let data = req.post.dat.f_vals[0].data
-        this.logger.logInfo('CdCliService::createM()/data:', data)
-        // this.b.models.push(CdCliModel)
+        this.logger.logInfo('CdDevService::createM()/data:', data)
+        // this.b.models.push(CdDevModel)
         // this.b.init(req, res)
 
-        for (var cdCliData of data) {
-            this.logger.logInfo('cdCliData', cdCliData)
-            const cdCliQuery: CdCliModel = cdCliData;
-            const svCdCli = new CdCliService();
+        for (var cdDevData of data) {
+            this.logger.logInfo('cdDevData', cdDevData)
+            const cdDevQuery: CdDevModel = cdDevData;
+            const svCdDev = new CdDevService();
             const si = {
-                serviceInstance: svCdCli,
-                serviceModel: CdCliModel,
-                serviceModelInstance: svCdCli.serviceModel,
-                docName: 'CdCliService::CreateM',
+                serviceInstance: svCdDev,
+                serviceModel: CdDevModel,
+                serviceModelInstance: svCdDev.serviceModel,
+                docName: 'CdDevService::CreateM',
                 dSource: 1,
             }
             const createIParams: CreateIParams = {
                 serviceInput: si,
-                controllerData: cdCliQuery
+                controllerData: cdDevQuery
             }
             let ret = await this.createI(req, res, createIParams)
-            this.logger.logInfo('CdCliService::createM()/forLoop/ret:', { ret: ret })
+            this.logger.logInfo('CdDevService::createM()/forLoop/ret:', { ret: ret })
         }
         // return current sample data
         // eg first 5
@@ -318,21 +318,21 @@ export class CdCliService extends CdService {
         // and the query can be set from the client side.
         let q = {
             // "select": [
-            //     "cdCliName",
-            //     "cdCliDescription"
+            //     "cdDevName",
+            //     "cdDevDescription"
             // ],
             "where": {},
             "take": 5,
             "skip": 0
         }
-        this.getCdCli(req, res, q)
+        this.getCdDev(req, res, q)
     }
 
-    async CdCliExists(req, res, params): Promise<boolean> {
+    async CdDevExists(req, res, params): Promise<boolean> {
         const serviceInput: IServiceInput = {
             serviceInstance: this,
-            serviceModel: CdCliModel,
-            docName: 'CdCliService::CdCliExists',
+            serviceModel: CdDevModel,
+            docName: 'CdDevService::CdDevExists',
             cmd: {
                 action: 'find',
                 query: { where: params.filter }
@@ -345,18 +345,18 @@ export class CdCliService extends CdService {
     async beforeCreate(req, res): Promise<any> {
         /**
          * create can be processed from existing or new company
-         * In case of new company, setCompanyId() saves and use the id to set companyId for cdCli
+         * In case of new company, setCompanyId() saves and use the id to set companyId for cdDev
          */
         await this.setCompanyId(req, res)
 
-        this.b.setPlData(req, { key: 'cdCliGuid', value: this.b.getGuid() });
-        this.b.setPlData(req, { key: 'cdCliEnabled', value: true });
+        this.b.setPlData(req, { key: 'cdDevGuid', value: this.b.getGuid() });
+        this.b.setPlData(req, { key: 'cdDevEnabled', value: true });
         return true;
     }
 
     async beforeCreateSL(req, res): Promise<any> {
-        this.b.setPlData(req, { key: 'cdCliGuid', value: this.b.getGuid() });
-        this.b.setPlData(req, { key: 'cdCliEnabled', value: true });
+        this.b.setPlData(req, { key: 'cdDevGuid', value: this.b.getGuid() });
+        this.b.setPlData(req, { key: 'cdDevEnabled', value: true });
         return true;
     }
 
@@ -368,7 +368,7 @@ export class CdCliService extends CdService {
                     serviceInstance: svCompany,
                     serviceModel: CompanyModel,
                     serviceModelInstance: svCompany.serviceModel,
-                    docName: 'CdCliService/beforeCreate',
+                    docName: 'CdDevService/beforeCreate',
                     dSource: 1,
                 }
                 const createIParams: CreateIParams = {
@@ -385,8 +385,8 @@ export class CdCliService extends CdService {
     async read(req, res, serviceInput: IServiceInput): Promise<any> {
         // const serviceInput: IServiceInput = {
         //     serviceInstance: this,
-        //     serviceModel: CdCliModel,
-        //     docName: 'CdCliService::CdCliExists',
+        //     serviceModel: CdDevModel,
+        //     docName: 'CdDevService::CdDevExists',
         //     cmd: {
         //         action: 'find',
         //         query: { where: params.filter }
@@ -399,12 +399,12 @@ export class CdCliService extends CdService {
     async readSL(req, res, serviceInput: IServiceInput): Promise<any> {
         await this.b.initSqlite(req, res)
         const q = this.b.getQuery(req);
-        this.logger.logInfo('CdCliService::getCdCli/q:', q);
+        this.logger.logInfo('CdDevService::getCdDev/q:', q);
         try {
             this.b.readSL$(req, res, serviceInput)
                 .subscribe((r) => {
-                    // this.logger.logInfo('CdCliService::read$()/r:', r)
-                    this.b.i.code = 'CdCliService::Get';
+                    // this.logger.logInfo('CdDevService::read$()/r:', r)
+                    this.b.i.code = 'CdDevService::Get';
                     const svSess = new SessionService();
                     svSess.sessResp.cd_token = req.post.dat.token;
                     svSess.sessResp.ttl = svSess.getTtl();
@@ -414,11 +414,11 @@ export class CdCliService extends CdService {
                     this.b.respond(req, res)
                 })
         } catch (e) {
-            this.logger.logInfo('CdCliService::read$()/e:', e)
+            this.logger.logInfo('CdDevService::read$()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
-                code: 'CdCliService:update',
+                code: 'CdDevService:update',
                 app_msg: ''
             };
             await this.b.serviceErr(req, res, e, i.code)
@@ -427,19 +427,19 @@ export class CdCliService extends CdService {
     }
 
     update(req, res) {
-        // this.logger.logInfo('CdCliService::update()/01');
+        // this.logger.logInfo('CdDevService::update()/01');
         let q = this.b.getQuery(req);
         q = this.beforeUpdate(q);
         const serviceInput = {
-            serviceModel: CdCliModel,
-            docName: 'CdCliService::update',
+            serviceModel: CdDevModel,
+            docName: 'CdDevService::update',
             cmd: {
                 action: 'update',
                 query: q
             },
             dSource: 1
         }
-        // this.logger.logInfo('CdCliService::update()/02')
+        // this.logger.logInfo('CdDevService::update()/02')
         this.b.update$(req, res, serviceInput)
             .subscribe((ret) => {
                 this.b.cdResp.data = ret;
@@ -448,19 +448,19 @@ export class CdCliService extends CdService {
     }
 
     updateSL(req, res) {
-        this.logger.logInfo('CdCliService::update()/01');
+        this.logger.logInfo('CdDevService::update()/01');
         let q = this.b.getQuery(req);
         q = this.beforeUpdateSL(q);
         const serviceInput = {
-            serviceModel: CdCliModel,
-            docName: 'CdCliService::update',
+            serviceModel: CdDevModel,
+            docName: 'CdDevService::update',
             cmd: {
                 action: 'update',
                 query: q
             },
             dSource: 1
         }
-        this.logger.logInfo('CdCliService::update()/02')
+        this.logger.logInfo('CdDevService::update()/02')
         this.b.updateSL$(req, res, serviceInput)
             .subscribe((ret) => {
                 this.b.cdResp.data = ret;
@@ -476,8 +476,8 @@ export class CdCliService extends CdService {
      * @returns
      */
     beforeUpdate(q: any) {
-        if (q.update.CdCliEnabled === '') {
-            q.update.CdCliEnabled = null;
+        if (q.update.CdDevEnabled === '') {
+            q.update.CdDevEnabled = null;
         }
         return q;
     }
@@ -515,27 +515,27 @@ export class CdCliService extends CdService {
     /**
      * 
      * curl test:
-     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App", "m": "CdClis","c": "CdCli","a": "Get","dat": {"f_vals": [{"query": {"where": {"cdCliName": "Kenya"}}}],"token":"08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
+     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App", "m": "CdDevs","c": "CdDev","a": "Get","dat": {"f_vals": [{"query": {"where": {"cdDevName": "Kenya"}}}],"token":"08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
      * @param req 
      * @param res 
      * @param q 
      */
-    async getCdCli(req, res, q: IQuery = null): Promise<any> {
+    async getCdDev(req, res, q: IQuery = null): Promise<any> {
 
         if (q === null) {
             q = this.b.getQuery(req);
         }
-        this.logger.logInfo('CdCliService::getCdCli/f:', q);
+        this.logger.logInfo('CdDevService::getCdDev/f:', q);
         // const serviceInput = siGet(q,this)
-        this.serviceModel = new CdCliModel();
+        this.serviceModel = new CdDevModel();
         const serviceInput: IServiceInput = this.b.siGet(q, this)
         serviceInput.serviceModelInstance = this.serviceModel
-        serviceInput.serviceModel = CdCliModel
+        serviceInput.serviceModel = CdDevModel
         try {
             const r = await this.b.read(req, res, serviceInput)
             this.b.successResponse(req, res, r)
         } catch (e) {
-            this.logger.logInfo('CdCliService::read$()/e:', e)
+            this.logger.logInfo('CdDevService::read$()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
@@ -559,17 +559,17 @@ export class CdCliService extends CdService {
      * - on selection of national-region given national-resion with summary data
      * @param q 
      */
-    async getCdClis(req, res, q: IQuery = null): Promise<any> {
+    async getCdDevs(req, res, q: IQuery = null): Promise<any> {
         if (q === null) {
             q = this.b.getQuery(req);
         }
-        this.logger.logInfo('CdCliService::getCdClis/q:', q);
+        this.logger.logInfo('CdDevService::getCdDevs/q:', q);
         const serviceInput = siGet(q, this)
         try {
             const r = await this.b.read(req, res, serviceInput)
             this.b.successResponse(req, res, r)
         } catch (e) {
-            this.logger.logInfo('CdCliService::read$()/e:', e)
+            this.logger.logInfo('CdDevService::read$()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
@@ -581,16 +581,16 @@ export class CdCliService extends CdService {
         }
     }
 
-    async getCdCliSL(req, res) {
+    async getCdDevSL(req, res) {
         await this.b.initSqlite(req, res)
         const q = this.b.getQuery(req);
-        this.logger.logInfo('CdCliService::getCdCli/q:', q);
+        this.logger.logInfo('CdDevService::getCdDev/q:', q);
         const serviceInput = siGet(q, this)
         try {
             this.b.readSL$(req, res, serviceInput)
                 .subscribe((r) => {
-                    // this.logger.logInfo('CdCliService::read$()/r:', r)
-                    this.b.i.code = 'CdCliService::Get';
+                    // this.logger.logInfo('CdDevService::read$()/r:', r)
+                    this.b.i.code = 'CdDevService::Get';
                     const svSess = new SessionService();
                     svSess.sessResp.cd_token = req.post.dat.token;
                     svSess.sessResp.ttl = svSess.getTtl();
@@ -600,11 +600,11 @@ export class CdCliService extends CdService {
                     this.b.respond(req, res)
                 })
         } catch (e) {
-            this.logger.logInfo('CdCliService::read$()/e:', e)
+            this.logger.logInfo('CdDevService::read$()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
-                code: 'CdCliService:update',
+                code: 'CdDevService:update',
                 app_msg: ''
             };
             await this.b.serviceErr(req, res, e, i.code)
@@ -615,16 +615,16 @@ export class CdCliService extends CdService {
     /**
      * 
      * curl test:
-     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdClis","c": "CdCli","a": "GetType","dat":{"f_vals": [{"query":{"where": {"cdCliTypeId":100}}}],"token":"08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
+     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdDevs","c": "CdDev","a": "GetType","dat":{"f_vals": [{"query":{"where": {"cdDevTypeId":100}}}],"token":"08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
      * @param req 
      * @param res 
      */
-    getCdCliType(req, res) {
+    getCdDevType(req, res) {
         const q = this.b.getQuery(req);
-        this.logger.logInfo('CdCliService::getCdCli/f:', q);
+        this.logger.logInfo('CdDevService::getCdDev/f:', q);
         const serviceInput = {
-            serviceModel: CdCliTypeModel,
-            docName: 'CdCliService::getCdCliType$',
+            serviceModel: CdDevTypeModel,
+            docName: 'CdDevService::getCdDevType$',
             cmd: {
                 action: 'find',
                 query: q
@@ -634,8 +634,8 @@ export class CdCliService extends CdService {
         try {
             this.b.read$(req, res, serviceInput)
                 .subscribe((r) => {
-                    // this.logger.logInfo('CdCliService::read$()/r:', r)
-                    this.b.i.code = 'CdCliController::Get';
+                    // this.logger.logInfo('CdDevService::read$()/r:', r)
+                    this.b.i.code = 'CdDevController::Get';
                     const svSess = new SessionService();
                     svSess.sessResp.cd_token = req.post.dat.token;
                     svSess.sessResp.ttl = svSess.getTtl();
@@ -644,7 +644,7 @@ export class CdCliService extends CdService {
                     this.b.respond(req, res)
                 })
         } catch (e) {
-            this.logger.logInfo('CdCliService::read$()/e:', e)
+            this.logger.logInfo('CdDevService::read$()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
@@ -657,13 +657,13 @@ export class CdCliService extends CdService {
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////
-    // Fetch all enabled CdCliTypes
-    async getCdCliType2(req: any, res: any): Promise<void> {
+    // Fetch all enabled CdDevTypes
+    async getCdDevType2(req: any, res: any): Promise<void> {
         const q = this.b.getQuery(req);
         const serviceInput: IServiceInput = {
             serviceInstance: this,
-            serviceModel: CdCliTypeModel,
-            docName: 'CdCliTypeService::getCdCliType2',
+            serviceModel: CdDevTypeModel,
+            docName: 'CdDevTypeService::getCdDevType2',
             cmd: {
                 action: 'find',
                 query: q,
@@ -672,7 +672,7 @@ export class CdCliService extends CdService {
         };
 
         const dbResult = await this.b.read2(req, res, serviceInput);
-        this.b.i.code = 'CdCliTypeService::getCdCliType2';
+        this.b.i.code = 'CdDevTypeService::getCdDevType2';
         const svSess = new SessionService();
         svSess.sessResp.cd_token = req.post.dat.token;
         svSess.sessResp.ttl = svSess.getTtl();
@@ -681,8 +681,8 @@ export class CdCliService extends CdService {
         this.b.respond(req, res)
     }
 
-    // Search CdCliTypes with dynamic filtering
-    async searchCdCliTypes(req: any, res: any): Promise<void> {
+    // Search CdDevTypes with dynamic filtering
+    async searchCdDevTypes(req: any, res: any): Promise<void> {
         try {
 
             await this.transformSearchQuery(req, res)
@@ -691,8 +691,8 @@ export class CdCliService extends CdService {
 
             const serviceInput: IServiceInput = {
                 serviceInstance: this,
-                serviceModel: CdCliTypeModel,
-                docName: 'CdCliTypeService::searchCdCliTypes',
+                serviceModel: CdDevTypeModel,
+                docName: 'CdDevTypeService::searchCdDevTypes',
                 cmd: {
                     action: 'find',
                     query: {
@@ -702,10 +702,10 @@ export class CdCliService extends CdService {
                 dSource: 1,
             };
 
-            console.log("CdCliTypeService::searchCdCliTypes()/serviceInput.cmd.query:", serviceInput.cmd.query);
+            console.log("CdDevTypeService::searchCdDevTypes()/serviceInput.cmd.query:", serviceInput.cmd.query);
 
             const dbResult = await this.b.read2(req, res, serviceInput);
-            this.b.i.code = 'CdCliTypeService::searchCdCliTypes';
+            this.b.i.code = 'CdDevTypeService::searchCdDevTypes';
             const svSess = new SessionService();
             svSess.sessResp.cd_token = req.post.dat.token;
             svSess.sessResp.ttl = svSess.getTtl();
@@ -713,11 +713,11 @@ export class CdCliService extends CdService {
             this.b.cdResp.data = dbResult;
             this.b.respond(req, res);
         } catch (e) {
-            this.logger.logInfo('CdCliTypeService::searchCdCliTypes()/e:', e);
+            this.logger.logInfo('CdDevTypeService::searchCdDevTypes()/e:', e);
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
-                code: 'CdCliTypeService::searchCdCliTypes',
+                code: 'CdDevTypeService::searchCdDevTypes',
                 app_msg: ''
             };
             this.b.serviceErr(req, res, e, i.code);
@@ -754,10 +754,10 @@ export class CdCliService extends CdService {
 
     getCdObjTypeCount(req, res) {
         const q = this.b.getQuery(req);
-        console.log('CdCliService::getCdObjCount/q:', q);
+        console.log('CdDevService::getCdObjCount/q:', q);
         const serviceInput = {
-            serviceModel: CdCliTypeModel,
-            docName: 'CdCliService::getCdObjCount$',
+            serviceModel: CdDevTypeModel,
+            docName: 'CdDevService::getCdObjCount$',
             cmd: {
                 action: 'find',
                 query: q
@@ -766,7 +766,7 @@ export class CdCliService extends CdService {
         }
         this.b.readCount$(req, res, serviceInput)
             .subscribe((r) => {
-                this.b.i.code = 'CdCliService::getCdObjTypeCount';
+                this.b.i.code = 'CdDevService::getCdObjTypeCount';
                 const svSess = new SessionService();
                 svSess.sessResp.cd_token = req.post.dat.token;
                 svSess.sessResp.ttl = svSess.getTtl();
@@ -781,12 +781,12 @@ export class CdCliService extends CdService {
      * @param req 
      * @param res 
      */
-    getCdCliPaged(req, res) {
+    getCdDevPaged(req, res) {
         const q = this.b.getQuery(req);
-        this.logger.logInfo('CdCliService::getCdCliPaged/q:', q);
+        this.logger.logInfo('CdDevService::getCdDevPaged/q:', q);
         const serviceInput = {
-            serviceModel: CdCliViewModel,
-            docName: 'CdCliService::getCdCliPaged$',
+            serviceModel: CdDevViewModel,
+            docName: 'CdDevService::getCdDevPaged$',
             cmd: {
                 action: 'find',
                 query: q
@@ -795,7 +795,7 @@ export class CdCliService extends CdService {
         }
         this.b.readCount$(req, res, serviceInput)
             .subscribe((r) => {
-                this.b.i.code = 'CdCliController::Get';
+                this.b.i.code = 'CdDevController::Get';
                 const svSess = new SessionService();
                 svSess.sessResp.cd_token = req.post.dat.token;
                 svSess.sessResp.ttl = svSess.getTtl();
@@ -805,13 +805,13 @@ export class CdCliService extends CdService {
             })
     }
 
-    getCdCliQB(req, res) {
-        console.log('CdCliService::getCdCliQB()/1')
-        this.b.entityAdapter.registerMappingFromEntity(CdCliViewModel);
+    getCdDevQB(req, res) {
+        console.log('CdDevService::getCdDevQB()/1')
+        this.b.entityAdapter.registerMappingFromEntity(CdDevViewModel);
         const q = this.b.getQuery(req);
         const serviceInput = {
-            serviceModel: CdCliViewModel,
-            docName: 'CdCliService::getCdCliQB',
+            serviceModel: CdDevViewModel,
+            docName: 'CdDevService::getCdDevQB',
             cmd: {
                 action: 'find',
                 query: q
@@ -833,10 +833,10 @@ export class CdCliService extends CdService {
 
     getPagedSL(req, res) {
         const q = this.b.getQuery(req);
-        this.logger.logInfo('CdCliService::getCdCliPaged()/q:', q);
+        this.logger.logInfo('CdDevService::getCdDevPaged()/q:', q);
         const serviceInput = {
-            serviceModel: CdCliModel,
-            docName: 'CdCliService::getCdCliPaged',
+            serviceModel: CdDevModel,
+            docName: 'CdDevService::getCdDevPaged',
             cmd: {
                 action: 'find',
                 query: q
@@ -845,7 +845,7 @@ export class CdCliService extends CdService {
         }
         this.b.readCountSL$(req, res, serviceInput)
             .subscribe((r) => {
-                this.b.i.code = 'CdCliService::Get';
+                this.b.i.code = 'CdDevService::Get';
                 const svSess = new SessionService();
                 svSess.sessResp.cd_token = req.post.dat.token;
                 svSess.sessResp.ttl = svSess.getTtl();
@@ -856,12 +856,12 @@ export class CdCliService extends CdService {
             })
     }
 
-    getCdCliTypeCount(req, res) {
+    getCdDevTypeCount(req, res) {
         const q = this.b.getQuery(req);
-        this.logger.logInfo('CdCliService::getCdCliPaged/q:', q);
+        this.logger.logInfo('CdDevService::getCdDevPaged/q:', q);
         const serviceInput = {
-            serviceModel: CdCliTypeModel,
-            docName: 'CdCliService::getCdCliPaged$',
+            serviceModel: CdDevTypeModel,
+            docName: 'CdDevService::getCdDevPaged$',
             cmd: {
                 action: 'find',
                 query: q
@@ -870,7 +870,7 @@ export class CdCliService extends CdService {
         }
         this.b.readCount$(req, res, serviceInput)
             .subscribe((r) => {
-                this.b.i.code = 'CdCliController::Get';
+                this.b.i.code = 'CdDevController::Get';
                 const svSess = new SessionService();
                 svSess.sessResp.cd_token = req.post.dat.token;
                 svSess.sessResp.ttl = svSess.getTtl();
@@ -882,10 +882,10 @@ export class CdCliService extends CdService {
 
     delete(req, res) {
         const q = this.b.getQuery(req);
-        this.logger.logInfo('CdCliService::delete()/q:', q)
+        this.logger.logInfo('CdDevService::delete()/q:', q)
         const serviceInput = {
-            serviceModel: CdCliModel,
-            docName: 'CdCliService::delete',
+            serviceModel: CdDevModel,
+            docName: 'CdDevService::delete',
             cmd: {
                 action: 'delete',
                 query: q
@@ -902,10 +902,10 @@ export class CdCliService extends CdService {
 
     deleteSL(req, res) {
         const q = this.b.getQuery(req);
-        this.logger.logInfo('CdCliService::deleteSL()/q:', q)
+        this.logger.logInfo('CdDevService::deleteSL()/q:', q)
         const serviceInput = {
-            serviceModel: CdCliModel,
-            docName: 'CdCliService::deleteSL',
+            serviceModel: CdDevModel,
+            docName: 'CdDevService::deleteSL',
             cmd: {
                 action: 'delete',
                 query: q
@@ -927,20 +927,20 @@ export class CdCliService extends CdService {
      * @param q 
      * @returns 
      */
-    async getCdCliI(req, res, q: IQuery = null): Promise<any> {
+    async getCdDevI(req, res, q: IQuery = null): Promise<any> {
         if (q === null) {
             q = this.b.getQuery(req);
         }
-        this.logger.logInfo('CdCliService::getCdCliI/q:', q);
-        let serviceModel = new CdCliViewModel();
+        this.logger.logInfo('CdDevService::getCdDevI/q:', q);
+        let serviceModel = new CdDevViewModel();
         const serviceInput: IServiceInput = this.b.siGet(q, this)
         serviceInput.serviceModelInstance = serviceModel
-        serviceInput.serviceModel = CdCliViewModel
+        serviceInput.serviceModel = CdDevViewModel
         try {
             let respData = await this.b.read(req, res, serviceInput)
             return { data: respData, error: null }
         } catch (e) {
-            this.logger.logInfo('CdCliService::read()/e:', e)
+            this.logger.logInfo('CdDevService::read()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
@@ -967,32 +967,32 @@ export class CdCliService extends CdService {
     //     let svCdGeoLocationService = new CdGeoLocationService()
     //     let gData = await svCdGeoLocationService.getGeoLocationI(req, res, q)
 
-    //     // ,"order": {"cdCliDateLabel": "ASC"}
-    //     q.order = { "cdCliDateLabel": "ASC" }
-    //     let cData = await this.getCdCliI(req, res, q)
+    //     // ,"order": {"cdDevDateLabel": "ASC"}
+    //     q.order = { "cdDevDateLabel": "ASC" }
+    //     let cData = await this.getCdDevI(req, res, q)
     //     let ret = {
     //         geoLocationData: gData.data,
-    //         cdCliData: cData.data,
+    //         cdDevData: cData.data,
     //     }
-    //     this.logger.logInfo('CdCliService::StatsByGeoLocation()/ret:', ret)
+    //     this.logger.logInfo('CdDevService::StatsByGeoLocation()/ret:', ret)
     //     this.b.cdResp.data = await ret;
     //     this.b.respond(req, res)
     // }
 
-    async getCdCliProfileI(req, res, q: IQuery = null): Promise<any> {
+    async getCdDevProjectI(req, res, q: IQuery = null): Promise<any> {
         if (q === null) {
             q = this.b.getQuery(req);
         }
-        this.logger.logInfo('CdCliService::getCdCliProfileI/q:', q);
-        let serviceModel = new CdCliProfileViewModel();
+        this.logger.logInfo('CdDevService::getCdDevProjectI/q:', q);
+        let serviceModel = new CdDevProjectViewModel();
         const serviceInput: IServiceInput = this.b.siGet(q, this)
         serviceInput.serviceModelInstance = serviceModel
-        serviceInput.serviceModel = CdCliProfileViewModel
+        serviceInput.serviceModel = CdDevProjectViewModel
         try {
             let respData = await this.b.read(req, res, serviceInput)
             return { data: respData, error: null }
         } catch (e) {
-            this.logger.logInfo('CdCliService::read()/e:', e)
+            this.logger.logInfo('CdDevService::read()/e:', e)
             this.b.err.push(e.toString());
             const i = {
                 messages: this.b.err,
@@ -1011,9 +1011,9 @@ export class CdCliService extends CdService {
         try {
             // const session = await svSession.getSession(req, res);
             // const userId = session[0].currentUserId;
-            // const pl:CdCliProfileModel = this.b.getPlData(req)
-            // const q = {where: {userId: userId,cdCliId: pl.cdCliId}}
-            // const cdCliEfg = this.getCdCliProfileI(req, res, q)
+            // const pl:CdDevProjectModel = this.b.getPlData(req)
+            // const q = {where: {userId: userId,cdDevId: pl.cdDevId}}
+            // const cdDevEfg = this.getCdDevProjectI(req, res, q)
             const updatedProfile = this.b.getPlData(req);  // Extract payload data
 
             // Validate input
@@ -1023,8 +1023,8 @@ export class CdCliService extends CdService {
                 // Prepare serviceInput for BaseService methods
                 const serviceInput: IServiceInput = {
                     serviceInstance: this,
-                    serviceModel: CdCliProfileModel,
-                    docName: 'CdCliProfileService::updateCurrentMemberProfile',
+                    serviceModel: CdDevProjectModel,
+                    docName: 'CdDevProjectService::updateCurrentMemberProfile',
                     cmd: {
                         query: updatedProfile
                     }
@@ -1113,25 +1113,25 @@ export class CdCliService extends CdService {
     // }
 
     // Internal method to retrieve user member profile
-    // async getUserProfileI(req, res, cdCliEfgId: number): Promise<ICdCliProfileProfile | null> {
+    // async getUserProfileI(req, res, cdDevEfgId: number): Promise<ICdDevProjectProfile | null> {
     //     try {
     //         // // Use BaseService to retrieve user member profile
     //         // const result = await this.b.read(req, res, serviceInput);
-    //         // const user = await this.getCdCliProfileI(userId)
-    //         const q = { where: { cdCliEfgId: cdCliEfgId } }
-    //         const cdCliEfg: CdCliProfileViewModel[] = await this.getCdCliProfileI(req, res, q)
-    //         if (cdCliEfg && cdCliEfg[0].cdCliEfgProfile) {
-    //             let cdCliEfgProfileJSON: ICdCliProfileProfile = JSON.parse(cdCliEfg[0].cdCliEfgProfile)
+    //         // const user = await this.getCdDevProjectI(userId)
+    //         const q = { where: { cdDevEfgId: cdDevEfgId } }
+    //         const cdDevEfg: CdDevProjectViewModel[] = await this.getCdDevProjectI(req, res, q)
+    //         if (cdDevEfg && cdDevEfg[0].cdDevEfgProfile) {
+    //             let cdDevEfgProfileJSON: ICdDevProjectProfile = JSON.parse(cdDevEfg[0].cdDevEfgProfile)
 
-    //             if ('cdCliEfgData' in cdCliEfgProfileJSON) {
+    //             if ('cdDevEfgData' in cdDevEfgProfileJSON) {
     //                 // profile data is valid
 
     //                 // update with latest user data
-    //                 cdCliEfgProfileJSON[0].cdCliEfgData = cdCliEfg
+    //                 cdDevEfgProfileJSON[0].cdDevEfgData = cdDevEfg
 
     //             } else {
     //                 // profile data is not set, so set it from default
-    //                 cdCliEfgProfileJSON = cdCliEfgProfileDefault
+    //                 cdDevEfgProfileJSON = cdDevEfgProfileDefault
     //                 /**
     //                  * this stage should be modified to
     //                  * filter data based on pwermission setting
@@ -1140,9 +1140,9 @@ export class CdCliService extends CdService {
     //                  * to user member profile data.
     //                  * This mechanism can be applied to all corpdesk resources
     //                  */
-    //                 cdCliEfgProfileJSON.cdCliEfgship.memberData = cdCliEfg
+    //                 cdDevEfgProfileJSON.cdDevEfgship.memberData = cdDevEfg
     //             }
-    //             return cdCliEfgProfileJSON;  // Parse the JSON field
+    //             return cdDevEfgProfileJSON;  // Parse the JSON field
 
     //         } else {
     //             return null;
@@ -1166,8 +1166,8 @@ export class CdCliService extends CdService {
             // Use BaseService method to handle JSON updates for user member profile field
             const serviceInput = {
                 serviceInstance: this,
-                serviceModel: CdCliProfileModel,
-                docName: 'CdCliProfileService::updateUserProfileI',
+                serviceModel: CdDevProjectModel,
+                docName: 'CdDevProjectService::updateUserProfileI',
                 cmd: {
                     query: newProfileData
                     // query: {
@@ -1195,7 +1195,7 @@ export class CdCliService extends CdService {
 
 
     // Internal helper method to get a user by ID
-    // async getCdCliProfileByIdI(userId: number) {
+    // async getCdDevProjectByIdI(userId: number) {
     //     return await this.db.user.findOne({ where: { user_id: userId } });
     // }
 }

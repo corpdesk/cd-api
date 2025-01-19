@@ -10,7 +10,7 @@ import { ViewEntity, ViewColumn } from "typeorm";
   synchronize: false,
   /**
    * The expression below can be auto-generated from
-   * cd-cli or cd-ai
+   * cd-dev or cd-ai
    */
   expression: `
         SELECT 
@@ -27,30 +27,30 @@ import { ViewEntity, ViewColumn } from "typeorm";
             JOIN 'cd_cli_profile_type' ON 'cd_cli_profile'.'cd_cli_profile_type_id' = 'cd_cli_profile_type'.'cd_cli_profile_type_id'
     `,
 })
-export class CdCliProfileViewModel {
+export class CdDevProjectViewModel {
   @ViewColumn({ name: "cd_cli_profile_id" })
-  cdCliProfileId?: number;
+  cdDevProjectId?: number;
 
   @ViewColumn({ name: "cd_cli_profile_guid" })
-  cdCliProfileGuid?: string;
+  cdDevProjectGuid?: string;
 
   @ViewColumn({ name: "cd_cli_profile_name" })
-  cdCliProfileName?: string;
+  cdDevProjectName?: string;
 
   @ViewColumn({ name: "cd_cli_profile_description" })
-  cdCliProfileDescription?: string;
+  cdDevProjectDescription?: string;
 
   @ViewColumn({ name: 'cd_cli_profile_data' })
-  cdCliProfileData: string;
+  cdDevProjectData: string;
 
   @ViewColumn({ name: "cd_cli_profile_enabled" })
-  cdCliProfileEnabled?: boolean;
+  cdDevProjectEnabled?: boolean;
 
   @ViewColumn({ name: "cd_cli_profile_type_id" })
-  cdCliProfileTypeId?: number;
+  cdDevProjectTypeId?: number;
 
   @ViewColumn({ name: "cd_cli_profile_type_guid" })
-  cdCliProfileTypeGuid?: string;
+  cdDevProjectTypeGuid?: string;
 
   @ViewColumn({ name: "user_id" })
   userId?: number;

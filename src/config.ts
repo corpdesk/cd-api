@@ -16,7 +16,7 @@ const ENTITIES = [
     __dirname + '/CdApi/sys/moduleman/models/*.model.ts',
     __dirname + '/CdApi/sys/comm/models/*.model.ts',
     __dirname + '/CdApi/sys/scheduler/models/*.model.ts',
-    __dirname + '/CdApi/sys/cd-cli/models/*.model.ts',
+    __dirname + '/CdApi/sys/cd-dev/models/*.model.ts',
     __dirname + '/CdApi/app/cd-accts/models/*.model.ts',
     __dirname + '/CdApi/app/coops/models/*.model.ts',
     __dirname + '/CdApi/app/cd-geo/models/*.model.ts',

@@ -9,7 +9,7 @@ import {
 } from 'class-validator';
 import { IUserProfile, userProfileDefault } from '../../user/models/user.model';
 import { IAclRole } from '../../base/IBase';
-import { CdCliProfileViewModel } from './cd-dev-project-view.model';
+import { CdDevProjectViewModel } from './cd-dev-project-view.model';
 
 @Entity(
     {
@@ -18,39 +18,39 @@ import { CdCliProfileViewModel } from './cd-dev-project-view.model';
     }
 )
 // @CdModel
-export class CdCliProfileModel {
+export class CdDevProjectModel {
 
     @PrimaryGeneratedColumn(
         {
             name: 'cd_cli_profile_id'
         }
     )
-    cdCliProfileId?: number;
+    cdDevProjectId?: number;
 
     @Column({
         name: 'cd_cli_profile_guid',
         length: 40,
         default: uuidv4()
     })
-    cdCliProfileGuid?: string;
+    cdDevProjectGuid?: string;
 
     @Column({
         name: 'cd_cli_profile_name',
         length: 40,
     })
-    cdCliProfileName?: string;
+    cdDevProjectName?: string;
 
     @Column({
         name: 'cd_cli_profile_description',
         length: 40,
     })
-    cdCliProfileDescription?: string;
+    cdDevProjectDescription?: string;
 
     @Column({
         name: 'cd_cli_profile_data',
         nullable: true
     })
-    cdCliProfileData?: string;
+    cdDevProjectData?: string;
 
     @Column(
         {
@@ -58,7 +58,7 @@ export class CdCliProfileModel {
             nullable: true
         }
     )
-    cdCliProfileTypeId: number;
+    cdDevProjectTypeId: number;
 
     @Column(
         {
@@ -82,7 +82,7 @@ export class CdCliProfileModel {
             nullable: true
         }
     )
-    cdCliProfileEnabled: boolean;
+    cdDevProjectEnabled: boolean;
 
     
 
@@ -117,18 +117,18 @@ export interface IProfileGroupAccess {
     execute: boolean
 }
 
-// export interface ICdCliProfileProfile {
+// export interface ICdDevProjectProfile {
 //     userProfile: IUserProfile;
-//     // cdCliProfileFieldPermissions: IMemberProfileAccess; // accessibility of personal data
-//     cdCliProfileship: { 
-//         memberData: CdCliProfileViewModel[];
+//     // cdDevProjectFieldPermissions: IMemberProfileAccess; // accessibility of personal data
+//     cdDevProjectship: { 
+//         memberData: CdDevProjectViewModel[];
 //         acl: MemberMeta[]; // affilication with various SACCOS(privilage related data in various SACCOS)
 //     }
 // }
 
-export interface ICdCliProfileProfile extends IUserProfile {
-    cdCliProfileship: { 
-        memberData: CdCliProfileViewModel[];
+export interface ICdDevProjectProfile extends IUserProfile {
+    cdDevProjectship: { 
+        memberData: CdDevProjectViewModel[];
         acl: MemberMeta[]; // affiliation with various SACCOS (privilege-related data in various SACCOS)
     };
 }
@@ -138,11 +138,11 @@ export interface MemberMeta {
     abcdActive: boolean,
     abcdRole: IAbcdRole;
     aclRole?: IAclRole
-    cdCliProfileData?: CdCliProfileViewModel[]; // affilication with various SACCOS(selection of cd_cli_profile_view where the current user appears)
+    cdDevProjectData?: CdDevProjectViewModel[]; // affilication with various SACCOS(selection of cd_cli_profile_view where the current user appears)
 }
 
-// Define a type that excludes 'cdCliProfileship' from ICdCliProfileProfile
-export type IUserProfileOnly = Omit<ICdCliProfileProfile, 'cdCliProfileship'>;
+// Define a type that excludes 'cdDevProjectship' from ICdDevProjectProfile
+export type IUserProfileOnly = Omit<ICdDevProjectProfile, 'cdDevProjectship'>;
 
 /**
  * Note that abcd membership prrofile is an extension of user profile
@@ -153,9 +153,9 @@ export type IUserProfileOnly = Omit<ICdCliProfileProfile, 'cdCliProfileship'>;
  * 
  */
 
-// export const cdCliProfileProfileDefault: ICdCliProfileProfile = {
+// export const cdDevProjectProfileDefault: ICdDevProjectProfile = {
 //     ...userProfileDefault,  // Copy all properties from userProfileDefault
-//     cdCliProfileship:
+//     cdDevProjectship:
 //     {
 //         memberData: [
 //             {

@@ -19,14 +19,14 @@ import {
     }
 )
 // @CdModel
-export class CdCliProfileTypeModel {
+export class CdDevProjectTypeModel {
 
     @PrimaryGeneratedColumn(
         {
             name: 'cd_cli_profile_type_id'
         }
     )
-    cdCliProfileTypeId?: number;
+    cdDevProjectTypeId?: number;
 
     @Column({
         name: 'cd_cli_profile_type_guid',
@@ -43,7 +43,7 @@ export class CdCliProfileTypeModel {
             nullable: true
         }
     )
-    cdCliProfileTypeName: string;
+    cdDevProjectTypeName: string;
 
     @Column(
         'varchar',
@@ -53,7 +53,7 @@ export class CdCliProfileTypeModel {
             nullable: true
         }
     )
-    cdCliProfileTypeDescription: string;
+    cdDevProjectTypeDescription: string;
 
     @Column(
         {

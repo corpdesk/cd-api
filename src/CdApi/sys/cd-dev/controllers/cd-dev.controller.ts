@@ -1,31 +1,31 @@
 import { BaseService } from '../../base/base.service';
-import { CdCliTypeService } from '../services/cd-dev-type.service';
-import { CdCliService } from '../services/cd-dev.service';
+import { CdDevTypeService } from '../services/cd-dev-type.service';
+import { CdDevService } from '../services/cd-dev.service';
 
-export class CdCliController {
+export class CdDevController {
 
     b: BaseService;
-    svCdCli: CdCliService;
-    svCdCliType: CdCliTypeService
+    svCdDev: CdDevService;
+    svCdDevType: CdDevTypeService
 
     constructor() {
         this.b = new BaseService();
-        this.svCdCli = new CdCliService();
-        this.svCdCliType = new CdCliTypeService();
+        this.svCdDev = new CdDevService();
+        this.svCdDevType = new CdDevTypeService();
     }
 
     // /**
     //  * {
     //         "ctx": "Sys",
     //         "m": "Moduleman",
-    //         "c": "CdCli",
+    //         "c": "CdDev",
     //         "a": "Create",
     //         "dat": {
     //             "f_vals": [
     //                 {
     //                     "data": {
-    //                         "cd-cliStatName": "/src/CdApi/sys/moduleman",
-    //                         "CdCliTypeId": "7ae902cd-5bc5-493b-a739-125f10ca0268",
+    //                         "cd-devStatName": "/src/CdApi/sys/moduleman",
+    //                         "CdDevTypeId": "7ae902cd-5bc5-493b-a739-125f10ca0268",
     //                         "parentModuleGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b"
     //                     }
     //                 }
@@ -39,9 +39,9 @@ export class CdCliController {
     //  */
     async Create(req, res) {
         try {
-            await this.svCdCli.create(req, res);
+            await this.svCdDev.create(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'CdCliController:Create');
+            await this.b.serviceErr(req, res, e, 'CdDevController:Create');
         }
     }
 
@@ -52,17 +52,17 @@ export class CdCliController {
      */
     async CreateM(req, res) {
         try {
-            await this.svCdCli.createM(req, res);
+            await this.svCdDev.createM(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'CdCliController:CreateM');
+            await this.b.serviceErr(req, res, e, 'CdDevController:CreateM');
         }
     }
 
     async CreateSL(req, res) {
         try {
-            await this.svCdCli.createSL(req, res);
+            await this.svCdDev.createSL(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'CdCliController:CreateSL');
+            await this.b.serviceErr(req, res, e, 'CdDevController:CreateSL');
         }
     }
 
@@ -71,14 +71,14 @@ export class CdCliController {
     /**
      * {
             "ctx": "App",
-            "m": "CdClis",
-            "c": "CdCli",
+            "m": "CdDevs",
+            "c": "CdDev",
             "a": "Get",
             "dat": {
                 "f_vals": [
                     {
                         "query": {
-                            "where": {"cd-cliStatName": "Kenya"}
+                            "where": {"cd-devStatName": "Kenya"}
                         }
                     }
                 ],
@@ -87,37 +87,37 @@ export class CdCliController {
             "args": null
         }
 
-        curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App", "m": "CdClis","c": "CdCli","a": "Get","dat": {"f_vals": [{"query": {"where": {"cd-cliStatName": "Kenya"}}}],"token":"08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
+        curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App", "m": "CdDevs","c": "CdDev","a": "Get","dat": {"f_vals": [{"query": {"where": {"cd-devStatName": "Kenya"}}}],"token":"08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
      * @param req
      * @param res
      */
     async Get(req, res) {
         try {
-            await this.svCdCli.getCdCli(req, res);
+            await this.svCdDev.getCdDev(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'CdCliController:Get');
+            await this.b.serviceErr(req, res, e, 'CdDevController:Get');
         }
     }
 
     async GetSL(req, res) {
         try {
-            await this.svCdCli.getCdCliSL(req, res);
+            await this.svCdDev.getCdDevSL(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'CdCliController:GetSL');
+            await this.b.serviceErr(req, res, e, 'CdDevController:GetSL');
         }
     }
 
     /**
      * {
             "ctx": "App",
-            "m": "CdClis",
-            "c": "CdCli",
+            "m": "CdDevs",
+            "c": "CdDev",
             "a": "GetType",
             "dat": {
                 "f_vals": [
                     {
                         "query": {
-                            "where": {"cd-cliTypeId": 100}
+                            "where": {"cd-devTypeId": 100}
                         }
                     }
                 ],
@@ -126,48 +126,48 @@ export class CdCliController {
             "args": null
         }
 
-        curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdClis","c": "CdCli","a": "GetType","dat":{"f_vals": [{"query":{"where": {"cd-cliTypeId":100}}}],"token":"08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
+        curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdDevs","c": "CdDev","a": "GetType","dat":{"f_vals": [{"query":{"where": {"cd-devTypeId":100}}}],"token":"08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
      * @param req
      * @param res
      */
     async GetType(req, res) {
         try {
-            // await this.svCdCli.getCdCliType(req, res);
-            await this.svCdCli.getCdObjTypeCount(req, res);
+            // await this.svCdDev.getCdDevType(req, res);
+            await this.svCdDev.getCdObjTypeCount(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'CdCliController:Get');
+            await this.b.serviceErr(req, res, e, 'CdDevController:Get');
         }
     }
 
     async GetType2(req, res) {
         try {
-            // await this.svCdCli.getCdCliType(req, res);
-            await this.svCdCli.getCdCliType2(req, res);
+            // await this.svCdDev.getCdDevType(req, res);
+            await this.svCdDev.getCdDevType2(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'CdCliController:GetType2');
+            await this.b.serviceErr(req, res, e, 'CdDevController:GetType2');
         }
     }
 
-    async SearchCdCliTypes(req, res) {
+    async SearchCdDevTypes(req, res) {
         try {
-            // await this.svCdCli.getCdCliType(req, res);
-            await this.svCdCli.searchCdCliTypes(req, res);
+            // await this.svCdDev.getCdDevType(req, res);
+            await this.svCdDev.searchCdDevTypes(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'CdCliController:GetType2');
+            await this.b.serviceErr(req, res, e, 'CdDevController:GetType2');
         }
     }
 
     /** Pageable request:
      * {
             "ctx": "App",
-            "m": "CdClis",
-            "c": "CdCli",
+            "m": "CdDevs",
+            "c": "CdDev",
             "a": "GetCount",
             "dat": {
                 "f_vals": [
                     {
                         "query": {
-                            "select":["cd-cliStatId","cd-cliStatGuid"],
+                            "select":["cd-devStatId","cd-devStatGuid"],
                             "where": {},
                             "take": 5,
                             "skip": 1
@@ -179,30 +179,30 @@ export class CdCliController {
             "args": null
         }
 
-     curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdClis","c": "CdCli","a": "GetCount","dat": {"f_vals": [{"query": {"select":["cd-cliStatId","cd-cliStatGuid"],"where": {}, "take":5,"skip": 1}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
+     curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdDevs","c": "CdDev","a": "GetCount","dat": {"f_vals": [{"query": {"select":["cd-devStatId","cd-devStatGuid"],"where": {}, "take":5,"skip": 1}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
 
      * @param req
      * @param res
      */
     async GetCount(req, res) {
         try {
-            await this.svCdCli.getCdCliQB(req, res);
+            await this.svCdDev.getCdDevQB(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'CdCliController:GetCount');
+            await this.b.serviceErr(req, res, e, 'CdDevController:GetCount');
         }
     }
 
     /** Pageable request:
      * {
             "ctx": "App",
-            "m": "CdClis",
-            "c": "CdCli",
+            "m": "CdDevs",
+            "c": "CdDev",
             "a": "GetPaged",
             "dat": {
                 "f_vals": [
                     {
                         "query": {
-                            "select":["cd-cliStatId","cd-cliStatGuid"],
+                            "select":["cd-devStatId","cd-devStatGuid"],
                             "where": {},
                             "take": 5,
                             "skip": 1
@@ -214,14 +214,14 @@ export class CdCliController {
             "args": null
         }
 
-     curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdClis","c": "CdCli","a": "GetPaged","dat": {"f_vals": [{"query": {"select":["cd-cliStatId","cd-cliStatGuid"],"where": {}, "take":5,"skip": 1}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
+     curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdDevs","c": "CdDev","a": "GetPaged","dat": {"f_vals": [{"query": {"select":["cd-devStatId","cd-devStatGuid"],"where": {}, "take":5,"skip": 1}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
 
      * @param req
      * @param res
      */
     async GetPaged(req, res) {
         try {
-            await this.svCdCli.getCdCliPaged(req, res);
+            await this.svCdDev.getCdDevPaged(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'ModuleController:Get');
         }
@@ -229,27 +229,27 @@ export class CdCliController {
 
     async GetPagedSL(req, res) {
         try {
-            await this.svCdCli.getPagedSL(req, res);
+            await this.svCdDev.getPagedSL(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'CdCliController:GetSL');
+            await this.b.serviceErr(req, res, e, 'CdDevController:GetSL');
         }
     }
 
     /**
      * {
             "ctx": "App",
-            "m": "CdClis",
-            "c": "CdCli",
+            "m": "CdDevs",
+            "c": "CdDev",
             "a": "Update",
             "dat": {
                 "f_vals": [
                     {
                         "query": {
                             "update": {
-                                "cd-cliAssets": null
+                                "cd-devAssets": null
                             },
                             "where": {
-                                "cd-cliStatId": 1
+                                "cd-devStatId": 1
                             }
                         }
                     }
@@ -259,41 +259,41 @@ export class CdCliController {
             "args": {}
         }
 
-     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdClis","c": "CdCli","a": "Update","dat": {"f_vals": [{"query": {"update": {"cd-cliAssets": null},"where": {"cd-cliStatId": 1}}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": {}}' http://localhost:3001 -v  | jq '.'
+     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdDevs","c": "CdDev","a": "Update","dat": {"f_vals": [{"query": {"update": {"cd-devAssets": null},"where": {"cd-devStatId": 1}}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": {}}' http://localhost:3001 -v  | jq '.'
      * @param req
      * @param res
      */
     async Update(req, res) {
-        console.log('CdCliController::Update()/01');
+        console.log('CdDevController::Update()/01');
         try {
-            console.log('CdCliController::Update()/02');
-            await this.svCdCli.update(req, res);
+            console.log('CdDevController::Update()/02');
+            await this.svCdDev.update(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'ModuleController:Update');
         }
     }
 
     async UpdateSL(req, res) {
-        console.log('CdCliController::UpdateSL()/01');
+        console.log('CdDevController::UpdateSL()/01');
         try {
-            console.log('CdCliController::UpdateSL()/02');
-            await this.svCdCli.updateSL(req, res);
+            console.log('CdDevController::UpdateSL()/02');
+            await this.svCdDev.updateSL(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'CdCliController:UpdateSL');
+            await this.b.serviceErr(req, res, e, 'CdDevController:UpdateSL');
         }
     }
 
     /**
      * {
             "ctx": "App",
-            "m": "CdClis",
-            "c": "CdCli",
+            "m": "CdDevs",
+            "c": "CdDev",
             "a": "Delete",
             "dat": {
                 "f_vals": [
                     {
                         "query": {
-                            "where": {"cd-cliStatId": 69}
+                            "where": {"cd-devStatId": 69}
                         }
                     }
                 ],
@@ -301,13 +301,13 @@ export class CdCliController {
             },
             "args": null
         }
-     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdClis","c": "CdCli","a": "Delete","dat": {"f_vals": [{"query": {"where": {"cd-cliStatId": 69}}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": {}}' http://localhost:3001 -v  | jq '.'
+     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdDevs","c": "CdDev","a": "Delete","dat": {"f_vals": [{"query": {"where": {"cd-devStatId": 69}}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": {}}' http://localhost:3001 -v  | jq '.'
      * @param req
      * @param res
      */
     async Delete(req, res) {
         try {
-            await this.svCdCli.delete(req, res);
+            await this.svCdDev.delete(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'ModuleController:Update');
         }
@@ -315,7 +315,7 @@ export class CdCliController {
 
     async DeleteSL(req, res) {
         try {
-            await this.svCdCli.deleteSL(req, res);
+            await this.svCdDev.deleteSL(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'BillController:DeleteSL');
         }
@@ -323,43 +323,43 @@ export class CdCliController {
 
     /**
      * 
-     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdClis","c": "CdCli","a": "CreateType","dat": {"f_vals": [{"data": {"cd-cliTypeName": "Continental Apex"}}],"token": "3ffd785f-e885-4d37-addf-0e24379af338"},"args": {}}' http://localhost:3001 -v  | jq '.'
+     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdDevs","c": "CdDev","a": "CreateType","dat": {"f_vals": [{"data": {"cd-devTypeName": "Continental Apex"}}],"token": "3ffd785f-e885-4d37-addf-0e24379af338"},"args": {}}' http://localhost:3001 -v  | jq '.'
      * @param req 
      * @param res 
      */
     async CreateType(req, res) {
         try {
-            await this.svCdCliType.create(req, res);
+            await this.svCdDevType.create(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'CdCliController:CreateType');
+            await this.b.serviceErr(req, res, e, 'CdDevController:CreateType');
         }
     }
 
     /**
      * 
-     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdClis","c": "CdCli","a": "UpudateType","dat": {"f_vals": [{"data": {"cd-cliTypeName": "Continental Apex"}}],"token": "3ffd785f-e885-4d37-addf-0e24379af338"},"args": {}}' http://localhost:3001 -v  | jq '.'
+     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdDevs","c": "CdDev","a": "UpudateType","dat": {"f_vals": [{"data": {"cd-devTypeName": "Continental Apex"}}],"token": "3ffd785f-e885-4d37-addf-0e24379af338"},"args": {}}' http://localhost:3001 -v  | jq '.'
      * @param req 
      * @param res 
      */
     async UpdateType(req, res) {
         try {
-            await this.svCdCliType.update(req, res);
+            await this.svCdDevType.update(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'CdCliController:EditType');
+            await this.b.serviceErr(req, res, e, 'CdDevController:EditType');
         }
     }
 
     /**
      * 
-     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdClis","c": "CdCli","a": "DeleteType","dat": {"f_vals": [{"query": {"where": {"cd-cliTypeId": 107}}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": {}}' http://localhost:3001 -v  | jq '.'
+     * curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App","m": "CdDevs","c": "CdDev","a": "DeleteType","dat": {"f_vals": [{"query": {"where": {"cd-devTypeId": 107}}}],"token": "08f45393-c10e-4edd-af2c-bae1746247a1"},"args": {}}' http://localhost:3001 -v  | jq '.'
      * @param req 
      * @param res 
      */
     async DeleteType(req, res) {
         try {
-            await this.svCdCliType.delete(req, res);
+            await this.svCdDevType.delete(req, res);
         } catch (e) {
-            await this.b.serviceErr(req, res, e, 'CdCliController:DeleteType');
+            await this.b.serviceErr(req, res, e, 'CdDevController:DeleteType');
         }
     }
 

@@ -3,8 +3,8 @@ import { IQuery } from '../../base/IBase';
 
 export function siGet(q: IQuery) {
     return {
-        serviceModel: CdCliViewModel,
-        docName: 'CdCliModel::siGet',
+        serviceModel: CdDevViewModel,
+        docName: 'CdDevModel::siGet',
         cmd: {
             action: 'find',
             query: q
@@ -23,7 +23,7 @@ export function siGet(q: IQuery) {
     synchronize: false,
     /**
      * The expression below can be auto-generated from 
-     * cd-cli or cd-ai
+     * cd-dev or cd-ai
      */
     expression: `
     SELECT 
@@ -42,27 +42,27 @@ export function siGet(q: IQuery) {
     `
 })
 
-export class CdCliViewModel {
+export class CdDevViewModel {
     @ViewColumn({ name: 'cd_cli_id' })
-    cdCliId: number;
+    cdDevId: number;
 
     @ViewColumn({ name: 'cd_cli_name' })
-    cdCliName: string;
+    cdDevName: string;
 
     @ViewColumn({ name: 'cd_cli_description' })
-    cdCliDescription: string;
+    cdDevDescription: string;
 
     @ViewColumn({ name: 'cd_cli_guid' })
-    cdCliGuid: string;
+    cdDevGuid: string;
 
     @ViewColumn({ name: 'cd_cli_type_id' })
-    cdCliTypeId: number;
+    cdDevTypeId: number;
 
     @ViewColumn({ name: 'cd_cli_type_guid' })
-    cdCliTypeGuid: string;
+    cdDevTypeGuid: string;
 
     @ViewColumn({ name: 'cd_cli_enabled' })
-    cdCliEnabled: boolean; 
+    cdDevEnabled: boolean; 
 
 }
 
