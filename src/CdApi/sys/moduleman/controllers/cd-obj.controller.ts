@@ -177,4 +177,14 @@ export class CdObjController {
         }
     }
 
+    async SyncDescriptors(req, res) {
+        console.log('CdObjController::UpdateJDetails()/01');
+        try {
+            console.log('CdObjController::UpdateJDetails()/02');
+            await this.svCdObj.syncDescriptors(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'CdObjController:UpdateJDetails');
+        }
+    }
+
 }
