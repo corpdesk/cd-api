@@ -88,6 +88,7 @@ export class CdDevController {
         }
 
         curl -k -X POST -H 'Content-Type: application/json' -d '{"ctx": "App", "m": "CdDevs","c": "CdDev","a": "Get","dat": {"f_vals": [{"query": {"where": {"cd-devStatName": "Kenya"}}}],"token":"08f45393-c10e-4edd-af2c-bae1746247a1"},"args": null}' http://localhost:3001 -v  | jq '.'
+        
      * @param req
      * @param res
      */

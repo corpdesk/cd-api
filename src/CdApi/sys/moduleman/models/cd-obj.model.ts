@@ -190,17 +190,14 @@ export class CdObjModel {
             default: null
         }
     )
-    // @IsInt()
     cdObjEnabled?: boolean;
 
-    // @OneToMany(type => DocModel, doc => doc.user) // note: we will create user property in the Docs class
-    // docs: DocModel[];
-
-    // HOOKS
-    // @BeforeInsert()
-    // @BeforeUpdate()
-    // async validate() {
-    //     await validateOrReject(this);
-    // }
+    @Column(
+        {
+            name: 'j_details',
+            default: null
+        }
+    )
+    jDetails?: string;
 
 }
