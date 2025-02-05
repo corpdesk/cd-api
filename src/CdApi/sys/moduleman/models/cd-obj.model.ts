@@ -21,7 +21,7 @@ import { DocModel } from './doc.model';
 )
 // @CdModel
 export class CdObjModel {
-    b?: BaseService;
+    // b?: BaseService;
 
     @PrimaryGeneratedColumn(
         {

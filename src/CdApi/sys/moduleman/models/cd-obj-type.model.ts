@@ -51,13 +51,13 @@ export class CdObjTypeModel {
             length: 60,
             default: null
         })
-    docId: string;
+    docId?: string;
 
     // HOOKS
-    @BeforeInsert()
-    @BeforeUpdate()
-    async validate() {
-        await validateOrReject(this);
-    }
+    // @BeforeInsert()
+    // @BeforeUpdate()
+    // async validate() {
+    //     await validateOrReject(this);
+    // }
 
 }

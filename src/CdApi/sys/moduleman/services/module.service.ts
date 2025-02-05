@@ -74,7 +74,27 @@ export class ModuleService extends CdService {
         // this.svConsumer = new ConsumerService();
     }
 
-
+ /**
+     *
+     * {
+          "ctx": "Sys",
+          "m": "Moduleman",
+          "c": "Module",
+          "a": "Create",
+          "dat": {
+              "f_vals": [
+                  {
+                      "data": {
+                          "moduleName": "xxx30102021",
+                          "isSysModule": false
+                      }
+                  }
+              ],
+              "token": "3ffd785f-e885-4d37-addf-0e24379af338"
+          },
+          "args": {}
+      }
+     */
     async create(req, res): Promise<void> {
         const svSess = new SessionService();
         if (await this.validateCreate(req, res)) {

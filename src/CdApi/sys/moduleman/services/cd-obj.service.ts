@@ -15,7 +15,10 @@ import { ModuleViewModel } from "../models/module-view.model";
 import { CdObjViewModel } from "../models/cd-obj-view.model";
 import { CdObjTypeModel } from "../models/cd-obj-type.model";
 import { UserModel } from "../../user/models/user.model";
-import { CdDescriptors } from "../../cd-dev/models/dev-descriptor.model";
+import {
+  CdDescriptors,
+  mapDescriptorToCdObj,
+} from "../../cd-dev/models/dev-descriptor.model";
 import CdLogg from "../../utils/cd-logger.controller";
 
 export class CdObjService extends CdService {
@@ -99,7 +102,31 @@ export class CdObjService extends CdService {
     res,
     createIParams: CreateIParams
   ): Promise<CdObjModel | boolean> {
-    return await this.b.createI(req, res, createIParams);
+    // const params = {
+    //   controllerInstance: this,
+    //   model: CdObjModel,
+    // };
+
+    console.log("CdObjService::createI()/this.cRules:", this.cRules);
+    // console.log("CdObjService::createI()/params:", params);
+    console.log("CdObjService::createI()/createIParams:", createIParams);
+    if (await this.b.validateUniqueI(req, res, createIParams)) {
+      if (await this.b.validateRequiredI(req, res, createIParams)) {
+        return await this.b.createI(req, res, createIParams);
+      } else {
+        this.b.i.app_msg = `the required fields ${this.cRules.required.join(
+          ", "
+        )} is missing`;
+        this.b.err.push(this.b.i.app_msg);
+        return false;
+      }
+    } else {
+      this.b.i.app_msg = `duplicate for ${this.cRules.noDuplicate.join(
+        ", "
+      )}   is not allowed`;
+      this.b.err.push(this.b.i.app_msg);
+      return false;
+    }
   }
 
   async cdObjectExists(req, res, params): Promise<boolean> {
@@ -147,6 +174,7 @@ export class CdObjService extends CdService {
   }
 
   async syncDescriptors(req, res) {
+    console.log("CdObjService::syncDescriptors()/starting...");
     let jData: CdDescriptors[] = this.b.getPlData(req);
     console.log("CdObjService::syncDescriptors()/jData:", jData);
     const q: IQuery = {
@@ -158,9 +186,53 @@ export class CdObjService extends CdService {
       },
     };
     const retArr = [];
+
+    // Convert `CdDescriptors` to `CdObjModel`
+    // const cdObjQuery: CdObjModel = mapDescriptorToCdObj(d);
+    // // get type guid for 'descriptor'
+    // const cdObjTypes: CdObjTypeModel[] = await this.getCdObjTypeI(
+    //   req,
+    //   res,
+    //   {where:{cdObjTypeName: 'descriptor'}}
+    // );
+    // console.log("CdObjService::syncDescriptors()/createI()/cdObjTypes:", cdObjTypes);
+    // cdObjQuery.cdObjTypeGuid = cdObjTypes[0].cdObjTypeGuid;
+    // console.log("CdObjService::syncDescriptors()/createI()/cdObjQuery.cdObjTypeGuid:", cdObjQuery.cdObjTypeGuid);
+    const ret: CdObjTypeModel[] = await this.getCdObjTypeByName(
+      req,
+      res,
+      "descriptor"
+    );
+    const descriptorCdObjTypeGuid = ret[0].cdObjTypeGuid;
+    /**
+     * iterate thrugh all the input array
+     */
     for (let d of jData) {
+      const cdObjQuery: CdObjModel = mapDescriptorToCdObj(d);
+      cdObjQuery.cdObjTypeGuid = descriptorCdObjTypeGuid;
+      cdObjQuery.cdObjGuid = this.b.getGuid();
+      delete cdObjQuery.cdObjId; // remove the property cdObjId. To be set automatically by db;
       if (d.cdObjId === -1) {
-        // do new entry
+        console.log("CdObjService::getCdObjTypeI()/found a new descriptor...");
+        cdObjQuery.parentModuleGuid = 'd3f1a14d-6fb1-468c-b627-9a098ead6d5d'; // parent to descriptors is CdDev
+        const si = {
+          serviceInstance: this,
+          serviceModel: CdObjModel,
+          serviceModelInstance: this.serviceModel,
+          docName: "CdObjService::CreateI",
+          dSource: 1,
+        };
+        const createIParams: CreateIParams = {
+          serviceInput: si,
+          controllerData: cdObjQuery,
+        };
+        console.log(
+          "CdObjService::syncDescriptors()/createI()/createIParams:",
+          createIParams
+        );
+        let ret = await this.createI(req, res, createIParams);
+        console.log("CdObjService::syncDescriptors()/createI()/ret:", ret);
+        retArr.push(ret);
       } else {
         // update jDetails field
         d.jDetails = JSON.stringify(d.jDetails);
@@ -175,15 +247,85 @@ export class CdObjService extends CdService {
           },
           dSource: 1,
         };
-        // console.log('CdObjService::update()/02')
         const ret = await this.b.update(req, res, serviceInput);
         retArr.push(ret);
       }
+
+      /**
+       * If the item is a 'descriptor', create its type
+       * For example CdAppDescriptor would create a type 'CdType'
+       */
+      if (
+        (await this.isDescriptor(d)) &&
+        !(await this.cdObjTypeExists(req, res, {
+          where: { cdObjTypeName: await this.getTypeName(d) },
+        }))
+      ) {
+        console.log("CdObjService::getCdObjTypeI()/found a new cdObjType...");
+        const cdObjTypeModel = new CdObjTypeModel();
+        const newType: CdObjTypeModel = {
+          cdObjTypeName: this.getTypeName(d),
+          cdObjTypeGuid: this.b.getGuid(),
+        };
+        console.log(
+          "CdObjService::syncDescriptors()/createTypeI()/newType:",
+          newType
+        );
+        // d.cdObjName = this.getTypeName(d);
+        const si = {
+          serviceModel: CdObjTypeModel,
+          serviceModelInstance: cdObjTypeModel,
+          docName: "CdObjService::CreateCdObjTypeI",
+          dSource: 1,
+        };
+        const createIParams: CreateIParams = {
+          serviceInput: si,
+          controllerData: newType,
+        };
+        console.log(
+          "CdObjService::syncDescriptors()/createTypeI()/createIParams:",
+          createIParams
+        );
+        await this.createI(req, res, createIParams);
+      }
     }
+
     console.log("CdObjService::syncDescriptors()/retArr:", retArr);
-    this.b.cdResp.data = await retArr;
+    this.b.cdResp.data = await this.aggregateUpdateStatus(await retArr);
     await this.b.respond(req, res);
   }
+
+  isDescriptor(d: CdDescriptors): boolean {
+    return d.cdObjName.includes("Descriptor");
+  }
+
+  getTypeName(d: CdDescriptors): string {
+    return d.cdObjName.replace(/Descriptor$/, "");
+  }
+
+  aggregateUpdateStatus(statusArray: Array<{ affected?: number } | CdObjModel | false>) {
+    return statusArray.reduce(
+      (acc, item) => {
+        if (item === false) {
+          // Creation failed, count it as a failed record
+          acc.failedRecords++;
+        } else if ("affected" in item) {
+          // It's an update result
+          if (item.affected === 1) {
+            acc.updatedRows++;
+          } else {
+            acc.unaffectedItems++;
+          }
+        } else {
+          // It's a new record (CdObjModel)
+          acc.newRecords++;
+        }
+        return acc;
+      },
+      { updatedRows: 0, unaffectedItems: 0, newRecords: 0, failedRecords: 0 }
+    );
+  }
+  
 
   /**
    * harmonise any data that can
@@ -543,6 +685,51 @@ export class CdObjService extends CdService {
       this.b.cdResp.data = r;
       this.b.respond(req, res);
     });
+  }
+
+  async getCdObjTypeI(req, res, q: IQuery = null): Promise<CdObjTypeModel[]> {
+    console.log("CdObjService::getCdObjTypeI()/starting...");
+    console.log("CdObjService::getCdObjTypeI/q:", q);
+    const serviceInput = {
+      serviceModel: CdObjTypeModel,
+      docName: "CdObjService::getCdObjTypeI",
+      cmd: {
+        action: "find",
+        query: q,
+      },
+      dSource: 1,
+    };
+    try {
+      return await this.b.read(req, res, serviceInput);
+    } catch (e) {
+      console.log("CdObjService::read$()/e:", e);
+      this.b.err.push(e.toString());
+      const i = {
+        messages: this.b.err,
+        code: "CdObjService:getCdObjTypeI",
+        app_msg: "",
+      };
+      await this.b.serviceErr(req, res, e, i.code);
+    }
+  }
+
+  async getCdObjTypeByName(
+    req,
+    res,
+    cdObjTypeName: string
+  ): Promise<CdObjTypeModel[]> {
+    return await this.getCdObjTypeI(req, res, {
+      where: { cdObjTypeName: cdObjTypeName },
+    });
+  }
+
+  async cdObjTypeExists(req, res, q) {
+    const ret = await this.getCdObjTypeI(req, res, q);
+    if (ret.length > 0) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   async updateI(req, res, q): Promise<any> {

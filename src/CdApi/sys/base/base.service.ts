@@ -1127,58 +1127,73 @@ export class BaseService {
     }
   }
 
-  async validateUniqueI(req, res, params) {
-    this.logger.logDebug("BaseService::validateUnique()/01");
-    this.logger.logDebug("BaseService::validateUnique()/req.post:", req.post);
+  async validateRequiredI(req, res, params: CreateIParams) {
+    const cRules = params.serviceInput.serviceInstance.cRules;
+    console.log(
+      "BaseService::validateRequired()/cRules:",
+      JSON.stringify(cRules)
+    );
+    const svSess = new SessionService();
+    await this.init(req, res);
+    const rqFieldNames = cRules.required as string[];
+    console.log(
+      "BaseService::validateRequired()/rqFieldNames:",
+      JSON.stringify(rqFieldNames)
+    );
+    this.isInvalidFields = await rqFieldNames.filter((fieldName) => {
+      console.log("BaseService::validateRequired()/fieldName:", fieldName);
+      console.log(
+        "BaseService::validateRequired()/params.controllerData:",
+        JSON.stringify(params.controllerData)
+      );
+      if (!(fieldName in params.controllerData)) {
+        // required field is missing
+        return fieldName;
+      }
+    });
+    if (this.isInvalidFields.length > 0) {
+      // console.log('BaseService::validateRequired()/cRules:', JSON.stringify(cRules))
+      // console.log('BaseService::validateRequired()/isInvalid:', JSON.stringify(this.isInvalidFields))
+      this.i.app_msg = `the required fields ${this.isInvalidFields.join(
+        ", "
+      )} is missing`;
+      this.i.messages.push(this.i.app_msg);
+      this.setAppState(false, this.i, svSess.sessResp);
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  async validateUniqueI(req, res, params: CreateIParams) {
+    this.logger.logDebug("BaseService::validateUniqueI()/01");
+    this.logger.logDebug("BaseService::validateUniqueI()/req.post:", req.post);
     this.logger.logDebug(
-      "BaseService::validateUnique()/req.post.dat.f_vals[0]:",
+      "BaseService::validateUniqueI()/req.post.dat.f_vals[0]:",
       req.post.dat.f_vals[0]
     );
-    this.logger.logDebug("BaseService::validateUnique()/params:", params);
+    console.log("BaseService::validateUniqueI()/params:", params);
     await this.init(req, res);
     // assign payload data to this.userModel
     //** */ params.controllerInstance.userModel = this.getPlData(req);
     // set connection
-    // const baseRepository = getConnection().getRepository(params.model);
-    this.logger.logDebug(
-      "BaseService::validateUnique()/repo/model:",
-      params.model
-    );
-    const baseRepository: any = await this.repo(req, res, params.model);
-    // get model properties
-    const propMap = await this.getEntityPropertyMap(
-      req,
-      res,
-      params.model
-    ).then((result) => {
-      // console.log('validateUnique()/result:', result)
-      return result;
+    const baseRepository = getConnection().getRepository(params.serviceInput.serviceModel);
+    console.log("BaseService::validateUniqueI()/repo/model:", {
+      model: params.serviceInput.serviceModel,
     });
-    // console.log('validateUnique()/propMap:', await propMap)
-    // const strQueryItems = await this.getQueryItems(req, propMap, params)
-    const strQueryItems = await this.getQueryItems(req, params);
-    this.logger.logDebug(
-      "BaseService::validateUnique()/strQueryItems:",
-      strQueryItems
-    );
-    // convert the string items into JSON objects
-    // const arrQueryItems = await strQueryItems.map(async (item) => {
-    //     console.log('validateUnique()/item:', await item)
-    //     return await JSON.parse(item);
-    // });
 
-    // console.log('validateUnique()/arrQueryItems:', arrQueryItems)
+    console.log('BaseService::validateUniqueI()/params.serviceInput:', params.serviceInput)
     // const filterItems = await JSON.parse(strQueryItems)
-    const filterItems = await strQueryItems;
-    this.logger.logDebug(
-      "BaseService::validateUnique()/filterItems:",
+    const filterItems = await this.duplicateFilter(params.controllerData, params.serviceInput.serviceInstance.cRules.noDuplicate)
+    console.log(
+      "BaseService::validateUniqueI()/filterItems:",
       filterItems
     );
     // execute the query
     const results = await baseRepository.count({
       where: await filterItems,
     });
-    this.logger.logDebug("BaseService::validateUnique()/results:", results);
+    console.log("BaseService::validateUniqueI()/results:", results);
     // return boolean result
     let ret = false;
     if (results === 0) {
@@ -1188,14 +1203,31 @@ export class BaseService {
       // console.log('BaseService::create()/Error:', e.toString())
       const i = {
         messages: this.err,
-        code: "BaseService:validateUnique",
+        code: "BaseService:validateUniqueI",
         app_msg: "",
       };
       await this.setAppState(false, i, null);
     }
-    this.logger.logDebug("BaseService::validateUnique()/ret:", { return: ret });
+    this.logger.logDebug("BaseService::validateUniqueI()/ret:", { return: ret });
     return ret;
   }
+
+  async duplicateFilter<T extends Record<string, any>>(controllerData: T, noDuplicate: string[]): Promise<Partial<T>> {
+    console.log("BaseService::duplicateFilter()/controllerData:", controllerData);
+    console.log("BaseService::duplicateFilter()/noDuplicate:", noDuplicate);
+    const filteredData = {} as Partial<T>;
+  
+    for (const field of noDuplicate) {
+      if (Object.prototype.hasOwnProperty.call(controllerData, field)) {
+        (filteredData as Record<string, any>)[field] = controllerData[field];
+      }
+    }
+  
+    return filteredData;
+  }
+  
+  
+  
 
   /**
    *
