@@ -10,25 +10,25 @@ import {
   IServiceInput,
   IUser,
 } from "../../base/IBase";
-import { CdObjModel } from "../models/cd-obj.model";
+// import { CdObjTypeModel } from "../models/cd-obj-type.model";
 import { ModuleViewModel } from "../models/module-view.model";
-import { CdObjViewModel } from "../models/cd-obj-view.model";
-import { CdObjTypeModel } from "../models/cd-obj-type.model";
+// import { CdObjTypeTypeViewModel } from "../models/cd-obj-type-view.model";
+// import { CdObjTypeModel } from "../models/cd-obj-type-type.model";
 import { UserModel } from "../../user/models/user.model";
 import {
   CdDescriptor,
-  mapDescriptorToCdObj,
+//   mapDescriptorToCdObjType,
 } from "../../cd-dev/models/dev-descriptor.model";
 import CdLogg from "../../utils/cd-logger.controller";
-import { CdObjTypeTypeService } from "./cd-obj-type.service";
+import { CdObjTypeModel } from "../models/cd-obj-type.model";
 
-export class CdObjService extends CdService {
+export class CdObjTypeTypeService extends CdService {
   b: any; // instance of BaseService
   cdToken: string;
   srvSess: SessionService;
   srvUser: UserService;
   user: IUser;
-  serviceModel: CdObjModel;
+  serviceModel: CdObjTypeModel;
   sessModel;
   moduleModel: ModuleModel;
 
@@ -36,8 +36,8 @@ export class CdObjService extends CdService {
    * create rules
    */
   cRules: any = {
-    required: ["cdObjName", "cdObjTypeGuid", "parentModuleGuid"],
-    noDuplicate: ["cdObjName", "parentModuleGuid"],
+    required: ["cdObjTypeName", "cdObjTypeGuid"],
+    noDuplicate: ["cdObjTypeName"],
   };
   uRules: any[];
   dRules: any[];
@@ -45,7 +45,7 @@ export class CdObjService extends CdService {
   constructor() {
     super();
     this.b = new BaseService();
-    this.serviceModel = new CdObjModel();
+    this.serviceModel = new CdObjTypeModel();
     this.moduleModel = new ModuleModel();
   }
 
@@ -53,15 +53,14 @@ export class CdObjService extends CdService {
   //  * {
   //         "ctx": "Sys",
   //         "m": "Moduleman",
-  //         "c": "CdObj",
+  //         "c": "CdObjType",
   //         "a": "Create",
   //         "dat": {
   //             "f_vals": [
   //                 {
   //                     "data": {
-  //                         "cdObjName": "/src/CdApi/sys/moduleman",
+  //                         "cdObjTypeName": "/src/CdApi/sys/moduleman",
   //                         "cdObjTypeGuid": "7ae902cd-5bc5-493b-a739-125f10ca0268",
-  //                         "parentModuleGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b"
   //                     }
   //                 }
   //             ],
@@ -73,26 +72,26 @@ export class CdObjService extends CdService {
   //  * @param res
   //  */
   async create(req, res) {
-    console.log("CdObjService::create()/01");
+    console.log("CdObjTypeTypeService::create()/01");
     const svSess = new SessionService();
     if (await this.validateCreate(req, res)) {
-      console.log("CdObjService::create()/02");
+      console.log("CdObjTypeTypeService::create()/02");
       await this.beforeCreate(req, res);
       const serviceInput = {
         serviceInstance: this,
-        serviceModel: CdObjModel,
+        serviceModel: CdObjTypeModel,
         serviceModelInstance: this.serviceModel,
         docName: "Create cdObj",
         dSource: 1,
       };
-      console.log("CdObjService::create()/req.post:", req.post);
+      console.log("CdObjTypeTypeService::create()/req.post:", req.post);
       const respData = await this.b.create(req, res, serviceInput);
       this.b.i.app_msg = "new cdObj created";
       this.b.setAppState(true, this.b.i, svSess.sessResp);
       this.b.cdResp.data = await respData;
       const r = await this.b.respond(req, res);
     } else {
-      console.log("CdObjService::create()/03");
+      console.log("CdObjTypeTypeService::create()/03");
       this.b.setAppState(false, this.b.i, svSess.sessResp);
       const r = await this.b.respond(req, res);
     }
@@ -102,15 +101,15 @@ export class CdObjService extends CdService {
     req,
     res,
     createIParams: CreateIParams
-  ): Promise<CdObjModel | boolean> {
+  ): Promise<CdObjTypeModel | boolean> {
     // const params = {
     //   controllerInstance: this,
-    //   model: CdObjModel,
+    //   model: CdObjTypeModel,
     // };
 
-    console.log("CdObjService::createI()/this.cRules:", this.cRules);
-    // console.log("CdObjService::createI()/params:", params);
-    console.log("CdObjService::createI()/createIParams:", createIParams);
+    console.log("CdObjTypeTypeService::createI()/this.cRules:", this.cRules);
+    // console.log("CdObjTypeTypeService::createI()/params:", params);
+    console.log("CdObjTypeTypeService::createI()/createIParams:", createIParams);
     if (await this.b.validateUniqueI(req, res, createIParams)) {
       if (await this.b.validateRequiredI(req, res, createIParams)) {
         return await this.b.createI(req, res, createIParams);
@@ -133,8 +132,8 @@ export class CdObjService extends CdService {
   async cdObjectExists(req, res, params): Promise<boolean> {
     const serviceInput: IServiceInput = {
       serviceInstance: this,
-      serviceModel: CdObjModel,
-      docName: "CdObjService::cdObjectExists",
+      serviceModel: CdObjTypeModel,
+      docName: "CdObjTypeTypeService::cdObjectExists",
       cmd: {
         action: "find",
         query: { where: params.filter },
@@ -155,169 +154,25 @@ export class CdObjService extends CdService {
   }
 
   async update(req, res) {
-    // console.log('CdObjService::update()/01');
+    // console.log('CdObjTypeTypeService::update()/01');
     let q = this.b.getQuery(req);
     q = this.beforeUpdate(q);
     const serviceInput = {
-      serviceModel: CdObjModel,
-      docName: "CdObjService::update",
+      serviceModel: CdObjTypeModel,
+      docName: "CdObjTypeTypeService::update",
       cmd: {
         action: "update",
         query: q,
       },
       dSource: 1,
     };
-    // console.log('CdObjService::update()/02')
+    // console.log('CdObjTypeTypeService::update()/02')
     this.b.update$(req, res, serviceInput).subscribe((ret) => {
       this.b.cdResp.data = ret;
       this.b.respond(req, res);
     });
   }
 
-  async syncDescriptors(req, res) {
-    console.log("CdObjService::syncDescriptors()/starting...");
-    let jData: CdDescriptor[] = this.b.getPlData(req);
-    console.log("CdObjService::syncDescriptors()/jData:", jData);
-    const q: IQuery = {
-      update: {
-        cdObjName: "",
-      },
-      where: {
-        cdObjId: -1,
-      },
-    };
-    const retArr = [];
-    const ret: CdObjTypeModel[] = await this.getCdObjTypeByName(
-      req,
-      res,
-      "descriptor"
-    );
-    const descriptorCdObjTypeGuid = ret[0].cdObjTypeGuid;
-    /**
-     * iterate thrugh all the input array
-     */
-    for (let d of jData) {
-      console.log("CdObjService::syncDescriptors()/starting main loop...");
-      const cdObjQuery: CdObjModel = mapDescriptorToCdObj(d);
-      cdObjQuery.cdObjTypeGuid = descriptorCdObjTypeGuid;
-      cdObjQuery.cdObjGuid = this.b.getGuid();
-      delete cdObjQuery.cdObjId; // remove the property cdObjId. To be set automatically by db;
-      if (d.cdObjId === -1) {
-        console.log("CdObjService::getCdObjTypeI()/found a new descriptor...");
-        cdObjQuery.parentModuleGuid = 'd3f1a14d-6fb1-468c-b627-9a098ead6d5d'; // parent to descriptors is CdDev
-        const si: IServiceInput = {
-          serviceInstance: this,
-          serviceModel: CdObjModel,
-          serviceModelInstance: this.serviceModel,
-          docName: "CdObjService::CreateI",
-          dSource: 1,
-        };
-        const createIParams: CreateIParams = {
-          serviceInput: si,
-          controllerData: cdObjQuery,
-        };
-        console.log(
-          "CdObjService::syncDescriptors()/createI()/createIParams:",
-          createIParams
-        );
-        let ret = await this.createI(req, res, createIParams);
-        console.log("CdObjService::syncDescriptors()/createI()/ret:", ret);
-        retArr.push(ret);
-      } else {
-        console.log("CdObjService::getCdObjTypeI()/found a existing descriptor...");
-        // update jDetails field
-        d.jDetails = JSON.stringify(d.jDetails);
-        q.update = { jDetails: d.jDetails };
-        q.where.cdObjId = d.cdObjId;
-        const serviceInput = {
-          serviceModel: CdObjModel,
-          docName: "CdObjService::update",
-          cmd: {
-            action: "update",
-            query: q,
-          },
-          dSource: 1,
-        };
-        const ret = await this.b.update(req, res, serviceInput);
-        retArr.push(ret);
-      }
-
-      /**
-       * If the item is a 'descriptor', create its type
-       * For example CdAppDescriptor would create a type 'CdType'
-       */
-      if (
-        (await this.isDescriptor(d)) &&
-        !(await this.cdObjTypeExists(req, res, {
-          where: { cdObjTypeName: await this.getTypeName(d) },
-        }))
-      ) {
-        console.log("CdObjService::getCdObjTypeI()/found a new cdObjType...");
-        const svCdObjType = new CdObjTypeTypeService();
-        const cdObjTypeModel = new CdObjTypeModel();
-        const newType: CdObjTypeModel = {
-          cdObjTypeName: this.getTypeName(d),
-          cdObjTypeGuid: this.b.getGuid(),
-        };
-        console.log(
-          "CdObjService::syncDescriptors()/createTypeI()/newType:",
-          newType
-        );
-        // d.cdObjName = this.getTypeName(d);
-        const si: IServiceInput = {
-          serviceInstance: svCdObjType,
-          serviceModel: CdObjTypeModel,
-          serviceModelInstance: cdObjTypeModel,
-          docName: "CdObjService::CreateCdObjTypeI",
-          dSource: 1,
-        };
-        const createIParams: CreateIParams = {
-          serviceInput: si,
-          controllerData: newType,
-        };
-        console.log(
-          "CdObjService::syncDescriptors()/createTypeI()/createIParams:",
-          createIParams
-        );
-        await svCdObjType.createI(req, res, createIParams);
-      }
-    }
-
-    console.log("CdObjService::syncDescriptors()/retArr:", retArr);
-    this.b.cdResp.data = await this.aggregateUpdateStatus(await retArr);
-    await this.b.respond(req, res);
-  }
-
-  isDescriptor(d: CdDescriptor): boolean {
-    return d.cdObjName.includes("Descriptor");
-  }
-
-  getTypeName(d: CdDescriptor): string {
-    return d.cdObjName.replace(/Descriptor$/, "");
-  }
-
-  aggregateUpdateStatus(statusArray: Array<{ affected?: number } | CdObjModel | false>) {
-    return statusArray.reduce(
-      (acc, item) => {
-        if (item === false) {
-          // Creation failed, count it as a failed record
-          acc.failedRecords++;
-        } else if ("affected" in item) {
-          // It's an update result
-          if (item.affected === 1) {
-            acc.updatedRows++;
-          } else {
-            acc.unaffectedItems++;
-          }
-        } else {
-          // It's a new record (CdObjModel)
-          acc.newRecords++;
-        }
-        return acc;
-      },
-      { updatedRows: 0, unaffectedItems: 0, newRecords: 0, failedRecords: 0 }
-    );
-  }
   
 
   /**
@@ -361,19 +216,19 @@ export class CdObjService extends CdService {
     // 1. Validate against duplication
     const params = {
       controllerInstance: this,
-      model: CdObjModel,
+      model: CdObjTypeModel,
     };
-    this.b.i.code = "CdObjService::validateCreate";
+    this.b.i.code = "CdObjTypeTypeService::validateCreate";
     let ret = false;
 
     ///////////////////////////////////////////////////////////////////
     // 2. confirm the cd_obj referenced exists
-    let pl: CdObjModel = this.b.getPlData(req);
+    let pl: CdObjTypeModel = this.b.getPlData(req);
 
     // if ('cdObjTypeGuid' in pl) {
     //     const serviceInput = {
     //         serviceModel: CdObjTypeModel,
-    //         docName: 'CdObjService::validateCreate',
+    //         docName: 'CdObjTypeTypeService::validateCreate',
     //         cmd: {
     //             action: 'find',
     //             query: { where: { cdObjTypeGuid: pl.cdObjTypeGuid } }
@@ -393,11 +248,11 @@ export class CdObjService extends CdService {
     //     this.b.err.push(this.b.i.app_msg);
     // }
     if ("cdObjTypeGuid" in pl) {
-      console.log("CdObjService::validateCreate()/01");
-      console.log("CdObjService::validateCreate()/pl:", pl);
+      console.log("CdObjTypeTypeService::validateCreate()/01");
+      console.log("CdObjTypeTypeService::validateCreate()/pl:", pl);
       const serviceInput = {
         serviceModel: CdObjTypeModel,
-        docName: "CdObjService::getcdObjType",
+        docName: "CdObjTypeTypeService::getcdObjType",
         cmd: {
           action: "find",
           query: { where: { cdObjTypeGuid: pl.cdObjTypeGuid } },
@@ -410,7 +265,7 @@ export class CdObjService extends CdService {
         serviceInput
       );
       console.log(
-        "CdObjService::validateCreate()/cdObjTypeData:",
+        "CdObjTypeTypeService::validateCreate()/cdObjTypeData:",
         cdObjTypeData
       );
       if (
@@ -420,15 +275,15 @@ export class CdObjService extends CdService {
           svSess
         )
       ) {
-        console.log("CdObjService::validateCreate()/02");
+        console.log("CdObjTypeTypeService::validateCreate()/02");
         console.log(
-          "CdObjService::validateCreate()/cdObjTypeData:",
+          "CdObjTypeTypeService::validateCreate()/cdObjTypeData:",
           cdObjTypeData
         );
         if (cdObjTypeData[0].cdObjTypeName === "user") {
-          console.log("CdObjService::validateCreate()/03");
+          console.log("CdObjTypeTypeService::validateCreate()/03");
           if ("objGuid" in pl) {
-            console.log("CdObjService::validateCreate()/04");
+            console.log("CdObjTypeTypeService::validateCreate()/04");
             ret = true;
             await this.b.setPlData(req, {
               key: "cdObjName",
@@ -445,7 +300,7 @@ export class CdObjService extends CdService {
               value: userData[0].userId,
             });
           } else {
-            console.log("CdObjService::validateCreate()/05");
+            console.log("CdObjTypeTypeService::validateCreate()/05");
             this.b.setAlertMessage(
               `if registering user type, objGuid must be provided`,
               svSess
@@ -453,22 +308,22 @@ export class CdObjService extends CdService {
           }
         }
       } else {
-        console.log("CdObjService::validateCreate()/06");
+        console.log("CdObjTypeTypeService::validateCreate()/06");
         ret = false;
         this.b.setAlertMessage(`cdObj type reference is invalid`, svSess);
       }
     } else {
-      console.log("CdObjService::validateCreate()/07");
+      console.log("CdObjTypeTypeService::validateCreate()/07");
       this.b.setAlertMessage(`parentModuleGuid is missing in payload`, svSess);
     }
 
     ///////////////////////////////////////////////////////////////////
     // 3. confirm the parent referenced exists
     if ("parentModuleGuid" in pl) {
-      console.log("CdObjService::validateCreate()/08");
+      console.log("CdObjTypeTypeService::validateCreate()/08");
       const serviceInput = {
         serviceModel: ModuleModel,
-        docName: "CdObjService::getModuleMenu$",
+        docName: "CdObjTypeTypeService::getModuleMenu$",
         cmd: {
           action: "find",
           query: { where: { moduleGuid: pl.parentModuleGuid } },
@@ -484,29 +339,29 @@ export class CdObjService extends CdService {
         key: "parentModuleId",
         value: moduleData[0].moduleId,
       });
-      console.log("CdObjService::validateCreate()/moduleData:", moduleData);
+      console.log("CdObjTypeTypeService::validateCreate()/moduleData:", moduleData);
       if (moduleData.length > 0) {
-        console.log("CdObjService::validateCreate()/09");
+        console.log("CdObjTypeTypeService::validateCreate()/09");
         ret = true;
       } else {
-        console.log("CdObjService::validateCreate()/10");
+        console.log("CdObjTypeTypeService::validateCreate()/10");
         ret = false;
         this.b.i.app_msg = `parent reference is invalid`;
         this.b.err.push(this.b.i.app_msg);
       }
     } else {
-      console.log("CdObjService::getCdObj/11");
+      console.log("CdObjTypeTypeService::getCdObjType/11");
       this.b.i.app_msg = `parentModuleGuid is missing in payload`;
       this.b.err.push(this.b.i.app_msg);
     }
 
-    console.log("CdObjService::getCdObj/111");
+    console.log("CdObjTypeTypeService::getCdObjType/111");
     console.log(
-      "CdObjService::validateCreate()/req.post",
+      "CdObjTypeTypeService::validateCreate()/req.post",
       JSON.stringify(req.post)
     );
     pl = this.b.getPlData(req);
-    console.log("CdObjService::validateCreate()/pl", JSON.stringify(pl));
+    console.log("CdObjTypeTypeService::validateCreate()/pl", JSON.stringify(pl));
     if (await this.b.validateUnique(req, res, params)) {
       if (await this.b.validateRequired(req, res, this.cRules)) {
         ret = true;
@@ -526,59 +381,23 @@ export class CdObjService extends CdService {
     }
     /////////////////////////////////////////////
 
-    console.log("CdObjService::getCdObj/13");
+    console.log("CdObjTypeTypeService::getCdObjType/13");
     if (this.b.err.length > 0) {
-      console.log("CdObjService::validateCreate()/14");
-      console.log("CdObjService::validateCreate()/this.b.err:", this.b.err);
+      console.log("CdObjTypeTypeService::validateCreate()/14");
+      console.log("CdObjTypeTypeService::validateCreate()/this.b.err:", this.b.err);
       ret = false;
     }
-    console.log("CdObjService::getCdObj/15");
-    console.log("CdObjService::getCdObj/ret:", ret);
+    console.log("CdObjTypeTypeService::getCdObjType/15");
+    console.log("CdObjTypeTypeService::getCdObjType/ret:", ret);
     return ret;
-  }
-
-  async getCdObj(req, res) {
-    const q = this.b.getQuery(req);
-    console.log("CdObjService::getCdObj/f:", q);
-    const serviceInput = {
-      serviceModel: CdObjViewModel,
-      docName: "CdObjService::getCdObj$",
-      cmd: {
-        action: "find",
-        query: q,
-      },
-      dSource: 1,
-    };
-    try {
-      this.b.read$(req, res, serviceInput).subscribe((r) => {
-        console.log("CdObjService::read$()/r:", r);
-        this.b.i.code = "CdObjController::Get";
-        const svSess = new SessionService();
-        svSess.sessResp.cd_token = req.post.dat.token;
-        svSess.sessResp.ttl = svSess.getTtl();
-        this.b.setAppState(true, this.b.i, svSess.sessResp);
-        this.b.cdResp.data = r;
-        this.b.respond(req, res);
-      });
-    } catch (e) {
-      console.log("CdObjService::read$()/e:", e);
-      this.b.err.push(e.toString());
-      const i = {
-        messages: this.b.err,
-        code: "BaseService:update",
-        app_msg: "",
-      };
-      await this.b.serviceErr(req, res, e, i.code);
-      await this.b.respond(req, res);
-    }
   }
 
   async getCdObjType(req, res) {
     const q = this.b.getQuery(req);
-    console.log("CdObjService::getCdObj/q:", q);
+    console.log("CdObjTypeTypeService::getCdObjType/f:", q);
     const serviceInput = {
       serviceModel: CdObjTypeModel,
-      docName: "CdObjService::getCdObjType$",
+      docName: "CdObjTypeTypeService::getCdObjType$",
       cmd: {
         action: "find",
         query: q,
@@ -587,8 +406,8 @@ export class CdObjService extends CdService {
     };
     try {
       this.b.read$(req, res, serviceInput).subscribe((r) => {
-        console.log("CdObjService::read$()/r:", r);
-        this.b.i.code = "CdObjController::Get";
+        console.log("CdObjTypeTypeService::read$()/r:", r);
+        this.b.i.code = "CdObjTypeController::Get";
         const svSess = new SessionService();
         svSess.sessResp.cd_token = req.post.dat.token;
         svSess.sessResp.ttl = svSess.getTtl();
@@ -597,7 +416,7 @@ export class CdObjService extends CdService {
         this.b.respond(req, res);
       });
     } catch (e) {
-      console.log("CdObjService::read$()/e:", e);
+      console.log("CdObjTypeTypeService::read$()/e:", e);
       this.b.err.push(e.toString());
       const i = {
         messages: this.b.err,
@@ -609,12 +428,48 @@ export class CdObjService extends CdService {
     }
   }
 
-  getCdObjCount(req, res) {
+  async getCdObjTypeType(req, res) {
     const q = this.b.getQuery(req);
-    console.log("CdObjService::getCdObjCount/q:", q);
+    console.log("CdObjTypeTypeService::getCdObjType/q:", q);
     const serviceInput = {
-      serviceModel: CdObjViewModel,
-      docName: "CdObjService::getCdObjCount$",
+      serviceModel: CdObjTypeModel,
+      docName: "CdObjTypeTypeService::getCdObjTypeType$",
+      cmd: {
+        action: "find",
+        query: q,
+      },
+      dSource: 1,
+    };
+    try {
+      this.b.read$(req, res, serviceInput).subscribe((r) => {
+        console.log("CdObjTypeTypeService::read$()/r:", r);
+        this.b.i.code = "CdObjTypeController::Get";
+        const svSess = new SessionService();
+        svSess.sessResp.cd_token = req.post.dat.token;
+        svSess.sessResp.ttl = svSess.getTtl();
+        this.b.setAppState(true, this.b.i, svSess.sessResp);
+        this.b.cdResp.data = r;
+        this.b.respond(req, res);
+      });
+    } catch (e) {
+      console.log("CdObjTypeTypeService::read$()/e:", e);
+      this.b.err.push(e.toString());
+      const i = {
+        messages: this.b.err,
+        code: "BaseService:update",
+        app_msg: "",
+      };
+      await this.b.serviceErr(req, res, e, i.code);
+      await this.b.respond(req, res);
+    }
+  }
+
+  getCdObjTypeCount(req, res) {
+    const q = this.b.getQuery(req);
+    console.log("CdObjTypeTypeService::getCdObjTypeCount/q:", q);
+    const serviceInput = {
+      serviceModel: CdObjTypeModel,
+      docName: "CdObjTypeTypeService::getCdObjTypeCount$",
       cmd: {
         action: "find",
         query: q,
@@ -622,7 +477,7 @@ export class CdObjService extends CdService {
       dSource: 1,
     };
     this.b.readCount$(req, res, serviceInput).subscribe((r) => {
-      this.b.i.code = "CdObjController::Get";
+      this.b.i.code = "CdObjTypeController::Get";
       const svSess = new SessionService();
       svSess.sessResp.cd_token = req.post.dat.token;
       svSess.sessResp.ttl = svSess.getTtl();
@@ -632,13 +487,13 @@ export class CdObjService extends CdService {
     });
   }
 
-  getCdObjQB(req, res) {
-    console.log("CdObjService::getCdObjQB()/1");
-    this.b.entityAdapter.registerMappingFromEntity(CdObjViewModel);
+  getCdObjTypeQB(req, res) {
+    console.log("CdObjTypeTypeService::getCdObjTypeQB()/1");
+    this.b.entityAdapter.registerMappingFromEntity(CdObjTypeModel);
     const q = this.b.getQuery(req);
     const serviceInput = {
-      serviceModel: CdObjViewModel,
-      docName: "CdObjService::getCdObjQB",
+      serviceModel: CdObjTypeModel,
+      docName: "CdObjTypeTypeService::getCdObjTypeQB",
       cmd: {
         action: "find",
         query: q,
@@ -657,12 +512,12 @@ export class CdObjService extends CdService {
     });
   }
 
-  getCdObjTypeCount(req, res) {
+  getCdObjTypeTypeCount(req, res) {
     const q = this.b.getQuery(req);
-    console.log("CdObjService::getCdObjCount/q:", q);
+    console.log("CdObjTypeTypeService::getCdObjTypeCount/q:", q);
     const serviceInput = {
-      serviceModel: CdObjViewModel,
-      docName: "CdObjService::getCdObjCount$",
+      serviceModel: CdObjTypeModel,
+      docName: "CdObjTypeTypeService::getCdObjTypeCount$",
       cmd: {
         action: "find",
         query: q,
@@ -670,7 +525,7 @@ export class CdObjService extends CdService {
       dSource: 1,
     };
     this.b.readCount$(req, res, serviceInput).subscribe((r) => {
-      this.b.i.code = "CdObjController::Get";
+      this.b.i.code = "CdObjTypeController::Get";
       const svSess = new SessionService();
       svSess.sessResp.cd_token = req.post.dat.token;
       svSess.sessResp.ttl = svSess.getTtl();
@@ -680,12 +535,12 @@ export class CdObjService extends CdService {
     });
   }
 
-  async getCdObjTypeI(req, res, q: IQuery = null): Promise<CdObjTypeModel[]> {
-    console.log("CdObjService::getCdObjTypeI()/starting...");
-    console.log("CdObjService::getCdObjTypeI/q:", q);
+  async getCdObjTypeTypeI(req, res, q: IQuery = null): Promise<CdObjTypeModel[]> {
+    console.log("CdObjTypeTypeService::getCdObjTypeTypeI()/starting...");
+    console.log("CdObjTypeTypeService::getCdObjTypeTypeI/q:", q);
     const serviceInput = {
       serviceModel: CdObjTypeModel,
-      docName: "CdObjService::getCdObjTypeI",
+      docName: "CdObjTypeTypeService::getCdObjTypeTypeI",
       cmd: {
         action: "find",
         query: q,
@@ -695,29 +550,29 @@ export class CdObjService extends CdService {
     try {
       return await this.b.read(req, res, serviceInput);
     } catch (e) {
-      console.log("CdObjService::read$()/e:", e);
+      console.log("CdObjTypeTypeService::read$()/e:", e);
       this.b.err.push(e.toString());
       const i = {
         messages: this.b.err,
-        code: "CdObjService:getCdObjTypeI",
+        code: "CdObjTypeTypeService:getCdObjTypeTypeI",
         app_msg: "",
       };
       await this.b.serviceErr(req, res, e, i.code);
     }
   }
 
-  async getCdObjTypeByName(
+  async getCdObjTypeTypeByName(
     req,
     res,
     cdObjTypeName: string
   ): Promise<CdObjTypeModel[]> {
-    return await this.getCdObjTypeI(req, res, {
+    return await this.getCdObjTypeTypeI(req, res, {
       where: { cdObjTypeName: cdObjTypeName },
     });
   }
 
   async cdObjTypeExists(req, res, q) {
-    const ret = await this.getCdObjTypeI(req, res, q);
+    const ret = await this.getCdObjTypeTypeI(req, res, q);
     if (ret.length > 0) {
       return true;
     } else {
@@ -726,28 +581,28 @@ export class CdObjService extends CdService {
   }
 
   async updateI(req, res, q): Promise<any> {
-    console.log("CdObjService::updateI()/01");
+    console.log("CdObjTypeTypeService::updateI()/01");
     // let q = this.b.getQuery(req);
     q = this.beforeUpdate(q);
     const serviceInput = {
-      serviceModel: CdObjModel,
-      docName: "CdObjService::updateI",
+      serviceModel: CdObjTypeModel,
+      docName: "CdObjTypeTypeService::updateI",
       cmd: {
         action: "update",
         query: q,
       },
       dSource: 1,
     };
-    console.log("CdObjService::update()/02");
+    console.log("CdObjTypeTypeService::update()/02");
     return this.b.update(req, res, serviceInput);
   }
 
   delete(req, res) {
     const q = this.b.getQuery(req);
-    console.log("CdObjService::delete()/q:", q);
+    console.log("CdObjTypeTypeService::delete()/q:", q);
     const serviceInput = {
-      serviceModel: CdObjModel,
-      docName: "CdObjService::delete",
+      serviceModel: CdObjTypeModel,
+      docName: "CdObjTypeTypeService::delete",
       cmd: {
         action: "delete",
         query: q,

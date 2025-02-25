@@ -1,3 +1,4 @@
+// <proj-directory>/src/config.ts
 import mysql from 'mysql2';
 import * as fs from 'fs';
 import * as dotenv from 'dotenv';

@@ -16,7 +16,7 @@ export interface TypeDetails {
   isPrimitive?: boolean;
 }
 
-export interface CdDescriptors {
+export interface CdDescriptor {
   cdObjId: number;
   cdObjName: string;
   cdObjGuid?: string;
@@ -24,9 +24,9 @@ export interface CdDescriptors {
 }
 
 /**
- * Utility function to convert CdObjModel into CdDescriptors
+ * Utility function to convert CdObjModel into CdDescriptor
  */
-export function mapCdObjToDescriptor(cdObj: CdObjModel): CdDescriptors {
+export function mapCdObjToDescriptor(cdObj: CdObjModel): CdDescriptor {
   return {
     cdObjId: cdObj.cdObjId!,
     cdObjName: cdObj.cdObjName,
@@ -38,9 +38,9 @@ export function mapCdObjToDescriptor(cdObj: CdObjModel): CdDescriptors {
 }
 
 /**
- * Utility function to convert CdDescriptors into CdObjModel
+ * Utility function to convert CdDescriptor into CdObjModel
  */
-export function mapDescriptorToCdObj(descriptor: CdDescriptors): CdObjModel {
+export function mapDescriptorToCdObj(descriptor: CdDescriptor): CdObjModel {
   console.log("DevDescriptorModel::mapDescriptorToCdObj()/starting...");
   const cdObj = new CdObjModel();
   cdObj.cdObjId = descriptor.cdObjId;

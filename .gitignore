@@ -44,3 +44,8 @@ package-lock.json
 # app directory has independent repositories
 /src/CdApi/app/
 
+# log files
+corpdesk-*.log
+# archived log files
+corpdesk-*.log.gz
+
