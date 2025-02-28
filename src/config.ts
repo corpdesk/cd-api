@@ -206,7 +206,7 @@ export default {
     sqlite: sqliteConfig,
     push: {
         mode: process.env.PUSH_MODE,
-        serverHost: 'https://146.190.157.42',
+        serverHost: 'https://146.190.165.51',
         serverPort: process.env.SIO_PORT,
         redisHost: process.env.REDIS_HOST,
         redisPort: process.env.REDIS_PORT,
