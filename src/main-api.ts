@@ -33,7 +33,7 @@ import pusher from './CdApi/sys/cd-push/services/pusher';
 
 export class Main {
     logger: Logging;
-    allowedOrigins = ["https://asdap.net"];
+    allowedOrigins = config.Cors.options.origin;
     constructor() {
         this.logger = new Logging();
     }

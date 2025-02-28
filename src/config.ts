@@ -114,6 +114,8 @@ export async function sqliteConfig(connName): Promise<any> {
     };
 }
 
+const API_HOST_NAME=process.env.API_HOST_NAME;
+const API_HOST_IP=process.env.API_HOST_IP;
 // http port for runnint webroot without SSL. Used by letsencrypt validation and automation
 const HTTP_PORT = process.env.HTTP_PORT;
 // control the server to serve http or not. Eg cd-api should be able to serve http but sio should not.
@@ -139,6 +141,8 @@ export default {
     secure: process.env.SECURE,
     // httpPort: HTTP_PORT,
     http: {
+        hostName: API_HOST_NAME,
+        hostIp: API_HOST_IP,
         enabled: HTTP_ENABLED,
         port: HTTP_PORT,
         webroot: HTTP_WEBROOT
@@ -184,19 +188,16 @@ export default {
             credentials: true,
             methods: 'GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE',
             origin: [
-                'https://146.190.165.51',
-                'https://localhost:443',
-                'https://127.0.0.1:443',
-                'http://localhost:80',
-                'http://127.0.0.1:80',
-                'https://asdap.africa',
-                'https://www.asdap.africa',
-                'https://cd-user.asdap.africa',
-                'https://cd-comm.asdap.africa',
-                'https://cd-moduleman.asdap.africa',
-                // 'https://146.190.157.42:4407',
-                // 'https://146.190.157.42:4402',
-                // 'https://146.190.157.42:4401',
+                `https://${API_HOST_IP}`,
+                `https://localhost:443`,
+                `https://127.0.0.1:443`,
+                `http://localhost:80`,
+                `http://127.0.0.1:80`,
+                `https://${API_HOST_NAME}`,
+                `https://www.${API_HOST_NAME}`,
+                `https://cd-user.${API_HOST_NAME}`,
+                `https://cd-comm.${API_HOST_NAME}`,
+                `https://cd-moduleman.${API_HOST_NAME}`,
             ],
             preflightContinue: false,
         }

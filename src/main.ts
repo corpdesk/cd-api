@@ -35,7 +35,7 @@ import { getRedisClient } from './CdApi/sys/base/redis-client';
 
 export class Main {
     logger: Logging;
-    allowedOrigins = ["https://asdap.net"];
+    allowedOrigins = [config.Cors.options.origin[5]];
     constructor() {
         this.logger = new Logging();
     }
@@ -73,7 +73,7 @@ export class Main {
 
         ////////////////////////////////////////////////////////////////////////////////
         const corsOptions = {
-            origin: 'https://asdap.net', // Replace with your client URL
+            origin: config.Cors.options.origin[5], // Replace with your client URL
             // origin: 'http://localhost', // for localhost teting
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
             allowedHeaders: ['Content-Type', 'Authorization'],
@@ -119,7 +119,7 @@ export class Main {
             /////////////////////////////////////////////////////
             const io = new Server(httpsServer, {
                 cors: {
-                    origin: 'https://asdap.net',
+                    origin: config.Cors.options.origin[5],
                     methods: ['GET', 'POST'],
                     credentials: true
                 }
