@@ -1,24 +1,34 @@
-import { BaseService } from '../../base/base.service';
-import { NodemailerService } from './nodemailerservice';
+
+import config from "../../../../config";
+import { BaseService } from "../../base/base.service";
+import { NodemailerService } from "./nodemailerservice";
+import { ZeptoMailService } from "./zeptomai.service";
 
 export class MailService {
-    b: BaseService;
-    constructor() {
-        this.b = new BaseService();
-    }
+  b: BaseService;
+  constructor() {
+    this.b = new BaseService();
+  }
 
-    async sendEmailNotif(req, res, msg, recepientUser) {
-        console.log(`starting UserController::sendEmailNotif(req, res)`);
-        // const mailService = 'NodemailerService';
-        // const cPath = `../comm/services/${mailService.toLowerCase()}`; // relative to BaseService because it is called from there
-        // const clsCtx = {
-        //     path: cPath,
-        //     clsName: mailService,
-        //     action: 'sendMail'
-        // }
-        // console.log(`clsCtx: ${JSON.stringify(clsCtx)}`);
-        // const ret = await this.b.resolveCls(req, res, clsCtx);
-        const nm = new NodemailerService()
-        nm.sendMail(req, res, msg, recepientUser);
+  async sendEmailNotif(req, res, msg, recepientUser) {
+    console.log(`starting UserController::sendEmailNotif(req, res)`);
+    let ret;
+    switch (await this.getMailInterface()) {
+      case "nodemailer":
+        const nm = new NodemailerService();
+        ret = await nm.sendMail(req, res, msg, recepientUser);
+        break;
+      case "zeptomail":
+        const zm = new ZeptoMailService();
+        ret = await zm.sendMail(req, res, msg, recepientUser);
+        break;
     }
+    return ret;
+  }
+
+  async getMailInterface(): Promise<string> {
+    const activeInterface = config.emailInterface.find((service) => service.active);
+    return activeInterface ? activeInterface.name : "nodemailer"; // Default to nodemailer if none is active
+  }
+  
 }

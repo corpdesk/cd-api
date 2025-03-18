@@ -1,4 +1,4 @@
-import config from '../../../config';
+import config, { sqliteConfig } from '../../../config';
 import {
     createConnection,
     ConnectionOptions,
@@ -11,7 +11,7 @@ const CONNECTION_NAME = process.env.SQLITE_NAME;
 
 export class ConnectSqlite {
     private connectionManager: ConnectionManager;
-    connOptions = config.sqlite as ConnectionOptions;
+    connOptions = config.sqlite as unknown as ConnectionOptions;
 
     constructor() {
         this.connectionManager = getConnectionManager();
@@ -36,7 +36,7 @@ export class ConnectSqlite {
     }
 
     async setConnEntity(model){
-        await this.connOptions.entities.push(model);
+        await sqliteConfig.entities.push(model);
     }
 
     handleError(e){

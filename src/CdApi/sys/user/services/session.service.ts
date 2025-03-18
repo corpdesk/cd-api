@@ -166,30 +166,6 @@ export class SessionService {
 
     }
 
-    // async getSessionDataExt_old(req, res): Promise<ISessionDataExt> {
-    //     const svUser = new UserService();
-    //     const svConsumer = new ConsumerService();
-    //     // const sessionData = await this.getSession(req, res);
-    //     this.currentSessData = await this.getSession(req, res);
-    //     console.log('SessionService::getSessionDataExt()/this.currentSessData:', this.currentSessData)
-    //     const consumerGuid = this.currentSessData[0].consumerGuid;
-    //     const cuid = this.currentSessData[0].currentUserId;
-    //     console.log('SessionService::getSessionDataExt()/cuid:', cuid)
-    //     this.currentUserData = await svUser.getUserByID(req, res, cuid);
-    //     console.log('SessionService::getSessionDataExt()/consumerGuid:', consumerGuid)
-    //     console.log('SessionService::getSessionDataExt()/consumerGuid:', consumerGuid)
-    //     this.currentConsumerData = await svConsumer.getConsumerI(req, res, {where:{consumerGuid:consumerGuid}});
-    //     console.log('SessionService::getSessionDataExt()/this.currentConsumerData:', this.currentConsumerData)
-    //     this.currentCompanyData = await svConsumer.getCompanyData(req, res, consumerGuid);
-    //     console.log('SessionService::getSessionDataExt()/this.currentCompanyData:', this.currentCompanyData)
-    //     return {
-    //         currentUser: this.currentUserData[0],
-    //         currentSession: this.currentSessData[0],
-    //         currentConsumer: this.currentConsumerData[0],
-    //         currentCompany: this.currentCompanyData[0],
-    //     }
-    // }
-
     async getSessionDataExt(req, res, ignoreCache: boolean = null): Promise<ISessionDataExt> {
         console.log("SessionService::getSessionDataExt()/01")
         let cacheKey

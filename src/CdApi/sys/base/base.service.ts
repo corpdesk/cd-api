@@ -38,7 +38,7 @@ import { DocModel } from "../moduleman/models/doc.model";
 import { SessionService } from "../user/services/session.service";
 import { SessionModel } from "../user/models/session.model";
 import { DocService } from "../moduleman/services/doc.service";
-import config, { AppDataSource, sqliteConfig } from "../../../config";
+import config, { AppDataSource, sqliteConfigFx } from "../../../config";
 import { ConnectionTest } from "./connection-test";
 // import { createConnection } from 'typeorm';
 import { MysqlDataSource } from "./data-source";
@@ -144,7 +144,7 @@ export class BaseService {
   }
 
   async setSLConn(i) {
-    const slConfig: ConnectionOptions = await sqliteConfig(
+    const slConfig: ConnectionOptions = await sqliteConfigFx(
       `sqlite${i.toString()}`
     );
     try {
@@ -163,7 +163,7 @@ export class BaseService {
 
   async connectDatabase(i: number = 1): Promise<Connection> {
     this.logger.logInfo("connectDatabase()/01");
-    const opts: ConnectionOptions = await sqliteConfig(`sqlite${i.toString()}`);
+    const opts: ConnectionOptions = await sqliteConfigFx(`sqlite${i.toString()}`);
     let connection: Connection | undefined;
     try {
       this.logger.logInfo("connectDatabase()/02");
@@ -386,7 +386,11 @@ export class BaseService {
     if (!ctx || !m || !c || !a) {
       this.setInvalidRequest(req, res, "BaseService:noTocken:01");
     }
-    if (m === "User" && (a === "Login" || a === "Register")) {
+
+    /**
+     * conditions that are allowed without token requirement
+     */
+    if (m === "User" && (a === "Login" || a === "Register" || a === "ActivateUser")) {
       this.logger.logInfo("BaseService::noToken()/02");
       if (m === "User" && a === "Register") {
         this.logger.logInfo("BaseService::noToken()/03");
@@ -1230,10 +1234,15 @@ export class BaseService {
   
 
   /**
-   *
+   * 1. create new doc
+   * 2. use docId to complete create
+   * 3. for any error, save the error using serviceErr()
+   *    process is expected to return the encountered errors back to requesting entity
+   * 4. Returning data is encpsulated in corpdesk http request object this.cdResp.
+   * 
    * used where create is called remotely
-   * Note that both create() and createI(), are trailed with
-   * doc data, with dates, user and other application information
+   * Note that both create() and createI(), are processed together with
+   * doc data: containing dates, user and other application information
    * used in document tracking
    * @param req
    * @param res
@@ -1241,43 +1250,30 @@ export class BaseService {
    * @returns
    */
   async create(req, res, serviceInput: IServiceInput) {
-    this.logger.logDebug("BaseService::create()/01");
+    /**
+     * Initialize the repo
+     */
     await this.init(req, res);
     this.setRepo(serviceInput);
+
+    /**
+     * Doc is the component that saves meta data of create tranaction
+     * Create a Doc associated with this insertion
+     */
     let newDocData;
     try {
-      this.logger.logDebug("BaseService::create()/02");
-      this.logger.logDebug(
-        "BaseService::create()/serviceInput0:",
-        serviceInput
-      );
-      this.logger.logDebug("BaseService::create()/021");
       newDocData = await this.saveDoc(req, res, serviceInput);
-      this.logger.logDebug("BaseService::create()/022/newDocData:", newDocData);
     } catch (e) {
-      this.logger.logDebug("BaseService::create()/03:Error", e);
       this.serviceErr(req, res, e, "BaseService:create/savDoc");
     }
+
+    /**
+     * pass this.repo to serviceRepository
+     */
     let serviceRepository = null;
     try {
-      this.logger.logDebug("BaseService::create()/04");
-      this.logger.logDebug(
-        "BaseService::create()/serviceInput1:",
-        serviceInput
-      );
-      // serviceRepository = await getConnection().getRepository(serviceInput.serviceModel);
-      this.logger.logDebug(
-        "BaseService::create()/repo/model:",
-        serviceInput.serviceModel
-      );
-      // serviceRepository = await this.repo(req, res, serviceInput.serviceModel)
       serviceRepository = await this.repo;
     } catch (e) {
-      this.logger.logDebug(
-        "BaseService::create()/serviceInput2:",
-        serviceInput
-      );
-      this.logger.logDebug("BaseService::create()/05");
       this.err.push(e.toString());
       const i = {
         messages: this.err,
@@ -1288,27 +1284,19 @@ export class BaseService {
       return this.cdResp;
     }
 
+
+    /**
+     * use the Doc data to create a new object based on the model
+     */
     try {
-      this.logger.logDebug("BaseService::create()/06");
       let modelInstance = serviceInput.serviceModelInstance;
       if ("dSource" in serviceInput) {
-        console.log("BaseService::create()/07");
         if (serviceInput.dSource === 1) {
-          // data source is provided by the req...data.
-          // req.post.dat.f_vals[0].data.doc_id = await newDocData.docId;
-          this.logger.logDebug("BaseService::create()/08");
-          this.logger.logDebug("BaseService::create()/newDocData:", newDocData);
           await this.setPlData(req, {
             key: "docId",
             value: await newDocData.docId,
           }); // set docId
-          this.logger.logDebug("BaseService::create()/09");
           const serviceData = await this.getServiceData(req, serviceInput);
-          this.logger.logDebug("BaseService::create()/10");
-          this.logger.logDebug(
-            "BaseService::create()/serviceData:",
-            serviceData
-          );
           modelInstance = await this.setEntity(
             req,
             res,
@@ -1318,12 +1306,8 @@ export class BaseService {
           this.logger.logDebug("BaseService::create()/11");
           return await serviceRepository.save(await modelInstance);
         }
-        this.logger.logDebug("BaseService::create()/12");
       }
     } catch (e) {
-      this.logger.logDebug("BaseService::create()/13");
-      this.err.push(e.toString());
-      this.logger.logDebug("BaseService::create()/Error:", e.toString());
       const i = {
         messages: this.err,
         code: "BaseService:create",
@@ -1331,7 +1315,6 @@ export class BaseService {
       };
       await this.setAppState(false, i, null);
       await this.serviceErr(req, res, e, "BaseService:create");
-      // return this.cdResp;
     }
   }
 
@@ -3108,27 +3091,8 @@ export class BaseService {
   /////////////////////
 
   async setRepo(serviceInput: IServiceInput) {
-    // console.log('BaseService::setRepo()/serviceInput:', serviceInput)
-    // let m = serviceInput.modelName.replace('Model', '');
-    // m = m.toLowerCase();
-    // let modulePath = `../${m}/models/${m}.model`;
-    // console.log('BaseService::setRepo()/modulePath:', modulePath)
-    // const cdModule = await import(modulePath);
-    // // const cdModuleInstance = new cdModule.default()
-    // // console.log('BaseService::setRepo()/cdModuleInstance:', cdModuleInstance)
-    // // const eCls = eImport[eImport];
-    // // const cls = new eCls();
-    // this.repo = await MysqlDataSource.getRepository(UserModel)
-    ////////////////////////////////////////
     const AppDataSource = await getDataSource();
     this.repo = AppDataSource.getRepository(serviceInput.serviceModel);
-    /////////////////////////////////////////
-    // if(this.ds){
-    //     this.repo = this.ds.getRepository(serviceInput.serviceModel);
-    // } else {
-    //     this.ds = await AppDataSource.initialize();
-    //     this.repo = this.ds.getRepository(serviceInput.serviceModel);
-    // }
   }
 
   async all(request: Request, response: Response, next: NextFunction) {

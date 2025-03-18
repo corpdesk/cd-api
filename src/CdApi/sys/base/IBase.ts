@@ -8,6 +8,7 @@ import { IUserProfile, UserModel } from '../user/models/user.model';
 import { SessionModel } from '../user/models/session.model';
 import { ConsumerModel } from '../moduleman/models/consumer.model';
 import { CompanyModel } from '../moduleman/models/company.model';
+import { DataSource } from 'typeorm';
 
 
 /**
@@ -253,6 +254,8 @@ export interface IQbInput {
     skip?: number;
 }
 
+
+
 export const CDOBJ_TYPE_USER = 9
 export const CDOBJ_TYPE_GROUP = 10
 
@@ -395,27 +398,20 @@ export interface PushEvent {
 }
 
 export interface IServiceInput {
-    primaryKey?: string;
-    serviceInstance?: any;
-    serviceModel: any;
+    primaryKey?: string; // primary key of the subject model
+    serviceInstance?: any; // handle of the subject service
+    serviceModel: any; // subject model
     mapping?: any;
-    serviceModelInstance?: any;
+    serviceModelInstance?: any; // instance of subject model
     docName?: string;
     cmd?: Cmd;
     data?: any;
-    dSource?: number;
+    dSource?: number | DataSource;
     extraInfo?: boolean;
     modelName?: string;
     modelPath?: string;
     fetchInput?: IFetchInput;
 }
-
-export interface Cmd {
-    action?: string;
-    query: IQuery | IQbInput;
-}
-
-
 
 export interface IFetchInput{
     url: string;
@@ -428,6 +424,11 @@ export interface IFetchInput{
             'X-Parse-REST-API-Key'?:string;
         }
     }
+}
+
+export interface Cmd {
+    action?: string;
+    query: IQuery | IQbInput;
 }
 
 export interface IDoc {

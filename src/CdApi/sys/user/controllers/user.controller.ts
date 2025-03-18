@@ -79,6 +79,35 @@ export class UserController extends CdController {
         }
     }
 
+    /**
+     * {
+            "ctx": "Sys",
+            "m": "User",
+            "c": "User",
+            "a": "ActivateUser",
+            "dat": {
+                "f_vals": [
+                    {
+                        "data":{
+                            "activationKey": "xxx"
+                        }
+                    }
+                ],
+                "token": ""
+            },
+            "args": {}
+        }
+     * @param req
+     * @param res
+     */
+    async ActivateUser(req, res) {
+        try {
+            await this.svUser.activateUser(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'UserService:Register');
+        }
+    }
+
 
 
     // {
