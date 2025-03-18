@@ -50,7 +50,7 @@ export const AppDataSource = new DataSource({
 const mysqlConfig: DataSourceOptions = {
   name: "default",
   type: "mysql",
-  port: process.env.DB_MS_PORT,
+  port: parseInt(process.env.DB_MS_PORT || "3306", 10), // Ensure port is a number,
   host: process.env.DB_MS_HOST,
   username: process.env.DB_MS_USER,
   database: process.env.DB_MS_NAME,
