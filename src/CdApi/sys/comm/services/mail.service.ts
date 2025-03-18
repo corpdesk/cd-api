@@ -15,10 +15,12 @@ export class MailService {
     let ret;
     switch (await this.getMailInterface()) {
       case "nodemailer":
+        console.log(`UserController::sendEmailNotif()/using nodemailer`);
         const nm = new NodemailerService();
         ret = await nm.sendMail(req, res, msg, recepientUser);
         break;
       case "zeptomail":
+        console.log(`UserController::sendEmailNotif()/using zeptomail`);
         const zm = new ZeptoMailService();
         ret = await zm.sendMail(req, res, msg, recepientUser);
         break;
@@ -28,6 +30,7 @@ export class MailService {
 
   async getMailInterface(): Promise<string> {
     const activeInterface = config.emailInterface.find((service) => service.active);
+    console.log(`UserController::getMailInterface()/activeInterface: ${JSON.stringify(activeInterface)}`);
     return activeInterface ? activeInterface.name : "nodemailer"; // Default to nodemailer if none is active
   }
   
