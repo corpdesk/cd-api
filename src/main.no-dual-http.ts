@@ -26,7 +26,7 @@ import pusher from './CdApi/sys/cd-push/services/pusher';
 
 export class Main {
     logger: Logging;
-    allowedOrigins = ["https://asdap.net"];
+    allowedOrigins = ["https://asdap.africa"];
 
     constructor() {
         this.logger = new Logging();
@@ -56,7 +56,7 @@ export class Main {
 
         // CORS configuration
         const corsOptions = {
-            origin: 'https://asdap.net',
+            origin: 'https://asdap.africa',
             // origin: 'http://localhost',
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
             allowedHeaders: ['Content-Type', 'Authorization'],
@@ -94,7 +94,7 @@ export class Main {
 
             const io = new Server(httpsServer, {
                 cors: {
-                    origin: 'https://asdap.net',
+                    origin: 'https://asdap.africa',
                     methods: ['GET', 'POST'],
                     credentials: true
                 }

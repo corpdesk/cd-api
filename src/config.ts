@@ -293,7 +293,7 @@ export default {
       },
       {
         port: 6381,
-        host: "146.190.157.42",
+        host: "146.190.165.51",
       },
     ],
     /**
@@ -302,7 +302,7 @@ export default {
     sentinalOptions: {
       sentinels: [
         { host: process.env.REDIS_HOST, port: Number(process.env.REDIS_PORT) },
-        { host: "asdap.net", port: Number(process.env.REDIS_PORT) },
+        { host: "asdap.africa", port: Number(process.env.REDIS_PORT) },
       ],
       name: "master01",
     },

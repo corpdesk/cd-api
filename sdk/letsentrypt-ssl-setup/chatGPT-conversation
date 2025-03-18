@@ -535,7 +535,7 @@ emp-12@emp-12 ~> curl http://cd-api.co.ke/.well-known/acme-challenge/test-file -
 > 
 < HTTP/1.1 200 OK
 < X-Powered-By: Express
-< Access-Control-Allow-Origin: https://asdap.net
+< Access-Control-Allow-Origin: https://asdap.africa
 < Vary: Origin
 < Access-Control-Allow-Credentials: true
 < Accept-Ranges: bytes

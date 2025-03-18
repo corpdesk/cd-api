@@ -68,7 +68,7 @@ export class Main {
 
         ////////////////////////////////////////////////////////////////////////////////
         const corsOptions = {
-            origin: 'https://asdap.net', // Replace with your client URL
+            origin: 'https://asdap.africa', // Replace with your client URL
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
             allowedHeaders: ['Content-Type', 'Authorization'],
             credentials: true
@@ -103,7 +103,7 @@ export class Main {
             /////////////////////////////////////////////////////
             const io = new Server(httpServer, {
                 cors: {
-                    origin: 'https://asdap.net',
+                    origin: 'https://asdap.africa',
                     methods: ['GET', 'POST'],
                     credentials: true
                 }
