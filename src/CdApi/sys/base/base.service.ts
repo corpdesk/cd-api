@@ -101,22 +101,29 @@ export class BaseService {
 
   async init(req, res) {
     this.logger.logInfo("BaseService::init()/01:");
-    if (!this.db) {
-      const db = await new Database();
-      // client expected to input the required models
-      this.models.forEach(async (model) => {
-        this.logger.logInfo("BaseService::init()/forEach/model:", model);
-        await db.setConnEntity(model);
-      });
-      await db.getConnection();
-      // console.log("BaseService::init()/this.cuid1:", this.cuid)
-      // if (this.cuid > 1000) {
-      //     console.log("BaseService::init()/this.cuid2:", this.cuid)
-      //     const svSess = new SessionService();
-      //     this.sessDataExt = await svSess.getSessionDataExt(req, res);
-      // }
+    try{
+      if (!this.db) {
+        const db = await new Database();
+        // client expected to input the required models
+        this.models.forEach(async (model) => {
+          this.logger.logInfo("BaseService::init()/forEach/model:", model);
+          await db.setConnEntity(model);
+        });
+        await db.getConnection();
+        // console.log("BaseService::init()/this.cuid1:", this.cuid)
+        // if (this.cuid > 1000) {
+        //     console.log("BaseService::init()/this.cuid2:", this.cuid)
+        //     const svSess = new SessionService();
+        //     this.sessDataExt = await svSess.getSessionDataExt(req, res);
+        // }
+      }
+      this.logger.logInfo("BaseService::init()/this.models:", this.models);
+    } catch(e){
+      this.logger.logInfo("BaseService::init()/02:");
+      this.logger.logInfo(`BaseService::init() failed:${(e as Error).message}`);
+      this.err.push(`BaseService::init() failed:${(e as Error).message}`)
     }
-    this.logger.logInfo("BaseService::init()/this.models:", this.models);
+    
   }
 
   async initSqlite(req, res) {

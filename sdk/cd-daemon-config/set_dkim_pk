@@ -1,0 +1,7 @@
+devops@asdap-droplet ~/cd-api (main) [1]> nano ~/.ssh/dkim-empservices-01-private.key
+devops@asdap-droplet ~/cd-api (main)> sudo nano ~/.ssh/dkim-empservices-01-private.key
+devops@asdap-droplet ~/cd-api (main)> mkdir ~/.ssh
+devops@asdap-droplet ~/cd-api (main)> nano ~/.ssh/dkim-empservices-01-private.key
+devops@asdap-droplet ~/cd-api (main)> chmod 600 ~/.ssh/dkim-empservices-01-private.key
+devops@asdap-droplet ~/cd-api (main)> chmod 700 ~/.ssh
+devops@asdap-droplet ~/cd-api (main)> chown -R devops:devops ~/.ssh

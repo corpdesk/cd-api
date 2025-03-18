@@ -8,7 +8,7 @@ import {
     Connection
 } from 'typeorm';
 
-const CONNECTION_NAME = process.env.DB_CONN_NAME;
+const CONNECTION_NAME = process.env.DB_MS_CONN_NAME;
 
 export class Database {
     private connectionManager: ConnectionManager;
