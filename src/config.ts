@@ -47,7 +47,7 @@ export const AppDataSource = new DataSource({
   ],
 });
 
-const mysqlConfig = {
+const mysqlConfig: DataSourceOptions = {
   name: "default",
   type: "mysql",
   port: process.env.DB_MS_PORT,
