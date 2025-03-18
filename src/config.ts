@@ -230,11 +230,11 @@ export default {
   emailInterface: [
     {
       name: "zeptomail",
-      active: false,
+      active: true,
     },
     {
       name: "nodemailer",
-      active: true,
+      active: false,
     },
   ],
   back4app: {
