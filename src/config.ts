@@ -47,47 +47,47 @@ export const AppDataSource = new DataSource({
   ],
 });
 
-// const mysqlConfig = {
-//   name: "default",
-//   type: "mysql",
-//   port: process.env.DB_MS_PORT,
-//   host: process.env.DB_MS_HOST,
-//   username: process.env.DB_MS_USER,
-//   database: process.env.DB_MS_NAME,
-//   password: process.env.DB_MS_PWD,
-//   // keepConnectionAlive: true,
-//   entities: ENTITIES,
-//   /**
-//    * LOGGING OPTIONS
-//    * query - logs all queries.
-//    * error - logs all failed queries and errors.
-//    * schema - logs the schema build process.
-//    * warn - logs internal orm warnings.
-//    * info - logs internal orm informative messages.
-//    * log - logs internal orm log messages.
-//    */
-//   // logging: [
-//   //     'query',
-//   //     // 'error',
-//   //     // 'schema',
-//   //     // 'warn',
-//   //     // 'info',
-//   //     // 'log'
-//   // ],
-//   logging: ["query", "error", "warn", "log"],
-//   // logging: "all"
-// };
-const mysqlConfig: DataSourceOptions = {
+const mysqlConfig = {
   name: "default",
-  type: "mysql", // Ensures TypeORM understands it's MySQL and not Aurora MySQL
-  port: parseInt(process.env.DB_MS_PORT || "3306", 10), // Ensure port is a number
-  host: process.env.DB_HOST || "localhost", // Provide defaults if undefined
-  username: process.env.DB_MS_USER || "root",
-  password: process.env.DB_MS_PWD || "",
-  database: process.env.DB_MS_NAME || "test",
+  type: "mysql",
+  port: process.env.DB_MS_PORT,
+  host: process.env.DB_MS_HOST,
+  username: process.env.DB_MS_USER,
+  database: process.env.DB_MS_NAME,
+  password: process.env.DB_MS_PWD,
+  // keepConnectionAlive: true,
   entities: ENTITIES,
+  /**
+   * LOGGING OPTIONS
+   * query - logs all queries.
+   * error - logs all failed queries and errors.
+   * schema - logs the schema build process.
+   * warn - logs internal orm warnings.
+   * info - logs internal orm informative messages.
+   * log - logs internal orm log messages.
+   */
+  // logging: [
+  //     'query',
+  //     // 'error',
+  //     // 'schema',
+  //     // 'warn',
+  //     // 'info',
+  //     // 'log'
+  // ],
   logging: ["query", "error", "warn", "log"],
+  // logging: "all"
 };
+// const mysqlConfig: DataSourceOptions = {
+//   name: "default",
+//   type: "mysql", // Ensures TypeORM understands it's MySQL and not Aurora MySQL
+//   port: parseInt(process.env.DB_MS_PORT || "3306", 10), // Ensure port is a number
+//   host: process.env.DB_MS_HOST || "localhost", // Provide defaults if undefined
+//   username: process.env.DB_MS_USER || "root",
+//   password: process.env.DB_MS_PWD || "",
+//   database: process.env.DB_MS_NAME || "test",
+//   entities: ENTITIES,
+//   logging: ["query", "error", "warn", "log"],
+// };
 
 const mysqlConfig2 = {
   type: "mysql",
