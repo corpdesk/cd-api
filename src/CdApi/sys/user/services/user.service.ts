@@ -234,7 +234,7 @@ export class UserService extends CdService {
   async activateUser(req, res) {
     try {
       const pl: UserModel = this.b.getPlData(req);
-      if (await this.validateActivationKey(req, res, pl.activationKey)) {
+      if (await this.validateActivationKey(req, res, pl)) {
         /**
          * update the user to active state
          */
@@ -255,14 +255,28 @@ export class UserService extends CdService {
           },
           dSource: 1,
         };
-        const ret = await this.updateI(req, res, serviceInput);
+        const retUpdate = await this.updateI(req, res, serviceInput);
         /**
-         * if update of records is succesfull, respond with 'activation is successfull'
+         * if update of records is succesfull, get user data'
          */
-        this.b.cdResp.data = ret;
-        this.b.cdResp.app_state.success = true;
-        this.b.i.app_msg = `Your account is activated!`;
-        const r = await this.b.respond(req, res);
+        if (retUpdate.affected > 0) {
+          const ret = await this.getUser(req, res, {
+            where: { activationKey: pl.activationKey },
+          });
+        } else {
+          const i = {
+            messages: this.b.err,
+            code: "UserService:create",
+            app_msg: "There was an error activating your account",
+          };
+          await this.b.setAppState(false, i, null);
+          const r = await this.b.respond(req, res);
+        }
+
+        // this.b.cdResp.data = ret;
+        // this.b.cdResp.app_state.success = true;
+        // this.b.i.app_msg = `Your account is activated!`;
+        // const r = await this.b.respond(req, res);
       } else {
         /**
          * respond with invalid key message
@@ -290,10 +304,12 @@ export class UserService extends CdService {
     }
   }
 
-  async validateActivationKey(req, res, ak: string): Promise<boolean> {
+  async validateActivationKey(req, res, user: UserModel): Promise<boolean> {
     let ret = false;
     const users: UserModel[] = await this.getUserI(req, res, {
-      where: { activationKey: ak },
+      where: {
+        activationKey: user.activationKey,
+      },
     });
     console.log(
       `UserService::validateActivationKey()/users:${JSON.stringify(users)}`

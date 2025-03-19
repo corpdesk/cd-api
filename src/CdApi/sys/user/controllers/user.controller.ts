@@ -81,22 +81,24 @@ export class UserController extends CdController {
 
     /**
      * {
-            "ctx": "Sys",
-            "m": "User",
-            "c": "User",
-            "a": "ActivateUser",
-            "dat": {
-                "f_vals": [
-                    {
-                        "data":{
-                            "activationKey": "xxx"
-                        }
-                    }
-                ],
-                "token": ""
-            },
-            "args": {}
-        }
+          "ctx": "Sys",
+          "m": "User",
+          "c": "User",
+          "a": "ActivateUser",
+          "dat": {
+              "f_vals": [
+                  {
+                      "data": {
+                          "activationKey": "459bc3d0-c10e-4264-9e37-5175c379b620"
+                          "userId": 13,
+                          "sid": 23
+                      }
+                  }
+              ],
+              "token": "mT6blaIfqWhzNXQLG8ksVbc1VodSxRZ8lu5cMgda"
+          },
+          "args": null
+      }
      * @param req
      * @param res
      */
