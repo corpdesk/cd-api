@@ -98,31 +98,31 @@ export class ConsumerResourceController {
         }
     }
 
-    // // /** Pageable request:
-    // {
-    //     "ctx": "Sys",
-    //     "m": "Moduleman",
-    //     "c": "ConsumerResource",
-    //     "a": "GetCount",
-    //     "dat": {
-    //         "f_vals": [
-    //             {
-    //                 "query": {
-    //                     "select": [
-    //                         "consumerResourceName",
-    //                         "consumerResourceGuid"
-    //                     ],
-    //                     "where": {},
-    //                     "take": 5,
-    //                     "skip": 0
-    //                 }
-    //             }
-    //         ],
-    //         "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
-    //     },
-    //     "args": null
-    // }
-    // //  */
+    /** Pageable request:
+    {
+        "ctx": "Sys",
+        "m": "Moduleman",
+        "c": "ConsumerResource",
+        "a": "GetCount",
+        "dat": {
+            "f_vals": [
+                {
+                    "query": {
+                        "select": [
+                            "consumerResourceName",
+                            "consumerResourceGuid"
+                        ],
+                        "where": {},
+                        "take": 5,
+                        "skip": 0
+                    }
+                }
+            ],
+            "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+        },
+        "args": null
+    }
+    */
     async GetCount(req, res) {
         try {
             // await this.svConsumerResource.GetCount(req, res);

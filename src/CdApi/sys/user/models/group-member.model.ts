@@ -41,7 +41,7 @@ export class GroupMemberModel {
             nullable: true
         }
     )
-    groupGuidParent: string;
+    groupGuidParent?: string;
 
     @Column(
         'varchar',
@@ -51,7 +51,7 @@ export class GroupMemberModel {
             nullable: true
         }
     )
-    memberGuid: string;
+    memberGuid?: string;
 
      @Column(
         {
@@ -59,7 +59,7 @@ export class GroupMemberModel {
             nullable: true
         }
     )
-    userIdMember: number;
+    userIdMember?: number;
 
     @Column(
         {
@@ -91,7 +91,7 @@ export class GroupMemberModel {
             nullable: true
         }
     )
-    groupMemberEnabled: boolean;
+    groupMemberEnabled?: boolean;
 
     @Column(
         {
@@ -109,7 +109,7 @@ export class GroupMemberModel {
             nullable: true
         }
     )
-    groupIdParent: number;
+    groupIdParent?: number;
 
     @Column(
         'varchar',

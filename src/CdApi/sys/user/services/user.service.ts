@@ -43,6 +43,13 @@ import { GroupModel } from "../models/group.model";
 import { Logging } from "../../base/winston.log";
 import config from "../../../../config";
 import { ProfileServiceHelper } from "../../utils/profile-service-helper";
+import { CdObjService } from "../../moduleman/services/cd-obj.service";
+import { CdObjModel } from "../../moduleman/models/cd-obj.model";
+import { ConsumerResourceService } from "../../moduleman/services/consumer-resource.service";
+import { ConsumerResourceModel } from "../../moduleman/models/consumer-resource.model";
+import { GroupMemberService } from "./group-member.service";
+import { GroupMemberModel } from "../models/group-member.model";
+import { truncate } from "fs/promises";
 
 export class UserService extends CdService {
   logger: Logging;
@@ -130,11 +137,13 @@ export class UserService extends CdService {
     res,
     createIParams: CreateIParams
   ): Promise<UserModel | boolean> {
+    createIParams.controllerData.userGuid = this.b.getGuid();
     return await this.b.createI(req, res, createIParams);
   }
 
   async beforeCreate(req, res) {
     this.b.setPlData(req, { key: "userGuid", value: this.b.getGuid() });
+    this.b.setPlData(req, { key: "userEnabled", value: 1 });
     this.b.setPlData(req, { key: "activationKey", value: this.b.getGuid() });
     this.userModel.user_guid = this.b.getGuid();
     this.userModel.activation_key = this.b.getGuid();
@@ -231,38 +240,241 @@ export class UserService extends CdService {
     }
   }
 
-  async activateUser(req, res) {
+  async activateUser(req, res, q?: IQuery) {
     try {
-      const pl: UserModel = this.b.getPlData(req);
-      if (await this.validateActivationKey(req, res, pl)) {
+      this.logger.logInfo("UserService::activateUser()/01");
+      if (!q) {
+        q = this.b.getQuery(req);
+        this.logger.logInfo("UserService::activateUser()/02");
+        this.logger.logInfo(
+          `UserService::activateUser()/pl:${JSON.stringify(q)}`
+        );
+      }
+      const qUser: IQuery = q;
+      this.logger.logInfo("UserService::activateUser()/qUser:", qUser);
+      if (await this.validateActivateUser(req, res, qUser)) {
+        this.logger.logInfo("UserService::activateUser()/03");
+        this.logger.logInfo("UserService::activateUser()/validation passed:");
         /**
          * update the user to active state
          */
-        const q = {
+        const qUpdateUser = {
           update: {
             userEnabled: true,
           },
-          where: {
-            activationKey: pl.activationKey,
-          },
+          where: qUser.where,
         };
         const serviceInput = {
           serviceModel: UserModel,
           docName: "Activate User",
           cmd: {
             action: "update",
-            query: q,
+            query: qUpdateUser,
           },
           dSource: 1,
         };
+        this.logger.logInfo("UserService::activateUser()/04");
+        this.logger.logInfo(
+          `UserService::activateUser()/serviceInput:${JSON.stringify(
+            serviceInput
+          )}`
+        );
         const retUpdate = await this.updateI(req, res, serviceInput);
+        this.logger.logInfo("UserService::activateUser()/05");
+        this.logger.logInfo(
+          "UserService::activateUser()/retUpdate:",
+          retUpdate
+        );
         /**
          * if update of records is succesfull, get user data'
          */
         if (retUpdate.affected > 0) {
-          const ret = await this.getUser(req, res, {
-            where: { activationKey: pl.activationKey },
+          this.logger.logInfo("UserService::activateUser()/06");
+          // construct service input
+          const siUser = this.b.siGet(
+            qUser,
+            "UserService:activateUser",
+            UserModel
+          );
+          this.logger.logInfo("UserService::activateUser()/07");
+          this.logger.logInfo(
+            `UserService::activateUser()/siUser:${JSON.stringify(siUser)}`
+          );
+          // get user data data
+          const userData: UserModel[] = await this.read(req, res, siUser);
+          this.logger.logInfo("UserService::activateUser()/08");
+          this.logger.logInfo(
+            "UserService::activateUser()/userData:",
+            userData
+          );
+          /**
+           * Post activation process:
+           * - create a corresponding user as cdObj
+           *
+           */
+          const svCdObj = new CdObjService();
+          const svSess = new SessionService();
+          const sessionDataExt: ISessionDataExt =
+            await svSess.getSessionDataExt(req, res, true);
+          this.logger.logInfo("UserService::activateUser()/09");
+          this.logger.logInfo(
+            `UserService::activateUser()/sessionDataExt:${JSON.stringify(
+              sessionDataExt
+            )}`
+          );
+          const cdObjData: CdObjModel = {
+            cdObjName: userData[0].userGuid,
+            objGuid: userData[0].userGuid,
+            cdObjTypeGuid: "a237cc2b-e895-4596-a963-9b6e74d0f7b2", // user
+            parentModuleGuid: "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b", // user module
+          };
+          this.logger.logInfo(
+            `UserService::purgeUser()/cdObjData:${JSON.stringify(cdObjData)}`
+          );
+          const si = {
+            serviceInstance: svCdObj,
+            serviceModel: CdObjModel,
+            serviceModelInstance: svCdObj.serviceModel,
+            docName: "CdObjService::CreateI",
+            dSource: 1,
+          };
+          // this.logger.logInfo(`UserService::purgeUser()/si:${JSON.stringify(si)}`);
+          const createIParams: CreateIParams = {
+            serviceInput: si,
+            controllerData: cdObjData,
+          };
+          // this.logger.logInfo(`UserService::purgeUser()/createIParams:${JSON.stringify(createIParams)}`);
+          let respCreateCdObj = await svCdObj.createI(req, res, createIParams);
+          this.logger.logInfo("UserService::activateUser()/10");
+          this.logger.logInfo("UserService::activateUser()/respCreateCdObj:", {
+            resp: respCreateCdObj,
           });
+
+          /**
+           * get cdObj guid
+           */
+          const siGetCdObj = {
+            serviceInstance: svCdObj,
+            serviceModel: CdObjModel,
+            serviceModelInstance: svCdObj.serviceModel,
+            docName: "CdObjService::CreateI",
+            cmd: {
+              action: "find",
+              query: { where: cdObjData },
+            },
+            dSource: 1,
+          };
+          this.logger.logInfo("UserService::activateUser()/11");
+          let respGetCdObj = (await this.read(
+            req,
+            res,
+            siGetCdObj
+          )) as CdObjModel[];
+          this.logger.logInfo("UserService::activateUser()/12");
+          this.logger.logInfo("UserService::activateUser()/respGetCdObj:", {
+            resp: JSON.stringify(respGetCdObj),
+          });
+
+          /*
+           * - create a corresponding consumerResource (user) for session consumer
+           *
+           */
+          // this.logger.logInfo("UserService::activateUser()/respGetCdObj.cdObjGuid:", {cdObjGuid: respGetCdObj.cdObjGuid,});
+          const svConsumerResource = new ConsumerResourceService();
+          const consumerResourceData: ConsumerResourceModel = {
+            cdObjTypeGuid: "a237cc2b-e895-4596-a963-9b6e74d0f7b2", // user
+            consumerGuid: sessionDataExt.currentConsumer.consumerGuid, // consumer by session
+            consumerId: sessionDataExt.currentConsumer.consumerId,
+            cdObjGuid: respGetCdObj[0].cdObjGuid, // cdObjGuid of the just created cdObj above
+            cdObjId: respGetCdObj[0].cdObjId,
+            consumerResourceTypeId: 6, // consumer user
+            consumerResourceName: userData[0].userGuid,
+            objId: userData[0].userId,
+            consumerResourceEnabled: true,
+          };
+          this.logger.logInfo(
+            `UserService::activateUser()/consumerResourceData:${JSON.stringify(
+              consumerResourceData
+            )}`
+          );
+          const siConsRes = {
+            serviceInstance: svConsumerResource,
+            serviceModel: ConsumerResourceModel,
+            serviceModelInstance: svConsumerResource.serviceModel,
+            docName: "CdObjService::activateUser",
+            dSource: 1,
+          };
+          const createIParamsConsRes: CreateIParams = {
+            serviceInput: siConsRes,
+            controllerData: consumerResourceData,
+          };
+          // this.logger.logInfo(
+          //   `UserService::activateUser()/createIParamsConsRes:${JSON.stringify(
+          //     createIParamsConsRes
+          //   )}`
+          // );
+          this.logger.logInfo("UserService::activateUser()/13");
+          let respCreateConsRes = await svConsumerResource.createI(
+            req,
+            res,
+            createIParamsConsRes
+          );
+          this.logger.logInfo("UserService::activateUser()/14");
+          this.logger.logInfo(
+            "UserService::activateUser()/respCreateConsRes:",
+            { resp: respCreateConsRes }
+          );
+          this.logger.logInfo("UserService::activateUser()/14-1");
+          /*
+           * - join personal group member
+           * - Note: all consumers should have the module 'personal' as a resource
+           */
+          const svGroupMember = new GroupMemberService();
+          const groupData: GroupMemberModel = {
+            groupMemberGuid: this.b.getGuid(),
+            userIdMember: userData[0].userId,
+            memberGuid: userData[0].userGuid,
+            groupGuidParent: "d5270988-cb1a-427b-977f-4a78e709fda9", // guid for 'personal' group
+            cdObjTypeId: 9, // user
+            groupMemberEnabled: true,
+          };
+          this.logger.logInfo(
+            `UserService::purgeUser()/groupData:${JSON.stringify(groupData)}`
+          );
+          this.logger.logInfo("UserService::activateUser()/14-2");
+          const siGroupMember = {
+            serviceInstance: svGroupMember,
+            serviceModel: GroupMemberModel,
+            serviceModelInstance: svGroupMember.serviceModel,
+            docName: "CdObjService::activateUser",
+            dSource: 1,
+          };
+          this.logger.logInfo("UserService::activateUser()/14-3");
+          const createIParamsGroupMember: CreateIParams = {
+            serviceInput: siGroupMember,
+            controllerData: groupData,
+          };
+          // this.logger.logInfo(
+          //   `UserService::activateUser()/createIParamsGroupMember:${JSON.stringify(
+          //     createIParamsGroupMember
+          //   )}`
+          // );
+          this.logger.logInfo("UserService::activateUser()/14-4");
+          this.logger.logInfo("UserService::activateUser()/15");
+          let respCreateGroupMember = await this.createI(
+            req,
+            res,
+            createIParamsGroupMember
+          );
+          this.logger.logInfo("UserService::activateUser()/16");
+          this.logger.logInfo(
+            "UserService::activateUser()/respCreateGroupMember:",
+            { resp: respCreateGroupMember }
+          );
+          this.b.cdResp.data = userData;
+          this.b.cdResp.app_state.success = true;
+          this.b.i.app_msg = `Your account is activated!`;
+          const r = await this.b.respond(req, res);
         } else {
           const i = {
             messages: this.b.err,
@@ -272,11 +484,6 @@ export class UserService extends CdService {
           await this.b.setAppState(false, i, null);
           const r = await this.b.respond(req, res);
         }
-
-        // this.b.cdResp.data = ret;
-        // this.b.cdResp.app_state.success = true;
-        // this.b.i.app_msg = `Your account is activated!`;
-        // const r = await this.b.respond(req, res);
       } else {
         /**
          * respond with invalid key message
@@ -304,19 +511,62 @@ export class UserService extends CdService {
     }
   }
 
-  async validateActivationKey(req, res, user: UserModel): Promise<boolean> {
-    let ret = false;
-    const users: UserModel[] = await this.getUserI(req, res, {
-      where: {
-        activationKey: user.activationKey,
-      },
-    });
-    console.log(
-      `UserService::validateActivationKey()/users:${JSON.stringify(users)}`
+  // validateActivateUser(req, res, pl: UserModel): boolean {
+  //   if(!pl){
+  //     return false;
+  //   }
+  //   let ret = false;
+  //   if ("userId" in pl || "userGuid" in pl) {
+  //     ret = true;
+  //   }
+  //   return ret;
+  // }
+
+  async validateActivateUser(req, res, q: IQuery): Promise<boolean> {
+    this.logger.logInfo("UserService::validateActivateUser()/01");
+    this.logger.logInfo(
+      `UserService::validateActivateUser()/q: ${JSON.stringify(q)}`
     );
-    if (users.length > 0) {
+    let ret = false;
+
+    if (!("where" in q)) {
+      this.logger.logInfo("UserService::validateActivateUser()/02");
+      this.logger.logInfo("UserService::validateActivateUser()/q:", q);
+      return false;
+    }
+
+    if (!("activationKey" in q.where)) {
+      this.logger.logInfo("UserService::validateActivateUser()/03");
+      this.logger.logInfo("UserService::validateActivateUser()/q:", q);
+      return false;
+    }
+
+    const serviceInput = {
+      serviceModel: UserModel,
+      docName: "UserService:validateActivationKey",
+      cmd: {
+        action: "find",
+        query: q,
+      },
+      dSource: 1,
+    };
+    const userData = await this.read(req, res, serviceInput);
+    this.logger.logInfo("UserService::validateActivateUser()/04");
+    this.logger.logInfo(
+      "UserService::validateActivationKey()/userData:",
+      userData
+    );
+    // const userData: UserModel[] = await this.read(req, res, q);
+    console.log(
+      `UserService::validateActivationKey()/userData:${JSON.stringify(
+        userData
+      )}`
+    );
+    if (userData.length > 0) {
+      this.logger.logInfo("UserService::validatePurgeUser()/05");
       ret = true;
     } else {
+      this.logger.logInfo("UserService::validatePurgeUser()/06");
       ret = false;
     }
     return ret;
@@ -665,6 +915,20 @@ export class UserService extends CdService {
         // if exists, check password
         // ...check password
         if (await this.verifyPassword(req, res, cUser)) {
+          /**
+           * handle if password is valid but the user is disabled...
+           */
+          if (!cUser[0].userEnabled) {
+            this.logger.logInfo("UserService::resolveGuest()/040");
+            this.b.i.app_msg =
+              "You are attempting to access an inactive account";
+            cUser = guestArr.filter((u) => u.userName === "anon");
+            return cUser[0];
+          }
+
+          /**
+           * handle successful login
+           */
           this.logger.logInfo("UserService::resolveGuest()/031");
           // if password is ok, return user data
           this.loginState = true;
@@ -750,7 +1014,7 @@ export class UserService extends CdService {
     return await this.srvSess.create(req, res, guest);
   }
 
-  async authResponse(req, res, guest) {
+  async authResponse(req, res, guest: UserModel) {
     this.logger.logInfo("UserService::authResponse()/01");
     this.b.logTimeStamp("UserService::authResponse/01");
     // this.logger.logInfo('UserService::authResponse/01:');
@@ -1002,6 +1266,194 @@ export class UserService extends CdService {
       this.b.cdResp.data = ret;
       this.b.respond(req, res);
     });
+  }
+
+  /**
+   * - remove corresponding user as cdObj
+   * - remove corresponding consumerResource for session consumer
+   * - remove membership from all groups
+   * @param req
+   * @param res
+   */
+  async purgeUser(req, res, q?: IQuery) {
+    this.logger.logInfo("UserService::purgeUser()/01");
+    if (!q) {
+      q = this.b.getQuery(req);
+      this.logger.logInfo("UserService::purgeUser()/02");
+      this.logger.logInfo(`UserService::purgeUser()/pl:${JSON.stringify(q)}`);
+    }
+
+    this.logger.logInfo("UserService::purgeUser()/03");
+    if (this.validatePurgeUser(req, res, q)) {
+      this.logger.logInfo("UserService::purgeUser()/04");
+      // let q: IQuery;
+      if ("userId" in q.where) {
+        this.logger.logInfo("UserService::purgeUser()/05");
+        q = {
+          where: {
+            userId: q.where.userId,
+          },
+        };
+      }
+      this.logger.logInfo("UserService::purgeUser()/06");
+      if ("userGuid" in q.where) {
+        this.logger.logInfo("UserService::purgeUser()/07");
+        q = {
+          where: {
+            userGuid: q.where.userGuid,
+          },
+        };
+      }
+
+      const serviceInput = {
+        serviceModel: UserModel,
+        docName: "UserService:Purge User",
+        cmd: {
+          action: "find",
+          query: q,
+        },
+        dSource: 1,
+      };
+      this.logger.logInfo("UserService::purgeUser()/08");
+      const userData = await this.read(req, res, serviceInput);
+      this.logger.logInfo("UserService::purgeUser()/10");
+      this.logger.logInfo("UserService::purgeUser()/userData:", userData);
+      /**
+       * if user data'
+       */
+      if (userData.length > 0) {
+        /**
+         * - remove corresponding user as cdObj
+         */
+        this.logger.logInfo("UserService::purgeUser()/11");
+        const svCdObj = new CdObjService();
+        const si = {
+          serviceInstance: svCdObj,
+          serviceModel: CdObjModel,
+          serviceModelInstance: svCdObj.serviceModel,
+          docName: "CdObjService::CreateI",
+          cmd: {
+            action: "find",
+            query: { where: { objGuid: userData[0].userGuid } },
+          },
+          dSource: 1,
+        };
+        this.logger.logInfo("UserService::purgeUser()/12");
+        let respDeleteCdObj = await this.b.delete(req, res, si);
+        this.logger.logInfo("UserService::purgeUser()/respDeleteCdObj:", {
+          resp: respDeleteCdObj,
+        });
+
+        /*
+         * - delete corresponding consumerResource (user) for session consumer
+         *
+         */
+        const svConsumerResource = new ConsumerResourceService();
+        const siConsRes = {
+          serviceInstance: svConsumerResource,
+          serviceModel: ConsumerResourceModel,
+          serviceModelInstance: svConsumerResource.serviceModel,
+          docName: "CdObjService::purgeUser",
+          cmd: {
+            action: "delete",
+            query: { where: { objGuid: userData[0].userGuid } },
+          },
+          dSource: 1,
+        };
+        this.logger.logInfo("UserService::purgeUser()/13");
+        let respDeleteConsRes = await this.b.delete(req, res, siConsRes);
+        this.logger.logInfo("UserService::purgeUser()/respDeleteConsRes:", {
+          resp: respDeleteConsRes,
+        });
+        /*
+         * - remove user from personal group
+         */
+        this.logger.logInfo("UserService::purgeUser()/14");
+        const svGroupMember = new GroupMemberService();
+        const siGroupMember = {
+          serviceInstance: svGroupMember,
+          serviceModel: GroupMemberModel,
+          serviceModelInstance: svGroupMember.serviceModel,
+          docName: "CdObjService::purgeUser",
+          cmd: {
+            action: "delete",
+            query: { where: { memberGuid: userData[0].userGuid } },
+          },
+          dSource: 1,
+        };
+        this.logger.logInfo("UserService::purgeUser()/15");
+        let respCreateGroupMember = await this.b.delete(
+          req,
+          res,
+          siGroupMember
+        );
+        this.logger.logInfo("UserService::purgeUser()/respCreateGroupMember:", {
+          resp: respCreateGroupMember,
+        });
+        this.logger.logInfo("UserService::purgeUser()/16");
+        /**
+         * remove user
+         */
+        const siUser = {
+          serviceInstance: this,
+          serviceModel: UserModel,
+          serviceModelInstance: this.serviceModel,
+          docName: "CdObjService::purgeUser",
+          cmd: {
+            action: "delete",
+            query: { where: { userGuid: userData[0].userGuid } },
+          },
+          dSource: 1,
+        };
+        this.logger.logInfo("UserService::purgeUser()/17");
+        let respUser = await this.b.delete(req, res, siUser);
+        this.logger.logInfo("UserService::purgeUser()/respUser:", {
+          resp: respUser,
+        });
+        this.logger.logInfo("UserService::purgeUser()/17");
+        this.b.cdResp.data = userData;
+        this.b.cdResp.app_state.success = true;
+        this.b.i.app_msg = `user has been purged from the system!`;
+        const r = await this.b.respond(req, res);
+      } else {
+        const i = {
+          messages: this.b.err,
+          code: "UserService:purgeUser",
+          app_msg: "There was an error activating your account",
+        };
+        await this.b.setAppState(false, i, null);
+        const r = await this.b.respond(req, res);
+      }
+    } else {
+      const i = {
+        messages: this.b.err,
+        code: "UserService:purgeUser",
+        app_msg: "There was a validation error in the data provided",
+      };
+      await this.b.setAppState(false, i, null);
+      const r = await this.b.respond(req, res);
+    }
+  }
+
+  validatePurgeUser(req, res, q: IQuery): boolean {
+    this.logger.logInfo("UserService::validatePurgeUser()/01");
+    this.logger.logInfo("UserService::validatePurgeUser()/q:", q);
+
+    if (!q || !q.where) {
+      this.logger.logInfo("UserService::validatePurgeUser()/02");
+      return false;
+    }
+
+    const hasUserGuid = "userGuid" in q.where && q.where.userGuid;
+    const hasUserId = "userId" in q.where && q.where.userId;
+
+    if (!(hasUserGuid || hasUserId)) {
+      this.logger.logInfo("UserService::validatePurgeUser()/03");
+      return false;
+    }
+
+    this.logger.logInfo("UserService::validatePurgeUser()/04");
+    return true;
   }
 
   /**

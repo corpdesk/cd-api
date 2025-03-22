@@ -340,8 +340,13 @@ export class MenuService {
         return moduleMenuData$.pipe(
             map((menuData) => {
                 console.log("MenuService::buildSingleMenuTree()/menuData1:", menuData);
-    
-                // Filter menu data if the user is 'anon' (cuid=1000)
+
+                /**
+                 * Guest/Anonimous user is a user who has not logged in.
+                 * The user id is 1000
+                 * These users are also classified as public users
+                 * Modules flagged with 'menuIsPublic' are those that are allowed by everyone including Guest/Anonimous user
+                 */
                 if (cuid === 1000) {
                     menuData = menuData.filter(m => m.menuIsPublic == 1);
                 }

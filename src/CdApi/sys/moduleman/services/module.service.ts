@@ -839,7 +839,7 @@ export class ModuleService extends CdService {
      *  Exceptions is modules that are marked as public.
      *  Apart from being registered as a resource to a consumer, the consumer type is 
      *  used to mark user roles eg consumer_root, consumer_user, consumer_tech, consumer_admin
-     *  The above are fetched using consumer_resources_view
+     *  The above are fetched using consumer_resource_view
      * 
      *  2. Consumer Modules:
      *  These are modules that the current user has acces to.
@@ -855,58 +855,6 @@ export class ModuleService extends CdService {
      * @param params 
      * @returns 
      */
-    // getAclModule$(req, res, sessionDataExt: ISessionDataExt): Observable<any> {
-    //     this.b.logTimeStamp('ModuleService::getAclModule$/01')
-    //     this.consumerGuid = sessionDataExt.currentConsumer.consumerGuid;
-    //     this.svAcl.consumerGuid = sessionDataExt.currentConsumer.consumerGuid;
-    //     this.logger.logInfo('ModuleService::getAclModule$()/sessionDataExt:', sessionDataExt)
-    //     this.logger.logInfo('ModuleService::getAclModule$()/this.svAcl.consumerGuid:', this.svAcl.consumerGuid)
-    //     // this.logger.logInfo('ModuleService::getAclModule$()/01:');
-    //     return forkJoin({
-    //         // unfilteredModules: this.getAll$(req, res).pipe(map((m) => { return m })), // for isRoot
-    //         userRoles: this.svAcl.aclUser$(req, res, sessionDataExt).pipe(map((m) => { return m })),
-    //         consumerModules: this.svAcl.aclModule$(req, res).pipe(map((m) => { return m })),
-    //         moduleParents: this.svAcl.aclModuleMembers$(req, res, sessionDataExt).pipe(map((m) => { return m }))
-    //     })
-    //         .pipe(
-    //             map((acl: any) => {
-    //                 this.b.logTimeStamp('ModuleService::getModulesUserData$/02')
-    //                 this.logger.logInfo('ModuleService::getAclModule$()/acl:', acl)
-    //                 /**
-    //                  * - Public modules are included without acl filtering
-    //                  * - Based on acl result, return appropirate modules
-    //                  */
-    //                 const publicModules = acl.consumerModules.filter(m => m.moduleIsPublic);
-    //                 this.logger.logInfo('ModuleService::getAclModule$()/publicModules:', publicModules)
-    //                 /**
-    //                  * - if userIsConsumerRoot then return all consumerModules
-    //                  */
-    //                 if (acl.userRoles.isConsumerRoot.length > 0) {
-    //                     // this.b.logTimeStamp('ModuleService::getModulesUserData$/03')
-    //                     return acl.consumerModules;
-    //                 }
-    //                 else if (acl.userRoles.isConsumerUser.length > 0) { // if user is registered as consumer user then filter consumer modules
-    //                     // this.b.logTimeStamp('ModuleService::getModulesUserData$/04')
-    //                     // this.logger.logInfo('ModuleService::getModulesUserData$/acl.userRoles.isConsumerUser:', acl.userRoles.isConsumerUser);
-    //                     // this.logger.logInfo('ModuleService::getModulesUserData$/acl.moduleParents:', acl.moduleParents);
-    //                     // this.logger.logInfo('ModuleService::getModulesUserData$/acl.consumerModules:', acl.consumerModules);
-    //                     const userModules = this.b.intersect(acl.consumerModules, acl.moduleParents, 'moduleGuid');
-    //                     this.logger.logInfo('ModuleService::getModulesUserData$/userModules:', userModules);
-    //                     this.logger.logInfo('ModuleService::getModulesUserData$/publicModules:', publicModules);
-
-    //                     /**
-    //                      * create a union of userModules and publicModules
-    //                      */
-    //                     return userModules.concat(publicModules); // return user modules and public modules
-    //                 }
-    //                 else {  // if is neither of the above, return zero modules
-    //                     // this.logger.logInfo('ModuleService::getAclModule$()/publicModules:', publicModules)
-    //                     return publicModules; // return only public modules
-    //                 }
-    //             })
-    //         );
-    // }
-
     getAclModule$(req, res, sessionDataExt: ISessionDataExt): Observable<any> {
         this.b.logTimeStamp('ModuleService::getAclModule$/01')
         this.consumerGuid = sessionDataExt.currentConsumer.consumerGuid;

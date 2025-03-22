@@ -101,7 +101,7 @@ export class BaseService {
 
   async init(req, res) {
     this.logger.logInfo("BaseService::init()/01:");
-    try{
+    try {
       if (!this.db) {
         const db = await new Database();
         // client expected to input the required models
@@ -118,12 +118,11 @@ export class BaseService {
         // }
       }
       this.logger.logInfo("BaseService::init()/this.models:", this.models);
-    } catch(e){
+    } catch (e) {
       this.logger.logInfo("BaseService::init()/02:");
       this.logger.logInfo(`BaseService::init() failed:${(e as Error).message}`);
-      this.err.push(`BaseService::init() failed:${(e as Error).message}`)
+      this.err.push(`BaseService::init() failed:${(e as Error).message}`);
     }
-    
   }
 
   async initSqlite(req, res) {
@@ -170,7 +169,9 @@ export class BaseService {
 
   async connectDatabase(i: number = 1): Promise<Connection> {
     this.logger.logInfo("connectDatabase()/01");
-    const opts: ConnectionOptions = await sqliteConfigFx(`sqlite${i.toString()}`);
+    const opts: ConnectionOptions = await sqliteConfigFx(
+      `sqlite${i.toString()}`
+    );
     let connection: Connection | undefined;
     try {
       this.logger.logInfo("connectDatabase()/02");
@@ -397,7 +398,10 @@ export class BaseService {
     /**
      * conditions that are allowed without token requirement
      */
-    if (m === "User" && (a === "Login" || a === "Register" || a === "ActivateUser")) {
+    if (
+      m === "User" &&
+      (a === "Login" || a === "Register" || a === "ActivateUser")
+    ) {
       this.logger.logInfo("BaseService::noToken()/02");
       if (m === "User" && a === "Register") {
         this.logger.logInfo("BaseService::noToken()/03");
@@ -504,9 +508,9 @@ export class BaseService {
 
   /**
    * For validating IJsonUpdate array
-   * @param jsonUpdate 
-   * @param rootInterface 
-   * @returns 
+   * @param jsonUpdate
+   * @param rootInterface
+   * @returns
    */
   validateJsonUpdate<T>(
     jsonUpdate: IJsonUpdate[],
@@ -1188,18 +1192,23 @@ export class BaseService {
     // assign payload data to this.userModel
     //** */ params.controllerInstance.userModel = this.getPlData(req);
     // set connection
-    const baseRepository = getConnection().getRepository(params.serviceInput.serviceModel);
+    const baseRepository = getConnection().getRepository(
+      params.serviceInput.serviceModel
+    );
     console.log("BaseService::validateUniqueI()/repo/model:", {
       model: params.serviceInput.serviceModel,
     });
 
-    console.log('BaseService::validateUniqueI()/params.serviceInput:', params.serviceInput)
-    // const filterItems = await JSON.parse(strQueryItems)
-    const filterItems = await this.duplicateFilter(params.controllerData, params.serviceInput.serviceInstance.cRules.noDuplicate)
     console.log(
-      "BaseService::validateUniqueI()/filterItems:",
-      filterItems
+      "BaseService::validateUniqueI()/params.serviceInput:",
+      params.serviceInput
     );
+    // const filterItems = await JSON.parse(strQueryItems)
+    const filterItems = await this.duplicateFilter(
+      params.controllerData,
+      params.serviceInput.serviceInstance.cRules.noDuplicate
+    );
+    console.log("BaseService::validateUniqueI()/filterItems:", filterItems);
     // execute the query
     const results = await baseRepository.count({
       where: await filterItems,
@@ -1219,26 +1228,31 @@ export class BaseService {
       };
       await this.setAppState(false, i, null);
     }
-    this.logger.logDebug("BaseService::validateUniqueI()/ret:", { return: ret });
+    this.logger.logDebug("BaseService::validateUniqueI()/ret:", {
+      return: ret,
+    });
     return ret;
   }
 
-  async duplicateFilter<T extends Record<string, any>>(controllerData: T, noDuplicate: string[]): Promise<Partial<T>> {
-    console.log("BaseService::duplicateFilter()/controllerData:", controllerData);
+  async duplicateFilter<T extends Record<string, any>>(
+    controllerData: T,
+    noDuplicate: string[]
+  ): Promise<Partial<T>> {
+    console.log(
+      "BaseService::duplicateFilter()/controllerData:",
+      controllerData
+    );
     console.log("BaseService::duplicateFilter()/noDuplicate:", noDuplicate);
     const filteredData = {} as Partial<T>;
-  
+
     for (const field of noDuplicate) {
       if (Object.prototype.hasOwnProperty.call(controllerData, field)) {
         (filteredData as Record<string, any>)[field] = controllerData[field];
       }
     }
-  
+
     return filteredData;
   }
-  
-  
-  
 
   /**
    * 1. create new doc
@@ -1246,7 +1260,7 @@ export class BaseService {
    * 3. for any error, save the error using serviceErr()
    *    process is expected to return the encountered errors back to requesting entity
    * 4. Returning data is encpsulated in corpdesk http request object this.cdResp.
-   * 
+   *
    * used where create is called remotely
    * Note that both create() and createI(), are processed together with
    * doc data: containing dates, user and other application information
@@ -1290,7 +1304,6 @@ export class BaseService {
       await this.serviceErr(req, res, e, "BaseService:create");
       return this.cdResp;
     }
-
 
     /**
      * use the Doc data to create a new object based on the model
@@ -3149,10 +3162,22 @@ export class BaseService {
     return Object.keys(obj).length === 0;
   }
 
-  siGet(q: IQuery, cls: any): IServiceInput {
+  // depricated
+  // siGet(q: IQuery, cls: any): IServiceInput {
+  //   return {
+  //     serviceModel: cls.serviceModel,
+  //     docName: `${cls.modelName}::siGet`,
+  //     cmd: {
+  //       action: "find",
+  //       query: q,
+  //     },
+  //     dSource: 1,
+  //   };
+  // }
+  siGet<T>(q: IQuery, dn: string, model: new () => T): IServiceInput {
     return {
-      serviceModel: cls.serviceModel,
-      docName: `${cls.modelName}::siGet`,
+      serviceModel: model,
+      docName: dn,
       cmd: {
         action: "find",
         query: q,

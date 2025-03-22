@@ -53,7 +53,7 @@ export class ConsumerResourceModel {
         name: 'consumer_resource_enabled',
         default: null
     })
-    consumerResourceEnabled: boolean;
+    consumerResourceEnabled?: boolean;
 
     @Column({
         name: 'consumer_id',

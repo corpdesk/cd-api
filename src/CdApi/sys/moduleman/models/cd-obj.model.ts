@@ -90,7 +90,7 @@ export class CdObjModel {
             default: null
         }
     )
-    parentModuleId?: string;
+    parentModuleId?: number;
 
     @Column(
         {

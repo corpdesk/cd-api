@@ -88,10 +88,9 @@ export class UserController extends CdController {
           "dat": {
               "f_vals": [
                   {
-                      "data": {
-                          "activationKey": "459bc3d0-c10e-4264-9e37-5175c379b620"
+                      "query": {
                           "userId": 13,
-                          "sid": 23
+                          "userGuid": "abdd"
                       }
                   }
               ],
@@ -339,27 +338,27 @@ export class UserController extends CdController {
         }
     }
 
-    // /**
-    //  * {
-    //         "ctx": "Sys",
-    //         "m": "Moduleman",
-    //         "c": "User",
-    //         "a": "GetCount",
-    //         "dat": {
-    //             "f_vals": [
-    //                 {
-    //                     "query": {
-    //                         "where": {"consumer-resourceId": 45763}
-    //                     }
-    //                 }
-    //             ],
-    //             "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
-    //         },
-    //         "args": null
-    //     }
-    //  * @param req
-    //  * @param res
-    //  */
+    /**
+     * {
+            "ctx": "Sys",
+            "m": "Moduleman",
+            "c": "User",
+            "a": "GetCount",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "where": {"consumer-resourceId": 45763}
+                        }
+                    }
+                ],
+                "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+            },
+            "args": null
+        }
+     * @param req
+     * @param res
+     */
     async Delete(req, res) {
         try {
             await this.svUser.delete(req, res);
@@ -367,6 +366,38 @@ export class UserController extends CdController {
             await this.b.serviceErr(req, res, e, 'UserController:Update');
         }
     }
+
+
+    /**
+     * {
+            "ctx": "Sys",
+            "m": "User",
+            "c": "User",
+            "a": "PugeUser",
+            "dat": {
+                "f_vals": [
+                    {
+                        "query": {
+                            "where": {"userGuid":"abcd"}
+                        }
+                    }
+                ],
+                "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+            },
+            "args": null
+        }
+     * @param req 
+     * @param res 
+     */
+    async PugeUser(req, res) {
+        try {
+            await this.svUser.purgeUser(req, res);
+        } catch (e) {
+            await this.b.serviceErr(req, res, e, 'UserController:Update');
+        }
+    }
+
+
 
     /**
      * {

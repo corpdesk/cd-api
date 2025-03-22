@@ -528,7 +528,7 @@ export class CdDevService extends CdService {
         this.logger.logInfo('CdDevService::getCdDev/f:', q);
         // const serviceInput = siGet(q,this)
         this.serviceModel = new CdDevModel();
-        const serviceInput: IServiceInput = this.b.siGet(q, this)
+        const serviceInput: IServiceInput = this.b.siGet(q, 'CdDevService:getCdDev' ,CdDevModel)
         serviceInput.serviceModelInstance = this.serviceModel
         serviceInput.serviceModel = CdDevModel
         try {
@@ -933,7 +933,7 @@ export class CdDevService extends CdService {
         }
         this.logger.logInfo('CdDevService::getCdDevI/q:', q);
         let serviceModel = new CdDevViewModel();
-        const serviceInput: IServiceInput = this.b.siGet(q, this)
+        const serviceInput: IServiceInput = this.b.siGet(q, 'CdDevService:getCdDevI' ,CdDevViewModel)
         serviceInput.serviceModelInstance = serviceModel
         serviceInput.serviceModel = CdDevViewModel
         try {
@@ -985,7 +985,7 @@ export class CdDevService extends CdService {
         }
         this.logger.logInfo('CdDevService::getCdDevProjectI/q:', q);
         let serviceModel = new CdDevProjectViewModel();
-        const serviceInput: IServiceInput = this.b.siGet(q, this)
+        const serviceInput: IServiceInput = this.b.siGet(q, 'CdDevService:getCdDevProjectI' ,CdDevProjectViewModel)
         serviceInput.serviceModelInstance = serviceModel
         serviceInput.serviceModel = CdDevProjectViewModel
         try {

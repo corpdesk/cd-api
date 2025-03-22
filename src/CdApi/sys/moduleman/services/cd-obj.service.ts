@@ -93,8 +93,19 @@ export class CdObjService extends CdService {
       const r = await this.b.respond(req, res);
     } else {
       console.log("CdObjService::create()/03");
-      this.b.setAppState(false, this.b.i, svSess.sessResp);
-      const r = await this.b.respond(req, res);
+      const e = new Error("The input could not be validated");
+      console.log("CdObjService::create()/e:", e);
+
+      this.b.err.push(e.message); // Use e.message instead of e.toString()
+
+      const i = {
+        messages: this.b.err,
+        code: "CdObjService:create",
+        app_msg: "",
+      };
+
+      await this.b.serviceErr(req, res, e, i.code);
+      await this.b.respond(req, res);
     }
   }
 
@@ -108,23 +119,31 @@ export class CdObjService extends CdService {
     //   model: CdObjModel,
     // };
 
-    console.log("CdObjService::createI()/this.cRules:", this.cRules);
-    // console.log("CdObjService::createI()/params:", params);
-    console.log("CdObjService::createI()/createIParams:", createIParams);
-    if (await this.b.validateUniqueI(req, res, createIParams)) {
-      if (await this.b.validateRequiredI(req, res, createIParams)) {
-        return await this.b.createI(req, res, createIParams);
-      } else {
-        this.b.i.app_msg = `the required fields ${this.cRules.required.join(
-          ", "
-        )} is missing`;
-        this.b.err.push(this.b.i.app_msg);
-        return false;
-      }
+    // console.log("CdObjService::createI()/this.cRules:", this.cRules);
+    // // console.log("CdObjService::createI()/params:", params);
+    // console.log("CdObjService::createI()/createIParams:", createIParams);
+    // if (await this.b.validateUniqueI(req, res, createIParams)) {
+    //   if (await this.b.validateRequiredI(req, res, createIParams)) {
+    //     return await this.b.createI(req, res, createIParams);
+    //   } else {
+    //     this.b.i.app_msg = `the required fields ${this.cRules.required.join(
+    //       ", "
+    //     )} is missing`;
+    //     this.b.err.push(this.b.i.app_msg);
+    //     return false;
+    //   }
+    // } else {
+    //   this.b.i.app_msg = `duplicate for ${this.cRules.noDuplicate.join(
+    //     ", "
+    //   )}   is not allowed`;
+    //   this.b.err.push(this.b.i.app_msg);
+    //   return false;
+    // }
+    createIParams.controllerData.cdObjGuid = this.b.getGuid();
+    if (await this.validateCreate(req, res, createIParams.controllerData)) {
+      return await this.b.createI(req, res, createIParams);
     } else {
-      this.b.i.app_msg = `duplicate for ${this.cRules.noDuplicate.join(
-        ", "
-      )}   is not allowed`;
+      this.b.i.app_msg = `Error validating CdObj create`;
       this.b.err.push(this.b.i.app_msg);
       return false;
     }
@@ -204,7 +223,7 @@ export class CdObjService extends CdService {
       delete cdObjQuery.cdObjId; // remove the property cdObjId. To be set automatically by db;
       if (d.cdObjId === -1) {
         console.log("CdObjService::getCdObjTypeI()/found a new descriptor...");
-        cdObjQuery.parentModuleGuid = 'd3f1a14d-6fb1-468c-b627-9a098ead6d5d'; // parent to descriptors is CdDev
+        cdObjQuery.parentModuleGuid = "d3f1a14d-6fb1-468c-b627-9a098ead6d5d"; // parent to descriptors is CdDev
         const si: IServiceInput = {
           serviceInstance: this,
           serviceModel: CdObjModel,
@@ -224,7 +243,9 @@ export class CdObjService extends CdService {
         console.log("CdObjService::syncDescriptors()/createI()/ret:", ret);
         retArr.push(ret);
       } else {
-        console.log("CdObjService::getCdObjTypeI()/found a existing descriptor...");
+        console.log(
+          "CdObjService::getCdObjTypeI()/found a existing descriptor..."
+        );
         // update jDetails field
         d.jDetails = JSON.stringify(d.jDetails);
         q.update = { jDetails: d.jDetails };
@@ -296,7 +317,9 @@ export class CdObjService extends CdService {
     return d.cdObjName.replace(/Descriptor$/, "");
   }
 
-  aggregateUpdateStatus(statusArray: Array<{ affected?: number } | CdObjModel | false>) {
+  aggregateUpdateStatus(
+    statusArray: Array<{ affected?: number } | CdObjModel | false>
+  ) {
     return statusArray.reduce(
       (acc, item) => {
         if (item === false) {
@@ -318,7 +341,6 @@ export class CdObjService extends CdService {
       { updatedRows: 0, unaffectedItems: 0, newRecords: 0, failedRecords: 0 }
     );
   }
-  
 
   /**
    * harmonise any data that can
@@ -355,7 +377,11 @@ export class CdObjService extends CdService {
     return 1;
   }
 
-  async validateCreate(req, res) {
+  async validateCreate(req, res, pl?: CdObjModel) {
+    let internalMode = false;
+    if (pl) {
+      internalMode = true;
+    }
     const svSess = new SessionService();
     ///////////////////////////////////////////////////////////////////
     // 1. Validate against duplication
@@ -368,30 +394,10 @@ export class CdObjService extends CdService {
 
     ///////////////////////////////////////////////////////////////////
     // 2. confirm the cd_obj referenced exists
-    let pl: CdObjModel = this.b.getPlData(req);
+    if (!internalMode) {
+      pl = this.b.getPlData(req);
+    }
 
-    // if ('cdObjTypeGuid' in pl) {
-    //     const serviceInput = {
-    //         serviceModel: CdObjTypeModel,
-    //         docName: 'CdObjService::validateCreate',
-    //         cmd: {
-    //             action: 'find',
-    //             query: { where: { cdObjTypeGuid: pl.cdObjTypeGuid } }
-    //         },
-    //         dSource: 1
-    //     }
-    //     const r: any = await this.b.read(req, res, serviceInput)
-    //     if (r.length > 0) {
-    //         ret = true;
-    //     } else {
-    //         ret = false;
-    //         this.b.i.app_msg = `cdObj type reference is invalid`;
-    //         this.b.err.push(this.b.i.app_msg);
-    //     }
-    // } else {
-    //     this.b.i.app_msg = `parentModuleGuid is missing in payload`;
-    //     this.b.err.push(this.b.i.app_msg);
-    // }
     if ("cdObjTypeGuid" in pl) {
       console.log("CdObjService::validateCreate()/01");
       console.log("CdObjService::validateCreate()/pl:", pl);
@@ -430,20 +436,34 @@ export class CdObjService extends CdService {
           if ("objGuid" in pl) {
             console.log("CdObjService::validateCreate()/04");
             ret = true;
-            await this.b.setPlData(req, {
-              key: "cdObjName",
-              value: pl.objGuid,
-            });
-            const userData: UserModel[] = await this.b.get(
+            if (internalMode) {
+              pl.cdObjName = pl.objGuid;
+            } else {
+              await this.b.setPlData(req, {
+                key: "cdObjName",
+                value: pl.objGuid,
+              });
+            }
+
+            const serviceInput: IServiceInput = this.b.siGet(
+              { where: { userGuid: pl.objGuid } },
+              "CdObjService:validateCreate",
+              UserModel
+            );
+            const userData: UserModel[] = await this.b.read(
               req,
               res,
-              UserModel,
-              { where: { userGuid: pl.objGuid } }
+              serviceInput
             );
-            await this.b.setPlData(req, {
-              key: "objId",
-              value: userData[0].userId,
-            });
+            console.log("CdObjService::validateCreate()/userData:", userData);
+            if (internalMode) {
+              pl.objId = userData[0].userId;
+            } else {
+              await this.b.setPlData(req, {
+                key: "objId",
+                value: userData[0].userId,
+              });
+            }
           } else {
             console.log("CdObjService::validateCreate()/05");
             this.b.setAlertMessage(
@@ -480,10 +500,16 @@ export class CdObjService extends CdService {
         res,
         serviceInput
       );
-      await this.b.setPlData(req, {
-        key: "parentModuleId",
-        value: moduleData[0].moduleId,
-      });
+      console.log("CdObjService::validateCreate()/moduleData:", moduleData);
+      if (internalMode) {
+        pl.parentModuleId = moduleData[0].moduleId;
+      } else {
+        await this.b.setPlData(req, {
+          key: "parentModuleId",
+          value: moduleData[0].moduleId,
+        });
+      }
+
       console.log("CdObjService::validateCreate()/moduleData:", moduleData);
       if (moduleData.length > 0) {
         console.log("CdObjService::validateCreate()/09");
@@ -505,26 +531,35 @@ export class CdObjService extends CdService {
       "CdObjService::validateCreate()/req.post",
       JSON.stringify(req.post)
     );
-    pl = this.b.getPlData(req);
+    if (!internalMode) {
+      pl = this.b.getPlData(req);
+    }
+
     console.log("CdObjService::validateCreate()/pl", JSON.stringify(pl));
-    if (await this.b.validateUnique(req, res, params)) {
-      if (await this.b.validateRequired(req, res, this.cRules)) {
-        ret = true;
+    if (internalMode) {
+      /**
+       * validate for internal
+       */
+    } else {
+      if (await this.b.validateUnique(req, res, params)) {
+        if (await this.b.validateRequired(req, res, this.cRules)) {
+          ret = true;
+        } else {
+          ret = false;
+          this.b.i.app_msg = `the required fields ${this.cRules.required.join(
+            ", "
+          )} is missing`;
+          this.b.err.push(this.b.i.app_msg);
+        }
       } else {
         ret = false;
-        this.b.i.app_msg = `the required fields ${this.cRules.required.join(
+        this.b.i.app_msg = `duplicate for ${this.cRules.noDuplicate.join(
           ", "
-        )} is missing`;
+        )} is not allowed`;
         this.b.err.push(this.b.i.app_msg);
       }
-    } else {
-      ret = false;
-      this.b.i.app_msg = `duplicate for ${this.cRules.noDuplicate.join(
-        ", "
-      )} is not allowed`;
-      this.b.err.push(this.b.i.app_msg);
+      /////////////////////////////////////////////
     }
-    /////////////////////////////////////////////
 
     console.log("CdObjService::getCdObj/13");
     if (this.b.err.length > 0) {
@@ -565,7 +600,7 @@ export class CdObjService extends CdService {
       this.b.err.push(e.toString());
       const i = {
         messages: this.b.err,
-        code: "BaseService:update",
+        code: "CdObjService:getCdObj",
         app_msg: "",
       };
       await this.b.serviceErr(req, res, e, i.code);
@@ -601,7 +636,7 @@ export class CdObjService extends CdService {
       this.b.err.push(e.toString());
       const i = {
         messages: this.b.err,
-        code: "BaseService:update",
+        code: "CdObjService:update",
         app_msg: "",
       };
       await this.b.serviceErr(req, res, e, i.code);

@@ -64,7 +64,7 @@ export class ConsumerResourceService extends CdService {
                     {
                         "data": {
                              "cdObjTypeGuid": "8b4cf8de-1ffc-4575-9e73-4ccf45a7756b", // module
-                             "consumerId": "B0B3DA99-1859-A499-90F6-1E3F69575DCD", // emp services
+                             "consumerGuid": "B0B3DA99-1859-A499-90F6-1E3F69575DCD", // emp services
                              "cdObjGuid": "8D4ED6A9-398D-32FE-7503-740C097E4F1F" // resource (module) guid...in this case: booking module
                         }
                     }
@@ -84,13 +84,13 @@ export class ConsumerResourceService extends CdService {
             const serviceInput = {
                 serviceModel: ConsumerResourceModel,
                 serviceModelInstance: this.serviceModel,
-                docName: 'Create company',
+                docName: 'Create consumer-resource',
                 dSource: 1,
             }
             console.log('ConsumerResourceService::create()/serviceInput:', serviceInput)
             console.log('ConsumerResourceService::create()/req.post:', JSON.stringify(req.post))
             const respData = await this.b.create(req, res, serviceInput);
-            this.b.i.app_msg = 'new company created';
+            this.b.i.app_msg = 'new consumer-resource created';
             this.b.setAppState(true, this.b.i, svSess.sessResp);
             this.b.cdResp.data = await respData;
             const r = await this.b.respond(req, res);
@@ -101,14 +101,29 @@ export class ConsumerResourceService extends CdService {
     }
 
     async createI(req, res, createIParams: CreateIParams): Promise<ConsumerResourceModel | boolean> {
+        createIParams.controllerData.consumerResourceGuid = this.b.getGuid();
         return await this.b.createI(req, res, createIParams)
     }
 
-    async companyExists(req, res, params): Promise<boolean> {
+    // async companyExists(req, res, params): Promise<boolean> {
+    //     const serviceInput: IServiceInput = {
+    //         serviceInstance: this,
+    //         serviceModel: ConsumerResourceModel,
+    //         docName: 'ConsumerResourceService::companyExists',
+    //         cmd: {
+    //             action: 'find',
+    //             query: { where: params.filter }
+    //         },
+    //         dSource: 1,
+    //     }
+    //     return this.b.read(req, res, serviceInput)
+    // }
+
+    async consumerResourceExists(req, res, params): Promise<boolean> {
         const serviceInput: IServiceInput = {
             serviceInstance: this,
             serviceModel: ConsumerResourceModel,
-            docName: 'ConsumerResourceService::companyExists',
+            docName: 'ConsumerResourceService::consumerResourceExists',
             cmd: {
                 action: 'find',
                 query: { where: params.filter }

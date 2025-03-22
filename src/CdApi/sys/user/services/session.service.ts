@@ -235,7 +235,8 @@ export class SessionService {
             await this.redisService.set(cacheKey, JSON.stringify(retSessionData), ttl);
         }
         console.log("SessionService::getSessionDataExt()/14")
+        console.log("SessionService::getSessionDataExt()/retSessionData:", retSessionData)
         // Return the freshly fetched session data
-        return retSessionData;
+        return await retSessionData;
     }
 }
