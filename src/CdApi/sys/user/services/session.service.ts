@@ -166,7 +166,7 @@ export class SessionService {
 
     }
 
-    async getSessionDataExt(req, res, ignoreCache: boolean = null): Promise<ISessionDataExt> {
+    async getSessionDataExt(req, res, ignoreCache: boolean = null): Promise<ISessionDataExt | null> {
         console.log("SessionService::getSessionDataExt()/01")
         let cacheKey
 
@@ -194,49 +194,54 @@ export class SessionService {
         this.currentSessData = await this.getSession(req, res);
         console.log("SessionService::getSessionDataExt()/05")
         console.log("SessionService::getSessionDataExt()/this.currentSessData:", this.currentSessData)
-        const consumerGuid = this.currentSessData[0].consumerGuid;
-        console.log("SessionService::getSessionDataExt()/06")
-        console.log("SessionService::getSessionDataExt()/consumerGuid:", consumerGuid)
-        const cuid = this.currentSessData[0].currentUserId;
-        console.log("SessionService::getSessionDataExt()/07")
-        console.log("SessionService::getSessionDataExt()/cuid:", cuid)
-        const userData = await svUser.getUserByID(req, res, cuid)
-        console.log("SessionService::getSessionDataExt()/08")
-        console.log("SessionService::getSessionDataExt()/userData:", userData)
-        this.currentUserData = userData[0];
-        console.log("SessionService::getSessionDataExt()/09")
-        console.log("SessionService::getSessionDataExt()/this.currentUserData:", this.currentUserData)
-        this.currentUserProfile = await svUser.existingUserProfile(req, res, cuid);
-        console.log("SessionService::getSessionDataExt()/10")
-        console.log("SessionService::getSessionDataExt()/this.currentUserProfile:", this.currentUserProfile)
-        this.currentConsumerData = await svConsumer.getConsumerI(req, res, { where: { consumerGuid: consumerGuid } });
-        console.log("SessionService::getSessionDataExt()/11")
-        console.log("SessionService::getSessionDataExt()/this.currentConsumerData:", this.currentConsumerData)
-        this.currentCompanyData = await svConsumer.getCompanyData(req, res, consumerGuid);
-        console.log("SessionService::getSessionDataExt()/11")
-        console.log("SessionService::getSessionDataExt()/this.currentCompanyData:", this.currentCompanyData)
-
-        // Compose session data object
-        const retSessionData = {
-            currentUser: userData[0],
-            currentUserProfile: this.currentUserProfile,
-            currentSession: this.currentSessData[0],
-            currentConsumer: this.currentConsumerData[0],
-            currentCompany: this.currentCompanyData[0],
-        };
-        console.log("SessionService::getSessionDataExt()/12")
-        console.log("SessionService::getSessionDataExt()/cuid:", cuid)
-
-        if (!ignoreCache) {
-            console.log("SessionService::getSessionDataExt()/13")
-            // Set the TTL to 1 hour (3600 seconds)
-            const ttl = Number(config.cacheTtl)
-            // Store the session data in Redis for future requests (set a TTL of 1 hour)
-            await this.redisService.set(cacheKey, JSON.stringify(retSessionData), ttl);
+        if(this.currentSessData.length > 0){
+            const consumerGuid = this.currentSessData[0].consumerGuid;
+            console.log("SessionService::getSessionDataExt()/06")
+            console.log("SessionService::getSessionDataExt()/consumerGuid:", consumerGuid)
+            const cuid = this.currentSessData[0].currentUserId;
+            console.log("SessionService::getSessionDataExt()/07")
+            console.log("SessionService::getSessionDataExt()/cuid:", cuid)
+            const userData = await svUser.getUserByID(req, res, cuid)
+            console.log("SessionService::getSessionDataExt()/08")
+            console.log("SessionService::getSessionDataExt()/userData:", userData)
+            this.currentUserData = userData[0];
+            console.log("SessionService::getSessionDataExt()/09")
+            console.log("SessionService::getSessionDataExt()/this.currentUserData:", this.currentUserData)
+            this.currentUserProfile = await svUser.existingUserProfile(req, res, cuid);
+            console.log("SessionService::getSessionDataExt()/10")
+            console.log("SessionService::getSessionDataExt()/this.currentUserProfile:", this.currentUserProfile)
+            this.currentConsumerData = await svConsumer.getConsumerI(req, res, { where: { consumerGuid: consumerGuid } });
+            console.log("SessionService::getSessionDataExt()/11")
+            console.log("SessionService::getSessionDataExt()/this.currentConsumerData:", this.currentConsumerData)
+            this.currentCompanyData = await svConsumer.getCompanyData(req, res, consumerGuid);
+            console.log("SessionService::getSessionDataExt()/11")
+            console.log("SessionService::getSessionDataExt()/this.currentCompanyData:", this.currentCompanyData)
+    
+            // Compose session data object
+            const retSessionData = {
+                currentUser: userData[0],
+                currentUserProfile: this.currentUserProfile,
+                currentSession: this.currentSessData[0],
+                currentConsumer: this.currentConsumerData[0],
+                currentCompany: this.currentCompanyData[0],
+            };
+            console.log("SessionService::getSessionDataExt()/12")
+            console.log("SessionService::getSessionDataExt()/cuid:", cuid)
+    
+            if (!ignoreCache) {
+                console.log("SessionService::getSessionDataExt()/13")
+                // Set the TTL to 1 hour (3600 seconds)
+                const ttl = Number(config.cacheTtl)
+                // Store the session data in Redis for future requests (set a TTL of 1 hour)
+                await this.redisService.set(cacheKey, JSON.stringify(retSessionData), ttl);
+            }
+            console.log("SessionService::getSessionDataExt()/14")
+            console.log("SessionService::getSessionDataExt()/retSessionData:", retSessionData)
+            // Return the freshly fetched session data
+            return await retSessionData;
+        } else {
+            return null;
         }
-        console.log("SessionService::getSessionDataExt()/14")
-        console.log("SessionService::getSessionDataExt()/retSessionData:", retSessionData)
-        // Return the freshly fetched session data
-        return await retSessionData;
+        
     }
 }
