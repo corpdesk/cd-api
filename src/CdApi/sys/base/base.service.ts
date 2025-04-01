@@ -106,7 +106,7 @@ export class BaseService {
       if (!this.db) {
         this.db = new TypeOrmDatasource();
         this.ds = await this.db.getConnection(); // ✅ Store DataSource
-    }
+      }
       this.logger.logInfo("BaseService::init()/this.models:", this.models);
     } catch (e) {
       this.logger.logInfo("BaseService::init()/02:");
@@ -145,7 +145,9 @@ export class BaseService {
     // );
     try {
       await this.db.getConnection(`sqlite${i.toString()}`);
-      this.sqliteConn = await this.db.getConnection(`sqlite${i.toString()}`).connect();
+      this.sqliteConn = await this.db
+        .getConnection(`sqlite${i.toString()}`)
+        .connect();
     } catch (error) {
       // this.sqliteConn = await createConnection(slConfig);
     }
@@ -915,9 +917,7 @@ export class BaseService {
   async getEntityPropertyMap(req, res, model) {
     await this.init(req, res);
     // console.log('BaseService::getEntityPropertyMap()/model:', model)
-    const entityMetadata: EntityMetadata = await this.ds.getMetadata(
-      model
-    );
+    const entityMetadata: EntityMetadata = await this.ds.getMetadata(model);
     // console.log('BaseService::getEntityPropertyMap()/entityMetadata:', entityMetadata)
     const cols = await entityMetadata.columns;
     const colsFiltd = await cols.map(async (col) => {
@@ -932,9 +932,7 @@ export class BaseService {
 
   async getEntityPropertyMapSL(req, res, model) {
     await this.initSqlite(req, res);
-    const entityMetadata: EntityMetadata = await this.ds.getMetadata(
-      model
-    );
+    const entityMetadata: EntityMetadata = await this.ds.getMetadata(model);
     const cols = await entityMetadata.columns;
     // console.log('BaseService::getEntityPropertyMapSL()/cols:', cols)
     const colsFiltdArr = [];
@@ -983,10 +981,7 @@ export class BaseService {
     // console.log('validateUnique()/propMap:', await propMap)
     // const strQueryItems = await this.getQueryItems(req, propMap, params)
     const strQueryItems = await this.getQueryItems(req, params);
-    console.log(
-      "BaseService::validateUnique()/strQueryItems:",
-      strQueryItems
-    );
+    console.log("BaseService::validateUnique()/strQueryItems:", strQueryItems);
     // convert the string items into JSON objects
     // const arrQueryItems = await strQueryItems.map(async (item) => {
     //     console.log('validateUnique()/item:', await item)
@@ -996,10 +991,7 @@ export class BaseService {
     // console.log('validateUnique()/arrQueryItems:', arrQueryItems)
     // const filterItems = await JSON.parse(strQueryItems)
     const filterItems = await strQueryItems;
-    console.log(
-      "BaseService::validateUnique()/filterItems:",
-      filterItems
-    );
+    console.log("BaseService::validateUnique()/filterItems:", filterItems);
     // execute the query
     const results = await baseRepository.count({
       where: await filterItems,
@@ -1041,21 +1033,21 @@ export class BaseService {
     console.log("BaseService::getQueryItems()/03");
     const entries = Object.entries(fields);
     console.log("BaseService::getQueryItems()/04");
-    console.log('getQueryItems()/entries:', entries)
+    console.log("getQueryItems()/entries:", entries);
     const entryObjArr = entries.map((e) => {
-      console.log('getQueryItems()/e:', e)
+      console.log("getQueryItems()/e:", e);
       const k = e[0];
       const v = e[1];
       const ret = JSON.parse(
         `[{"key":"${k}","val":"${v}","obj":{"${k}":"${v}"}}]`
       );
-      console.log('getQueryItems()/ret:', ret)
+      console.log("getQueryItems()/ret:", ret);
       return ret;
     });
-    console.log('getQueryItems()/entryObjArr:', entryObjArr)
+    console.log("getQueryItems()/entryObjArr:", entryObjArr);
     const cRules: string[] = params.controllerInstance.cRules.noDuplicate;
     const qItems = entryObjArr.filter((f) => this.isNoDuplicate(f, cRules));
-    console.log('getQueryItems()/qItems:', qItems)
+    console.log("getQueryItems()/qItems:", qItems);
     const result: any = {};
     qItems.forEach(async (f: any) => {
       result[f[0].key] = f[0].val;
@@ -1406,14 +1398,8 @@ export class BaseService {
         console.log("BaseService::createI()/08");
         if (createIParams.serviceInput.dSource === 1) {
           console.log("BaseService::createI()/09");
-          console.log(
-            "BaseService::createI()/newDocData:",
-            newDocData
-          );
-          console.log(
-            "BaseService::createI()/createIParams:",
-            createIParams
-          );
+          console.log("BaseService::createI()/newDocData:", newDocData);
+          console.log("BaseService::createI()/createIParams:", createIParams);
           console.log(
             "BaseService::createI()/createIParams.controllerData:",
             createIParams.controllerData
@@ -1655,10 +1641,9 @@ export class BaseService {
             "BaseService::read()/04/serviceInput.serviceModel:",
             serviceInput.serviceModel
           );
-          console.log(
-            "BaseService::read()/04/serviceInput.modelName:",
-            { modelName: serviceInput.modelName }
-          );
+          console.log("BaseService::read()/04/serviceInput.modelName:", {
+            modelName: serviceInput.modelName,
+          });
           await this.setRepo(serviceInput);
           console.log("BaseService::read()/041");
           console.log("BaseService::read()/this.repo:", this.repo);
@@ -1757,10 +1742,7 @@ export class BaseService {
   }
 
   readCount$(req, res, serviceInput): Observable<any> {
-    console.log(
-      "BaseService::readCount$()/serviceInput:",
-      serviceInput
-    );
+    console.log("BaseService::readCount$()/serviceInput:", serviceInput);
     return from(this.readCount(req, res, serviceInput));
   }
 
@@ -1777,53 +1759,95 @@ export class BaseService {
    * This method makes use of QueryBuilderHelper to allow query to still be structured as earlier then this
    * class converts them to typeorm query builder.
    */
+  // async readQB(req, res, serviceInput: IServiceInput): Promise<any> {
+  //   await this.init(req, res);
+  //   console.log(
+  //     "BaseService::readQB()/repo/model:",
+  //     serviceInput.serviceModel
+  //   );
+  //   await this.setRepo(serviceInput);
+
+  //   // Create the helper instance
+  //   const queryBuilderHelper = new QueryBuilderHelper(this.repo);
+  //   const repo: any = this.repo;
+
+  //   try {
+  //     // let q: any = this.getQuery(req);
+  //     // const map = this.entityAdapter.registerMappingFromEntity(serviceInput.serviceModel);
+
+  //     // // clean up the where clause...especially for request from browsers
+  //     // const q = this.transformQueryInput(serviceInput.cmd.query, queryBuilderHelper);
+  //     // serviceInput.cmd.query.where = q.where;
+  //     // console.log(`BaseService::readQB()/q:`, { q: JSON.stringify(q) });
+  //     // console.log('BaseService::readQB()/q:', q);
+
+  //     const queryBuilder = queryBuilderHelper.createQueryBuilder(serviceInput);
+
+  //     console.log("BaseService::readQB/sql:", queryBuilder.getSql());
+  //     // Fetching items
+  //     // const items = await queryBuilder.getMany();
+  //     let items = await queryBuilder.getRawMany();
+  //     console.log("BaseService::readQB()/items:", items);
+  //     const entityName = await this.entityAdapter.getEntityName(
+  //       serviceInput.serviceModel
+  //     );
+  //     items = this.entityAdapter.mapRawToEntity(entityName, items);
+
+  //     console.log("BaseService::readQB()/Fetched-Items:", items); // Debug logging for items
+
+  //     // Fetching count
+  //     const count = await queryBuilder.getCount();
+  //     console.log("Fetched Count:", count); // Debug logging for count
+
+  //     // Combine results
+  //     return {
+  //       items,
+  //       count,
+  //     };
+  //   } catch (err) {
+  //     console.error("Error in readQB:", err); // Debug logging for errors
+  //     return await this.serviceErr(req, res, err, "BaseService:readQB");
+  //   }
+  // }
+
   async readQB(req, res, serviceInput: IServiceInput): Promise<any> {
     await this.init(req, res);
-    console.log(
-      "BaseService::readQB()/repo/model:",
+
+    console.log("BaseService::readQB()/repo/model:", serviceInput.serviceModel);
+    await this.setRepo(serviceInput);
+
+    // Ensure the mapping is registered
+    await this.entityAdapter.registerMappingFromEntity(
       serviceInput.serviceModel
     );
-    await this.setRepo(serviceInput);
 
     // Create the helper instance
     const queryBuilderHelper = new QueryBuilderHelper(this.repo);
     const repo: any = this.repo;
 
     try {
-      // let q: any = this.getQuery(req);
-      // const map = this.entityAdapter.registerMappingFromEntity(serviceInput.serviceModel);
-
-      // // clean up the where clause...especially for request from browsers
-      // const q = this.transformQueryInput(serviceInput.cmd.query, queryBuilderHelper);
-      // serviceInput.cmd.query.where = q.where;
-      // console.log(`BaseService::readQB()/q:`, { q: JSON.stringify(q) });
-      // console.log('BaseService::readQB()/q:', q);
-
       const queryBuilder = queryBuilderHelper.createQueryBuilder(serviceInput);
-
       console.log("BaseService::readQB/sql:", queryBuilder.getSql());
-      // Fetching items
-      // const items = await queryBuilder.getMany();
+
       let items = await queryBuilder.getRawMany();
       console.log("BaseService::readQB()/items:", items);
+
       const entityName = await this.entityAdapter.getEntityName(
         serviceInput.serviceModel
       );
       items = this.entityAdapter.mapRawToEntity(entityName, items);
 
-      console.log("BaseService::readQB()/Fetched-Items:", items); // Debug logging for items
+      console.log("BaseService::readQB()/Fetched-Items:", items);
 
-      // Fetching count
       const count = await queryBuilder.getCount();
-      console.log("Fetched Count:", count); // Debug logging for count
+      console.log("Fetched Count:", count);
 
-      // Combine results
       return {
         items,
         count,
       };
     } catch (err) {
-      console.error("Error in readQB:", err); // Debug logging for errors
+      console.error("Error in readQB:", err);
       return await this.serviceErr(req, res, err, "BaseService:readQB");
     }
   }
@@ -2223,8 +2247,7 @@ export class BaseService {
       "BaseService::feildMapSL()/serviceInput:",
       serviceInput.serviceModel
     );
-    const meta = await this.ds.getMetadata(serviceInput.serviceModel)
-      .columns;
+    const meta = await this.ds.getMetadata(serviceInput.serviceModel).columns;
     return await meta.map(async (c) => {
       return {
         propertyPath: await c.propertyPath,
@@ -2510,10 +2533,7 @@ export class BaseService {
     await this.setRepo(serviceInput);
     // await this.setRepo(serviceInput.serviceModel)
     // const serviceRepository = await this.ds.getRepository(serviceInput.serviceModel);
-    console.log(
-      "BaseService::delete()/repo/model:",
-      serviceInput.serviceModel
-    );
+    console.log("BaseService::delete()/repo/model:", serviceInput.serviceModel);
     // const serviceRepository: any = await this.repo(req, res, serviceInput.serviceModel)
     const serviceRepository: any = this.repo;
     const result = await serviceRepository.delete(serviceInput.cmd.query.where);
@@ -2873,9 +2893,7 @@ export class BaseService {
   }
 
   async wsServiceErr(e, eCode, cdToken = null) {
-    console.log(
-      `Error as BaseService::wsServiceErr, e: ${e.toString()} `
-    );
+    console.log(`Error as BaseService::wsServiceErr, e: ${e.toString()} `);
     const svSess = new SessionService();
     svSess.sessResp.cd_token = cdToken;
     svSess.sessResp.ttl = svSess.getTtl();
