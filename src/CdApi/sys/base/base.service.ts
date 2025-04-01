@@ -3107,8 +3107,9 @@ export class BaseService {
   /////////////////////
 
   async setRepo(serviceInput: IServiceInput) {
-    const AppDataSource = await getDataSource();
-    this.repo = AppDataSource.getRepository(serviceInput.serviceModel);
+    // const AppDataSource = await getDataSource();
+    // this.repo = AppDataSource.getRepository(serviceInput.serviceModel);
+    this.repo = this.ds.getRepository(serviceInput.serviceModel);
   }
 
   async all(request: Request, response: Response, next: NextFunction) {
