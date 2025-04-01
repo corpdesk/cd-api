@@ -43,7 +43,6 @@ export class MenuService {
     };
 
     constructor() {
-
         this.b = new BaseService();
         this.logger = new Logging();
         this.srvGroupMember = new GroupMemberService();

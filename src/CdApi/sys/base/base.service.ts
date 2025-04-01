@@ -1806,7 +1806,7 @@ export class BaseService {
       // const items = await queryBuilder.getMany();
       let items = await queryBuilder.getRawMany();
       console.log("BaseService::readQB()/items:", items);
-      const entityName = this.entityAdapter.getEntityName(
+      const entityName = await this.entityAdapter.getEntityName(
         serviceInput.serviceModel
       );
       items = this.entityAdapter.mapRawToEntity(entityName, items);
@@ -1860,7 +1860,7 @@ export class BaseService {
 
     try {
       const items = await queryBuilder.getRawMany();
-      const entityName = this.entityAdapter.getEntityName(
+      const entityName = await this.entityAdapter.getEntityName(
         serviceInput.serviceModel
       );
       const processedItems = this.entityAdapter.mapRawToEntity(
