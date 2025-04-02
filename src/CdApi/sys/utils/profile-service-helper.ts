@@ -144,6 +144,10 @@ export class ProfileServiceHelper {
      * Applies a JSON update based on a path.
      */
     static applyJsonUpdate(profile: any, path: (string | number | string[])[], value: any) {
+        console.log("ProfileServiceHelper::applyJsonUpdate()/01")
+        console.log("ProfileServiceHelper::applyJsonUpdate()/profile:", profile)
+        console.log("ProfileServiceHelper::applyJsonUpdate()/path:", path)
+        console.log("ProfileServiceHelper::applyJsonUpdate()/value:", value)
         let current = profile;
 
         for (let i = 0; i < path.length - 1; i++) {
@@ -165,6 +169,7 @@ export class ProfileServiceHelper {
         }
 
         current[finalKey] = value;
+        console.log("ProfileServiceHelper::applyJsonUpdate()/current[finalKey]:", current[finalKey])
     }
 
     // static createCoopRole(profile: any, path: (string | number | string[])[], newValue: MemberMeta) {
