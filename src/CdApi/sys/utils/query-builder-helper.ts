@@ -86,14 +86,14 @@ export class QueryBuilderHelper {
         };
     }
 
-    createQueryBuilder(serviceInput: IServiceInput): SelectQueryBuilder<any> {
+    async createQueryBuilder(serviceInput: IServiceInput): Promise<SelectQueryBuilder<any>> {
         const query = serviceInput.cmd.query;
         const queryBuilder = this.repository.createQueryBuilder(this.repository.metadata.name);
 
         // Handling SELECT clause
         if (query.select && query.select.length > 0) {
             this.entityAdapter.registerMappingFromEntity(serviceInput.serviceModel);
-            const selectDB = this.entityAdapter.getDbSelect(this.repository.metadata.name, query.select);
+            const selectDB = await this.entityAdapter.getDbSelect(this.repository.metadata.name, query.select);
             queryBuilder.select(selectDB);
         } else {
             const allColumns = this.repository.metadata.columns.map(column => `${this.repository.metadata.name}.${column.databaseName}`);

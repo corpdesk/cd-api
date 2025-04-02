@@ -140,7 +140,8 @@ export class EntityAdapter {
     return metadata.name;
   }
 
-  public getDbSelect(entityName: string, selectFields: string[]): string[] {
+  async getDbSelect(entityName: string, selectFields: string[]): Promise<string[]> {
+    await this.init();
     if (!this.mappings[entityName]) {
       throw new Error(`No mappings registered for entity: ${entityName}`);
     }

@@ -1826,7 +1826,7 @@ export class BaseService {
     const repo: any = this.repo;
 
     try {
-      const queryBuilder = queryBuilderHelper.createQueryBuilder(serviceInput);
+      const queryBuilder = await queryBuilderHelper.createQueryBuilder(serviceInput);
       console.log("BaseService::readQB/sql:", queryBuilder.getSql());
 
       let items = await queryBuilder.getRawMany();
@@ -1872,7 +1872,7 @@ export class BaseService {
     await this.setRepo(serviceInput);
 
     const queryBuilderHelper = new QueryBuilderHelper(this.repo);
-    const queryBuilder = queryBuilderHelper.createQueryBuilder(serviceInput);
+    const queryBuilder = await queryBuilderHelper.createQueryBuilder(serviceInput);
 
     // Use MySQL JSON_EXTRACT to extract specific fields from the JSON column
     keys.forEach((key) => {
