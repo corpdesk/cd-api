@@ -13,6 +13,7 @@
 
 import { ICoopRole, MemberMeta } from "../../app/coops/models/coop-member.model";
 import { IQuery, IServiceInput } from "../base/IBase";
+import { JMorph, JUpdateInstruction } from "./j-morph";
 
 export class ProfileServiceHelper {
     /**
@@ -107,7 +108,16 @@ export class ProfileServiceHelper {
                 console.log("ProfileServiceHelper::modifyProfile()/05")
             } else {
                 console.log("ProfileServiceHelper::modifyProfile()/06")
-                this.applyJsonUpdate(updatedProfile, path, value);
+                const jsonUpdate: JUpdateInstruction[] = [
+                    {
+                        path: path,
+                        value: value,
+                        action: action
+                    }
+                ];
+                // this.applyJsonUpdate(updatedProfile, path, value);
+                updatedProfile = JMorph.applyUpdates(updatedProfile, jsonUpdate);
+                console.log("ProfileServiceHelper::modifyProfile()/updatedProfile:", JSON.stringify(await updatedProfile))
             }
         }
         console.log("ProfileServiceHelper::modifyProfile()/07")
@@ -145,7 +155,7 @@ export class ProfileServiceHelper {
      */
     static applyJsonUpdate(profile: any, path: (string | number | string[])[], value: any) {
         console.log("ProfileServiceHelper::applyJsonUpdate()/01")
-        console.log("ProfileServiceHelper::applyJsonUpdate()/profile:", profile)
+        console.log("ProfileServiceHelper::applyJsonUpdate()/profile:", JSON.stringify(profile))
         console.log("ProfileServiceHelper::applyJsonUpdate()/path:", path)
         console.log("ProfileServiceHelper::applyJsonUpdate()/value:", value)
         let current = profile;
@@ -169,35 +179,9 @@ export class ProfileServiceHelper {
         }
 
         current[finalKey] = value;
+        console.log("ProfileServiceHelper::applyJsonUpdate()/current:", JSON.stringify(current))
         console.log("ProfileServiceHelper::applyJsonUpdate()/current[finalKey]:", current[finalKey])
     }
-
-    // static createCoopRole(profile: any, path: (string | number | string[])[], newValue: MemberMeta) {
-    //     console.log("ProfileServiceHelper::createCoopRole()/profile:", profile)
-    //     console.log("ProfileServiceHelper::createCoopRole()/newValue:", newValue)
-    //     const aclList:MemberMeta[] = profile.coopMembership.acl;
-    //     console.log("ProfileServiceHelper::createCoopRole()/aclList:", aclList)
-
-
-
-    //     // Remove existing role for the same coopId to avoid duplication
-    //     const existingIndex = aclList.findIndex((acl: any) => acl.coopId === newValue.coopId);
-    //     if (existingIndex !== -1) {
-    //         aclList.splice(existingIndex, 1);
-    //     }
-
-    //     console.log("ProfileServiceHelper::createCoopRole()/newValue.coopRole:", newValue.coopRole)
-    //     // Add the new role
-    //     aclList.push({
-    //         coopId: newValue.coopId,
-    //         coopActive: true,
-    //         coopRole: newValue.coopRole
-    //     });
-
-    //     console.log("ProfileServiceHelper::createCoopRole()/aclList2:", aclList)
-    //     console.log("ProfileServiceHelper::createCoopRole()/profile:", profile)
-    //     return profile;
-    // }
 
     static async createCoopRole(profile: any, path: (string | number | string[])[], newValue: MemberMeta) {
         console.log("ProfileServiceHelper::createCoopRole()/profile:", profile)

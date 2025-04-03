@@ -1,0 +1,187 @@
+{
+  "app_state": {
+      "success": true,
+      "info": {
+          "messages": [],
+          "code": "",
+          "app_msg": "1 record/s updated"
+      },
+      "sess": {
+          "cd_token": "",
+          "jwt": null,
+          "ttl": 600
+      },
+      "cache": {},
+      "sConfig": {
+          "usePush": true,
+          "usePolling": true,
+          "useCacheStore": true
+      }
+  },
+  "data": {
+      "updateRet": {
+          "generatedMaps": [],
+          "raw": [],
+          "affected": 1
+      },
+      "userUpdateRet": {
+          "generatedMaps": [],
+          "raw": [],
+          "affected": 1
+      },
+      "newProfile": {
+          "userData": {
+              "docId": 21684,
+              "email": "accosca-6@empservices.co.ke",
+              "fName": null,
+              "lName": null,
+              "mName": null,
+              "gender": null,
+              "mobile": null,
+              "userId": 1618,
+              "zipCode": null,
+              "userGuid": "daa5b5d0-5ec4-4946-9cfb-f41073182084",
+              "userName": "accosca-6",
+              "birthDate": null,
+              "companyId": null,
+              "nationalId": null,
+              "passportId": null,
+              "postalAddr": null,
+              "userTypeId": null,
+              "userEnabled": true,
+              "activationKey": "e80a2286-de78-4dbe-9625-b508274b6a1d"
+          },
+          "fieldPermissions": {
+              "userPermissions": [
+                  {
+                      "read": true,
+                      "field": "userName",
+                      "write": false,
+                      "hidden": false,
+                      "userId": 1000,
+                      "execute": false
+                  }
+              ],
+              "groupPermissions": [
+                  {
+                      "read": true,
+                      "field": "userName",
+                      "write": false,
+                      "hidden": false,
+                      "execute": false,
+                      "groupId": 0
+                  }
+              ]
+          },
+          "coopMembership": {
+              "acl": {
+                  "userData": {
+                      "docId": 21684,
+                      "email": "accosca-6@empservices.co.ke",
+                      "fName": null,
+                      "lName": null,
+                      "mName": null,
+                      "gender": null,
+                      "mobile": null,
+                      "userId": 1618,
+                      "zipCode": null,
+                      "userGuid": "daa5b5d0-5ec4-4946-9cfb-f41073182084",
+                      "userName": "accosca-6",
+                      "birthDate": null,
+                      "companyId": null,
+                      "nationalId": null,
+                      "passportId": null,
+                      "postalAddr": null,
+                      "userTypeId": null,
+                      "userEnabled": true,
+                      "activationKey": "e80a2286-de78-4dbe-9625-b508274b6a1d"
+                  },
+                  "coopMembership": {
+                      "acl": [
+                          {
+                              "coopId": -1,
+                              "aclRole": {
+                                  "aclRoleName": "guest",
+                                  "permissions": {
+                                      "userPermissions": [
+                                          {
+                                              "read": false,
+                                              "field": "",
+                                              "write": false,
+                                              "hidden": true,
+                                              "cdObjId": 0,
+                                              "execute": false
+                                          }
+                                      ],
+                                      "groupPermissions": [
+                                          {
+                                              "read": false,
+                                              "field": "",
+                                              "write": false,
+                                              "hidden": true,
+                                              "cdObjId": 0,
+                                              "execute": false
+                                          }
+                                      ]
+                                  }
+                              },
+                              "coopRole": [
+                                  {
+                                      "scope": 11,
+                                      "geoLocationId": null
+                                  }
+                              ],
+                              "coopActive": false
+                          },
+                          {
+                              "coopId": 3,
+                              "coopRole": [
+                                  {
+                                      "scope": 20,
+                                      "geoLocationId": null
+                                  }
+                              ],
+                              "coopActive": true
+                          }
+                      ],
+                      "memberData": [
+                          {
+                              "coopId": 3,
+                              "companyName": "Tanzania-Dar-SACCO-01",
+                              "cdGeoLocationId": 249
+                          }
+                      ]
+                  },
+                  "fieldPermissions": {
+                      "userPermissions": [
+                          {
+                              "read": true,
+                              "field": "userName",
+                              "write": false,
+                              "hidden": false,
+                              "userId": 1000,
+                              "execute": false
+                          }
+                      ],
+                      "groupPermissions": [
+                          {
+                              "read": true,
+                              "field": "userName",
+                              "write": false,
+                              "hidden": false,
+                              "execute": false,
+                              "groupId": 0
+                          }
+                      ]
+                  }
+              },
+              "memberData": [
+                  {
+                      "identiry": "data-for-memberData",
+                      "coopMemberProfile": []
+                  }
+              ]
+          }
+      }
+  }
+}
