@@ -680,10 +680,10 @@ export class BaseService {
     let ret;
     try {
       this.logger.logInfo("BaseService::respond(res)/this.pl:", {
-        post: JSON.stringify(req.post),
+        post: req.post,
       });
       this.logger.logInfo("BaseService::respond(res)/this.cdResp:", {
-        cdResp: JSON.stringify(this.cdResp),
+        cdResp: this.cdResp,
       });
       ret = res.status(200).json(this.cdResp);
     } catch (e) {

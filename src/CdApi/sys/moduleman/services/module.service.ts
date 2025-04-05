@@ -859,7 +859,7 @@ export class ModuleService extends CdService {
         this.b.logTimeStamp('ModuleService::getAclModule$/01')
         this.consumerGuid = sessionDataExt.currentConsumer.consumerGuid;
         this.svAcl.consumerGuid = sessionDataExt.currentConsumer.consumerGuid;
-        this.logger.logInfo('ModuleService::getAclModule$()/sessionDataExt:', sessionDataExt);
+        // this.logger.logInfo('ModuleService::getAclModule$()/sessionDataExt:', sessionDataExt);
         this.logger.logInfo('ModuleService::getAclModule$()/this.svAcl.consumerGuid:', this.svAcl.consumerGuid);
     
         return forkJoin({

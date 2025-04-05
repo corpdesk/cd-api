@@ -1022,7 +1022,7 @@ export class UserService extends CdService {
     this.processResponse$(req, res, guest).subscribe((ret: any) => {
       this.logger.logInfo("UserService::authResponse()/02");
       this.b.logTimeStamp("ModuleService::authResponse/02/ret:");
-      this.logger.logInfo(`UserService::authResponse()/02/ret:${JSON.stringify(ret)}`, ret);
+      // this.logger.logInfo(`UserService::authResponse()/02/ret:${JSON.stringify(ret)}`, ret);
       // const i = null;
       const sessData: ISessResp = {
         cd_token: ret.sessResult.cdToken,
@@ -1620,7 +1620,7 @@ export class UserService extends CdService {
       },
       mapping: { profileField: "userProfile" },
     };
-    return ProfileServiceHelper.fetchProfile(req, res, si);
+    return this.b.read(req, res, si);
   }
 
   async modifyProfile(existingData, profileConfig) {

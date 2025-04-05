@@ -1560,7 +1560,7 @@ export class CdDevProjectService extends CdService {
       },
       mapping: { profileField: "cdDevProjectProfile" },
     };
-    return ProfileServiceHelper.fetchProfile(req, res, si);
+    return this.b.read(req, res, si);
   }
 
   // async modifyUserProfile(existingData, profileDefaultConfig) {

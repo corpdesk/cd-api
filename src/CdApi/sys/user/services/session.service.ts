@@ -235,7 +235,7 @@ export class SessionService {
                 const ttl = Number(config.cacheTtl)
                 // Store the session data in Redis for future requests (set a TTL of 1 hour)
                 // await this.redisService.set(cacheKey, JSON.stringify(retSessionData), ttl);
-                await this.redisService.set(cacheKey, JSON.stringify(retSessionData), ttl);
+                await this.redisService.set(cacheKey, safeStringify(retSessionData), ttl);
             }
             console.log("SessionService::getSessionDataExt()/14")
             console.log("SessionService::getSessionDataExt()/retSessionData:", retSessionData)
