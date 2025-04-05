@@ -307,9 +307,9 @@ export class WebsocketService extends CdService {
         // }
 
         // console.log('WebSocketService::getWebSocket/111');
-        // console.log('WebSocketService::validateCreate()/req.post', JSON.stringify(req.post));
+        // console.log('WebSocketService::validateCreate()/req.post', safeStringify(req.post));
         // pl = this.b.getPlData(req);
-        // console.log('WebSocketService::validateCreate()/pl', JSON.stringify(pl));
+        // console.log('WebSocketService::validateCreate()/pl', safeStringify(pl));
         // if (await this.b.validateUnique(req, res, params)) {
         //     if (await this.b.validateRequired(req, res, this.cRules)) {
         //         ret = true;
@@ -584,14 +584,14 @@ export class WebsocketService extends CdService {
                 console.log('wss.on(connection/resourceGuid:', resourceGuid);
                 // search and update registered data with socket
 
-                console.log('wss.on(connection/cdPushClients:', JSON.stringify(cdPushClients));
+                console.log('wss.on(connection/cdPushClients:', safeStringify(cdPushClients));
 
                 /**
                  * update client data with connection socket
                  */
                 // cdPushClients.forEach((c) => {
                 //     if (c.resourceGuid === resourceGuid) {
-                //         console.log('setting socket for:', JSON.stringify(c));
+                //         console.log('setting socket for:', safeStringify(c));
                 //         c.socket = ws;
                 //     }
                 // })
@@ -615,7 +615,7 @@ export class WebsocketService extends CdService {
                 console.log('wss.on(message)/typeof(strData):', typeof (strData));
                 console.log('wss.on(message)/strData:', strData);
                 let pEnvelop = JSON.parse(strData);
-                strData = JSON.stringify(pEnvelop);
+                strData = safeStringify(pEnvelop);
                 pEnvelop = JSON.parse(strData);
                 console.log('wss.on(message)/typeof(pEnvelop):', typeof (pEnvelop));
                 console.log('wss.on(message)/pEnvelop*:', pEnvelop);
@@ -633,7 +633,7 @@ export class WebsocketService extends CdService {
                         console.log('wss.on(message)/pushGuid*:', pushGuid);
                         if (senderId) {
                             this.saveSocket(senderId, pushGuid, ws);
-                            console.log('wss.on(message)/pEnvelop.pushRecepients:', JSON.stringify(pEnvelop.pushData.pushRecepients));
+                            console.log('wss.on(message)/pEnvelop.pushRecepients:', safeStringify(pEnvelop.pushData.pushRecepients));
                             let jwtToken = '';
                             pEnvelop.pushData.pushRecepients.forEach(async (m, i) => {
                                 console.log('wss.on(message)/m', m);
@@ -648,9 +648,9 @@ export class WebsocketService extends CdService {
                                         console.log('wss.on(message)/senderSocket/ret[0].socket:', ret[0].socket);
                                         senderSocket = ret[0].socket;
                                         // senderSocket = await this.getSocketRedis(cdObjId.resourceGuid)
-                                        // console.log('wss.on(message)/senderSocket/JSON.stringify(senderSocket):', JSON.stringify(senderSocket));
+                                        // console.log('wss.on(message)/senderSocket/safeStringify(senderSocket):', safeStringify(senderSocket));
                                         // senderSocket = this.getSocketArr(cdObjId.resourceGuid);
-                                        // console.log('wss.on(message)/senderSocket/JSON.stringify(senderSocket):', JSON.stringify(senderSocket));
+                                        // console.log('wss.on(message)/senderSocket/safeStringify(senderSocket):', safeStringify(senderSocket));
                                         break;
                                     case 7:
                                         ret = await this.destinationSocket(cdObjId.resourceGuid);
@@ -658,14 +658,14 @@ export class WebsocketService extends CdService {
                                         console.log('wss.on(message)/recepientSocket/ret[0].socket:', ret[0].socket);
                                         recepientSocket = ret[0].socket;
                                         // recepientSocket = await this.getSocketRedis(cdObjId.resourceGuid)
-                                        // console.log('wss.on(message)/recepientSocket/JSON.stringify(recepientSocket):', JSON.stringify(recepientSocket));
+                                        // console.log('wss.on(message)/recepientSocket/safeStringify(recepientSocket):', safeStringify(recepientSocket));
                                         // recepientSocket = this.getSocketArr(cdObjId.resourceGuid);
-                                        // console.log('wss.on(message)/recepientSocket/JSON.stringify(recepientSocket):', JSON.stringify(recepientSocket));
+                                        // console.log('wss.on(message)/recepientSocket/safeStringify(recepientSocket):', safeStringify(recepientSocket));
                                         break;
                                 }
 
                                 console.log('wss.on(message)/recepients[i].userId:', recepients[i].userId);
-                                console.log('wss.on(message)/pEnvelop.resp:', JSON.stringify(pEnvelop.resp));
+                                console.log('wss.on(message)/pEnvelop.resp:', safeStringify(pEnvelop.resp));
                                 jwtToken = senderToken;
                                 console.log('wss.on(message)/jwtToken:', jwtToken);
                                 try {
@@ -700,7 +700,7 @@ export class WebsocketService extends CdService {
                                             if (senderSocket) {
                                                 console.log('wss.on(message)/08');
                                                 console.log('wss.on(message)/data to send:', pEnvelop);
-                                                senderSocket.send(JSON.stringify(pEnvelop));
+                                                senderSocket.send(safeStringify(pEnvelop));
                                             } else {
                                                 console.log('wss.on(message)/09');
                                                 console.log('senderSocket is invalid');
@@ -712,9 +712,9 @@ export class WebsocketService extends CdService {
                                                 console.log('wss.on(message)/11');
                                                 console.log('wss.on(message)/data to send:', pEnvelop);
                                                 console.log('wss.on(message)/socket to use, recepientSocket:', recepientSocket);
-                                                console.log('wss.on(message)/socket to use, JSON.stringify(recepientSocket):', JSON.stringify(recepientSocket));
+                                                console.log('wss.on(message)/socket to use, safeStringify(recepientSocket):', safeStringify(recepientSocket));
                                                 try {
-                                                    recepientSocket.send(JSON.stringify(pEnvelop));
+                                                    recepientSocket.send(safeStringify(pEnvelop));
                                                 } catch (e) {
                                                     console.log('Error sending message. Error:', e);
                                                 }

@@ -29,7 +29,7 @@ export class Database {
     //         }
     //     } else {
     //         const connectionOptions: ConnectionOptions = this.connOptions;
-    //         // console.log(`Database:getConnection()/connectionOptions: ${JSON.stringify(connectionOptions)}`)
+    //         // console.log(`Database:getConnection()/connectionOptions: ${safeStringify(connectionOptions)}`)
     //         try {
     //             connection = await createConnection(connectionOptions);
     //         } catch (e) {

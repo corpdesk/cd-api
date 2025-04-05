@@ -46,7 +46,7 @@ module.exports = {
   plugins: [
     new webpack.DefinePlugin({
       'BUILD.DATA': {
-        VERSION: JSON.stringify(packageJson.version),
+        VERSION: safeStringify(packageJson.version),
       },
     }),
     new WrapperPlugin({

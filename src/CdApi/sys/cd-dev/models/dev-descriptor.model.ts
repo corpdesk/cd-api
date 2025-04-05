@@ -47,7 +47,7 @@ export function mapDescriptorToCdObj(descriptor: CdDescriptor): CdObjModel {
   cdObj.cdObjName = descriptor.cdObjName;
   cdObj.cdObjGuid = descriptor.cdObjGuid;
   cdObj.jDetails = descriptor.jDetails
-    ? JSON.stringify(descriptor.jDetails)
+    ? safeStringify(descriptor.jDetails)
     : null;
   return cdObj;
 }

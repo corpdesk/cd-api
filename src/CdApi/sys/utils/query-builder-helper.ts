@@ -190,7 +190,7 @@ export class QueryBuilderHelper {
     processArrayWhereClause2(queryBuilder: SelectQueryBuilder<any>, where: any) {
         console.log('QueryBuilderHelper::processArrayWhereClause2/04:')
         console.log('QueryBuilderHelper::processArrayWhereClause2/where:', where)
-        let strWhere = JSON.stringify(where)
+        let strWhere = safeStringify(where)
         console.log('QueryBuilderHelper::processArrayWhereClause2/where1:', strWhere)
         const a = `:"Like\\(`; // Escape the '(' character
         const b = `')"}`

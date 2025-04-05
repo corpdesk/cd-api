@@ -88,7 +88,7 @@ export class ConsumerResourceService extends CdService {
                 dSource: 1,
             }
             console.log('ConsumerResourceService::create()/serviceInput:', serviceInput)
-            console.log('ConsumerResourceService::create()/req.post:', JSON.stringify(req.post))
+            console.log('ConsumerResourceService::create()/req.post:', safeStringify(req.post))
             const respData = await this.b.create(req, res, serviceInput);
             this.b.i.app_msg = 'new consumer-resource created';
             this.b.setAppState(true, this.b.i, svSess.sessResp);
@@ -289,7 +289,7 @@ export class ConsumerResourceService extends CdService {
         //         },
         //         dSource: 1
         //     }
-        //     console.log('moduleman/ConsumerResourceService::validateCreate()/serviceInput:', JSON.stringify(serviceInput))
+        //     console.log('moduleman/ConsumerResourceService::validateCreate()/serviceInput:', safeStringify(serviceInput))
         //     const r: any = await this.b.read(req, res, serviceInput)
         //     console.log('moduleman/ConsumerResourceService::validateCreate()/r:', r)
         //     if (r.length > 0) {
@@ -325,7 +325,7 @@ export class ConsumerResourceService extends CdService {
                 },
                 dSource: 1
             }
-            console.log('moduleman/ConsumerResourceService::validateCreate()/serviceInput:', JSON.stringify(serviceInput))
+            console.log('moduleman/ConsumerResourceService::validateCreate()/serviceInput:', safeStringify(serviceInput))
             const r: any = await this.b.read(req, res, serviceInput)
             console.log('moduleman/ConsumerResourceService::validateCreate()/r:', r)
             if (r.length > 0) {
@@ -361,7 +361,7 @@ export class ConsumerResourceService extends CdService {
                 },
                 dSource: 1
             }
-            console.log('moduleman/ConsumerResourceService::validateCreate()/serviceInput:', JSON.stringify(serviceInput))
+            console.log('moduleman/ConsumerResourceService::validateCreate()/serviceInput:', safeStringify(serviceInput))
             const r: any = await this.b.read(req, res, serviceInput)
             console.log('moduleman/ConsumerResourceService::validateCreate()/r:', r)
             if (r.length > 0) {

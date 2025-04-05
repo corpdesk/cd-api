@@ -358,10 +358,10 @@ export class CdObjTypeTypeService extends CdService {
     console.log("CdObjTypeTypeService::getCdObjType/111");
     console.log(
       "CdObjTypeTypeService::validateCreate()/req.post",
-      JSON.stringify(req.post)
+      safeStringify(req.post)
     );
     pl = this.b.getPlData(req);
-    console.log("CdObjTypeTypeService::validateCreate()/pl", JSON.stringify(pl));
+    console.log("CdObjTypeTypeService::validateCreate()/pl", safeStringify(pl));
     if (await this.b.validateUnique(req, res, params)) {
       if (await this.b.validateRequired(req, res, this.cRules)) {
         ret = true;

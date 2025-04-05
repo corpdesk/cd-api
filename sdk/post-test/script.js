@@ -14,14 +14,14 @@ document.getElementById('send-btn').addEventListener('click', () => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(parsedJson),
+            body: safeStringify(parsedJson),
         })
         .then(response => {
             diagnosticsOutput += `Status: ${response.status} ${response.statusText}\n`;
-            diagnosticsOutput += `Headers: ${JSON.stringify([...response.headers])}\n`;
+            diagnosticsOutput += `Headers: ${safeStringify([...response.headers])}\n`;
 
             return response.json().then(data => {
-                document.getElementById('response-output').textContent = JSON.stringify(data, null, 2);
+                document.getElementById('response-output').textContent = safeStringify(data, null, 2);
             });
         })
         .catch(error => {

@@ -176,7 +176,7 @@ export class CdCliProfileService extends CdService {
     const valid = await this.validateExistence(req, res, validationParams);
     console.log(
       "CdCliProfileService::validateCreate/this.b.err1:",
-      JSON.stringify(this.b.err)
+      safeStringify(this.b.err)
     );
 
     if (!valid) {
@@ -265,7 +265,7 @@ export class CdCliProfileService extends CdService {
       );
       console.log(
         "CdCliProfileService::validateExistence/serviceInput:",
-        JSON.stringify(serviceInput)
+        safeStringify(serviceInput)
       );
       const b = new BaseService();
       return b.read(req, res, serviceInput).then((r) => {
@@ -282,7 +282,7 @@ export class CdCliProfileService extends CdService {
           this.b.err.push(this.b.i.app_msg);
           console.log(
             "CdCliProfileService::validateExistence/this.b.err1:",
-            JSON.stringify(this.b.err)
+            safeStringify(this.b.err)
           );
           return false;
         }
@@ -293,7 +293,7 @@ export class CdCliProfileService extends CdService {
     console.log("CdCliProfileService::validateExistence/results:", results);
     console.log(
       "CdCliProfileService::validateExistence/this.b.err2:",
-      JSON.stringify(this.b.err)
+      safeStringify(this.b.err)
     );
     // If any of the validations fail, return false
     return results.every((result) => result === true);
@@ -303,7 +303,7 @@ export class CdCliProfileService extends CdService {
     const plData: CdCliProfileModel = this.b.getPlData(req);
     this.b.setPlData(req, {
       key: "cdCliProfileData",
-      value: JSON.stringify(plData.cdCliProfileData),
+      value: safeStringify(plData.cdCliProfileData),
     });
     this.b.setPlData(req, { key: "cdCliProfileGuid", value: this.b.getGuid() });
     this.b.setPlData(req, { key: "cdCliProfileEnabled", value: true });
@@ -639,7 +639,7 @@ export class CdCliProfileService extends CdService {
          * 4. Once the profile is updated successfully, update the row with the amended profileData
          */
         requestQuery.update = {
-          cdCliProfileData: JSON.stringify(modifiedProfile), // Updated profileData to be saved
+          cdCliProfileData: safeStringify(modifiedProfile), // Updated profileData to be saved
         };
         let serviceInput: IServiceInput = {
           serviceInstance: this,
@@ -1181,7 +1181,7 @@ export class CdCliProfileService extends CdService {
   //         console.log("CdCliProfileService::setCdCliProfileProfileI()/08")
   //         console.log("CdCliProfileService::setCdCliProfileProfileI()/modifiedUserProfile:", modifiedUserProfile)
   //         this.mergedProfile = await this.mergeUserProfile(req, res, modifiedUserProfile)
-  //         console.log("CdCliProfileService::setCdCliProfileProfile()/this.mergedProfile2:", JSON.stringify(this.mergedProfile))
+  //         console.log("CdCliProfileService::setCdCliProfileProfile()/this.mergedProfile2:", safeStringify(this.mergedProfile))
   //     }
   // }
 
@@ -1306,14 +1306,14 @@ export class CdCliProfileService extends CdService {
   //             console.log("CdCliProfileService::updateCdCliProfileProfile()/strUserProfile1:", modifiedCdCliProfileProfile)
 
   //             // modified profile
-  //             strModifiedCdCliProfileProfile = JSON.stringify(modifiedCdCliProfileProfile)
+  //             strModifiedCdCliProfileProfile = safeStringify(modifiedCdCliProfileProfile)
   //             console.log("CdCliProfileService::updateCdCliProfileProfile()/strModifiedCdCliProfileProfile:", strModifiedCdCliProfileProfile)
   //             // userProfile
-  //             strUserProfile = JSON.stringify(await this.extractUserProfile())
+  //             strUserProfile = safeStringify(await this.extractUserProfile())
   //             // acl
-  //             strCdCliProfileData = JSON.stringify(modifiedCdCliProfileProfile.cdCliProfileship.memberData)
+  //             strCdCliProfileData = safeStringify(modifiedCdCliProfileProfile.cdCliProfileship.memberData)
   //             // memberData
-  //             strAcl = JSON.stringify(modifiedCdCliProfileProfile.cdCliProfileship.acl)
+  //             strAcl = safeStringify(modifiedCdCliProfileProfile.cdCliProfileship.acl)
 
   //         } else {
   //             /*
@@ -1329,19 +1329,19 @@ export class CdCliProfileService extends CdService {
   //             console.log("CdCliProfileService::updateCdCliProfileProfile()/userProfileDefault:", userProfileDefault)
   //             modifiedCdCliProfileProfile = await svUser.modifyProfile(userProfileDefault, jsonUpdate)
   //             console.log("CdCliProfileService::updateCdCliProfileProfile()/modifiedCdCliProfileProfile2:", modifiedCdCliProfileProfile)
-  //             // strCdCliProfileData = JSON.stringify(modifiedCdCliProfileProfile)
+  //             // strCdCliProfileData = safeStringify(modifiedCdCliProfileProfile)
   //             // userProfile
-  //             strUserProfile = JSON.stringify(await this.extractUserProfile())
+  //             strUserProfile = safeStringify(await this.extractUserProfile())
   //             // acl
-  //             strCdCliProfileData = JSON.stringify(modifiedCdCliProfileProfile.cdCliProfileship.memberData)
+  //             strCdCliProfileData = safeStringify(modifiedCdCliProfileProfile.cdCliProfileship.memberData)
   //             // memberData
-  //             strAcl = JSON.stringify(modifiedCdCliProfileProfile.cdCliProfileship.acl)
+  //             strAcl = safeStringify(modifiedCdCliProfileProfile.cdCliProfileship.acl)
   //         }
 
   //         console.log("CdCliProfileService::updateCdCliProfileProfile()/03")
   //         requestQuery.update = { cdCliProfileProfile: strAcl }
   //         console.log("CdCliProfileService::updateCdCliProfileProfile()/requestQuery:", requestQuery)
-  //         console.log("CdCliProfileService::updateCdCliProfileProfile()/strUserProfile1-0:", JSON.stringify(await modifiedCdCliProfileProfile))
+  //         console.log("CdCliProfileService::updateCdCliProfileProfile()/strUserProfile1-0:", safeStringify(await modifiedCdCliProfileProfile))
 
   //         // update cdCliProfileProfile
   //         let serviceInput: IServiceInput = {
@@ -1379,8 +1379,8 @@ export class CdCliProfileService extends CdService {
   //         console.log("CdCliProfileService::updateCdCliProfileProfile()/userServiceInput:", userServiceInput)
   //         const userUpdateRet = await svUser.updateI(req, res, userServiceInput)
   //         const fullProfile = await this.getI(req, res, { where: { userId: sessionDataExt.currentUser.userId } })
-  //         console.log("CdCliProfileService::updateCdCliProfileProfile()/fullProfile:", JSON.stringify(await fullProfile))
-  //         console.log("CdCliProfileService::updateCdCliProfileProfile()/strUserProfile1-1:", JSON.stringify(await modifiedCdCliProfileProfile))
+  //         console.log("CdCliProfileService::updateCdCliProfileProfile()/fullProfile:", safeStringify(await fullProfile))
+  //         console.log("CdCliProfileService::updateCdCliProfileProfile()/strUserProfile1-1:", safeStringify(await modifiedCdCliProfileProfile))
   //         const finalRet = {
   //             updateRet: updateCdCliProfileRet,
   //             userUpdateRet: userUpdateRet,
@@ -1437,11 +1437,11 @@ export class CdCliProfileService extends CdService {
   //             console.log("CdCliProfileService::updateCdCliProfileProfile()/strUserProfile3:", modifiedCdCliProfileProfile)
 
   //             // userProfile
-  //             strUserProfile = JSON.stringify(await this.extractUserProfile())
+  //             strUserProfile = safeStringify(await this.extractUserProfile())
   //             // acl
-  //             strCdCliProfileData = JSON.stringify(modifiedCdCliProfileProfile.cdCliProfileship.memberData)
+  //             strCdCliProfileData = safeStringify(modifiedCdCliProfileProfile.cdCliProfileship.memberData)
   //             // memberData
-  //             strAcl = JSON.stringify(modifiedCdCliProfileProfile.cdCliProfileship.acl)
+  //             strAcl = safeStringify(modifiedCdCliProfileProfile.cdCliProfileship.acl)
 
   //         } else {
   //             /*
@@ -1457,21 +1457,21 @@ export class CdCliProfileService extends CdService {
   //             console.log("CdCliProfileService::updateCdCliProfileProfile()/userProfileDefault:", userProfileDefault)
   //             modifiedCdCliProfileProfile = await svUser.modifyProfile(userProfileDefault, jsonUpdate)
   //             console.log("CdCliProfileService::updateCdCliProfileProfile()/modifiedCdCliProfileProfile4:", modifiedCdCliProfileProfile)
-  //             // strCdCliProfileData = JSON.stringify(modifiedCdCliProfileProfile)
+  //             // strCdCliProfileData = safeStringify(modifiedCdCliProfileProfile)
   //             // userProfile
-  //             strUserProfile = JSON.stringify(await this.extractUserProfile())
+  //             strUserProfile = safeStringify(await this.extractUserProfile())
   //             // acl
-  //             strCdCliProfileData = JSON.stringify(modifiedCdCliProfileProfile.cdCliProfileship.memberData)
+  //             strCdCliProfileData = safeStringify(modifiedCdCliProfileProfile.cdCliProfileship.memberData)
   //             // memberData
-  //             strAcl = JSON.stringify(modifiedCdCliProfileProfile.cdCliProfileship.acl)
+  //             strAcl = safeStringify(modifiedCdCliProfileProfile.cdCliProfileship.acl)
   //         }
 
   //         // // userProfile
-  //         // strUserProfile = JSON.stringify(modifiedCdCliProfileProfile.userProfile)
+  //         // strUserProfile = safeStringify(modifiedCdCliProfileProfile.userProfile)
   //         // // acl
-  //         // strCdCliProfileData = JSON.stringify(modifiedCdCliProfileProfile.cdCliProfileship.memberData)
+  //         // strCdCliProfileData = safeStringify(modifiedCdCliProfileProfile.cdCliProfileship.memberData)
   //         // // memberData
-  //         // strAcl = JSON.stringify(modifiedCdCliProfileProfile.cdCliProfileship.acl)
+  //         // strAcl = safeStringify(modifiedCdCliProfileProfile.cdCliProfileship.acl)
 
   //         console.log("CdCliProfileService::updateCdCliProfileProfile()/modifiedCdCliProfileProfile3:", modifiedCdCliProfileProfile)
 

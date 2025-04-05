@@ -66,7 +66,7 @@ export class AclService {
      * @param params 
      */
     async getAclModule(req, res, sessionDataExt: ISessionDataExt) {
-        this.b.logTimeStamp(`AclService::getAclModule/sessionDataExt:${JSON.stringify(sessionDataExt)}`)
+        this.b.logTimeStamp(`AclService::getAclModule/sessionDataExt:${safeStringify(sessionDataExt)}`)
         console.log('AclService::getAclModule(req, res,params)/sessionDataExt:', sessionDataExt)
         console.log('AclService::getAclModule/this.consumerGuid:', this.consumerGuid)
         const result$ = of(
@@ -96,8 +96,8 @@ export class AclService {
         result$
             .subscribe((r: any) => {
                 // console.log(`AclService::getAclModule/subscribe/01`)
-                // this.b.logTimeStamp(`AclService::getAclModule/r:${JSON.stringify(r)}`)
-                // console.log(`AclService::getAclModule/r:${JSON.stringify(r)}`)
+                // this.b.logTimeStamp(`AclService::getAclModule/r:${safeStringify(r)}`)
+                // console.log(`AclService::getAclModule/r:${safeStringify(r)}`)
                 const modules = r.filter((m) => {
                     if (typeof (m.modules) === 'object') {
                         return m
@@ -110,14 +110,14 @@ export class AclService {
                     }
                 })
 
-                // console.log(`AclService::getAclModule/modules:${JSON.stringify(modules)}`)
-                // console.log(`AclService::getAclModule/moduleParents:${JSON.stringify(moduleParents)}`)
+                // console.log(`AclService::getAclModule/modules:${safeStringify(modules)}`)
+                // console.log(`AclService::getAclModule/moduleParents:${safeStringify(moduleParents)}`)
                 // console.log('modules[0]:', modules[0]);
                 // console.log('moduleParents[0]:', moduleParents[0]);
-                const matchedObjects = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+                const matchedObjects = (a, b) => safeStringify(a) === safeStringify(b);
                 const intersect = modules[0].modules.filter((module) => {
                     return moduleParents[0].moduleParents.filter((mp) => {
-                        if (JSON.stringify(mp) === JSON.stringify(module)) {
+                        if (safeStringify(mp) === safeStringify(module)) {
                             return module;
                         }
                     })
@@ -139,7 +139,7 @@ export class AclService {
      * @returns
      */
     aclUser$(req, res, sessionDataExt: ISessionDataExt): Observable<any> {
-        // this.b.logTimeStamp(`AclService::aclUser$/params:${JSON.stringify(params)}`)
+        // this.b.logTimeStamp(`AclService::aclUser$/params:${safeStringify(params)}`)
         const b = new BaseService();
         this.consumerGuid = sessionDataExt.currentConsumer.consumerGuid;
         const q: IQuery = { where: {} };
@@ -176,8 +176,8 @@ export class AclService {
             .pipe(
                 map((u) => {
                     const ret = u.filter(isRoot)
-                    // this.b.logTimeStamp(`AclService::aclUser$/u[isRoot$]:${JSON.stringify(u)}`)
-                    // this.b.logTimeStamp(`AclService::aclUser$/ret[isRoot$]:${JSON.stringify(ret)}`)
+                    // this.b.logTimeStamp(`AclService::aclUser$/u[isRoot$]:${safeStringify(u)}`)
+                    // this.b.logTimeStamp(`AclService::aclUser$/ret[isRoot$]:${safeStringify(ret)}`)
                     return ret;
                 })
                 , distinct()
@@ -186,8 +186,8 @@ export class AclService {
             .pipe(
                 map((u) => {
                     const ret = u.filter(isRoot)
-                    // this.b.logTimeStamp(`AclService::aclUser$/u[isRoot$]:${JSON.stringify(u)}`)
-                    // this.b.logTimeStamp(`AclService::aclUser$/ret[isRoot$]:${JSON.stringify(ret)}`)
+                    // this.b.logTimeStamp(`AclService::aclUser$/u[isRoot$]:${safeStringify(u)}`)
+                    // this.b.logTimeStamp(`AclService::aclUser$/ret[isRoot$]:${safeStringify(ret)}`)
                     return ret;
                 })
                 , distinct()
@@ -197,8 +197,8 @@ export class AclService {
             .pipe(
                 map((u) => {
                     const ret = u.filter(isConsumerRoot)
-                    // this.b.logTimeStamp(`AclService::aclUser$/u[isConsumerRoot$]:${JSON.stringify(u)}`)
-                    // this.b.logTimeStamp(`AclService::aclUser$/ret[isConsumerRoot$]:${JSON.stringify(ret)}`)
+                    // this.b.logTimeStamp(`AclService::aclUser$/u[isConsumerRoot$]:${safeStringify(u)}`)
+                    // this.b.logTimeStamp(`AclService::aclUser$/ret[isConsumerRoot$]:${safeStringify(ret)}`)
                     return ret;
                 })
                 , distinct()
@@ -208,8 +208,8 @@ export class AclService {
             .pipe(
                 map((u) => {
                     const ret = u.filter(isConsumerTechie)
-                    // this.b.logTimeStamp(`AclService::aclUser$/u[isConsumerTechie$]:${JSON.stringify(u)}`)
-                    // this.b.logTimeStamp(`AclService::aclUser$/ret[isConsumerTechie$]:${JSON.stringify(ret)}`)
+                    // this.b.logTimeStamp(`AclService::aclUser$/u[isConsumerTechie$]:${safeStringify(u)}`)
+                    // this.b.logTimeStamp(`AclService::aclUser$/ret[isConsumerTechie$]:${safeStringify(ret)}`)
                     return ret;
                 })
                 , distinct()
@@ -219,8 +219,8 @@ export class AclService {
             .pipe(
                 map((u) => {
                     const ret = u.filter(isConsumerUser)
-                    // this.b.logTimeStamp(`AclService::aclUser$/u[isConsumerUser$]:${JSON.stringify(u)}`)
-                    // this.b.logTimeStamp(`AclService::aclUser$/ret[isConsumerUser$]:${JSON.stringify(ret)}`)
+                    // this.b.logTimeStamp(`AclService::aclUser$/u[isConsumerUser$]:${safeStringify(u)}`)
+                    // this.b.logTimeStamp(`AclService::aclUser$/ret[isConsumerUser$]:${safeStringify(ret)}`)
                     return ret;
                 })
                 , distinct()
