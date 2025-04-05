@@ -338,7 +338,7 @@ export class MenuService {
     
         return moduleMenuData$.pipe(
             map((menuData) => {
-                console.log("MenuService::buildSingleMenuTree()/menuData1:", menuData);
+                // console.log("MenuService::buildSingleMenuTree()/menuData1:", menuData);
 
                 /**
                  * Guest/Anonimous user is a user who has not logged in.
@@ -380,7 +380,7 @@ export class MenuService {
     getRootMenuIds(moduleMenuData$: Observable<MenuViewModel[]>, sessionDataExt:ISessionDataExt): Observable<number[]> {
         return moduleMenuData$.pipe(
             map((menuData) => {
-                console.log("MenuService::getRootMenuIds()/menuData:", menuData)
+                // console.log("MenuService::getRootMenuIds()/menuData:", menuData)
                 return menuData
                     .filter((m) => m.menuParentId === -1)
                     .map((m) => m.menuId);
