@@ -1,6 +1,7 @@
 import { SelectQueryBuilder, Repository, Like } from 'typeorm';
 import { EntityAdapter } from './entity-adapter';
 import { IServiceInput, QueryInput } from '../base/IBase';
+import { safeStringify } from './safe-stringify';
 
 
 

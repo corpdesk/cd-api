@@ -57,6 +57,7 @@ import { Logging } from "../../base/winston.log";
 import { UserModel } from "../../user/models/user.model";
 import dotenv from "dotenv";
 import { ZOHO_CONFIG_1, EMP_CONFIG_2, stripHTML } from "../models/mail.model";
+import { safeStringify } from "../../utils/safe-stringify";
 
 dotenv.config();
 

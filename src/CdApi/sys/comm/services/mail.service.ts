@@ -1,6 +1,7 @@
 
 import config from "../../../../config";
 import { BaseService } from "../../base/base.service";
+import { safeStringify } from "../../utils/safe-stringify";
 import { NodemailerService } from "./nodemailerservice";
 import { ZeptoMailService } from "./zeptomai.service";
 

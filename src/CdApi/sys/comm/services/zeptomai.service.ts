@@ -8,6 +8,7 @@ import { CdPushController } from "../../cd-push/controllers/cdpush.controller";
 import { UserModel } from "../../user/models/user.model";
 import config from "../../../../config";
 import { getEmailByName, stripHTML } from "../models/mail.model";
+import { safeStringify } from "../../utils/safe-stringify";
 
 export class ZeptoMailService {
   logger: Logging;

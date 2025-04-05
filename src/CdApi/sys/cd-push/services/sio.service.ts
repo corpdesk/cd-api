@@ -11,6 +11,7 @@ import { ICdPushEnvelop, ICommConversationSub, ISocketItem, PushEvent } from '..
 import config from '../../../../config';
 import { BaseService } from '../../base/base.service';
 import { Logging } from '../../base/winston.log';
+import { safeStringify } from '../../utils/safe-stringify';
 dotenv.config();
 
 //////////

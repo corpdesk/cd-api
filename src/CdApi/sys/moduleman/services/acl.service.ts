@@ -13,6 +13,7 @@ import { AclUserViewModel } from '../models/acluserview.model';
 import { AclModuleViewModel } from '../models/acl-module-view.model';
 import { AclModuleMemberViewModel } from '../models/acl-module-member-view.model';
 import { Logging } from '../../base/winston.log';
+import { safeStringify } from '../../utils/safe-stringify';
 
 /**
  * AclService is used by Corpdesk api to manage privilege access to modules.

@@ -18,6 +18,7 @@ import { ConsumerResourceViewModel } from '../models/consumer-resource-view.mode
 import { ConsumerResourceTypeModel } from '../models/consumer-resource-type.model';
 import { ConsumerModel } from '../models/consumer.model';
 import { CdObjModel } from '../models/cd-obj.model';
+import { safeStringify } from '../../utils/safe-stringify';
 
 export class ConsumerResourceService extends CdService {
     b: any; // instance of BaseService

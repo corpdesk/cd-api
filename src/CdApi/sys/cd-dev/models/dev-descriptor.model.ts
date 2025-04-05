@@ -1,4 +1,5 @@
 import { CdObjModel } from "../../moduleman/models/cd-obj.model";
+import { safeStringify } from "../../utils/safe-stringify";
 
 export interface TypeDescriptor {
   field: string;

@@ -6,6 +6,7 @@ import { CreateIParams, IQuery, IServiceInput, IUser } from '../../base/IBase';
 import { CompanyModel, siGet } from '../models/company.model';
 import { CompanyViewModel } from '../models/company-view.model';
 import { CompanyTypeModel } from '../models/company-type.model';
+import { safeStringify } from '../../utils/safe-stringify';
 
 export class CompanyService extends CdService {
     b: any; // instance of BaseService

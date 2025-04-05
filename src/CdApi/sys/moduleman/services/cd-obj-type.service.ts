@@ -21,6 +21,7 @@ import {
 } from "../../cd-dev/models/dev-descriptor.model";
 import CdLogg from "../../utils/cd-logger.controller";
 import { CdObjTypeModel } from "../models/cd-obj-type.model";
+import { safeStringify } from "../../utils/safe-stringify";
 
 export class CdObjTypeTypeService extends CdService {
   b: any; // instance of BaseService

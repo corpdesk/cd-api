@@ -13,6 +13,7 @@ import { SessionModel } from '../models/session.model';
 import { UserModel } from '../models/user.model';
 import { SessionService } from './session.service';
 import { UserService } from './user.service';
+import { safeStringify } from '../../utils/safe-stringify';
 
 export class GroupService extends CdService {
     cdToken: string;
