@@ -1,6 +1,7 @@
 
 import config from "../../../../config";
 import { BaseService } from "../../base/base.service";
+import { safeStringify } from "../../utils/safe-stringify";
 import { SessionService } from "../services/session.service";
 import { SessionModel } from "./session.model";
 import { UserModel } from "./user.model";
