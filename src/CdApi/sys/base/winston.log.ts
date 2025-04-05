@@ -1,6 +1,7 @@
 // import {injectable} from 'inversify'; // For dependency injection
 import winston, { format } from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
+import { safeStringify } from '../utils/safe-stringify';
 
 export type LogMessage = string;
 
@@ -75,7 +76,7 @@ export class Logging {
             format.printf(
                 info =>
                     `[${info.timestamp}] [${info.level.toUpperCase()}]: ${info.message
-                    } [CONTEXT] -> ${info.context ? '\n' + JSON.stringify(info.context, null, 2) : '{}' // Including the context
+                    } [CONTEXT] -> ${info.context ? '\n' + safeStringify(info.context) : '{}' // Including the context
                     }`
             ),
             format.colorize({ all: true })
