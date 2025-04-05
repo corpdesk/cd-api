@@ -1571,7 +1571,9 @@ export class UserService extends CdService {
         serviceInstance: this,
         serviceModel: UserModel,
         docName: "UserService::updateCurrentUserProfile",
+        dSource: 1,
         cmd: {
+          action: "update",
           query: requestQuery,
         },
       };
@@ -1611,14 +1613,17 @@ export class UserService extends CdService {
   //
 
   async existingUserProfile(req, res, cuid) {
+    console.log("UserServices::existingUserProfile())/cuid:", cuid);
     const si: IServiceInput = {
       serviceInstance: this,
       serviceModel: UserModel,
       docName: "UserService::existingUserProfile",
+      dSource: 1,
       cmd: {
-        query: { where: { userId: cuid } },
+        action: 'find',
+        query: { select: ['userProfile'], where: { userId: cuid } },
       },
-      mapping: { profileField: "userProfile" },
+      // mapping: { profileField: "userProfile" },
     };
     return this.b.read(req, res, si);
   }

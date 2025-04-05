@@ -1555,10 +1555,12 @@ export class CdCliProfileService extends CdService {
       serviceInstance: this,
       serviceModel: CdCliProfileModel,
       docName: "CdCliProfileService::existingUserProfile",
+      dSource: 1,
       cmd: {
-        query: { where: { userId: cuid } },
+        action: 'find',
+        query: { select: ["cdCliProfileProfile"], where: { userId: cuid } },
       },
-      mapping: { profileField: "cdCliProfileProfile" },
+      // mapping: { profileField: "cdCliProfileProfile" },
     };
     return this.b.read(req, res, si);
   }
