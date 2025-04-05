@@ -1649,7 +1649,7 @@ export class BaseService {
           console.log("BaseService::read()/041");
           console.log("BaseService::read()/this.repo:", this.repo);
           r = await this.repo.find(serviceInput.cmd.query);
-          console.log("BaseService::read()/04/r:", r);
+          // console.log("BaseService::read()/04/r:", r);
           if (serviceInput.extraInfo) {
             console.log("BaseService::read()/05");
             return {
