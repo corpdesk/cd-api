@@ -171,7 +171,7 @@ export class JMorph {
         JMorph.deleteEntry(target, lastKey);
         break;
       default:
-        throw new Error(`Unknown action: ${action}`);
+        JMorph.createEntry(target, lastKey, value);
     }
 
     console.log("JMorph::applyUpdate()/Completed");
