@@ -13,6 +13,7 @@ import { CompanyModel } from '../../moduleman/models/company.model';
 import { ConsumerService } from '../../moduleman/services/consumer.service';
 import { RedisService } from '../../base/redis-service';
 import config from '../../../../config';
+import { safeStringify } from '../../utils/safe-stringify';
 // dotenv.config();
 
 
@@ -233,7 +234,8 @@ export class SessionService {
                 // Set the TTL to 1 hour (3600 seconds)
                 const ttl = Number(config.cacheTtl)
                 // Store the session data in Redis for future requests (set a TTL of 1 hour)
-                await this.redisService.set(cacheKey, JSON.stringify(retSessionData), ttl);
+                // await this.redisService.set(cacheKey, JSON.stringify(retSessionData), ttl);
+                await this.redisService.set(cacheKey, safeStringify(retSessionData), ttl);
             }
             console.log("SessionService::getSessionDataExt()/14")
             console.log("SessionService::getSessionDataExt()/retSessionData:", retSessionData)
