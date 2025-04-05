@@ -24,9 +24,10 @@ export class ProfileServiceHelper {
         const profileData = await si.serviceInstance.getI(req, res, si.cmd.query);
         if (profileData.length > 0) {
             // Remove sensitive data
-            const res = profileData.map(({ password, ...data }) => data)[0];
-            console.log("ProfileServiceHelper::fetchProfile/res[si.mapping.profileField]:", res[si.mapping.profileField])
-            return res[si.mapping.profileField]
+            // const res = profileData.map(({ password, ...data }) => data)[0];
+            // console.log("ProfileServiceHelper::fetchProfile/res[si.mapping.profileField]:", res[si.mapping.profileField])
+            // return res[si.mapping.profileField]
+            return res;
         }
         return null;
     }
