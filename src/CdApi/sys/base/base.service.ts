@@ -354,7 +354,7 @@ export class BaseService {
   async valid(req, res): Promise<boolean> {
     const pl = req.post;
     this.logger.logInfo("BaseService::valid()req.post:", {
-      pl: safeStringify(req.post),
+      pl: JSON.stringify(req.post),
     });
     this.pl = pl;
     if (await this.noToken(req, res)) {
@@ -376,7 +376,7 @@ export class BaseService {
   async noToken(req, res) {
     this.logger.logInfo("BaseService::noToken()/01");
     this.logger.logInfo("BaseService::noToken()/req.post:", {
-      pl: safeStringify(req.post),
+      pl: JSON.stringify(req.post),
     });
     const pl = req.post;
     const ctx = pl.ctx;
@@ -553,7 +553,7 @@ export class BaseService {
 
       const { path } = update;
       if (!Array.isArray(path) || path.length === 0) {
-        errors.push(`Invalid path: '${safeStringify(path)}'`);
+        errors.push(`Invalid path: '${JSON.stringify(path)}'`);
         return;
       }
 
@@ -680,10 +680,10 @@ export class BaseService {
     let ret;
     try {
       this.logger.logInfo("BaseService::respond(res)/this.pl:", {
-        post: safeStringify(req.post),
+        post: JSON.stringify(req.post),
       });
       this.logger.logInfo("BaseService::respond(res)/this.cdResp:", {
-        cdResp: safeStringify(this.cdResp),
+        cdResp: JSON.stringify(this.cdResp),
       });
       ret = res.status(200).json(this.cdResp);
     } catch (e) {
@@ -901,7 +901,7 @@ export class BaseService {
   getQuery(req) {
     this.logger.logInfo("BaseService::getQuery()/01");
     this.logger.logInfo(
-      `BaseService::getQuery()/req.post.dat.f_vals[0].query:${safeStringify(
+      `BaseService::getQuery()/req.post.dat.f_vals[0].query:${JSON.stringify(
         req.post.dat.f_vals[0].query
       )}`
     );
@@ -943,7 +943,7 @@ export class BaseService {
         databaseNameWithoutPrefixes: await col.databaseNameWithoutPrefixes,
         type: await col.type,
       };
-      // console.log('getEntityPropertyMapSL()/ret:', {ret: safeStringify(ret)});
+      // console.log('getEntityPropertyMapSL()/ret:', {ret: JSON.stringify(ret)});
       colsFiltdArr.push(ret);
       return ret;
     });
@@ -955,7 +955,7 @@ export class BaseService {
   async validateUnique(req, res, params) {
     console.log("BaseService::validateUnique()/01");
     console.log("BaseService::validateUnique()/req.post:", {
-      reqPost: safeStringify(req.post),
+      reqPost: JSON.stringify(req.post),
     });
     // console.log('BaseService::validateUnique()/req.post.dat.f_vals[0]:', req.post.dat.f_vals[0])
     console.log("BaseService::validateUnique()/params:", params);
@@ -1096,20 +1096,20 @@ export class BaseService {
   async validateRequired(req, res, cRules) {
     console.log(
       "BaseService::validateRequired()/cRules:",
-      safeStringify(cRules)
+      JSON.stringify(cRules)
     );
     const svSess = new SessionService();
     await this.init(req, res);
     const rqFieldNames = cRules.required as string[];
     console.log(
       "BaseService::validateRequired()/rqFieldNames:",
-      safeStringify(rqFieldNames)
+      JSON.stringify(rqFieldNames)
     );
     this.isInvalidFields = await rqFieldNames.filter((fieldName) => {
       console.log("BaseService::validateRequired()/fieldName:", fieldName);
       console.log(
         "BaseService::validateRequired()/this.getPlData(req):",
-        safeStringify(this.getPlData(req))
+        JSON.stringify(this.getPlData(req))
       );
       if (!(fieldName in this.getPlData(req))) {
         // required field is missing
@@ -1117,8 +1117,8 @@ export class BaseService {
       }
     });
     if (this.isInvalidFields.length > 0) {
-      // console.log('BaseService::validateRequired()/cRules:', safeStringify(cRules))
-      // console.log('BaseService::validateRequired()/isInvalid:', safeStringify(this.isInvalidFields))
+      // console.log('BaseService::validateRequired()/cRules:', JSON.stringify(cRules))
+      // console.log('BaseService::validateRequired()/isInvalid:', JSON.stringify(this.isInvalidFields))
       this.i.app_msg = `the required fields ${this.isInvalidFields.join(
         ", "
       )} is missing`;
@@ -1134,20 +1134,20 @@ export class BaseService {
     const cRules = params.serviceInput.serviceInstance.cRules;
     console.log(
       "BaseService::validateRequired()/cRules:",
-      safeStringify(cRules)
+      JSON.stringify(cRules)
     );
     const svSess = new SessionService();
     await this.init(req, res);
     const rqFieldNames = cRules.required as string[];
     console.log(
       "BaseService::validateRequired()/rqFieldNames:",
-      safeStringify(rqFieldNames)
+      JSON.stringify(rqFieldNames)
     );
     this.isInvalidFields = await rqFieldNames.filter((fieldName) => {
       console.log("BaseService::validateRequired()/fieldName:", fieldName);
       console.log(
         "BaseService::validateRequired()/params.controllerData:",
-        safeStringify(params.controllerData)
+        JSON.stringify(params.controllerData)
       );
       if (!(fieldName in params.controllerData)) {
         // required field is missing
@@ -1155,8 +1155,8 @@ export class BaseService {
       }
     });
     if (this.isInvalidFields.length > 0) {
-      // console.log('BaseService::validateRequired()/cRules:', safeStringify(cRules))
-      // console.log('BaseService::validateRequired()/isInvalid:', safeStringify(this.isInvalidFields))
+      // console.log('BaseService::validateRequired()/cRules:', JSON.stringify(cRules))
+      // console.log('BaseService::validateRequired()/isInvalid:', JSON.stringify(this.isInvalidFields))
       this.i.app_msg = `the required fields ${this.isInvalidFields.join(
         ", "
       )} is missing`;
@@ -1779,7 +1779,7 @@ export class BaseService {
   //     // // clean up the where clause...especially for request from browsers
   //     // const q = this.transformQueryInput(serviceInput.cmd.query, queryBuilderHelper);
   //     // serviceInput.cmd.query.where = q.where;
-  //     // console.log(`BaseService::readQB()/q:`, { q: safeStringify(q) });
+  //     // console.log(`BaseService::readQB()/q:`, { q: JSON.stringify(q) });
   //     // console.log('BaseService::readQB()/q:', q);
 
   //     const queryBuilder = queryBuilderHelper.createQueryBuilder(serviceInput);
@@ -1910,7 +1910,7 @@ export class BaseService {
   /**
      * 
      * ///////////////////
-        const jsonStr = safeStringify({
+        const jsonStr = JSON.stringify({
             name: 'test'
         });
 
@@ -1948,8 +1948,8 @@ export class BaseService {
   //         .map(key => `JSON_SET(${jsonField}, '$.${key}', '${updates[key]}')`)
   //         .join(', ');
 
-  //     console.log("BaseService::updateJSONColumnQB()/updates:", safeStringify(updates))
-  //     console.log("BaseService::updateJSONColumnQB()/updateFields:", safeStringify(updateFields))
+  //     console.log("BaseService::updateJSONColumnQB()/updates:", JSON.stringify(updates))
+  //     console.log("BaseService::updateJSONColumnQB()/updateFields:", JSON.stringify(updateFields))
   //     // Start building the query using the input provided in serviceInput.cmd.query
   //     const queryBuilder = this.repo.createQueryBuilder()
   //         .update(serviceInput.serviceModel);
@@ -2018,7 +2018,7 @@ export class BaseService {
   //             .createQueryBuilder()
   //             .update(serviceInput.serviceModel)
   //             .set({
-  //                 userProfile: safeStringify(newProfileData), // This assumes that userProfile is correctly mapped in UserModel
+  //                 userProfile: JSON.stringify(newProfileData), // This assumes that userProfile is correctly mapped in UserModel
   //             })
   //             .where("user_id = :userId", { userId }) // Replace :userId with the actual ID
   //             .execute();
@@ -2082,11 +2082,11 @@ export class BaseService {
 
     console.log(
       "BaseService::updateJSONColumnQB()/updates:",
-      safeStringify(updates)
+      JSON.stringify(updates)
     );
     console.log(
       "BaseService::updateJSONColumnQB()/updateFields:",
-      safeStringify(updateFields)
+      JSON.stringify(updateFields)
     );
 
     // Start building the query using the input provided in serviceInput.cmd.query
@@ -2802,11 +2802,11 @@ export class BaseService {
     try {
       const setRet = await this.redisClient.set(k, v);
       console.log(
-        `BaseService::wsRedisCreate()/setRet:${safeStringify(setRet)}`
+        `BaseService::wsRedisCreate()/setRet:${JSON.stringify(setRet)}`
       );
       const readBack = await this.redisClient.get(k);
       console.log(
-        `BaseService::wsRedisCreate()/readBack:${safeStringify(readBack)}`
+        `BaseService::wsRedisCreate()/readBack:${JSON.stringify(readBack)}`
       );
       return {
         status: setRet,
@@ -2918,7 +2918,7 @@ export class BaseService {
         serviceInput.fetchInput.optins
       );
       const data = await response.json();
-      // console.log(safeStringify(data, null, 2));
+      // console.log(JSON.stringify(data, null, 2));
       return data;
     } catch (e) {
       this.err.push(e.toString());

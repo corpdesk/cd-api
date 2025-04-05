@@ -143,7 +143,7 @@ export class EntityNameService extends CdService {
         ];
 
         const valid = await this.validateExistence(req, res, validationParams);
-        console.log("EntityNameService::validateCreate/this.b.err1:", safeStringify(this.b.err));
+        console.log("EntityNameService::validateCreate/this.b.err1:", JSON.stringify(this.b.err));
 
         if (!valid) {
             this.logger.logInfo('coop/EntityNameService::validateCreate()/Validation failed');
@@ -184,7 +184,7 @@ export class EntityNameService extends CdService {
                 dSource: 1
             };
             console.log("EntityNameService::validateExistence/param.model:", param.model);
-            console.log("EntityNameService::validateExistence/serviceInput:", safeStringify(serviceInput));
+            console.log("EntityNameService::validateExistence/serviceInput:", JSON.stringify(serviceInput));
             const b = new BaseService();
             return b.read(req, res, serviceInput).then(r => {
                 if (r.length > 0) {
@@ -194,7 +194,7 @@ export class EntityNameService extends CdService {
                     this.logger.logError(`coop/EntityNameService::validateExistence() - Invalid ${param.field}`);
                     this.b.i.app_msg = `${param.field} reference is invalid`;
                     this.b.err.push(this.b.i.app_msg);
-                    console.log("EntityNameService::validateExistence/this.b.err1:", safeStringify(this.b.err))
+                    console.log("EntityNameService::validateExistence/this.b.err1:", JSON.stringify(this.b.err))
                     return false;
                 }
             });
@@ -202,7 +202,7 @@ export class EntityNameService extends CdService {
 
         const results = await Promise.all(promises);
         console.log("EntityNameService::validateExistence/results:", results)
-        console.log("EntityNameService::validateExistence/this.b.err2:", safeStringify(this.b.err))
+        console.log("EntityNameService::validateExistence/this.b.err2:", JSON.stringify(this.b.err))
         // If any of the validations fail, return false
         return results.every(result => result === true);
     }
@@ -734,7 +734,7 @@ export class EntityNameService extends CdService {
             console.log("EntityNameService::setEntityNameProfileI()/08")
             console.log("EntityNameService::setEntityNameProfileI()/modifiedUserProfile:", modifiedUserProfile)
             this.mergedProfile = await this.mergeUserProfile(req, res, modifiedUserProfile)
-            console.log("EntityNameService::setEntityNameProfile()/this.mergedProfile2:", safeStringify(this.mergedProfile))
+            console.log("EntityNameService::setEntityNameProfile()/this.mergedProfile2:", JSON.stringify(this.mergedProfile))
         }
     }
 
@@ -862,14 +862,14 @@ export class EntityNameService extends CdService {
 
 
                 // modified profile
-                strModifiedEntityNameProfile = safeStringify(modifiedEntityNameProfile)
+                strModifiedEntityNameProfile = JSON.stringify(modifiedEntityNameProfile)
                 console.log("EntityNameService::updateEntityNameProfile()/strModifiedEntityNameProfile:", strModifiedEntityNameProfile)
                 // userProfile
-                strUserProfile = safeStringify(await this.extractUserProfile())
+                strUserProfile = JSON.stringify(await this.extractUserProfile())
                 // acl
-                strEntityNameData = safeStringify(modifiedEntityNameProfile.coopMembership.memberData)
+                strEntityNameData = JSON.stringify(modifiedEntityNameProfile.coopMembership.memberData)
                 // memberData
-                strAcl = safeStringify(modifiedEntityNameProfile.coopMembership.acl)
+                strAcl = JSON.stringify(modifiedEntityNameProfile.coopMembership.acl)
 
             } else {
                 /*
@@ -885,13 +885,13 @@ export class EntityNameService extends CdService {
                 console.log("EntityNameService::updateEntityNameProfile()/userProfileDefault:", userProfileDefault)
                 modifiedEntityNameProfile = await svUser.modifyProfile(userProfileDefault, jsonUpdate)
                 console.log("EntityNameService::updateEntityNameProfile()/modifiedEntityNameProfile2:", modifiedEntityNameProfile)
-                // strEntityNameData = safeStringify(modifiedEntityNameProfile)
+                // strEntityNameData = JSON.stringify(modifiedEntityNameProfile)
                 // userProfile
-                strUserProfile = safeStringify(await this.extractUserProfile())
+                strUserProfile = JSON.stringify(await this.extractUserProfile())
                 // acl
-                strEntityNameData = safeStringify(modifiedEntityNameProfile.coopMembership.memberData)
+                strEntityNameData = JSON.stringify(modifiedEntityNameProfile.coopMembership.memberData)
                 // memberData
-                strAcl = safeStringify(modifiedEntityNameProfile.coopMembership.acl)
+                strAcl = JSON.stringify(modifiedEntityNameProfile.coopMembership.acl)
             }
 
 
@@ -899,7 +899,7 @@ export class EntityNameService extends CdService {
             console.log("EntityNameService::updateEntityNameProfile()/03")
             requestQuery.update = { coopMemberProfile: strAcl }
             console.log("EntityNameService::updateEntityNameProfile()/requestQuery:", requestQuery)
-            console.log("EntityNameService::updateEntityNameProfile()/strUserProfile1-0:", safeStringify(await modifiedEntityNameProfile))
+            console.log("EntityNameService::updateEntityNameProfile()/strUserProfile1-0:", JSON.stringify(await modifiedEntityNameProfile))
 
             // update coopMemberProfile
             let serviceInput: IServiceInput = {
@@ -937,8 +937,8 @@ export class EntityNameService extends CdService {
             console.log("EntityNameService::updateEntityNameProfile()/userServiceInput:", userServiceInput)
             const userUpdateRet = await svUser.updateI(req, res, userServiceInput)
             const fullProfile = await this.getI(req, res, { where: { userId: sessionDataExt.currentUser.userId } })
-            console.log("EntityNameService::updateEntityNameProfile()/fullProfile:", safeStringify(await fullProfile))
-            console.log("EntityNameService::updateEntityNameProfile()/strUserProfile1-1:", safeStringify(await modifiedEntityNameProfile))
+            console.log("EntityNameService::updateEntityNameProfile()/fullProfile:", JSON.stringify(await fullProfile))
+            console.log("EntityNameService::updateEntityNameProfile()/strUserProfile1-1:", JSON.stringify(await modifiedEntityNameProfile))
             const finalRet = {
                 updateRet: updateEntityNameRet,
                 userUpdateRet: userUpdateRet,
@@ -996,11 +996,11 @@ export class EntityNameService extends CdService {
 
 
                 // userProfile
-                strUserProfile = safeStringify(await this.extractUserProfile())
+                strUserProfile = JSON.stringify(await this.extractUserProfile())
                 // acl
-                strEntityNameData = safeStringify(modifiedEntityNameProfile.coopMembership.memberData)
+                strEntityNameData = JSON.stringify(modifiedEntityNameProfile.coopMembership.memberData)
                 // memberData
-                strAcl = safeStringify(modifiedEntityNameProfile.coopMembership.acl)
+                strAcl = JSON.stringify(modifiedEntityNameProfile.coopMembership.acl)
 
             } else {
                 /*
@@ -1016,21 +1016,21 @@ export class EntityNameService extends CdService {
                 console.log("EntityNameService::updateEntityNameProfile()/userProfileDefault:", userProfileDefault)
                 modifiedEntityNameProfile = await svUser.modifyProfile(userProfileDefault, jsonUpdate)
                 console.log("EntityNameService::updateEntityNameProfile()/modifiedEntityNameProfile4:", modifiedEntityNameProfile)
-                // strEntityNameData = safeStringify(modifiedEntityNameProfile)
+                // strEntityNameData = JSON.stringify(modifiedEntityNameProfile)
                 // userProfile
-                strUserProfile = safeStringify(await this.extractUserProfile())
+                strUserProfile = JSON.stringify(await this.extractUserProfile())
                 // acl
-                strEntityNameData = safeStringify(modifiedEntityNameProfile.coopMembership.memberData)
+                strEntityNameData = JSON.stringify(modifiedEntityNameProfile.coopMembership.memberData)
                 // memberData
-                strAcl = safeStringify(modifiedEntityNameProfile.coopMembership.acl)
+                strAcl = JSON.stringify(modifiedEntityNameProfile.coopMembership.acl)
             }
 
             // // userProfile
-            // strUserProfile = safeStringify(modifiedEntityNameProfile.userProfile)
+            // strUserProfile = JSON.stringify(modifiedEntityNameProfile.userProfile)
             // // acl
-            // strEntityNameData = safeStringify(modifiedEntityNameProfile.coopMembership.memberData)
+            // strEntityNameData = JSON.stringify(modifiedEntityNameProfile.coopMembership.memberData)
             // // memberData
-            // strAcl = safeStringify(modifiedEntityNameProfile.coopMembership.acl)
+            // strAcl = JSON.stringify(modifiedEntityNameProfile.coopMembership.acl)
 
             console.log("EntityNameService::updateEntityNameProfile()/modifiedEntityNameProfile3:", modifiedEntityNameProfile)
 

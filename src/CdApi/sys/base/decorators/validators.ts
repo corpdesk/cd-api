@@ -36,11 +36,11 @@ export function IsUnique(
     propertyKey: string
 ) {
     console.log('IsUnique called');
-    console.log(`target: ${safeStringify(target)}, propertyKey: ${propertyKey}`);
+    console.log(`target: ${JSON.stringify(target)}, propertyKey: ${propertyKey}`);
     console.log(`target : ${target}`);
     console.log(`target.constructor : ${target.constructor}`);
     console.log(`propertyName : ${propertyKey}`);
-    console.log(`target.user_name: ${safeStringify(target.user_name)}`);
+    console.log(`target.user_name: ${JSON.stringify(target.user_name)}`);
 }
 
 export function CdModel(constructor: ClassRef) {

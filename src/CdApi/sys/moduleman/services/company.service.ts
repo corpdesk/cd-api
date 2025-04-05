@@ -296,7 +296,7 @@ export class CompanyService extends CdService {
                 },
                 dSource: 1
             }
-            console.log('moduleman/CompanyService::validateCreate()/serviceInput:', safeStringify(serviceInput))
+            console.log('moduleman/CompanyService::validateCreate()/serviceInput:', JSON.stringify(serviceInput))
             const r: any = await this.b.read(req, res, serviceInput)
             console.log('moduleman/CompanyService::validateCreate()/r:', r)
             if (r.length > 0) {

@@ -174,7 +174,7 @@ export class CdCliService extends CdService {
                 dSource: 1
             };
             console.log("CdCliService::validateExistence/param.model:", param.model);
-            console.log("CdCliService::validateExistence/serviceInput:", safeStringify(serviceInput));
+            console.log("CdCliService::validateExistence/serviceInput:", JSON.stringify(serviceInput));
             const b = new BaseService();
             return b.read(req, res, serviceInput).then(r => {
                 if (r.length > 0) {

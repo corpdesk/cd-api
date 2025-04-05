@@ -431,7 +431,7 @@ export class CdCliTypeService extends CdService {
         //         },
         //         dSource: 1
         //     }
-        //     this.logger.logInfo('CdCliTypeCdCliTypeService::validateCreate()/serviceInput:', safeStringify(serviceInput))
+        //     this.logger.logInfo('CdCliTypeCdCliTypeService::validateCreate()/serviceInput:', JSON.stringify(serviceInput))
         //     const r: any = await this.b.read(req, res, serviceInput)
         //     this.logger.logInfo('CdCliTypeCdCliTypeService::validateCreate()/r:', r)
         //     if (r.length > 0) {

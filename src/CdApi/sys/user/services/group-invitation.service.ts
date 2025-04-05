@@ -116,9 +116,9 @@ export class GroupInvitationService extends CdService {
             //     dSource: 1,
             // }
             // console.log('GroupInvitationService::create()/serviceInput:', serviceInput)
-            console.log('GroupInvitationService::create()/req.post:', safeStringify(req.post))
+            console.log('GroupInvitationService::create()/req.post:', JSON.stringify(req.post))
             const respData = await this.b.create(req, res, siCreate(this));
-            console.log('GroupInvitationService::create()/respData:', safeStringify(respData))
+            console.log('GroupInvitationService::create()/respData:', JSON.stringify(respData))
             if ('app_state' in respData) {
                 if (respData.success === false) {
                     return respData
@@ -249,7 +249,7 @@ export class GroupInvitationService extends CdService {
         const hostGroup: GroupModel[] = await svGroup.getGroupI(req, res, { where: { groupName: `${this.hostUser[0].userGuid}-pals` } })
         console.log('GroupInvitationService::setPalsGroupID()/hostGroup:', hostGroup)
         await this.b.setPlData(req, { key: 'groupId', value: hostGroup[0].groupId });
-        console.log('GroupInvitationService::setPalsGroupID()/req.post:', safeStringify(req.post))
+        console.log('GroupInvitationService::setPalsGroupID()/req.post:', JSON.stringify(req.post))
     }
 
     async createPalsGroupInvitation(req, res, userData: UserModel) {

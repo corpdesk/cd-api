@@ -124,7 +124,7 @@ export class GroupService extends CdService {
                 dSource: 1,
             }
             console.log('GroupService::create()/serviceInput:', serviceInput)
-            console.log('GroupService::create()/req.post:', safeStringify(req.post))
+            console.log('GroupService::create()/req.post:', JSON.stringify(req.post))
             const respData = await this.b.create(req, res, serviceInput);
             this.b.i.app_msg = 'new group created';
             this.b.setAppState(true, this.b.i, svSess.sessResp);
@@ -351,7 +351,7 @@ export class GroupService extends CdService {
                 },
                 dSource: 1
             }
-            console.log('moduleman/GroupService::validateCreate()/serviceInput:', safeStringify(serviceInput))
+            console.log('moduleman/GroupService::validateCreate()/serviceInput:', JSON.stringify(serviceInput))
             const r: any = await this.b.read(req, res, serviceInput)
             console.log('moduleman/GroupService::validateCreate()/r:', r)
             if (r.length > 0) {

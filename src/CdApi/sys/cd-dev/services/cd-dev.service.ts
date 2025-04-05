@@ -174,7 +174,7 @@ export class CdDevService extends CdService {
                 dSource: 1
             };
             console.log("CdDevService::validateExistence/param.model:", param.model);
-            console.log("CdDevService::validateExistence/serviceInput:", safeStringify(serviceInput));
+            console.log("CdDevService::validateExistence/serviceInput:", JSON.stringify(serviceInput));
             const b = new BaseService();
             return b.read(req, res, serviceInput).then(r => {
                 if (r.length > 0) {

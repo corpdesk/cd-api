@@ -176,7 +176,7 @@ export class CdDevProjectService extends CdService {
     const valid = await this.validateExistence(req, res, validationParams);
     console.log(
       "CdDevProjectService::validateCreate/this.b.err1:",
-      safeStringify(this.b.err)
+      JSON.stringify(this.b.err)
     );
 
     if (!valid) {
@@ -265,7 +265,7 @@ export class CdDevProjectService extends CdService {
       );
       console.log(
         "CdDevProjectService::validateExistence/serviceInput:",
-        safeStringify(serviceInput)
+        JSON.stringify(serviceInput)
       );
       const b = new BaseService();
       return b.read(req, res, serviceInput).then((r) => {
@@ -282,7 +282,7 @@ export class CdDevProjectService extends CdService {
           this.b.err.push(this.b.i.app_msg);
           console.log(
             "CdDevProjectService::validateExistence/this.b.err1:",
-            safeStringify(this.b.err)
+            JSON.stringify(this.b.err)
           );
           return false;
         }
@@ -293,7 +293,7 @@ export class CdDevProjectService extends CdService {
     console.log("CdDevProjectService::validateExistence/results:", results);
     console.log(
       "CdDevProjectService::validateExistence/this.b.err2:",
-      safeStringify(this.b.err)
+      JSON.stringify(this.b.err)
     );
     // If any of the validations fail, return false
     return results.every((result) => result === true);
@@ -303,7 +303,7 @@ export class CdDevProjectService extends CdService {
     const plData: CdDevProjectModel = this.b.getPlData(req);
     this.b.setPlData(req, {
       key: "cdDevProjectData",
-      value: safeStringify(plData.cdDevProjectData),
+      value: JSON.stringify(plData.cdDevProjectData),
     });
     this.b.setPlData(req, { key: "cdDevProjectGuid", value: this.b.getGuid() });
     this.b.setPlData(req, { key: "cdDevProjectEnabled", value: true });
@@ -639,7 +639,7 @@ export class CdDevProjectService extends CdService {
          * 4. Once the profile is updated successfully, update the row with the amended profileData
          */
         requestQuery.update = {
-          cdDevProjectData: safeStringify(modifiedProfile), // Updated profileData to be saved
+          cdDevProjectData: JSON.stringify(modifiedProfile), // Updated profileData to be saved
         };
         let serviceInput: IServiceInput = {
           serviceInstance: this,
@@ -1181,7 +1181,7 @@ export class CdDevProjectService extends CdService {
   //         console.log("CdDevProjectService::setCdDevProjectProfileI()/08")
   //         console.log("CdDevProjectService::setCdDevProjectProfileI()/modifiedUserProfile:", modifiedUserProfile)
   //         this.mergedProfile = await this.mergeUserProfile(req, res, modifiedUserProfile)
-  //         console.log("CdDevProjectService::setCdDevProjectProfile()/this.mergedProfile2:", safeStringify(this.mergedProfile))
+  //         console.log("CdDevProjectService::setCdDevProjectProfile()/this.mergedProfile2:", JSON.stringify(this.mergedProfile))
   //     }
   // }
 
@@ -1306,14 +1306,14 @@ export class CdDevProjectService extends CdService {
   //             console.log("CdDevProjectService::updateCdDevProjectProfile()/strUserProfile1:", modifiedCdDevProjectProfile)
 
   //             // modified profile
-  //             strModifiedCdDevProjectProfile = safeStringify(modifiedCdDevProjectProfile)
+  //             strModifiedCdDevProjectProfile = JSON.stringify(modifiedCdDevProjectProfile)
   //             console.log("CdDevProjectService::updateCdDevProjectProfile()/strModifiedCdDevProjectProfile:", strModifiedCdDevProjectProfile)
   //             // userProfile
-  //             strUserProfile = safeStringify(await this.extractUserProfile())
+  //             strUserProfile = JSON.stringify(await this.extractUserProfile())
   //             // acl
-  //             strCdDevProjectData = safeStringify(modifiedCdDevProjectProfile.cdDevProjectship.memberData)
+  //             strCdDevProjectData = JSON.stringify(modifiedCdDevProjectProfile.cdDevProjectship.memberData)
   //             // memberData
-  //             strAcl = safeStringify(modifiedCdDevProjectProfile.cdDevProjectship.acl)
+  //             strAcl = JSON.stringify(modifiedCdDevProjectProfile.cdDevProjectship.acl)
 
   //         } else {
   //             /*
@@ -1329,19 +1329,19 @@ export class CdDevProjectService extends CdService {
   //             console.log("CdDevProjectService::updateCdDevProjectProfile()/userProfileDefault:", userProfileDefault)
   //             modifiedCdDevProjectProfile = await svUser.modifyProfile(userProfileDefault, jsonUpdate)
   //             console.log("CdDevProjectService::updateCdDevProjectProfile()/modifiedCdDevProjectProfile2:", modifiedCdDevProjectProfile)
-  //             // strCdDevProjectData = safeStringify(modifiedCdDevProjectProfile)
+  //             // strCdDevProjectData = JSON.stringify(modifiedCdDevProjectProfile)
   //             // userProfile
-  //             strUserProfile = safeStringify(await this.extractUserProfile())
+  //             strUserProfile = JSON.stringify(await this.extractUserProfile())
   //             // acl
-  //             strCdDevProjectData = safeStringify(modifiedCdDevProjectProfile.cdDevProjectship.memberData)
+  //             strCdDevProjectData = JSON.stringify(modifiedCdDevProjectProfile.cdDevProjectship.memberData)
   //             // memberData
-  //             strAcl = safeStringify(modifiedCdDevProjectProfile.cdDevProjectship.acl)
+  //             strAcl = JSON.stringify(modifiedCdDevProjectProfile.cdDevProjectship.acl)
   //         }
 
   //         console.log("CdDevProjectService::updateCdDevProjectProfile()/03")
   //         requestQuery.update = { cdDevProjectProfile: strAcl }
   //         console.log("CdDevProjectService::updateCdDevProjectProfile()/requestQuery:", requestQuery)
-  //         console.log("CdDevProjectService::updateCdDevProjectProfile()/strUserProfile1-0:", safeStringify(await modifiedCdDevProjectProfile))
+  //         console.log("CdDevProjectService::updateCdDevProjectProfile()/strUserProfile1-0:", JSON.stringify(await modifiedCdDevProjectProfile))
 
   //         // update cdDevProjectProfile
   //         let serviceInput: IServiceInput = {
@@ -1379,8 +1379,8 @@ export class CdDevProjectService extends CdService {
   //         console.log("CdDevProjectService::updateCdDevProjectProfile()/userServiceInput:", userServiceInput)
   //         const userUpdateRet = await svUser.updateI(req, res, userServiceInput)
   //         const fullProfile = await this.getI(req, res, { where: { userId: sessionDataExt.currentUser.userId } })
-  //         console.log("CdDevProjectService::updateCdDevProjectProfile()/fullProfile:", safeStringify(await fullProfile))
-  //         console.log("CdDevProjectService::updateCdDevProjectProfile()/strUserProfile1-1:", safeStringify(await modifiedCdDevProjectProfile))
+  //         console.log("CdDevProjectService::updateCdDevProjectProfile()/fullProfile:", JSON.stringify(await fullProfile))
+  //         console.log("CdDevProjectService::updateCdDevProjectProfile()/strUserProfile1-1:", JSON.stringify(await modifiedCdDevProjectProfile))
   //         const finalRet = {
   //             updateRet: updateCdDevProjectRet,
   //             userUpdateRet: userUpdateRet,
@@ -1437,11 +1437,11 @@ export class CdDevProjectService extends CdService {
   //             console.log("CdDevProjectService::updateCdDevProjectProfile()/strUserProfile3:", modifiedCdDevProjectProfile)
 
   //             // userProfile
-  //             strUserProfile = safeStringify(await this.extractUserProfile())
+  //             strUserProfile = JSON.stringify(await this.extractUserProfile())
   //             // acl
-  //             strCdDevProjectData = safeStringify(modifiedCdDevProjectProfile.cdDevProjectship.memberData)
+  //             strCdDevProjectData = JSON.stringify(modifiedCdDevProjectProfile.cdDevProjectship.memberData)
   //             // memberData
-  //             strAcl = safeStringify(modifiedCdDevProjectProfile.cdDevProjectship.acl)
+  //             strAcl = JSON.stringify(modifiedCdDevProjectProfile.cdDevProjectship.acl)
 
   //         } else {
   //             /*
@@ -1457,21 +1457,21 @@ export class CdDevProjectService extends CdService {
   //             console.log("CdDevProjectService::updateCdDevProjectProfile()/userProfileDefault:", userProfileDefault)
   //             modifiedCdDevProjectProfile = await svUser.modifyProfile(userProfileDefault, jsonUpdate)
   //             console.log("CdDevProjectService::updateCdDevProjectProfile()/modifiedCdDevProjectProfile4:", modifiedCdDevProjectProfile)
-  //             // strCdDevProjectData = safeStringify(modifiedCdDevProjectProfile)
+  //             // strCdDevProjectData = JSON.stringify(modifiedCdDevProjectProfile)
   //             // userProfile
-  //             strUserProfile = safeStringify(await this.extractUserProfile())
+  //             strUserProfile = JSON.stringify(await this.extractUserProfile())
   //             // acl
-  //             strCdDevProjectData = safeStringify(modifiedCdDevProjectProfile.cdDevProjectship.memberData)
+  //             strCdDevProjectData = JSON.stringify(modifiedCdDevProjectProfile.cdDevProjectship.memberData)
   //             // memberData
-  //             strAcl = safeStringify(modifiedCdDevProjectProfile.cdDevProjectship.acl)
+  //             strAcl = JSON.stringify(modifiedCdDevProjectProfile.cdDevProjectship.acl)
   //         }
 
   //         // // userProfile
-  //         // strUserProfile = safeStringify(modifiedCdDevProjectProfile.userProfile)
+  //         // strUserProfile = JSON.stringify(modifiedCdDevProjectProfile.userProfile)
   //         // // acl
-  //         // strCdDevProjectData = safeStringify(modifiedCdDevProjectProfile.cdDevProjectship.memberData)
+  //         // strCdDevProjectData = JSON.stringify(modifiedCdDevProjectProfile.cdDevProjectship.memberData)
   //         // // memberData
-  //         // strAcl = safeStringify(modifiedCdDevProjectProfile.cdDevProjectship.acl)
+  //         // strAcl = JSON.stringify(modifiedCdDevProjectProfile.cdDevProjectship.acl)
 
   //         console.log("CdDevProjectService::updateCdDevProjectProfile()/modifiedCdDevProjectProfile3:", modifiedCdDevProjectProfile)
 

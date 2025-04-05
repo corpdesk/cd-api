@@ -53,8 +53,8 @@ export class JMorph {
    */
   // private static applyUpdate(jsonData: any, instruction: JUpdateInstruction): void {
   //     console.log("JMorph::applyUpdate()/01")
-  //     console.log("JMorph::applyUpdate()/jsonData:", safeStringify(jsonData))
-  //     console.log("JMorph::applyUpdate()/instruction:", safeStringify(instruction))
+  //     console.log("JMorph::applyUpdate()/jsonData:", JSON.stringify(jsonData))
+  //     console.log("JMorph::applyUpdate()/instruction:", JSON.stringify(instruction))
   //     const { path, value, action } = instruction;
   //     console.log("JMorph::applyUpdate()/02")
   //     let target = jsonData;
@@ -81,7 +81,7 @@ export class JMorph {
 
   //     const lastKey = path[path.length - 1];
   //     console.log(`JMorph::applyUpdate()/09`)
-  //     console.log(`JMorph::applyUpdate()/target:${safeStringify(target)}`)
+  //     console.log(`JMorph::applyUpdate()/target:${JSON.stringify(target)}`)
   //     console.log(`JMorph::applyUpdate()/lastKey:${lastKey}`)
   //     if (Array.isArray(target[lastKey]) && !Array.isArray(lastKey)) {
   //         console.log(`JMorph::applyUpdate()/10`)
@@ -96,7 +96,7 @@ export class JMorph {
   //         console.log(`JMorph::applyUpdate()/14`)
   //         this.modifyObject(target, lastKey, value, action);
   //     }
-  //     console.log("JMorph::applyUpdate()/target:", safeStringify(target))
+  //     console.log("JMorph::applyUpdate()/target:", JSON.stringify(target))
   // }
 
   private static applyUpdate(
@@ -104,10 +104,10 @@ export class JMorph {
     instruction: JUpdateInstruction
   ): void {
     console.log("JMorph::applyUpdate()/01");
-    console.log("JMorph::applyUpdate()/jsonData:", safeStringify(jsonData));
+    console.log("JMorph::applyUpdate()/jsonData:", JSON.stringify(jsonData));
     console.log(
       "JMorph::applyUpdate()/instruction:",
-      safeStringify(instruction)
+      JSON.stringify(instruction)
     );
 
     const { path, value, action } = instruction;
@@ -217,7 +217,7 @@ export class JMorph {
       target.push(value);
       console.log(
         `JMorph::createEntry()/Success: Entry added.`,
-        safeStringify(target)
+        JSON.stringify(target)
       );
     } else {
       console.log(`JMorph::createEntry()/Error: Target is not an array.`);

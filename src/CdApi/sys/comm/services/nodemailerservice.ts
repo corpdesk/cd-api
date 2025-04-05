@@ -86,10 +86,10 @@ export class NodemailerService {
         html: req.post.dat.f_vals[0].data.msg,
         headers: { "x-myheader": "test header" },
       };
-      console.log(`Nodemailerservice::sendMail()/mail:${safeStringify(mail)}`);
+      console.log(`Nodemailerservice::sendMail()/mail:${JSON.stringify(mail)}`);
       const info = await this.nodemailerTransporter2.sendMail(mail);
 
-      console.log(`Message sent: ${safeStringify(info)}`);
+      console.log(`Message sent: ${JSON.stringify(info)}`);
       return info;
     } catch (error) {
       console.error("Error sending email:", error);

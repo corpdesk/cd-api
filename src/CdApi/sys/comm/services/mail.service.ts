@@ -31,7 +31,7 @@ export class MailService {
 
   async getMailInterface(): Promise<string> {
     const activeInterface = config.emailInterface.find((service) => service.active);
-    console.log(`UserController::getMailInterface()/activeInterface: ${safeStringify(activeInterface)}`);
+    console.log(`UserController::getMailInterface()/activeInterface: ${JSON.stringify(activeInterface)}`);
     return activeInterface ? activeInterface.name : "nodemailer"; // Default to nodemailer if none is active
   }
   

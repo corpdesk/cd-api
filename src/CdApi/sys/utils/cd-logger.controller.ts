@@ -32,7 +32,7 @@ class CdLogg {
   static info(message: string, context?: object | string | null) {
     if (CdLogg.debugLevel >= CdLogg.LOG_LEVELS.INFO) {
       const formattedMessage = context
-        ? `${message} | Context: ${safeStringify(context)}`
+        ? `${message} | Context: ${JSON.stringify(context)}`
         : message;
       console.log(this.formatMessage(chalk.blue('ℹ️'), formattedMessage));
     }
@@ -42,7 +42,7 @@ class CdLogg {
   static success(message: string, context?: object) {
     if (CdLogg.debugLevel >= CdLogg.LOG_LEVELS.INFO) {
       const formattedMessage = context
-        ? `${message} | Context: ${safeStringify(context)}`
+        ? `${message} | Context: ${JSON.stringify(context)}`
         : message;
       console.log(
         this.formatMessage(chalk.green('ℹ✨'), chalk.green(formattedMessage)),
@@ -54,7 +54,7 @@ class CdLogg {
   static warning(message: string, context?: object) {
     if (CdLogg.debugLevel >= CdLogg.LOG_LEVELS.WARNING) {
       const formattedMessage = context
-        ? `${message} | Context: ${safeStringify(context)}`
+        ? `${message} | Context: ${JSON.stringify(context)}`
         : message;
       console.log(this.formatMessage(chalk.yellow('ℹ⚠️'), formattedMessage));
     }
@@ -64,7 +64,7 @@ class CdLogg {
   static error(message: string, context?: object) {
     if (CdLogg.debugLevel >= CdLogg.LOG_LEVELS.ERROR) {
       const formattedMessage = context
-        ? `${message} | Context: ${safeStringify(context)}`
+        ? `${message} | Context: ${JSON.stringify(context)}`
         : message;
       console.log(this.formatMessage(chalk.red('❌'), formattedMessage));
     }
@@ -74,7 +74,7 @@ class CdLogg {
   // static debug(message: string, context?: object) {
   //   if (CdLogg.debugLevel >= CdLogg.LOG_LEVELS.DEBUG) {
   //     const formattedMessage = context
-  //       ? `${message} | Context: ${safeStringify(context)}`
+  //       ? `${message} | Context: ${JSON.stringify(context)}`
   //       : message;
   //     console.log(this.formatMessage(chalk.cyan('🛠️'), formattedMessage));
   //   }
@@ -82,7 +82,7 @@ class CdLogg {
   static debug(message: string, context?: object) {
     if (CdLogg.debugLevel >= CdLogg.LOG_LEVELS.DEBUG) {
       const formattedMessage = context
-        ? `${message} | Context: ${safeStringify(context)}`
+        ? `${message} | Context: ${JSON.stringify(context)}`
         : message;
       console.log(this.formatMessage(chalk.cyan('🛠️'), formattedMessage));
     }
@@ -114,9 +114,9 @@ class CdLogg {
     return CdLogg.debugLevel;
   }
 
-  static safeStringify(obj: any, space = 2) {
+  static JSON.stringify(obj: any, space = 2) {
     const seen = new WeakSet();
-    return safeStringify(
+    return JSON.stringify(
       obj,
       (key, value) => {
         if (typeof value === 'object' && value !== null) {

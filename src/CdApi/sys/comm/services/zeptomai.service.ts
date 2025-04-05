@@ -46,8 +46,8 @@ export class ZeptoMailService {
     client
       .sendMail(emailPl)
       .then((resp) => {
-        console.log(`payload: ${safeStringify(emailPl)}`);
-        console.log(`resp: ${safeStringify(resp)}`);
+        console.log(`payload: ${JSON.stringify(emailPl)}`);
+        console.log(`resp: ${JSON.stringify(resp)}`);
         console.log("success");
       })
       .catch((error) => console.log("error"));

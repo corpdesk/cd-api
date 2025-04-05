@@ -135,7 +135,7 @@ export class SessionService {
     async getDeviceNetId(req): Promise<JSON> {
         const deviceDetector = new DeviceDetector();
         const userAgent = `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.81 Safari/537.36`;
-        const resultStr = safeStringify(deviceDetector.parse(userAgent));
+        const resultStr = JSON.stringify(deviceDetector.parse(userAgent));
         const ip4 = this.getIP(req);
         const resultJ = JSON.parse(resultStr);
         resultJ.net = {
@@ -234,8 +234,8 @@ export class SessionService {
                 // Set the TTL to 1 hour (3600 seconds)
                 const ttl = Number(config.cacheTtl)
                 // Store the session data in Redis for future requests (set a TTL of 1 hour)
-                // await this.redisService.set(cacheKey, safeStringify(retSessionData), ttl);
-                await this.redisService.set(cacheKey, safeStringify(retSessionData), ttl);
+                // await this.redisService.set(cacheKey, JSON.stringify(retSessionData), ttl);
+                await this.redisService.set(cacheKey, JSON.stringify(retSessionData), ttl);
             }
             console.log("SessionService::getSessionDataExt()/14")
             console.log("SessionService::getSessionDataExt()/retSessionData:", retSessionData)

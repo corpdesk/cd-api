@@ -76,7 +76,7 @@ export class Logging {
             format.printf(
                 info =>
                     `[${info.timestamp}] [${info.level.toUpperCase()}]: ${info.message
-                    } [CONTEXT] -> ${info.context ? '\n' + safeStringify(info.context) : '{}' // Including the context
+                    } [CONTEXT] -> ${info.context ? '\n' + JSON.stringify(info.context) : '{}' // Including the context
                     }`
             ),
             format.colorize({ all: true })

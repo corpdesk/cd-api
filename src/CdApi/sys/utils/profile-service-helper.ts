@@ -93,7 +93,7 @@ export class ProfileServiceHelper {
                 switch (action) {
                     case "create":
                         updatedProfile = await this.createCoopRole(updatedProfile, remainingPath, value);
-                        console.log("ProfileServiceHelper::modifyProfile()/updatedProfile1:", safeStringify(updatedProfile))
+                        console.log("ProfileServiceHelper::modifyProfile()/updatedProfile1:", JSON.stringify(updatedProfile))
                         break;
                     case "update":
                         updatedProfile = await this.updateCoopRole(updatedProfile, remainingPath, value);
@@ -119,11 +119,11 @@ export class ProfileServiceHelper {
                 ];
                 // this.applyJsonUpdate(updatedProfile, path, value);
                 updatedProfile = JMorph.applyUpdates(updatedProfile, jsonUpdate);
-                console.log("ProfileServiceHelper::modifyProfile()/updatedProfile:", safeStringify(await updatedProfile))
+                console.log("ProfileServiceHelper::modifyProfile()/updatedProfile:", JSON.stringify(await updatedProfile))
             }
         }
         console.log("ProfileServiceHelper::modifyProfile()/07")
-        console.log("ProfileServiceHelper::modifyProfile()/updatedProfile2:", safeStringify(await updatedProfile))
+        console.log("ProfileServiceHelper::modifyProfile()/updatedProfile2:", JSON.stringify(await updatedProfile))
         /**
          * Sync updated data with memberData which is still in the state it was retrieved from db.
          */
@@ -157,7 +157,7 @@ export class ProfileServiceHelper {
      */
     static applyJsonUpdate(profile: any, path: (string | number | string[])[], value: any) {
         console.log("ProfileServiceHelper::applyJsonUpdate()/01")
-        console.log("ProfileServiceHelper::applyJsonUpdate()/profile:", safeStringify(profile))
+        console.log("ProfileServiceHelper::applyJsonUpdate()/profile:", JSON.stringify(profile))
         console.log("ProfileServiceHelper::applyJsonUpdate()/path:", path)
         console.log("ProfileServiceHelper::applyJsonUpdate()/value:", value)
         let current = profile;
@@ -181,7 +181,7 @@ export class ProfileServiceHelper {
         }
 
         current[finalKey] = value;
-        console.log("ProfileServiceHelper::applyJsonUpdate()/current:", safeStringify(current))
+        console.log("ProfileServiceHelper::applyJsonUpdate()/current:", JSON.stringify(current))
         console.log("ProfileServiceHelper::applyJsonUpdate()/current[finalKey]:", current[finalKey])
     }
 
@@ -217,7 +217,7 @@ export class ProfileServiceHelper {
 
         profile.coopMembership.acl = aclList
         console.log("ProfileServiceHelper::createCoopRole()/aclList2:", aclList)
-        console.log("ProfileServiceHelper::createCoopRole()/profile:", safeStringify(await profile))
+        console.log("ProfileServiceHelper::createCoopRole()/profile:", JSON.stringify(await profile))
 
         return await profile;
     }

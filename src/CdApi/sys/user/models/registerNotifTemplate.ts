@@ -17,9 +17,9 @@ export class NotificationTemplate {
         const sessInstance = new SessionService()
         const sess: SessionModel = await sessInstance.create(req, res, regUser)
         const clientContext: any = req.post.dat.f_vals[0].clientContext;
-        console.log("registerNotifTemplate()/sess:", safeStringify(sess))
-        console.log("registerNotifTemplate()/clientContext:", safeStringify(clientContext))
-        console.log("registerNotifTemplate()/regUser:", safeStringify(regUser))
+        console.log("registerNotifTemplate()/sess:", JSON.stringify(sess))
+        console.log("registerNotifTemplate()/clientContext:", JSON.stringify(clientContext))
+        console.log("registerNotifTemplate()/regUser:", JSON.stringify(regUser))
         var ret = await `
         <p>Welcome <b>${regUser.userName}</b>,</p>
         <p>Thank you for regisering with ${clientContext.entity}.</p>

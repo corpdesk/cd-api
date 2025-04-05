@@ -248,7 +248,7 @@ export class CdObjService extends CdService {
           "CdObjService::getCdObjTypeI()/found a existing descriptor..."
         );
         // update jDetails field
-        d.jDetails = safeStringify(d.jDetails);
+        d.jDetails = JSON.stringify(d.jDetails);
         q.update = { jDetails: d.jDetails };
         q.where.cdObjId = d.cdObjId;
         const serviceInput = {
@@ -530,13 +530,13 @@ export class CdObjService extends CdService {
     console.log("CdObjService::getCdObj/111");
     console.log(
       "CdObjService::validateCreate()/req.post",
-      safeStringify(req.post)
+      JSON.stringify(req.post)
     );
     if (!internalMode) {
       pl = this.b.getPlData(req);
     }
 
-    console.log("CdObjService::validateCreate()/pl", safeStringify(pl));
+    console.log("CdObjService::validateCreate()/pl", JSON.stringify(pl));
     if (internalMode) {
       /**
        * validate for internal
