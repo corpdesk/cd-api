@@ -203,12 +203,12 @@ export class JMorph {
       );
 
       if (alreadyExists) {
-        console.log(
+        console.warn(
           `JMorph::createEntry()/Error: Entry with ${keyField}=${keyValue} already exists.`
         );
-        throw new Error(
-          `Duplicate entry: ${keyField}=${keyValue} already exists.`
-        );
+        // throw new Error(
+        //   `Duplicate entry: ${keyField}=${keyValue} already exists.`
+        // );
       }
 
       // Push the new object directly into the array
