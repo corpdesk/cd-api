@@ -5,6 +5,7 @@ import * as dotenv from "dotenv";
 import "reflect-metadata";
 import { DataSource, DataSourceOptions, DatabaseType } from "typeorm";
 import path from "path";
+import { RunMode } from "./CdApi/sys/base/IBase";
 dotenv.config();
 
 /**
@@ -167,6 +168,7 @@ export const empMailConfig = {
   smtpPort: 465,
 };
 export default {
+  runMode: RunMode.UNRESTRICTED_DEVELOPER_MODE,
   ds: {
     sqlite: new DataSource(sqliteConfig),
     mysql: new DataSource(mysqlConfig),

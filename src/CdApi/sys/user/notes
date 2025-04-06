@@ -1,0 +1,102 @@
+06/04/2025
+By G.Oremo
+Added clientId?:any as part of ISessResp interface 
+This can be used optionally by developers to see servers view of the client.
+It was initially necesitated when starlink ISP was serving only connection with ip6 and connection to digitalocean by requred ip4 for white listing. This could not be derived from the developer side.  On the digitalocean side, it was possible to derive a working ip4.
+This clientId will now be a way of getting the ip4 in such a scenario.
+There would also be other rationale that are not discussed now.
+
+----------------------------------------
+IMPLEMENTATION:
+-------------------------------------------
+async setAppState(succ: boolean, i: IRespInfo | null, ss: ISessResp | null) {
+    const sess = new SessionService();
+
+    if (succ === false) {
+      this.cdResp.data = [];
+    }
+
+    this.setClientId(ss);
+
+    this.cdResp.app_state = {
+      success: succ,
+      info: i,
+      sess: ss,
+      cache: {},
+      sConfig: {
+        usePush: config.usePolling,
+        usePolling: config.usePush,
+        useCacheStore: config.useCacheStore,
+      },
+    };
+  }
+
+  /**
+   * Under selected modes, client ip may be necessary as part of response
+   * @param ss 
+   */
+  private setClientId(ss: ISessResp | null) {
+    const allowedModes = [
+      RunMode.UNRESTRICTED_DEVELOPER_MODE,
+      RunMode.VERBOSE_MONITORING,
+      RunMode.DIAGNOSTIC_TRACE,
+      RunMode.MAINTENANCE_MODE,
+    ];
+
+    if (ss && allowedModes.includes(config.runMode)) {
+      ss.clientId = this.sess[0].deviceNetId;
+    }
+  }
+
+// introducd runMode in in the config.ts
+export default {
+  runMode: RunMode.UNRESTRICTED_DEVELOPER_MODE,
+}
+
+
+// Introduce RunMode enum at the IBase
+  export enum RunMode {
+  // System is off; no operations should be performed
+  SYSTEM_SHUTDOWN = 0,
+
+  // Maintenance tasks only; no API access
+  MAINTENANCE_MODE = 1,
+
+  // Only critical functions enabled (e.g., login, health checks)
+  CRITICAL_ONLY = 2,
+
+  // Limited operations; debugging or inspection mode
+  SAFE_DEBUG_MODE = 3,
+
+  // Normal usage with standard logging
+  NORMAL_OPERATION = 4,
+
+  // Verbose logging and minor debug info
+  VERBOSE_MONITORING = 5,
+
+  // Deep tracing of request/response, DB queries, etc.
+  DIAGNOSTIC_TRACE = 6,
+
+  // Everything plus performance profiling
+  FULL_AUDIT_AND_PROFILING = 7,
+
+  // Simulate user traffic, no actual data persistence (e.g., for staging)
+  SANDBOX_SIMULATION = 8,
+
+  // Fake data, used in frontend testing environments
+  MOCK_DATA_MODE = 9,
+
+  // Completely unrestricted, may expose internals (use with caution)
+  UNRESTRICTED_DEVELOPER_MODE = 10
+}
+
+// introducde clientId as part of ISessResp
+export interface ISessResp {
+    cd_token?: string; // corpdesk token
+    userId?: number | null; // current user id
+    jwt: { jwtToken: string, checked: boolean, checkTime: number, authorized: boolean, } | null // jwt data
+    ttl: number; // server settings for session lifetime
+    initUuid?: string; // initialization guid of session
+    initTime?: string; // when the session started
+    clientId?: any; // OPtonal. for diagnosis for server view of the client.
+}

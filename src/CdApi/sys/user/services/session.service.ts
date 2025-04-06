@@ -35,6 +35,7 @@ export class SessionService {
         jwt: null,
         ttl: 600
     };
+    clientId: any;
     private redisService: RedisService;
 
     currentUserData: UserModel;

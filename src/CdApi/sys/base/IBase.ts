@@ -156,6 +156,7 @@ export interface ISessResp {
     ttl: number; // server settings for session lifetime
     initUuid?: string; // initialization guid of session
     initTime?: string; // when the session started
+    clientId?: any; // OPtonal. for diagnosis for server view of the client.
 }
 
 export interface ISessionDataExt {
@@ -618,6 +619,45 @@ export interface JWT {
     checkTime: number;
     authorized: boolean;
 }
+
+/**
+ * Rather than have just some standard levels of operation, this is an expressive flagging that can 
+ * serve in very many cases
+ */
+export enum RunMode {
+    // System is off; no operations should be performed
+    SYSTEM_SHUTDOWN = 0,
+  
+    // Maintenance tasks only; no API access
+    MAINTENANCE_MODE = 1,
+  
+    // Only critical functions enabled (e.g., login, health checks)
+    CRITICAL_ONLY = 2,
+  
+    // Limited operations; debugging or inspection mode
+    SAFE_DEBUG_MODE = 3,
+  
+    // Normal usage with standard logging
+    NORMAL_OPERATION = 4,
+  
+    // Verbose logging and minor debug info
+    VERBOSE_MONITORING = 5,
+  
+    // Deep tracing of request/response, DB queries, etc.
+    DIAGNOSTIC_TRACE = 6,
+  
+    // Everything plus performance profiling
+    FULL_AUDIT_AND_PROFILING = 7,
+  
+    // Simulate user traffic, no actual data persistence (e.g., for staging)
+    SANDBOX_SIMULATION = 8,
+  
+    // Fake data, used in frontend testing environments
+    MOCK_DATA_MODE = 9,
+  
+    // Completely unrestricted, may expose internals (use with caution)
+    UNRESTRICTED_DEVELOPER_MODE = 10
+  }
 
 
 

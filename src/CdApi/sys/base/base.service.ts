@@ -17,6 +17,7 @@ import {
   IQbInput,
   ISessionDataExt,
   IJsonUpdate,
+  RunMode,
 } from "./IBase";
 import {
   EntityMetadata,
@@ -462,10 +463,33 @@ export class BaseService {
    * @param Info
    * @param Sess
    */
+  // async setAppState(succ: boolean, i: IRespInfo | null, ss: ISessResp | null) {
+  //   const sess = new SessionService();
+  //   if (succ === false) {
+  //     this.cdResp.data = [];
+  //   }
+
+  //   this.cdResp.app_state = {
+  //     success: succ,
+  //     info: i,
+  //     sess: ss,
+  //     cache: {},
+  //     sConfig: {
+  //       usePush: config.usePolling,
+  //       usePolling: config.usePush,
+  //       useCacheStore: config.useCacheStore,
+  //     },
+  //   };
+  // }
   async setAppState(succ: boolean, i: IRespInfo | null, ss: ISessResp | null) {
+    const sess = new SessionService();
+
     if (succ === false) {
       this.cdResp.data = [];
     }
+
+    this.setClientId(ss);
+
     this.cdResp.app_state = {
       success: succ,
       info: i,
@@ -477,6 +501,23 @@ export class BaseService {
         useCacheStore: config.useCacheStore,
       },
     };
+  }
+
+  /**
+   * Under selected modes, client ip may be necessary as part of response
+   * @param ss 
+   */
+  private setClientId(ss: ISessResp | null) {
+    const allowedModes = [
+      RunMode.UNRESTRICTED_DEVELOPER_MODE,
+      RunMode.VERBOSE_MONITORING,
+      RunMode.DIAGNOSTIC_TRACE,
+      RunMode.MAINTENANCE_MODE,
+    ];
+
+    if (ss && allowedModes.includes(config.runMode)) {
+      ss.clientId = this.sess[0].deviceNetId;
+    }
   }
 
   setInvalidRequest(req, res, eCode: string) {
@@ -1827,7 +1868,9 @@ export class BaseService {
     const repo: any = this.repo;
 
     try {
-      const queryBuilder = await queryBuilderHelper.createQueryBuilder(serviceInput);
+      const queryBuilder = await queryBuilderHelper.createQueryBuilder(
+        serviceInput
+      );
       console.log("BaseService::readQB/sql:", queryBuilder.getSql());
 
       let items = await queryBuilder.getRawMany();
@@ -1873,7 +1916,9 @@ export class BaseService {
     await this.setRepo(serviceInput);
 
     const queryBuilderHelper = new QueryBuilderHelper(this.repo);
-    const queryBuilder = await queryBuilderHelper.createQueryBuilder(serviceInput);
+    const queryBuilder = await queryBuilderHelper.createQueryBuilder(
+      serviceInput
+    );
 
     // Use MySQL JSON_EXTRACT to extract specific fields from the JSON column
     keys.forEach((key) => {
