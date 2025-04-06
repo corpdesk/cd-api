@@ -53,6 +53,7 @@ import { QueryBuilderHelper } from "../utils/query-builder-helper";
 import { EntityAdapter } from "../utils/entity-adapter";
 import { TypeOrmDatasource } from "./type-orm-connect";
 import { safeStringify } from "../utils/safe-stringify";
+import { CdLogger } from "../utils/cd-logger";
 
 const USER_ANON = 1000;
 const INVALID_REQUEST = "invalid request";
@@ -86,6 +87,7 @@ export class BaseService {
   redisClient;
   svRedis: RedisService;
   logger: Logging;
+  // cdLog: CdLogger;
   entityAdapter: EntityAdapter;
 
   constructor() {
@@ -482,14 +484,20 @@ export class BaseService {
   //   };
   // }
   async setAppState(succ: boolean, i: IRespInfo | null, ss: ISessResp | null) {
-    const sess = new SessionService();
+    CdLogger.debug('BaseService::setAppState()/01')
 
     if (succ === false) {
+      CdLogger.debug('BaseService::setAppState()/02')
       this.cdResp.data = [];
     }
-
-    this.setClientId(ss);
-
+    // if(this.sess){
+    //   this.setClientId(ss, this.sess[0]);
+    // } else {
+    //   CdLogger.debug('BaseService::setAppState()/03')
+    //   CdLogger.warn('session is not set')
+    // }
+    
+    CdLogger.debug('BaseService::setAppState()/ss:', ss)
     this.cdResp.app_state = {
       success: succ,
       info: i,
@@ -507,7 +515,8 @@ export class BaseService {
    * Under selected modes, client ip may be necessary as part of response
    * @param ss 
    */
-  private setClientId(ss: ISessResp | null) {
+  getClientId(clientId:any) {
+    CdLogger.debug('BaseService::setClientId()/01')
     const allowedModes = [
       RunMode.UNRESTRICTED_DEVELOPER_MODE,
       RunMode.VERBOSE_MONITORING,
@@ -515,8 +524,14 @@ export class BaseService {
       RunMode.MAINTENANCE_MODE,
     ];
 
-    if (ss && allowedModes.includes(config.runMode)) {
-      ss.clientId = this.sess[0].deviceNetId;
+    if (allowedModes.includes(config.runMode)) {
+      CdLogger.debug('BaseService::setClientId()/02')
+      CdLogger.debug('BaseService::setClientId()/clientId:', clientId)
+      return clientId;
+    } else {
+      CdLogger.debug('BaseService::setClientId()/03')
+      CdLogger.warn('clientId is not allowed at this time')
+      return null;
     }
   }
 

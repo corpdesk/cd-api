@@ -623,41 +623,68 @@ export interface JWT {
 /**
  * Rather than have just some standard levels of operation, this is an expressive flagging that can 
  * serve in very many cases
+ * 
+ * RunMode defines the operational state of the system.
+ * These are ordered by increasing level of verbosity, system availability, and openness.
+ * Use these levels for environment-aware logging, diagnostics, and operational control.
  */
 export enum RunMode {
-    // System is off; no operations should be performed
+    /**
+     * System is turned off. No operations should be permitted.
+     */
     SYSTEM_SHUTDOWN = 0,
   
-    // Maintenance tasks only; no API access
+    /**
+     * Restricted to maintenance tasks only. No external or user-triggered API access.
+     */
     MAINTENANCE_MODE = 1,
   
-    // Only critical functions enabled (e.g., login, health checks)
+    /**
+     * Only the most essential functions are operational (e.g., auth, health checks).
+     */
     CRITICAL_ONLY = 2,
   
-    // Limited operations; debugging or inspection mode
+    /**
+     * Enables safe-level debugging and system inspection (non-invasive).
+     */
     SAFE_DEBUG_MODE = 3,
   
-    // Normal usage with standard logging
+    /**
+     * Default/standard operating mode.
+     */
     NORMAL_OPERATION = 4,
   
-    // Verbose logging and minor debug info
+    /**
+     * Allows logging of verbose runtime details.
+     */
     VERBOSE_MONITORING = 5,
   
-    // Deep tracing of request/response, DB queries, etc.
+    /**
+     * Enables deep diagnostics such as full stack traces, DB query logs, etc.
+     */
     DIAGNOSTIC_TRACE = 6,
   
-    // Everything plus performance profiling
+    /**
+     * Enables in-depth audit and profiling for performance or security reviews.
+     */
     FULL_AUDIT_AND_PROFILING = 7,
   
-    // Simulate user traffic, no actual data persistence (e.g., for staging)
+    /**
+     * Simulated environment where data persistence is disabled (e.g., for safe testing).
+     */
     SANDBOX_SIMULATION = 8,
   
-    // Fake data, used in frontend testing environments
+    /**
+     * Uses mocked data sources, often for frontend or integration testing.
+     */
     MOCK_DATA_MODE = 9,
   
-    // Completely unrestricted, may expose internals (use with caution)
-    UNRESTRICTED_DEVELOPER_MODE = 10
+    /**
+     * Full developer freedom: exposes internals, bypasses restrictions, logs everything.
+     */
+    UNRESTRICTED_DEVELOPER_MODE = 10,
   }
+  
 
 
 

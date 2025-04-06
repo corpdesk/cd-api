@@ -1019,9 +1019,13 @@ export class UserService extends CdService {
     this.logger.logInfo("UserService::authResponse()/01");
     this.b.logTimeStamp("UserService::authResponse/01");
     // this.logger.logInfo('UserService::authResponse/01:');
+    const svSession = new SessionService();
+    const clientId = await svSession.getDeviceNetId(req);
+    this.logger.logInfo(`UserService::authResponse/clientId:${JSON.stringify(clientId)}`);
     this.processResponse$(req, res, guest).subscribe((ret: any) => {
       this.logger.logInfo("UserService::authResponse()/02");
       this.b.logTimeStamp("ModuleService::authResponse/02/ret:");
+
       // this.logger.logInfo(`UserService::authResponse()/02/ret:${JSON.stringify(ret)}`, ret);
       // const i = null;
       const sessData: ISessResp = {
@@ -1029,7 +1033,10 @@ export class UserService extends CdService {
         userId: ret.modulesUserData.userData.userId,
         jwt: null,
         ttl: ret.sessResult.ttl,
+        clientId: this.b.getClientId(clientId)
       };
+      this.logger.logInfo(`UserService::authResponse/sessData:${JSON.stringify(sessData)}`);
+      
       if (ret.modulesUserData.menuData.length > 0) {
         this.logger.logInfo("UserService::authResponse()/03");
         ret.modulesUserData.menuData = ret.modulesUserData.menuData.filter(
@@ -1620,8 +1627,8 @@ export class UserService extends CdService {
       docName: "UserService::existingUserProfile",
       dSource: 1,
       cmd: {
-        action: 'find',
-        query: { select: ['userProfile'], where: { userId: cuid } },
+        action: "find",
+        query: { select: ["userProfile"], where: { userId: cuid } },
       },
       // mapping: { profileField: "userProfile" },
     };

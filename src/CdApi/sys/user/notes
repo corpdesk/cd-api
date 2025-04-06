@@ -100,3 +100,85 @@ export interface ISessResp {
     initTime?: string; // when the session started
     clientId?: any; // OPtonal. for diagnosis for server view of the client.
 }
+
+-----------------------------------------------
+Organize RunMode in the level of verbosity and severity so that in the CdLogger,
+We can organize the log levels using comparison operators >, =, < where necessary.
+Then revisit CdLogger using comparison operators where appropriate.
+This can be considered as work in progres.
+You can include guiding comments on both RunMode and CdLogger so whoever comes after us can be properly guided.
+export enum RunMode {
+    // System is off; no operations should be performed
+    SYSTEM_SHUTDOWN = 0,
+  
+    // Maintenance tasks only; no API access
+    MAINTENANCE_MODE = 1,
+  
+    // Only critical functions enabled (e.g., login, health checks)
+    CRITICAL_ONLY = 2,
+  
+    // Limited operations; debugging or inspection mode
+    SAFE_DEBUG_MODE = 3,
+  
+    // Normal usage with standard logging
+    NORMAL_OPERATION = 4,
+  
+    // Verbose logging and minor debug info
+    VERBOSE_MONITORING = 5,
+  
+    // Deep tracing of request/response, DB queries, etc.
+    DIAGNOSTIC_TRACE = 6,
+  
+    // Everything plus performance profiling
+    FULL_AUDIT_AND_PROFILING = 7,
+  
+    // Simulate user traffic, no actual data persistence (e.g., for staging)
+    SANDBOX_SIMULATION = 8,
+  
+    // Fake data, used in frontend testing environments
+    MOCK_DATA_MODE = 9,
+  
+    // Completely unrestricted, may expose internals (use with caution)
+    UNRESTRICTED_DEVELOPER_MODE = 10
+  }
+
+  export class CdLogger {
+  private static readonly runMode = config.runMode;
+
+  private static shouldLog(level: RunMode): boolean {
+    return this.runMode >= level;
+  }
+
+  static log(...args: any[]) {
+    if (this.shouldLog(RunMode.NORMAL_OPERATION)) {
+      console.log("[LOG]", ...args);
+    }
+  }
+
+  static debug(...args: any[]) {
+    if (
+      this.shouldLog(RunMode.VERBOSE_MONITORING) ||
+      this.shouldLog(RunMode.UNRESTRICTED_DEVELOPER_MODE)
+    ) {
+      console.debug("[DEBUG]", ...args);
+    }
+  }
+
+  static warn(...args: any[]) {
+    if (this.shouldLog(RunMode.SAFE_DEBUG_MODE)) {
+      console.warn("[WARN]", ...args);
+    }
+  }
+
+  static error(...args: any[]) {
+    if (this.shouldLog(RunMode.CRITICAL_ONLY)) {
+      console.error("[ERROR]", ...args);
+    }
+  }
+
+  static trace(...args: any[]) {
+    if (this.shouldLog(RunMode.DIAGNOSTIC_TRACE)) {
+      console.trace("[TRACE]", ...args);
+    }
+  }
+}
