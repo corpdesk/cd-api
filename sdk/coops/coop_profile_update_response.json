@@ -81,7 +81,7 @@
                     }
                 ]
             },
-            "coopMembership": {
+            "memberMeta": {
                 "acl": [
                     {
                         "coopId": -1,

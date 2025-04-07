@@ -43,7 +43,7 @@ export class ProfileServiceHelper {
      * Example of profileConfig
      * const profileConfig = [
             {
-                path: ["coopMembership", "acl", "coopRole"],
+                path: ["memberMeta", "acl", "coopRole"],
                 value: {
                     coopId: 1,
                     coopRole: [
@@ -53,7 +53,7 @@ export class ProfileServiceHelper {
                 action: "create" // Could also be "update", "delete", "read"
             },
             {
-                path: ["coopMembership", "acl", "coopRole"],
+                path: ["memberMeta", "acl", "coopRole"],
                 value: {
                     coopId: 2,
                     coopRole: [
@@ -88,7 +88,7 @@ export class ProfileServiceHelper {
             const [firstKey, ...remainingPath] = path;
             console.log("ProfileServiceHelper::modifyProfile()/03")
             // Route based on the action specified in profileConfig
-            if (firstKey === 'coopMembership' && remainingPath[0] === 'acl' && remainingPath[1] === 'coopRole') {
+            if (firstKey === 'memberMeta' && remainingPath[0] === 'acl' && remainingPath[1] === 'coopRole') {
                 console.log("ProfileServiceHelper::modifyProfile()/04")
                 switch (action) {
                     case "create":
@@ -188,7 +188,7 @@ export class ProfileServiceHelper {
     static async createCoopRole(profile: any, path: (string | number | string[])[], newValue: MemberMeta) {
         console.log("ProfileServiceHelper::createCoopRole()/profile:", profile)
         console.log("ProfileServiceHelper::createCoopRole()/newValue:", newValue)
-        const aclList: MemberMeta[] = profile.coopMembership.acl;
+        const aclList: MemberMeta[] = profile.memberMeta.acl;
 
         console.log("ProfileServiceHelper::createCoopRole()/aclList:", aclList)
 
@@ -215,7 +215,7 @@ export class ProfileServiceHelper {
             coopRole: newValue.coopRole
         });
 
-        profile.coopMembership.acl = aclList
+        profile.memberMeta.acl = aclList
         console.log("ProfileServiceHelper::createCoopRole()/aclList2:", aclList)
         console.log("ProfileServiceHelper::createCoopRole()/profile:", JSON.stringify(await profile))
 
@@ -224,7 +224,7 @@ export class ProfileServiceHelper {
 
 
     static updateCoopRole(profile: any, path: (string | number | string[])[], newValue: any) {
-        const aclList = profile.coopMembership.acl;
+        const aclList = profile.memberMeta.acl;
         const targetAcl = aclList.find((acl: any) => acl.coopId === newValue.coopId);
 
         if (targetAcl) {
@@ -237,7 +237,7 @@ export class ProfileServiceHelper {
     }
 
     static deleteCoopRole(profile: any, path: (string | number | string[])[], coopId: number) {
-        const aclList = profile.coopMembership.acl;
+        const aclList = profile.memberMeta.acl;
         const index = aclList.findIndex((acl: any) => acl.coopId === coopId);
 
         if (index !== -1) {
@@ -250,7 +250,7 @@ export class ProfileServiceHelper {
     }
 
     static readCoopRole(profile: any, path: (string | number | string[])[], coopId: number) {
-        const aclList = profile.coopMembership.acl;
+        const aclList = profile.memberMeta.acl;
         const targetAcl = aclList.find((acl: any) => acl.coopId === coopId);
 
         if (targetAcl) {
@@ -275,12 +275,12 @@ export class ProfileServiceHelper {
     static syncCoopMemberProfiles(modifiedProfile: any) {
         console.log("ProfileServiceHelper::syncCoopMemberProfiles()/01")
         console.log("ProfileServiceHelper::syncCoopMemberProfiles()/modifiedProfile:", modifiedProfile)
-        if ('coopMembership' in modifiedProfile) {
-            // Extract the modified acl from coopMembership
-            const updatedAcl = modifiedProfile.coopMembership.acl;
+        if ('memberMeta' in modifiedProfile) {
+            // Extract the modified acl from memberMeta
+            const updatedAcl = modifiedProfile.memberMeta.acl;
             console.log("ProfileServiceHelper::syncCoopMemberProfiles()/02")
             // Go through each memberData item and replace its coopMemberProfile with updatedAcl
-            modifiedProfile.coopMembership.memberData.forEach((member: any) => {
+            modifiedProfile.memberMeta.memberData.forEach((member: any) => {
                 console.log("ProfileServiceHelper::syncCoopMemberProfiles()/03")
                 member.coopMemberProfile = [...updatedAcl];  // Spread operator to create a copy of updatedAcl
             });

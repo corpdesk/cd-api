@@ -50,7 +50,7 @@
               "userEnabled": true,
               "activationKey": "e80a2286-de78-4dbe-9625-b508274b6a1d"
             },
-            "coopMembership": {
+            "memberMeta": {
               "acl": [
                 {
                   "coopId": -1,

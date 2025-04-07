@@ -15,7 +15,7 @@
                 "jsonUpdate": [
                     {
                         "path": [
-                            "coopMembership",
+                            "memberMeta",
                             "acl",
                             "coopRole"
                         ],
