@@ -93,7 +93,7 @@ export class ProfileServiceHelper {
                 switch (action) {
                     case "create":
                         updatedProfile = await this.createCoopRole(updatedProfile, remainingPath, value);
-                        console.log("ProfileServiceHelper::modifyProfile()/updatedProfile1:", JSON.stringify(updatedProfile))
+                        // console.log("ProfileServiceHelper::modifyProfile()/updatedProfile1:", JSON.stringify(updatedProfile))
                         break;
                     case "update":
                         updatedProfile = await this.updateCoopRole(updatedProfile, remainingPath, value);

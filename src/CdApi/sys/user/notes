@@ -182,3 +182,17 @@ export enum RunMode {
     }
   }
 }
+
+----------------------------------------
+Investigate and fix the following error:
+
+Request for scope update:
+{"ctx":"App","m":"Coops","c":"CoopMember","a":"UpdateCoopMemberProfile","dat":{"f_vals":[{"query":{"update":null,"where":{"userId":1611}},"jsonUpdate":[{"path":["memberMeta","acl","coopRole"],"value":{"coopId":3,"coopRole":[{"scope":"14","geoLocationId":null}],"coopActive":true},"action":"create"}]}],"token":"00edf8f7-c101-4c79-af24-fd1786ccabba"},"args":{}}
+
+Response:
+{"app_state":{"success":false,"info":{"messages":["BaseService::validatePlData/requested property is missing","BaseService::validatePlData/requested property is missing","TypeError: Cannot read properties of undefined (reading 'acl')","TypeError: Cannot read properties of undefined (reading 'acl')"],"code":"CoopMemberService:updateCurrentUserProfile","app_msg":"Error at CoopMemberService:updateCurrentUserProfile: TypeError: Cannot read properties of undefined (reading 'acl')"},"sess":{"cd_token":"00edf8f7-c101-4c79-af24-fd1786ccabba","jwt":null,"ttl":600},"cache":{},"sConfig":{"usePush":true,"usePolling":true,"useCacheStore":true}},"data":[]}
+
+--------------------------------------------------------
+
+
+
