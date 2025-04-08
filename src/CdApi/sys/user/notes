@@ -193,6 +193,111 @@ Response:
 {"app_state":{"success":false,"info":{"messages":["BaseService::validatePlData/requested property is missing","BaseService::validatePlData/requested property is missing","TypeError: Cannot read properties of undefined (reading 'acl')","TypeError: Cannot read properties of undefined (reading 'acl')"],"code":"CoopMemberService:updateCurrentUserProfile","app_msg":"Error at CoopMemberService:updateCurrentUserProfile: TypeError: Cannot read properties of undefined (reading 'acl')"},"sess":{"cd_token":"00edf8f7-c101-4c79-af24-fd1786ccabba","jwt":null,"ttl":600},"cache":{},"sConfig":{"usePush":true,"usePolling":true,"useCacheStore":true}},"data":[]}
 
 --------------------------------------------------------
+// Create a new membership application at local:
+{
+    "ctx": "App",
+    "m": "Coops",
+    "c": "CoopMember",
+    "a": "Create",
+    "dat": {
+        "f_vals": [
+            {
+                "data": {
+                    "userId": 1618,
+                    "coopMemberProfile": [
+                        {
+                            "coopId": -1,
+                            "coopActive": false,
+                            "coopRole": [
+                                {
+                                    "scope": 11,
+                                    "geoLocationId": null
+                                }
+                            ],
+                            "aclRole": {
+                                "aclRoleName": "guest",
+                                "permissions": {
+                                    "userPermissions": [
+                                        {
+                                            "cdObjId": 0,
+                                            "hidden": true,
+                                            "field": "",
+                                            "read": false,
+                                            "write": false,
+                                            "execute": false
+                                        }
+                                    ],
+                                    "groupPermissions": [
+                                        {
+                                            "cdObjId": 0,
+                                            "hidden": true,
+                                            "field": "",
+                                            "read": false,
+                                            "write": false,
+                                            "execute": false
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "coopId": 3,
+                            "coopRole": [
+                                {
+                                    "scope": 20,
+                                    "geoLocationId": null
+                                }
+                            ],
+                            "coopActive": true
+                        }
+                    ],
+                    "coopId": 3,
+                    "coopMemberName": "accosca-6@empservices.co.ke"
+                }
+            }
+        ],
+        "token": "6c7b1143-eafe-4841-bcd5-e75a7342d684"
+    },
+    "args": {}
+}
+
+// Response:
+
+{
+    "app_state": {
+        "success": true,
+        "info": {
+            "messages": [],
+            "code": "",
+            "app_msg": ""
+        },
+        "sess": {
+            "cd_token": "",
+            "jwt": null,
+            "ttl": 600
+        },
+        "cache": {},
+        "sConfig": {
+            "usePush": true,
+            "usePolling": true,
+            "useCacheStore": true
+        }
+    },
+    "data": [
+        {
+            "coopMemberId": 129927,
+            "coopMemberGuid": "e7722347-39b6-42c0-92a4-d5421cccc163",
+            "coopMemberTypeId": 108,
+            "userId": 1618,
+            "docId": 21726,
+            "coopMemberEnabled": true,
+            "coopId": 3,
+            "coopMemberApproved": null,
+            "coopActive": null,
+            "coopMemberProfile": "[{\"coopId\":-1,\"coopActive\":false,\"coopRole\":[{\"scope\":11,\"geoLocationId\":null}],\"aclRole\":{\"aclRoleName\":\"guest\",\"permissions\":{\"userPermissions\":[{\"cdObjId\":0,\"hidden\":true,\"field\":\"\",\"read\":false,\"write\":false,\"execute\":false}],\"groupPermissions\":[{\"cdObjId\":0,\"hidden\":true,\"field\":\"\",\"read\":false,\"write\":false,\"execute\":false}]}}},{\"coopId\":3,\"coopRole\":[{\"scope\":20,\"geoLocationId\":null}],\"coopActive\":true}]"
+        }
+    ]
+}
 
 
 
