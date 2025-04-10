@@ -1,7 +1,14 @@
 In all services, create method, under validateCreate, modify the section for <controller-name>TypeId to:
 // error should only be invoked if 'coopTypeId' was also a requred field.
-        else if(this.cRules.required.includes('coopTypeId')) {
+        else if(this.cRules.required.includes('coopTypeId')) {}
 
         instead of just else{}
 
 Otherwise controllers that do not have TypeId like coopRef may errously fail.
+
+----------------------------------------------------
+- automating renewal of security certificate
+- notifications for certificate renewal calendar
+
+
+

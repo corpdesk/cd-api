@@ -51,54 +51,6 @@ export class JMorph {
    * @param jsonData - The JSON object to be modified.
    * @param instruction - The update instruction.
    */
-  // private static applyUpdate(jsonData: any, instruction: JUpdateInstruction): void {
-  //     console.log("JMorph::applyUpdate()/01")
-  //     console.log("JMorph::applyUpdate()/jsonData:", JSON.stringify(jsonData))
-  //     console.log("JMorph::applyUpdate()/instruction:", JSON.stringify(instruction))
-  //     const { path, value, action } = instruction;
-  //     console.log("JMorph::applyUpdate()/02")
-  //     let target = jsonData;
-
-  //     for (let i = 0; i < path.length - 1; i++) {
-  //         console.log(`JMorph::applyUpdate()/03/${i}`)
-  //         if (Array.isArray(path[i + 1]) && typeof path[i + 1][0] === 'string') {
-  //             console.log(`JMorph::applyUpdate()/04/${i}`)
-  //             const key = path[i + 1][0];
-  //             console.log(`JMorph::applyUpdate()/05/${i}`)
-  //             target = target[path[i]];
-  //             console.log(`JMorph::applyUpdate()/06/${i}`)
-  //             if (Array.isArray(target)) {
-  //                 console.log(`JMorph::applyUpdate()/07/${i}`)
-  //                 target = target.find((item: any) => item[key] === value[key]);
-  //             }
-  //             console.log(`JMorph::applyUpdate()/08/${i}`)
-  //             i++; // Skip the array key
-  //         } else {
-  //             target = target[path[i]];
-  //             console.log(`JMorph::applyUpdate()/08/${i}`)
-  //         }
-  //     }
-
-  //     const lastKey = path[path.length - 1];
-  //     console.log(`JMorph::applyUpdate()/09`)
-  //     console.log(`JMorph::applyUpdate()/target:${JSON.stringify(target)}`)
-  //     console.log(`JMorph::applyUpdate()/lastKey:${lastKey}`)
-  //     if (Array.isArray(target[lastKey]) && !Array.isArray(lastKey)) {
-  //         console.log(`JMorph::applyUpdate()/10`)
-  //         throw new Error(`Update operation requires a key for array modifications at path: ${path.join('.')}`);
-  //     }
-  //     console.log(`JMorph::applyUpdate()/11`)
-  //     if (Array.isArray(lastKey) && typeof lastKey[0] === 'string') {
-  //         console.log(`JMorph::applyUpdate()/12`)
-  //         this.modifyArray(target, lastKey[0], value, action);
-  //         console.log(`JMorph::applyUpdate()/13`)
-  //     } else {
-  //         console.log(`JMorph::applyUpdate()/14`)
-  //         this.modifyObject(target, lastKey, value, action);
-  //     }
-  //     console.log("JMorph::applyUpdate()/target:", JSON.stringify(target))
-  // }
-
   private static applyUpdate(
     jsonData: any,
     instruction: JUpdateInstruction
@@ -180,48 +132,103 @@ export class JMorph {
     console.log("JMorph::applyUpdate()/target2:", target);
   }
 
-  private static createEntry(
-    target: any,
-    key: string | number,
-    value: any
-  ): void {
-    console.log(`JMorph::createEntry()/Creating new data at ${key}`);
+  /**
+   *
+   * @param target
+   * @param key
+   * @param value
+   */
+  // private static createEntry(
+  //   target: any,
+  //   key: string | number,
+  //   value: any
+  // ): void {
+  //   console.log(`JMorph::createEntry()/target1: ${JSON.stringify(target)}`);
+  //   console.log(`JMorph::createEntry()/key: ${key}`);
+  //   console.log(`JMorph::createEntry()/value: ${JSON.stringify(value)}`);
 
-    if (Array.isArray(target)) {
-      // Ensure the value contains a valid unique identifier
-      const keyField = Object.keys(value)[0]; // Example: "coopId"
-      if (!(keyField in value)) {
-        console.log(
-          `JMorph::createEntry()/Error: Key '${keyField}' not found in value.`
-        );
-        throw new Error(`Missing unique key in the object.`);
-      }
+  //   if (Array.isArray(target)) {
+  //     // Ensure the value contains a valid unique identifier
+  //     const keyField = Object.keys(value)[0]; // Example: "coopId"
+  //     console.log(
+  //       `JMorph::createEntry()/keyField: ${JSON.stringify(keyField)}`
+  //     );
+  //     if (!(keyField in value)) {
+  //       console.log(
+  //         `JMorph::createEntry()/Error: Key '${keyField}' not found in value.`
+  //       );
+  //       throw new Error(`Missing unique key in the object.`);
+  //     }
 
-      const keyValue = value[keyField];
+  //     const keyValue = value[keyField];
+  //     console.log(
+  //       `JMorph::createEntry()/keyValue1: ${JSON.stringify(keyValue)}`
+  //     );
 
-      // Use .find() to check if an entry with the same keyField value already exists
-      const alreadyExists = target.some(
-        (item: any) => item[keyField] === keyValue
-      );
+  //     // Use .find() to check if an entry with the same keyField value already exists
+  //     const alreadyExists = target.some(
+  //       (item: any) => item[keyField] === keyValue
+  //     );
+  //     console.log(
+  //       `JMorph::createEntry()/keyValue2: ${JSON.stringify(keyValue)}`
+  //     );
+  //     console.log(`JMorph::createEntry()/target2: ${target}`);
+  //     console.log(`JMorph::createEntry()/alreadyExists: ${alreadyExists}`);
 
-      if (alreadyExists) {
-        console.warn(
-          `JMorph::createEntry()/Error: Entry with ${keyField}=${keyValue} already exists.`
-        );
-        // throw new Error(
-        //   `Duplicate entry: ${keyField}=${keyValue} already exists.`
-        // );
-      }
+  //     if (alreadyExists) {
+  //       console.warn(
+  //         `JMorph::createEntry()/[WARNING]1: Entry with ${keyField}=${keyValue} already exists.`
+  //       );
+  //       // throw new Error(
+  //       //   `Duplicate entry: ${keyField}=${keyValue} already exists.`
+  //       // );
+  //     } else {
+  //       console.log(`JMorph::createEntry()/value: ${JSON.stringify(value)}`);
+  //       // Push the new object directly into the array
+  //       target.push(value);
+  //       console.log(
+  //         `JMorph::createEntry()/[SUCCESS]: Entry added value: ${JSON.stringify(
+  //           value
+  //         )} to the target:`,
+  //         JSON.stringify(target)
+  //       );
+  //     }
+  //   } else {
+  //     console.log(`JMorph::createEntry()/[WARNING]2: Target is not an array.`);
+  //     throw new Error(`Target is not an array, cannot add a new entry.`);
+  //   }
+  // }
+  private static createEntry(target: any, lastKey: any, value: any): void {
+    console.log("JMorph::createEntry()/target:", target);
+    console.log("JMorph::createEntry()/lastKey:", lastKey);
+    console.log("JMorph::createEntry()/value:", value);
 
-      // Push the new object directly into the array
-      target.push(value);
+    // Validate that target[lastKey] is an array
+    const constraintKeys = Array.isArray(lastKey) ? lastKey : [lastKey];
+
+    // Only the last segment of the path should be an array of constraint keys
+    const arrayRef = target;
+
+    if (!Array.isArray(arrayRef)) {
+      console.error("JMorph::createEntry() - Target is not an array");
+      throw new Error("Target for 'create' action must be an array");
+    }
+
+    // Build matching logic based on constraintKeys
+    const index = arrayRef.findIndex((item: any) => {
+      return constraintKeys.every((key) => item[key] === value[key]);
+    });
+
+    if (index !== -1) {
       console.log(
-        `JMorph::createEntry()/Success: Entry added.`,
-        JSON.stringify(target)
+        `JMorph::createEntry() - Found existing entry at index ${index}. Replacing.`
       );
+      arrayRef[index] = value; // Replace existing entry
     } else {
-      console.log(`JMorph::createEntry()/Error: Target is not an array.`);
-      throw new Error(`Target is not an array, cannot add a new entry.`);
+      console.log(
+        "JMorph::createEntry() - No existing entry found. Adding new."
+      );
+      arrayRef.push(value); // Insert new entry
     }
   }
 

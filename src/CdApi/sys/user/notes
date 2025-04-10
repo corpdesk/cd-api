@@ -262,42 +262,522 @@ Response:
 }
 
 // Response:
-
+-------------------------------------------------------------------------------------
 {
-    "app_state": {
-        "success": true,
-        "info": {
-            "messages": [],
-            "code": "",
-            "app_msg": ""
+        "memberProfile": {
+            "fieldPermissions": {
+                "userPermissions": [
+                    {
+                        "userId": 1000,
+                        "field": "userName",
+                        "hidden": false,
+                        "read": true,
+                        "write": false,
+                        "execute": false
+                    },
+                    {
+                        "userId": 1611,
+                        "field": "userName",
+                        "hidden": false,
+                        "read": true,
+                        "write": false,
+                        "execute": false
+                    },
+                    {
+                        "userId": 1611,
+                        "field": "userName",
+                        "hidden": false,
+                        "read": true,
+                        "write": false,
+                        "execute": false
+                    },
+                    {
+                        "userId": 1611,
+                        "field": "userName",
+                        "hidden": false,
+                        "read": true,
+                        "write": false,
+                        "execute": false
+                    },
+                    {
+                        "userId": 1611,
+                        "field": "userName",
+                        "hidden": false,
+                        "read": true,
+                        "write": false,
+                        "execute": false
+                    },
+                    {
+                        "userId": 1611,
+                        "field": "userName",
+                        "hidden": false,
+                        "read": true,
+                        "write": false,
+                        "execute": false
+                    },
+                    {
+                        "userId": 1611,
+                        "field": "userName",
+                        "hidden": false,
+                        "read": true,
+                        "write": false,
+                        "execute": false
+                    }
+                ],
+                "groupPermissions": [
+                    {
+                        "groupId": 0,
+                        "field": "userName",
+                        "hidden": false,
+                        "read": true,
+                        "write": false,
+                        "execute": false
+                    },
+                    {
+                        "groupId": 0,
+                        "field": "userName",
+                        "hidden": false,
+                        "read": true,
+                        "write": false,
+                        "execute": false
+                    },
+                    {
+                        "groupId": 0,
+                        "field": "userName",
+                        "hidden": false,
+                        "read": true,
+                        "write": false,
+                        "execute": false
+                    },
+                    {
+                        "groupId": 0,
+                        "field": "userName",
+                        "hidden": false,
+                        "read": true,
+                        "write": false,
+                        "execute": false
+                    },
+                    {
+                        "groupId": 0,
+                        "field": "userName",
+                        "hidden": false,
+                        "read": true,
+                        "write": false,
+                        "execute": false
+                    },
+                    {
+                        "groupId": 0,
+                        "field": "userName",
+                        "hidden": false,
+                        "read": true,
+                        "write": false,
+                        "execute": false
+                    },
+                    {
+                        "groupId": 0,
+                        "field": "userName",
+                        "hidden": false,
+                        "read": true,
+                        "write": false,
+                        "execute": false
+                    }
+                ]
+            },
+            "userData": {
+                "userId": 1611,
+                "userGuid": "885d9c58-3570-4f48-9d3a-6e2d6bda5786",
+                "userName": "accosca-6",
+                "email": "accosca-6@empservices.co.ke",
+                "companyId": null,
+                "docId": 22861,
+                "mobile": null,
+                "gender": null,
+                "birthDate": null,
+                "postalAddr": null,
+                "fName": null,
+                "mName": null,
+                "lName": null,
+                "nationalId": null,
+                "passportId": null,
+                "userEnabled": true,
+                "zipCode": null,
+                "activationKey": "d3cf6895-6a1f-48c0-b8f5-5cc18eada66d",
+                "userTypeId": null
+            },
+            "memberMeta": [
+                {
+                    "coopId": -1,
+                    "aclRole": {
+                        "aclRoleName": "guest",
+                        "permissions": {
+                            "userPermissions": [
+                                {
+                                    "read": false,
+                                    "field": "",
+                                    "write": false,
+                                    "hidden": true,
+                                    "cdObjId": 0,
+                                    "execute": false
+                                }
+                            ],
+                            "groupPermissions": [
+                                {
+                                    "read": false,
+                                    "field": "",
+                                    "write": false,
+                                    "hidden": true,
+                                    "cdObjId": 0,
+                                    "execute": false
+                                }
+                            ]
+                        }
+                    },
+                    "coopActive": false,
+                    "coopRole": []
+                }
+            ]
         },
-        "sess": {
-            "cd_token": "",
-            "jwt": null,
-            "ttl": 600
-        },
-        "cache": {},
-        "sConfig": {
-            "usePush": true,
-            "usePolling": true,
-            "useCacheStore": true
-        }
-    },
-    "data": [
-        {
-            "coopMemberId": 129927,
-            "coopMemberGuid": "e7722347-39b6-42c0-92a4-d5421cccc163",
-            "coopMemberTypeId": 108,
-            "userId": 1618,
-            "docId": 21726,
-            "coopMemberEnabled": true,
-            "coopId": 3,
-            "coopMemberApproved": null,
-            "coopActive": null,
-            "coopMemberProfile": "[{\"coopId\":-1,\"coopActive\":false,\"coopRole\":[{\"scope\":11,\"geoLocationId\":null}],\"aclRole\":{\"aclRoleName\":\"guest\",\"permissions\":{\"userPermissions\":[{\"cdObjId\":0,\"hidden\":true,\"field\":\"\",\"read\":false,\"write\":false,\"execute\":false}],\"groupPermissions\":[{\"cdObjId\":0,\"hidden\":true,\"field\":\"\",\"read\":false,\"write\":false,\"execute\":false}]}}},{\"coopId\":3,\"coopRole\":[{\"scope\":20,\"geoLocationId\":null}],\"coopActive\":true}]"
-        }
-    ]
+        "coopMemberData": [
+            {
+                "coopId": -1,
+                "userId": -1,
+                "coopActive": false,
+                "coopMemberProfile": "{\"fieldPermissions\":{\"userPermissions\":[{\"userId\":1000,\"field\":\"userName\",\"hidden\":false,\"read\":true,\"write\":false,\"execute\":false}],\"groupPermissions\":[{\"groupId\":0,\"field\":\"userName\",\"hidden\":false,\"read\":true,\"write\":false,\"execute\":false}]},\"userData\":{\"userName\":\"\",\"fName\":\"\",\"lName\":\"\"},\"memberMeta\":[{\"coopId\":-1,\"aclRole\":{\"aclRoleName\":\"guest\",\"permissions\":{\"userPermissions\":[{\"read\":false,\"field\":\"\",\"write\":false,\"hidden\":true,\"cdObjId\":0,\"execute\":false}],\"groupPermissions\":[{\"read\":false,\"field\":\"\",\"write\":false,\"hidden\":true,\"cdObjId\":0,\"execute\":false}]}},\"coopActive\":false,\"coopRole\":[]}]}"
+            }
+        ]
+    }
+
+References:
+export interface ICoopMembership {
+  memberProfile: ICoopMemberProfile; // affiliation with various SACCOS (privilege-related data in various SACCOS)
+  coopMemberData?: CoopMemberViewModel[]; // affilication with various SACCOS(selection of coop_member_view where the current user appears)
 }
 
+export interface ICoopMemberProfile extends IUserProfile {
+  memberMeta: MemberMeta[]; // affiliation with various SACCOS (privilege-related data in various SACCOS)
+}
+
+export interface MemberMeta {
+  coopId: number | null;
+  coopActive: boolean;
+  coopRole: ICoopRole;
+  aclRole?: IAclRole;
+}
+
+----------------------------------------------------
+Create a new membership application:
+Request:
+{"ctx":"App","m":"Coops","c":"CoopMember","a":"Create","dat":{"f_vals":[{"data":{"userId":1611,"coopMemberProfile":[{"coopId":-1,"aclRole":{"aclRoleName":"guest","permissions":{"userPermissions":[{"read":false,"field":"","write":false,"hidden":true,"cdObjId":0,"execute":false}],"groupPermissions":[{"read":false,"field":"","write":false,"hidden":true,"cdObjId":0,"execute":false}]}},"coopActive":false,"coopRole":[]}],"coopId":3,"coopMemberName":"accosca-6@empservices.co.ke"}}],"token":"64e3c77c-7dcf-45f2-afad-db69a3531d75"},"args":{}}
+
+Response:
+{"app_state": {"success": true,"info": {"messages": [],"code": "","app_msg": ""},"sess": {"cd_token": "","jwt": null,"ttl": 600},"cache": {},"sConfig": {"usePush": true,"usePolling": true,"useCacheStore": true}},"data": [{"coopMemberId": 129950,"coopMemberGuid": "1159e01c-50ee-41b8-a9d7-94a50e723430","coopMemberTypeId": 108,"userId": 1611,"docId": 23440,"coopMemberEnabled": true,"coopId": 3,"coopMemberApproved": null,"coopActive": null,"coopMemberProfile": "[{\"coopId\":-1,\"aclRole\":{\"aclRoleName\":\"guest\",\"permissions\":{\"userPermissions\":[{\"read\":false,\"field\":\"\",\"write\":false,\"hidden\":true,\"cdObjId\":0,\"execute\":false}],\"groupPermissions\":[{\"read\":false,\"field\":\"\",\"write\":false,\"hidden\":true,\"cdObjId\":0,\"execute\":false}]}},\"coopActive\":false,\"coopRole\":[]}]"}]}
 
 
+-------------------------------------------------------
+update seem to work on the front end only but is not updating backend.
+- corrected.
+--------------------------------------------------------
+Do another test for membership application
+    - confirm that a new scope of 20 (applicant) is added to profile
+    - also confirm that coopId is part of MemberMeta data
+Use karl to add admin scope then confirm that a all scopes have been added and are accurate
+    - the original should be 20(member applicant) when scope for the same coop is promoted, record for 20 should be replaced with the new one. Not extra record. There should not be duplicate of coopId records.
+    - On successful member application, there should be message to confirm success or failure.
+Confirm that activeCoop is working as expected:
+    - capacity of switching activCoop
+    - scope manager button should be visible based on selected activeCoop
+    - create policy narrative for sacco admin then confirm policy has been implemented.
+
+----------------------------------------------------
+Issue: When creating new membership, the coopId is left out (sorted)
+
+{"ctx":"App","m":"Coops","c":"CoopMember","a":"Create","dat":{"f_vals":[{"data":{"userId":1611,"coopMemberProfile":[{"coopId":-1,"aclRole":{"aclRoleName":"guest","permissions":{"userPermissions":[{"read":false,"field":"","write":false,"hidden":true,"cdObjId":0,"execute":false}],"groupPermissions":[{"read":false,"field":"","write":false,"hidden":true,"cdObjId":0,"execute":false}]}},"coopActive":false,"coopRole":[]}],"coopId":3,"coopMemberName":"accosca-6@empservices.co.ke"}}],"token":"823665e5-91d2-4f17-9f81-507d5184db41"},"args":{}}
+
+{"ctx":"App","m":"Coops","c":"CoopMember","a":"UpdateCoopMemberProfile","dat":{"f_vals":[{"query":{"update":null,"where":{"userId":1611}},"jsonUpdate":[{"path":["memberProfile","memberMeta",["coopId"]],"value":{"coopRole":[{"scope":20,"geoLocationId":null}],"coopActive":false},"action":"create"}]}],"token":"823665e5-91d2-4f17-9f81-507d5184db41"},"args":{}}
+
+----------------------------------------------------
+Issue: When creating new membership, the coopId should not be duplicated but replaced/updated
+    - create new application at localhost
+    - update scope as applicant
+    - try to set scope and confirm how the anomaly is generated
+
+// 1. Create new membership application:
+{"ctx":"App","m":"Coops","c":"CoopMember","a":"Create","dat":{"f_vals":[{"data":{"userId":1618,"coopMemberProfile":[{"coopId":-1,"aclRole":{"aclRoleName":"guest","permissions":{"userPermissions":[{"read":false,"field":"","write":false,"hidden":true,"cdObjId":0,"execute":false}],"groupPermissions":[{"read":false,"field":"","write":false,"hidden":true,"cdObjId":0,"execute":false}]}},"coopActive":false,"coopRole":[]}],"coopId":3,"coopMemberName":"accosca-6@empservices.co.ke"}}],"token":"6c7b1143-eafe-4841-bcd5-e75a7342d684"},"args":{}}
+
+// 2. Update scope as applicant
+{"ctx": "App","m": "Coops","c": "CoopMember","a": "UpdateCoopMemberProfile","dat": {"f_vals": [{"query": {"update": null,"where": {"userId": 1618}},"jsonUpdate": [{"path": ["memberProfile","memberMeta",["coopId"]],"value": {"coopId": 3,"coopRole": [{"scope": 20,"geoLocationId": null}],"coopActive": false},"action": "create"}]}],"token": "6c7b1143-eafe-4841-bcd5-e75a7342d684"},"args": {}}
+
+// 3. Try to set scope and confirm how the anomaly is generated
+{"ctx":"App","m":"Coops","c":"CoopMember","a":"UpdateCoopMemberProfile","dat":{"f_vals":[{"query":{"update":null,"where":{"userId":1618}},"jsonUpdate":[{"path":["memberProfile","memberMeta",["coopId"]],"value":{"coopId":3,"coopRole":[{"scope":"14","geoLocationId":null}],"coopActive":true},"action":"create"}]}],"token":"6c7b1143-eafe-4841-bcd5-e75a7342d684"},"args":{}}
+
+// I have used code comments to explain the issue with JMorph.createEntry().
+// Guide on how we can fix the issue
+// -----------------------------------------------
+/**
+ * JMorph aim is to modify json data based on json formated instructions.
+ * We need to focus only on the action create in order to fix a bug.
+ * The bug being, when action = create, multiple entries are created.
+ * Requirements with focus to the action 'create':
+ * Below is example of JSON instruction.
+ * In this case, the instruction are:
+ * 1. Look for the <instruction>[i].path, in this case <target-json-data>/memberProfile/membeMeta, in this case is an array where a key for use has been provided as 'coopId'.
+ * 2. In the array, use the key 'coopId' to modify the array. Below is how to use the key
+ * 3. Pick the value of the key from the <instruction>[i].value , in this case coopId = 3 as the constraint guide for modifying the data.
+ * 4. When the guide is given as coopId=3, it means, on the <target-json-data>/memberProfile/membeMeta array, do the following:
+ *      (i) search if item exist by that name
+ *      (ii) based on <instruction>[i].action given, in this case 'create':
+ *      (iii) create a new(by the constraint guide)
+ *      (iv) no duplicates allowed
+ *      (v) when entry exists, replace
+ *      (vi) Replacement is only done for the target by the given constraint.
+ * 
+ */
+
+
+// instructions
+[
+    {
+      "path": [
+        "memberProfile",
+        "memberMeta",
+        [
+          "coopId"
+        ]
+      ],
+      "value": {
+        "coopId": 3,
+        "coopRole": [
+          {
+            "scope": "14",
+            "geoLocationId": null
+          }
+        ],
+        "coopActive": true
+      },
+      "action": "create"
+    }
+  ]
+
+
+// Target data
+[
+    {
+      "coopId": -1,
+      "aclRole": {
+        "aclRoleName": "guest",
+        "permissions": {
+          "userPermissions": [
+            {
+              "read": false,
+              "field": "",
+              "write": false,
+              "hidden": true,
+              "cdObjId": 0,
+              "execute": false
+            }
+          ],
+          "groupPermissions": [
+            {
+              "read": false,
+              "field": "",
+              "write": false,
+              "hidden": true,
+              "cdObjId": 0,
+              "execute": false
+            }
+          ]
+        }
+      },
+      "coopRole": [],
+      "coopActive": false
+    },
+    {
+      "coopId": 3,
+      "coopRole": [
+        {
+          "scope": 20,
+          "geoLocationId": null
+        }
+      ],
+      "coopActive": false
+    }
+  ]
+
+  /**
+   * Below is the current implementation...which as some bugs:
+   * General unexpected behaviour at the method JMorph.createEntry():
+   * 1. When we monitor console.log("JMorph::applyUpdate()/lastKey:", lastKey);, it appears that the process is 
+   * acting on all the lastKey it encounters and actually tries to add them to the 'target' array.
+   * From the logs, it logs 'JMorph::createEntry()/key: userName' twice before loging 'JMorph::createEntry()/key: coopId'
+   * What should happen is that it should focus on the constraint where key=coopId then use constraint rules against coopId=3. 
+   * All the other keys should be ignored.
+   * 2. When action=create, it should either add is not exist or replace where key and value matches coopId=3\.
+   */
+  export class JMorph{
+
+    /**
+   * Applies a list of update instructions to the given JSON data.
+   * @param jsonData - The JSON object to be modified.
+   * @param jsonUpdate - An array of update instructions.
+   * @returns The modified JSON data.
+   */
+  static applyUpdates(jsonData: any, jsonUpdate: JUpdateInstruction[]): any {
+    for (const instruction of jsonUpdate) {
+      this.applyUpdate(jsonData, instruction);
+    }
+    return jsonData;
+  }
+
+  /**
+   * Applies a single update instruction to the JSON data.
+   * @param jsonData - The JSON object to be modified.
+   * @param instruction - The update instruction.
+   */
+  private static applyUpdate(
+    jsonData: any,
+    instruction: JUpdateInstruction
+  ): void {
+    console.log("JMorph::applyUpdate()/01");
+    console.log("JMorph::applyUpdate()/jsonData:", JSON.stringify(jsonData));
+    console.log(
+      "JMorph::applyUpdate()/instruction:",
+      JSON.stringify(instruction)
+    );
+
+    const { path, value, action } = instruction;
+    console.log("JMorph::applyUpdate()/02");
+
+    let target = jsonData;
+
+    for (let i = 0; i < path.length - 1; i++) {
+      console.log(`JMorph::applyUpdate()/03/${i}`);
+      let key = path[i];
+
+      if (Array.isArray(key)) {
+        console.log(
+          `JMorph::applyUpdate()/Error: Array Detected at ${i}:`,
+          key
+        );
+        throw new Error(
+          `Invalid path at ${i}: Arrays cannot be used as keys directly.`
+        );
+      }
+
+      if (!(key in target)) {
+        console.log(
+          `JMorph::applyUpdate()/Key missing: Creating ${key} at level ${i}`
+        );
+        target[key] = typeof path[i + 1] === "number" ? [] : {};
+      }
+
+      target = target[key]; // Move deeper into the object
+
+      if (target === undefined) {
+        console.log(`JMorph::applyUpdate()/Undefined target at level ${i}`);
+        throw new Error(
+          `Path error: ${key} does not exist in the provided JSON structure.`
+        );
+      }
+    }
+
+    const lastKey = path[path.length - 1];
+    console.log("JMorph::applyUpdate()/target:", target);
+    console.log("JMorph::applyUpdate()/lastKey:", lastKey);
+
+    if (Array.isArray(target) && !Array.isArray(lastKey)) {
+      console.log(
+        "JMorph::applyUpdate()/Error: Attempting to modify an array without key reference"
+      );
+      throw new Error(
+        `Cannot update array at '${path.join(
+          "."
+        )}' without specifying a unique identifier.`
+      );
+    }
+
+    // Delegate actions to separate methods
+    switch (action) {
+      case "create":
+        JMorph.createEntry(target, lastKey, value);
+        break;
+      case "update":
+        JMorph.updateEntry(target, lastKey, value);
+        break;
+      case "delete":
+        JMorph.deleteEntry(target, lastKey);
+        break;
+      default:
+        JMorph.createEntry(target, lastKey, value);
+    }
+
+    console.log("JMorph::applyUpdate()/Completed");
+    console.log("JMorph::applyUpdate()/target2:", target);
+  }
+
+    /**
+     * 
+     * @param target 
+     * @param key 
+     * @param value 
+     */
+    private static createEntry(
+        target: any,
+        key: string | number,
+        value: any
+      ): void {
+        console.log(`JMorph::createEntry()/target1: ${JSON.stringify(target)}`);
+        console.log(`JMorph::createEntry()/key: ${key}`);
+        console.log(`JMorph::createEntry()/value: ${JSON.stringify(value)}`);
+    
+        if (Array.isArray(target)) {
+          // Ensure the value contains a valid unique identifier
+          const keyField = Object.keys(value)[0]; // Example: "coopId"
+          console.log(
+            `JMorph::createEntry()/keyField: ${JSON.stringify(keyField)}`
+          );
+          if (!(keyField in value)) {
+            console.log(
+              `JMorph::createEntry()/Error: Key '${keyField}' not found in value.`
+            );
+            throw new Error(`Missing unique key in the object.`);
+          }
+    
+          const keyValue = value[keyField];
+          console.log(
+            `JMorph::createEntry()/keyValue1: ${JSON.stringify(keyValue)}`
+          );
+    
+          // Use .find() to check if an entry with the same keyField value already exists
+          const alreadyExists = target.some(
+            (item: any) => item[keyField] === keyValue
+          );
+          console.log(
+            `JMorph::createEntry()/keyValue2: ${JSON.stringify(keyValue)}`
+          );
+          console.log(`JMorph::createEntry()/target2: ${target}`);
+          console.log(`JMorph::createEntry()/alreadyExists: ${alreadyExists}`);
+    
+          if (alreadyExists) {
+            console.warn(
+              `JMorph::createEntry()/[WARNING]1: Entry with ${keyField}=${keyValue} already exists.`
+            );
+            // throw new Error(
+            //   `Duplicate entry: ${keyField}=${keyValue} already exists.`
+            // );
+          } else {
+            console.log(`JMorph::createEntry()/value: ${JSON.stringify(value)}`);
+            // Push the new object directly into the array
+            target.push(value);
+            console.log(
+              `JMorph::createEntry()/[SUCCESS]: Entry added value: ${JSON.stringify(
+                value
+              )} to the target:`,
+              JSON.stringify(target)
+            );
+          }
+        } else {
+          console.log(`JMorph::createEntry()/[WARNING]2: Target is not an array.`);
+          throw new Error(`Target is not an array, cannot add a new entry.`);
+        }
+      }
+  }
