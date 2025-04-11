@@ -554,7 +554,7 @@ export class UserService extends CdService {
     const userData = await this.read(req, res, serviceInput);
     this.logger.logInfo("UserService::validateActivateUser()/04");
     this.logger.logInfo(
-      "UserService::validateActivationKey()/userData:",
+      "UserService::validaUserServUserService::activateUser()/04ice::activateUser()/serviceInput:UserServUserService::activateUser()/04ice::activateUser()/serviceInput:teActivationKey()/userData:",
       userData
     );
     // const userData: UserModel[] = await this.read(req, res, q);
