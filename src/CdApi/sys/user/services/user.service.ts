@@ -319,11 +319,19 @@ export class UserService extends CdService {
           this.logger.logInfo("UserService::activateUser()/pl.consumerGuid:", {
             consumerGuid: pl.consumerGuid,
           });
+          svSess.sessData.consumerGuid = pl.consumerGuid;
+          req.post.dat.f_vals[0].data = { consumerGuid: pl.consumerGuid };
+          const sessData = await svSess.create(req, res, userData[0]);
+          req.post.dat.token = sessData.cdToken;
           /**
            * Todo:
            * - if pl.consumerGuid is not available or invalid, abort and respond
            */
-          svSess.sessData.consumerGuid = pl.consumerGuid;
+
+          // if(!pl.consumerGuid){
+          //   return;
+          // }
+
           /**
            * Post activation process:
            * - create a corresponding user as cdObj

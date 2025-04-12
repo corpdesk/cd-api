@@ -56,7 +56,7 @@ export class SessionService {
         this.logger.logInfo('starting SessionService::create(req, res, guest)');
         try {
             // const session = new SessionModel();
-            await this.setSession(req, guest);
+            await this.setSession(req,res, guest);
             const serviceInput: IServiceInput = {
                 serviceInstance: this,
                 serviceModel: SessionModel,
@@ -86,22 +86,27 @@ export class SessionService {
         this.logger.logInfo(`starting SessionService::remove()`);
     }
 
-    async setSession(req, guest: UserModel) {
-        this.sessData.cuid = guest.userId;
-        this.sessData.cdToken = this.b.getGuid();
-        this.sessData.consumerGuid = req.post.dat.f_vals[0].data.consumerGuid;
-        this.sessData.deviceNetId = await this.getDeviceNetId(req);
-        this.sessData.userData = guest;
-        this.sessModel.startTime = await this.b.mysqlNow();
-        this.sessModel.cdToken = this.sessData.cdToken;
-        this.sessModel.currentUserId = guest.userId;
-        this.sessModel.accTime = await this.b.mysqlNow();
-        this.sessModel.ttl = this.getTtl();
-        this.sessModel.active = true;
-        this.sessModel.deviceNetId = this.sessData.deviceNetId;
-        this.sessModel.consumerGuid = this.sessData.consumerGuid;
-        req.post.sessData = this.sessData;
-        this.sessIsSet = true;
+    async setSession(req, res, guest: UserModel) {
+        try{
+            this.sessData.cuid = guest.userId;
+            this.sessData.cdToken = this.b.getGuid();
+            this.sessData.consumerGuid = req.post.dat.f_vals[0].data.consumerGuid;
+            this.sessData.deviceNetId = await this.getDeviceNetId(req);
+            this.sessData.userData = guest;
+            this.sessModel.startTime = await this.b.mysqlNow();
+            this.sessModel.cdToken = this.sessData.cdToken;
+            this.sessModel.currentUserId = guest.userId;
+            this.sessModel.accTime = await this.b.mysqlNow();
+            this.sessModel.ttl = this.getTtl();
+            this.sessModel.active = true;
+            this.sessModel.deviceNetId = this.sessData.deviceNetId;
+            this.sessModel.consumerGuid = this.sessData.consumerGuid;
+            req.post.sessData = this.sessData;
+            this.sessIsSet = true;
+            this.logger.logInfo('SessionService::setSession()/this.sessModel:', this.sessModel)
+        }catch(e){
+            await this.b.serviceErr(req, res, e, 'SessionService:setSession');
+        }
     }
 
     async getSession(req, res): Promise<SessionModel[]> {
