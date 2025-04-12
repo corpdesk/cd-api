@@ -7,6 +7,7 @@
 //  * To Do:
 //  * 1. Get ip from session and have ip as part of the winston log queriable fields
 //  * 2. Get current session token so that cdToken becomes part of the queriable fields
+//  *    - use * for selection of all and filter only by time
 //  * 3. Rename to CdLogReaderService class
 //  * 4. Integrate winston with database so we have the capacity to read from database
 //  * 5. Integrate with cd-cli for automation for but detection and analysis

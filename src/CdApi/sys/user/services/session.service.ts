@@ -4,7 +4,7 @@ import { BaseService } from '../../base/base.service';
 import { IServiceInput, ISessionDataExt, ISessResp } from '../../base/IBase';
 import { DocModel } from '../../moduleman/models/doc.model';
 // import * as dotenv from 'dotenv';
-import { SessionModel } from '../models/session.model';
+import { defaultSession, SessionModel } from '../models/session.model';
 import { IUserProfile, UserModel } from '../models/user.model';
 import { UserService } from './user.service';
 import { Logging } from '../../base/winston.log';
@@ -106,27 +106,64 @@ export class SessionService {
 
     async getSession(req, res): Promise<SessionModel[]> {
         this.logger.logInfo('starting SessionService::getSession()')
-        // this.logger.logInfo('SessionService::getSession()/req.post:', req.post)
-        // this.logger.logInfo('SessionService::getSession()/req.post.dat.token:', req.post.dat.token)
-        const serviceInput = {
-            serviceInstance: this,
-            serviceModel: SessionModel,
-            docName: 'SessionService::getSession',
-            cmd: {
-                action: 'find',
-                query: {
-                    // get requested user and 'anon' data/ anon data is used in case of failure
-                    where: [
-                        { cdToken: req.post.dat.token },
-                    ]
-                }
-            },
-            dSource: 1,
-        }
-        console.log("SessionService::getSession/req.post.dat.token:", req.post.dat.token)
-        console.log("SessionService::getSession/serviceInput:", serviceInput)
-        return await this.b.read(req, res, serviceInput);
+        if(this.validateToken(req)){
+            const serviceInput = {
+                serviceInstance: this,
+                serviceModel: SessionModel,
+                docName: 'SessionService::getSession',
+                cmd: {
+                    action: 'find',
+                    query: {
+                        // get requested user and 'anon' data/ anon data is used in case of failure
+                        where: [
+                            { cdToken: req.post.dat.token },
+                        ]
+                    }
+                },
+                dSource: 1,
+            }
+            console.log("SessionService::getSession/req.post.dat.token:", req.post.dat.token)
+            console.log("SessionService::getSession/serviceInput:", serviceInput)
+            return await this.b.read(req, res, serviceInput);
+        } else{
+            return await [defaultSession]
+        }  
+        
     }
+
+    validateToken(req): boolean {
+        const token = req?.post?.dat?.token;
+      
+        // Check existence
+        if (!token) {
+            this.logger.logWarn("Token missing from request.");
+          return false;
+        }
+      
+        // Check type
+        if (typeof token !== "string") {
+          this.logger.logWarn("Token is not a string.");
+          return false;
+        }
+      
+        // Check length
+        if (token.length !== 36) {
+          this.logger.logWarn("Token does not have a valid length.");
+          return false;
+        }
+      
+        // Check UUID v4 format
+        const uuidV4Regex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+        if (!uuidV4Regex.test(token)) {
+          this.logger.logWarn("Token is not a valid UUID v4.");
+          return false;
+        }
+      
+        return true;
+      }
+      
+
+    
 
     getTtl() {
         return 600;

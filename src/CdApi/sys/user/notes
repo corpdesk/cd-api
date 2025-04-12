@@ -781,3 +781,233 @@ Issue: When creating new membership, the coopId should not be duplicated but rep
         }
       }
   }
+
+  // ----------------------------------------------------------------
+
+  /**
+   * Investigate issue in ActivateUser where the 'personal' menu is not being loaded
+   */
+
+  // 1. remove user
+  const purgeUserRequest = {
+    "ctx": "Sys",
+    "m": "User",
+    "c": "User",
+    "a": "PugeUser",
+    "dat": {
+        "f_vals": [
+            {
+                "query": {
+                    "where": {
+                        "userGuid": "f933eecc-e413-4f49-b924-0f1ce29823c5"
+                    }
+                }
+            }
+        ],
+        "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+    },
+    "args": null
+}
+
+  // 2. insert user
+  // const registerRequest = {"ctx": "Sys","m": "User","c": "User","a": "Register","dat": {"f_vals": [{"data": {"userName": "goremo05","email": "goremo05@gmail.com","password": "yrhuiak","consumerGuid": "B0B3DA99-1859-A499-90F6-1E3F69575DCD"}}],"token": ""},"args": {}};
+  INSERT INTO user (
+    user_guid,
+    user_name,
+    password,
+    email,
+    user_enabled,
+    activation_key
+  ) VALUES (
+    'f933eecc-e413-4f49-b924-0f1ce29823c5',
+    'asdap-admin',
+    '$2b$10$jvHgCdA8SZW/tWUMighAH.TiuskQg7zppJkSFJdKWPhBrEpbqRuma',
+    'asdap-admin@empservices.co.ke',
+    0,
+    '739e1fa7-f821-4d8f-9793-4becfb985716'
+  );
+  
+
+  // 3. request from frontend
+  const activationRequest = {"ctx":"Sys","m":"User","c":"User","a":"ActivateUser","dat":{"f_vals":[{"query":{"where":{"activationKey":"739e1fa7-f821-4d8f-9793-4becfb985716"}}}],"docproc":{}},"args":null};
+  {
+    "ctx": "Sys",
+    "m": "User",
+    "c": "User",
+    "a": "ActivateUser",
+    "dat": {
+        "f_vals": [
+            {
+                "data": {
+                    "consumerGuid": "B0B3DA99-1859-A499-90F6-1E3F69575DCD"
+                },
+                "query": {
+                    "where": {
+                        "activationKey": "739e1fa7-f821-4d8f-9793-4becfb985716"
+                    }
+                }
+            }
+        ],
+        "docproc": {}
+    },
+    "args": null
+}
+  
+  const cdObjItem = {
+    "cdObjName": "f933eecc-e413-4f49-b924-0f1ce29823c5",
+    "objGuid": "f933eecc-e413-4f49-b924-0f1ce29823c5",
+    "cdObjTypeGuid": "a237cc2b-e895-4596-a963-9b6e74d0f7b2",
+    "parentModuleGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b"
+  }
+
+  const savedCdObj = {
+    "cdObjDispName": null,
+    "cdObjEnabled": null,
+    "cdObjGuid": "b735ba53-2963-4b15-b016-30e1cf7d103b",
+    "cdObjId": 93141,
+    "cdObjName": "f933eecc-e413-4f49-b924-0f1ce29823c5",
+    "cdObjTypeGuid": "a237cc2b-e895-4596-a963-9b6e74d0f7b2",
+    "currVal": null,
+    "docId": 21738,
+    "icon": null,
+    "jDetails": null,
+    "lastModificationDate": null,
+    "lastSyncDate": null,
+    "objGuid": "f933eecc-e413-4f49-b924-0f1ce29823c5",
+    "objId": 1621,
+    "parentClassGuid": null,
+    "parentModuleGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b",
+    "parentModuleId": 99,
+    "parentObj": null,
+    "showIcon": null,
+    "showName": null
+  }
+
+  const getCdObj = [
+    {
+      "cdObjId": 93141,
+      "cdObjGuid": "b735ba53-2963-4b15-b016-30e1cf7d103b",
+      "cdObjName": "f933eecc-e413-4f49-b924-0f1ce29823c5",
+      "cdObjTypeGuid": "a237cc2b-e895-4596-a963-9b6e74d0f7b2",
+      "lastSyncDate": null,
+      "lastModificationDate": null,
+      "parentModuleGuid": "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b",
+      "parentModuleId": 99,
+      "parentClassGuid": null,
+      "parentObj": null,
+      "cdObjDispName": null,
+      "objId": 1621,
+      "objGuid": "f933eecc-e413-4f49-b924-0f1ce29823c5",
+      "docId": 21738,
+      "showName": null,
+      "icon": null,
+      "showIcon": null,
+      "currVal": null,
+      "cdObjEnabled": null,
+      "jDetails": null
+    }
+  ] 
+
+  const consumerResourceData = {
+    "cdObjTypeGuid": "a237cc2b-e895-4596-a963-9b6e74d0f7b2",
+    "consumerGuid": "AFFDA1E9-9EB0-E4BB-773B-14D14A477CE0",
+    "consumerId": 29,
+    "cdObjGuid": "b735ba53-2963-4b15-b016-30e1cf7d103b",
+    "cdObjId": 93141,
+    "consumerResourceTypeId": 6,
+    "consumerResourceName": "f933eecc-e413-4f49-b924-0f1ce29823c5",
+    "objId": 1621,
+    "consumerResourceEnabled": true
+  }
+
+  const createResourceResponse = {
+    "cdObjGuid": "b735ba53-2963-4b15-b016-30e1cf7d103b",
+    "cdObjId": 93141,
+    "cdObjTypeGuid": "a237cc2b-e895-4596-a963-9b6e74d0f7b2",
+    "cdObjTypeId": null,
+    "consumerGuid": "AFFDA1E9-9EB0-E4BB-773B-14D14A477CE0",
+    "consumerId": 29,
+    "consumerResourceEnabled": true,
+    "consumerResourceGuid": "265b69a9-e561-475a-86fb-7d0ea0b5e818",
+    "consumerResourceId": 149,
+    "consumerResourceName": "f933eecc-e413-4f49-b924-0f1ce29823c5",
+    "consumerResourceTypeGuid": null,
+    "consumerResourceTypeId": 6,
+    "docId": 21739,
+    "objGuid": null,
+    "objId": 1621
+  }
+
+  // join personal group member
+  const groupData = {
+    "groupMemberGuid": "1fb64d2b-54f6-4308-8200-e37facf0b9cc",
+    "userIdMember": 1621,
+    "memberGuid": "f933eecc-e413-4f49-b924-0f1ce29823c5",
+    "groupGuidParent": "d5270988-cb1a-427b-977f-4a78e709fda9",
+    "cdObjTypeId": 9,
+    "groupMemberEnabled": true
+  }
+
+  const respCreateGroupMember = {
+    "cdObjTypeId": 9,
+    "docId": 21740,
+    "groupGuidParent": "d5270988-cb1a-427b-977f-4a78e709fda9",
+    "groupIdParent": null,
+    "groupInvitationId": null,
+    "groupMemberEnabled": true,
+    "groupMemberGuid": "1fb64d2b-54f6-4308-8200-e37facf0b9cc",
+    "groupMemberId": 129875,
+    "groupMemberParentId": null,
+    "memberGuid": "f933eecc-e413-4f49-b924-0f1ce29823c5",
+    "memberId": null,
+    "userIdMember": 1621
+  }
+  // 4. check menu output after activating the user:
+  const loginRequest = {"ctx":"Sys","m":"User","c":"User","a":"Login","dat":{"f_vals":[{"data":{"userName":"asdap-admin","password":"FDrv9-Bm*qqH","consumerGuid":"B0B3DA99-1859-A499-90F6-1E3F69575DCD"}}],"token":null},"args":null};
+
+  // 5. login respons (No 'personal' menu item)
+  const loginResponse = {"app_state":{"success":true,"info":{"messages":[],"code":"","app_msg":"1 record/s updated"},"sess":{"cd_token":"416f48e4-3528-4610-b328-d44733d7f722","jwt":null,"ttl":0},"cache":{},"sConfig":{"usePush":true,"usePolling":true,"useCacheStore":true}},"data":[{"userId":1614,"userGuid":"f933eecc-e413-4f49-b924-0f1ce29823c5","userName":"asdap-admin","password":"$2b$10$jvHgCdA8SZW/tWUMighAH.TiuskQg7zppJkSFJdKWPhBrEpbqRuma","email":"asdap-admin@empservices.co.ke","companyId":null,"docId":23507,"mobile":null,"gender":null,"birthDate":null,"postalAddr":null,"fName":null,"mName":null,"lName":null,"nationalId":null,"passportId":null,"userEnabled":true,"zipCode":null,"activationKey":"739e1fa7-f821-4d8f-9793-4becfb985716","userTypeId":null,"userProfile":null}]};
+
+  /**
+   * We need to keep a cycle of purge user, registerUser,  activate user, check logs, login, check menu items until the issue is fixed.
+   */
+
+  // During registration of consumer resource, consumerId and consumerGuid are wrong 
+  // AFFDA1E9-9EB0-E4BB-773B-14D14A477CE0
+  // 29
+
+  /**
+   * During account activation, token is undefined. This makes the query resolves to where: [{}], which then returns all the data
+   * The consuming process is set to pick the first data in the item, so it pick the first item in all the outputs
+   */
+
+  /**
+   * REMEDY:
+   * - getSession should switch to default when token is invalid (null, undefined, a type that is not string, or empty string, number of characters are invalid) 
+   * - Make sure the IQuery never accepts {} as an input.
+   * - define default session
+   * 
+   * - modify cd-shell to send both activation key and consumerGuid
+   * - modify cd-api to pick the activation key and consumerGuid
+   * - validate against invalid consumerGuid
+   * - validate against invalid activationKey
+   * - use current user information to create session before starting post activatin process
+   * 
+   * RUN TESTS:
+   * - confirm that front end is sending the right activationKey and consumerGuid during user activation
+   * - confirm that api is able to interpret the sent activationKey and consimerGuid
+   * - confirm that activationKey and consumerGuid is properly processed
+   * 
+   * 
+   */
+  const defaultSession: SessionModel = {
+    sessionId: -1,
+    currentUserId: 1000,
+    cdToken: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx',
+    startTime: 2000-01-01T01:00:00.000Z,
+    accTime: null,
+    ttl: 600,
+    active: false,
+    deviceNetId: null,
+    consumerGuid: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx'
+  }

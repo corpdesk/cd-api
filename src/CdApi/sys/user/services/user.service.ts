@@ -51,6 +51,7 @@ import { GroupMemberService } from "./group-member.service";
 import { GroupMemberModel } from "../models/group-member.model";
 import { truncate } from "fs/promises";
 import { safeStringify } from "../../utils/safe-stringify";
+import { ConsumerModel } from "../../moduleman/models/consumer.model";
 
 export class UserService extends CdService {
   logger: Logging;
@@ -309,12 +310,27 @@ export class UserService extends CdService {
             userData
           );
           /**
+           * create a valid session for the user
+           */
+          const svSess = new SessionService();
+          // get consumer payload
+          const pl: ConsumerModel = this.b.getPlData(req, "consumer");
+          this.logger.logInfo("UserService::activateUser()/pl:", pl);
+          this.logger.logInfo("UserService::activateUser()/pl.consumerGuid:", {
+            consumerGuid: pl.consumerGuid,
+          });
+          /**
+           * Todo:
+           * - if pl.consumerGuid is not available or invalid, abort and respond
+           */
+          svSess.sessData.consumerGuid = pl.consumerGuid;
+          /**
            * Post activation process:
            * - create a corresponding user as cdObj
            *
            */
+
           const svCdObj = new CdObjService();
-          const svSess = new SessionService();
           const sessionDataExt: ISessionDataExt =
             await svSess.getSessionDataExt(req, res, true);
           this.logger.logInfo("UserService::activateUser()/09");
@@ -323,6 +339,9 @@ export class UserService extends CdService {
               sessionDataExt
             )}`
           );
+          /**
+           * Create corresponding cd-obj of the activated user
+           */
           const cdObjData: CdObjModel = {
             cdObjName: userData[0].userGuid,
             objGuid: userData[0].userGuid,
@@ -345,36 +364,40 @@ export class UserService extends CdService {
             controllerData: cdObjData,
           };
           // this.logger.logInfo(`UserService::purgeUser()/createIParams:${JSON.stringify(createIParams)}`);
-          let respCreateCdObj = await svCdObj.createI(req, res, createIParams);
+          let respCreateCdObj: CdObjModel = (await svCdObj.createI(
+            req,
+            res,
+            createIParams
+          )) as CdObjModel;
           this.logger.logInfo("UserService::activateUser()/10");
           this.logger.logInfo("UserService::activateUser()/respCreateCdObj:", {
             resp: respCreateCdObj,
           });
 
-          /**
-           * get cdObj guid
-           */
-          const siGetCdObj = {
-            serviceInstance: svCdObj,
-            serviceModel: CdObjModel,
-            serviceModelInstance: svCdObj.serviceModel,
-            docName: "CdObjService::CreateI",
-            cmd: {
-              action: "find",
-              query: { where: cdObjData },
-            },
-            dSource: 1,
-          };
-          this.logger.logInfo("UserService::activateUser()/11");
-          let respGetCdObj = (await this.read(
-            req,
-            res,
-            siGetCdObj
-          )) as CdObjModel[];
-          this.logger.logInfo("UserService::activateUser()/12");
-          this.logger.logInfo("UserService::activateUser()/respGetCdObj:", {
-            resp: JSON.stringify(respGetCdObj),
-          });
+          // /**
+          //  * get cdObj guid
+          //  */
+          // const siGetCdObj = {
+          //   serviceInstance: svCdObj,
+          //   serviceModel: CdObjModel,
+          //   serviceModelInstance: svCdObj.serviceModel,
+          //   docName: "CdObjService::CreateI",
+          //   cmd: {
+          //     action: "find",
+          //     query: { where: cdObjData },
+          //   },
+          //   dSource: 1,
+          // };
+          // this.logger.logInfo("UserService::activateUser()/11");
+          // let respGetCdObj = (await this.read(
+          //   req,
+          //   res,
+          //   siGetCdObj
+          // )) as CdObjModel[];
+          // this.logger.logInfo("UserService::activateUser()/12");
+          // this.logger.logInfo("UserService::activateUser()/respGetCdObj:", {
+          //   resp: JSON.stringify(respGetCdObj),
+          // });
 
           /*
            * - create a corresponding consumerResource (user) for session consumer
@@ -386,8 +409,8 @@ export class UserService extends CdService {
             cdObjTypeGuid: "a237cc2b-e895-4596-a963-9b6e74d0f7b2", // user
             consumerGuid: sessionDataExt.currentConsumer.consumerGuid, // consumer by session
             consumerId: sessionDataExt.currentConsumer.consumerId,
-            cdObjGuid: respGetCdObj[0].cdObjGuid, // cdObjGuid of the just created cdObj above
-            cdObjId: respGetCdObj[0].cdObjId,
+            cdObjGuid: respCreateCdObj.cdObjGuid, // cdObjGuid of the just created cdObj above
+            cdObjId: respCreateCdObj.cdObjId,
             consumerResourceTypeId: 6, // consumer user
             consumerResourceName: userData[0].userGuid,
             objId: userData[0].userId,
@@ -1021,7 +1044,9 @@ export class UserService extends CdService {
     // this.logger.logInfo('UserService::authResponse/01:');
     const svSession = new SessionService();
     const clientId = await svSession.getDeviceNetId(req);
-    this.logger.logInfo(`UserService::authResponse/clientId:${JSON.stringify(clientId)}`);
+    this.logger.logInfo(
+      `UserService::authResponse/clientId:${JSON.stringify(clientId)}`
+    );
     this.processResponse$(req, res, guest).subscribe((ret: any) => {
       this.logger.logInfo("UserService::authResponse()/02");
       this.b.logTimeStamp("ModuleService::authResponse/02/ret:");
@@ -1033,10 +1058,12 @@ export class UserService extends CdService {
         userId: ret.modulesUserData.userData.userId,
         jwt: null,
         ttl: ret.sessResult.ttl,
-        clientId: this.b.getClientId(clientId)
+        clientId: this.b.getClientId(clientId),
       };
-      this.logger.logInfo(`UserService::authResponse/sessData:${JSON.stringify(sessData)}`);
-      
+      this.logger.logInfo(
+        `UserService::authResponse/sessData:${JSON.stringify(sessData)}`
+      );
+
       if (ret.modulesUserData.menuData.length > 0) {
         this.logger.logInfo("UserService::authResponse()/03");
         ret.modulesUserData.menuData = ret.modulesUserData.menuData.filter(
