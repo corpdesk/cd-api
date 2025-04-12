@@ -1000,6 +1000,33 @@ Issue: When creating new membership, the coopId should not be duplicated but rep
    * 
    * 
    */
+  {
+    "ctx": "Sys",
+    "m": "Moduleman",
+    "c": "CdLog",
+    "a": "Get",
+    "dat": {
+        "f_vals": [
+            {
+                "query": {
+                    "where": {
+                        "select": [
+                            "message",
+                            "timestamp"
+                        ],
+                        "phrase": "UserService::activateUser()",
+                        "since": {
+                            "unit": "min",
+                            "value": "20"
+                        }
+                    }
+                }
+            }
+        ],
+        "token": "f7ead73f-3db9-4011-96a2-31d2a11dee86"
+    },
+    "args": null
+}
   const defaultSession: SessionModel = {
     sessionId: -1,
     currentUserId: 1000,
@@ -1011,3 +1038,26 @@ Issue: When creating new membership, the coopId should not be duplicated but rep
     deviceNetId: null,
     consumerGuid: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx'
   }
+
+  {
+    "ctx": "Sys",
+    "m": "User",
+    "c": "User",
+    "a": "ActivateUser",
+    "dat": {
+        "f_vals": [
+            {
+                "data": {
+                    "consumerToken": "B0B3DA99-1859-A499-90F6-1E3F69575DCD"
+                },
+                "query": {
+                    "where": {
+                        "activationKey": "739e1fa7-f821-4d8f-9793-4becfb985716"
+                    }
+                }
+            }
+        ],
+        "docproc": {}
+    },
+    "args": null
+}

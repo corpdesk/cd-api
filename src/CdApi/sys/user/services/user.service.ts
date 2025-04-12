@@ -249,7 +249,7 @@ export class UserService extends CdService {
         q = this.b.getQuery(req);
         this.logger.logInfo("UserService::activateUser()/02");
         this.logger.logInfo(
-          `UserService::activateUser()/pl:${JSON.stringify(q)}`
+          `UserService::activateUser()/q:${JSON.stringify(q)}`
         );
       }
       const qUser: IQuery = q;
