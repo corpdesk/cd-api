@@ -140,19 +140,43 @@ export class EntityAdapter {
     return metadata.name;
   }
 
-  async getDbSelect(entityName: string, selectFields: string[]): Promise<string[]> {
+  // async getDbSelect(entityName: string, selectFields: string[]): Promise<string[]> {
+  //   await this.init();
+  //   if (!this.mappings[entityName]) {
+  //     throw new Error(`No mappings registered for entity: ${entityName}`);
+  //   }
+  //   const mapping = this.mappings[entityName];
+  //   return selectFields.map((field) => {
+  //     if (!mapping[field]) {
+  //       throw new Error(
+  //         `Field "${field}" does not exist in the registered mapping for entity: ${entityName}`
+  //       );
+  //     }
+  //     return mapping[field];
+  //   });
+  // }
+  async getDbSelect(
+    entityName: string,
+    selectFields: string[]
+  ): Promise<string[]> {
     await this.init();
-    if (!this.mappings[entityName]) {
+
+    const mapping = this.mappings[entityName];
+    if (!mapping) {
       throw new Error(`No mappings registered for entity: ${entityName}`);
     }
-    const mapping = this.mappings[entityName];
+
     return selectFields.map((field) => {
-      if (!mapping[field]) {
+      const dbField = mapping[field];
+      if (!dbField) {
         throw new Error(
           `Field "${field}" does not exist in the registered mapping for entity: ${entityName}`
         );
       }
-      return mapping[field];
+
+      // Properly escape using backticks and qualify with alias
+      // e.g., CoopViewModel.`long`
+      return `\`${entityName}\`.\`${dbField}\``;
     });
   }
 }
