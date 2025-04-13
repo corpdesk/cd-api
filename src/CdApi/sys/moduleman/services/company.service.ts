@@ -260,6 +260,7 @@ export class CompanyService extends CdService {
             model: CompanyModel,
         }
         this.b.i.code = 'CompanyService::validateCreate';
+        await this.setCoopType(req, res)
         let ret = false;
         if (await this.b.validateUnique(req, res, params)) {
             console.log('moduleman/CompanyService::validateCreate()/02')
@@ -325,6 +326,34 @@ export class CompanyService extends CdService {
         }
         return ret;
     }
+
+    async setCoopType(req, res) {
+        // get payload
+        const pl: CompanyModel = this.b.getPlData(req);
+      
+        // If companyTypeGuid is provided but companyTypeId is missing or falsy
+        if (pl.companyTypeGuid && !pl.companyTypeId) {
+          const q = { where: { companyTypeGuid: pl.companyTypeGuid } };
+          const compResp: CompanyTypeModel[] = await this.getCompanyTypeI(req, res, q);
+      
+          if (compResp.length > 0) {
+            // Set companyTypeId in payload
+            this.b.setPlData(req, { key: 'companyTypeId', value: compResp[0].companyTypeId });
+          }
+        }
+      
+        // If companyTypeId is provided but companyTypeGuid is missing or falsy
+        if (pl.companyTypeId && !pl.companyTypeGuid) {
+          const q = { where: { companyTypeId: pl.companyTypeId } };
+          const compResp: CompanyTypeModel[] = await this.getCompanyTypeI(req, res, q);
+      
+          if (compResp.length > 0) {
+            // Set companyTypeGuid in payload
+            this.b.setPlData(req, { key: 'companyTypeGuid', value: compResp[0].companyTypeGuid });
+          }
+        }
+      }
+      
 
     async validateCreateSL(req, res) {
         return true;
@@ -434,6 +463,35 @@ export class CompanyService extends CdService {
             const i = {
                 messages: this.b.err,
                 code: 'BaseService:update',
+                app_msg: ''
+            };
+            this.b.serviceErr(req, res, e, i.code)
+            this.b.respond(req, res)
+        }
+    }
+
+    getCompanyTypeI(req, res, q:IQuery = null):CompanyTypeModel[] {
+        if(!q){
+            q = this.b.getQuery(req);
+        }
+        console.log('CompanyService::getCompanyTypeI/f:', q);
+        const serviceInput = {
+            serviceModel: CompanyTypeModel,
+            docName: 'CompanyService::getCompanyTypeI$',
+            cmd: {
+                action: 'find',
+                query: q
+            },
+            dSource: 1
+        }
+        try {
+            return this.b.read(req, res, serviceInput)
+        } catch (e) {
+            console.log('CompanyService::getCompanyTypeI$()/e:', e)
+            this.b.err.push(e.toString());
+            const i = {
+                messages: this.b.err,
+                code: 'CompanyService:getCompanyTypeI',
                 app_msg: ''
             };
             this.b.serviceErr(req, res, e, i.code)

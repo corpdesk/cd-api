@@ -67,7 +67,14 @@ export class CompanyModel {
             name: 'company_type_guid',
         }
     )
-    companyTypeGuid?: number;
+    companyTypeGuid?: string;
+
+    @Column(
+        {
+            name: 'company_type_id',
+        }
+    )
+    companyTypeId?: number;
 
     @Column(
         {
