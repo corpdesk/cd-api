@@ -1,6 +1,6 @@
-import { SelectQueryBuilder, Repository, Like } from "typeorm";
+import { SelectQueryBuilder, Repository, Like, Brackets } from "typeorm";
 import { EntityAdapter } from "./entity-adapter";
-import { IServiceInput, QueryInput } from "../base/IBase";
+import { IQueryWhere, IServiceInput, QueryInput } from "../base/IBase";
 import { safeStringify } from "./safe-stringify";
 
 export class QueryBuilderHelper {
@@ -113,6 +113,7 @@ export class QueryBuilderHelper {
   async createQueryBuilder(
     serviceInput: IServiceInput
   ): Promise<SelectQueryBuilder<any>> {
+    console.log("QueryBuilderHelper::createQueryBuilder()/01");
     const query = serviceInput.cmd.query;
     const queryBuilder = this.repository.createQueryBuilder(
       this.repository.metadata.name
@@ -120,6 +121,7 @@ export class QueryBuilderHelper {
 
     // Handling SELECT clause
     if (query.select && query.select.length > 0) {
+      console.log("QueryBuilderHelper::createQueryBuilder()/02");
       this.entityAdapter.registerMappingFromEntity(serviceInput.serviceModel);
       const selectDB = await this.entityAdapter.getDbSelect(
         this.repository.metadata.name,
@@ -127,6 +129,7 @@ export class QueryBuilderHelper {
       );
       queryBuilder.select(selectDB);
     } else {
+      console.log("QueryBuilderHelper::createQueryBuilder()/03");
       // const allColumns = this.repository.metadata.columns.map(column => `${this.repository.metadata.name}.${column.databaseName}`);
       // queryBuilder.select(allColumns);
       const allColumns = this.repository.metadata.columns.map(
@@ -137,20 +140,26 @@ export class QueryBuilderHelper {
 
     // Apply DISTINCT if specified
     if (query.distinct) {
+      console.log("QueryBuilderHelper::createQueryBuilder()/03");
       queryBuilder.distinct(true);
     }
 
     // Handling WHERE clause
+    // if (query.where) {
+    //   if (
+    //     typeof query.where === "object" &&
+    //     !Array.isArray(query.where) &&
+    //     !this.isEmptyObject(query.where)
+    //   ) {
+    //     this.processObjectWhereClause(queryBuilder, query.where);
+    //   } else if (Array.isArray(query.where) && query.where.length > 0) {
+    //     this.processArrayWhereClause(queryBuilder, query.where);
+    //   }
+    // }
+
+    // Handling WHERE clause
     if (query.where) {
-      if (
-        typeof query.where === "object" &&
-        !Array.isArray(query.where) &&
-        !this.isEmptyObject(query.where)
-      ) {
-        this.processObjectWhereClause(queryBuilder, query.where);
-      } else if (Array.isArray(query.where) && query.where.length > 0) {
-        this.processArrayWhereClause(queryBuilder, query.where);
-      }
+      this.processSmartWhereClause(queryBuilder, query.where);
     }
 
     // Handling TAKE and SKIP clauses
@@ -189,32 +198,68 @@ export class QueryBuilderHelper {
      * @param queryBuilder 
      * @param where 
      */
+  // private processObjectWhereClause(
+  //   queryBuilder: SelectQueryBuilder<any>,
+  //   where: any
+  // ): void {
+  //   Object.keys(where).forEach((key, index) => {
+  //     const [field, operator] = key.split("%"); // Split field and operator
+  //     const dbField = `${
+  //       this.repository.metadata.name
+  //     }.${this.getDatabaseColumnName(field)}`;
+  //     const value = where[key];
+
+  //     const sqlOperator = this.getSqlOperator(operator); // Map symbol to SQL operator
+  //     const condition =
+  //       operator === "BETWEEN" && typeof value === "object"
+  //         ? `${dbField} BETWEEN :${field}Start AND :${field}End`
+  //         : `${dbField} ${sqlOperator} :${field}`;
+
+  //     const params =
+  //       operator === "BETWEEN" && typeof value === "object"
+  //         ? { [`${field}Start`]: value.start, [`${field}End`]: value.end }
+  //         : { [field]: value };
+
+  //     if (index === 0) {
+  //       queryBuilder.where(condition, params);
+  //     } else {
+  //       queryBuilder.andWhere(condition, params);
+  //     }
+  //   });
+  // }
+
+  // private processObjectWhereClause(
+  //   queryBuilder: SelectQueryBuilder<any>,
+  //   whereObject: any
+  // ) {
+  //   const entries = Object.entries(whereObject);
+  //   entries.forEach(([field, expr], index) => {
+  //     if (index === 0) {
+  //       queryBuilder.where(`${field} ${expr}`);
+  //     } else {
+  //       queryBuilder.andWhere(`${field} ${expr}`);
+  //     }
+  //   });
+  // }
+
   private processObjectWhereClause(
     queryBuilder: SelectQueryBuilder<any>,
-    where: any
-  ): void {
-    Object.keys(where).forEach((key, index) => {
-      const [field, operator] = key.split("%"); // Split field and operator
+    whereObject: any
+  ) {
+    console.log("QueryBuilderHelper::processObjectWhereClause()/01");
+    const entries = Object.entries(whereObject);
+    entries.forEach(([field, expr], index) => {
       const dbField = `${
         this.repository.metadata.name
       }.${this.getDatabaseColumnName(field)}`;
-      const value = where[key];
-
-      const sqlOperator = this.getSqlOperator(operator); // Map symbol to SQL operator
-      const condition =
-        operator === "BETWEEN" && typeof value === "object"
-          ? `${dbField} BETWEEN :${field}Start AND :${field}End`
-          : `${dbField} ${sqlOperator} :${field}`;
-
-      const params =
-        operator === "BETWEEN" && typeof value === "object"
-          ? { [`${field}Start`]: value.start, [`${field}End`]: value.end }
-          : { [field]: value };
-
+      console.log(
+        "QueryBuilderHelper::processObjectWhereClause()/dbField:",
+        dbField
+      );
       if (index === 0) {
-        queryBuilder.where(condition, params);
+        queryBuilder.where(`${dbField} ${expr}`);
       } else {
-        queryBuilder.andWhere(condition, params);
+        queryBuilder.andWhere(`${dbField} ${expr}`);
       }
     });
   }
@@ -289,118 +334,167 @@ export class QueryBuilderHelper {
     });
   }
 
+  // private processArrayWhereClause(
+  //   queryBuilder: SelectQueryBuilder<any>,
+  //   whereArray: any[]
+  // ): void {
+  //   console.log("QueryBuilderHelper::processArrayWhereClause()/01");
+  //   console.log(
+  //     "QueryBuilderHelper::processArrayWhereClause()/whereArray:",
+  //     whereArray
+  //   );
+  //   whereArray.forEach((condition, index) => {
+  //     const key = Object.keys(condition)[0];
+  //     const value = condition[key];
+  //     const dbField = `${
+  //       this.repository.metadata.name
+  //     }.${this.getDatabaseColumnName(key)}`;
+  //     console.log("QueryBuilderHelper::processArrayWhereClause()/key:", key);
+  //     console.log(
+  //       "QueryBuilderHelper::processArrayWhereClause()/value:",
+  //       value
+  //     );
+  //     console.log(
+  //       "QueryBuilderHelper::processArrayWhereClause()/dbField:",
+  //       dbField
+  //     );
+  //     console.log("QueryBuilderHelper::processArrayWhereClause()/02");
+  //     if (
+  //       typeof value === "string" &&
+  //       value.startsWith("Like(") &&
+  //       value.endsWith(")")
+  //     ) {
+  //       console.log("QueryBuilderHelper::processArrayWhereClause()/03");
+  //       const match = value.match(/^Like\((.*)\)$/);
+  //       console.log(
+  //         "QueryBuilderHelper::processArrayWhereClause()/dbField:",
+  //         dbField
+  //       );
+  //       if (match) {
+  //         console.log("QueryBuilderHelper::processArrayWhereClause()/04");
+  //         console.log(
+  //           "QueryBuilderHelper::processArrayWhereClause()/match:",
+  //           match
+  //         );
+  //         let likeValue = match[1];
+  //         console.log(
+  //           "QueryBuilderHelper::processArrayWhereClause()/likeValue:",
+  //           likeValue
+  //         );
+  //         if (likeValue.startsWith("'") && likeValue.endsWith("'")) {
+  //           likeValue = likeValue.slice(1, -1);
+  //         }
+  //         if (index === 0) {
+  //           console.log("QueryBuilderHelper::processArrayWhereClause()/05");
+  //           console.log(
+  //             "QueryBuilderHelper::processArrayWhereClause()/likeValue:",
+  //             likeValue
+  //           );
+  //           console.log(
+  //             "QueryBuilderHelper::processArrayWhereClause()/`${dbField} LIKE :${key}`:",
+  //             `${dbField} LIKE :${key}`
+  //           );
+  //           console.log(
+  //             "QueryBuilderHelper::processArrayWhereClause()/{ [key]: likeValue }:",
+  //             { [key]: likeValue }
+  //           );
+  //           queryBuilder.where(`${dbField} LIKE :${key}`, { [key]: likeValue });
+  //         } else {
+  //           console.log("QueryBuilderHelper::processArrayWhereClause()/06");
+  //           console.log(
+  //             "QueryBuilderHelper::processArrayWhereClause()/`${dbField} LIKE :${key}`:",
+  //             `${dbField} LIKE :${key}`
+  //           );
+  //           console.log(
+  //             "QueryBuilderHelper::processArrayWhereClause()/{ [key]: likeValue }:",
+  //             { [key]: likeValue }
+  //           );
+  //           queryBuilder.orWhere(`${dbField} LIKE :${key}`, {
+  //             [key]: likeValue,
+  //           });
+  //         }
+  //       }
+  //     } else {
+  //       console.log("QueryBuilderHelper::processArrayWhereClause()/07");
+  //       if (index === 0) {
+  //         console.log("QueryBuilderHelper::processArrayWhereClause()/08");
+  //         console.log(
+  //           "QueryBuilderHelper::processArrayWhereClause()/`${dbField} LIKE :${key}`:",
+  //           `${dbField} LIKE :${key}`
+  //         );
+  //         console.log(
+  //           "QueryBuilderHelper::processArrayWhereClause()/{ [key]: likeValue }:",
+  //           { [key]: value }
+  //         );
+  //         queryBuilder.where(`${dbField} = :${key}`, { [key]: value });
+  //       } else {
+  //         console.log("QueryBuilderHelper::processArrayWhereClause()/09");
+  //         console.log(
+  //           "QueryBuilderHelper::processArrayWhereClause()/`${dbField} LIKE :${key}`:",
+  //           `${dbField} LIKE :${key}`
+  //         );
+  //         console.log(
+  //           "QueryBuilderHelper::processArrayWhereClause()/{ [key]: likeValue }:",
+  //           { [key]: value }
+  //         );
+  //         queryBuilder.orWhere(`${dbField} = :${key}`, { [key]: value });
+  //       }
+  //     }
+  //   });
+  // }
+
+  // private processArrayWhereClause(
+  //   queryBuilder: SelectQueryBuilder<any>,
+  //   whereArray: Array<any>
+  // ) {
+  //   whereArray.forEach((condition, index) => {
+  //     const clause = Object.entries(condition)[0];
+  //     const [field, expr] = clause;
+  //     if (index === 0) {
+  //       queryBuilder.where(`${field} ${expr}`);
+  //     } else {
+  //       queryBuilder.orWhere(`${field} ${expr}`);
+  //     }
+  //   });
+  // }
+
   private processArrayWhereClause(
     queryBuilder: SelectQueryBuilder<any>,
-    whereArray: any[]
-  ): void {
+    whereArray: Array<any>
+  ) {
     console.log("QueryBuilderHelper::processArrayWhereClause()/01");
-    console.log(
-      "QueryBuilderHelper::processArrayWhereClause()/whereArray:",
-      whereArray
-    );
     whereArray.forEach((condition, index) => {
-      const key = Object.keys(condition)[0];
-      const value = condition[key];
+      const [field, expr] = Object.entries(condition)[0];
       const dbField = `${
         this.repository.metadata.name
-      }.${this.getDatabaseColumnName(key)}`;
-      console.log("QueryBuilderHelper::processArrayWhereClause()/key:", key);
-      console.log(
-        "QueryBuilderHelper::processArrayWhereClause()/value:",
-        value
-      );
+      }.${this.getDatabaseColumnName(field)}`;
       console.log(
         "QueryBuilderHelper::processArrayWhereClause()/dbField:",
         dbField
       );
-      console.log("QueryBuilderHelper::processArrayWhereClause()/02");
-      if (
-        typeof value === "string" &&
-        value.startsWith("Like(") &&
-        value.endsWith(")")
-      ) {
-        console.log("QueryBuilderHelper::processArrayWhereClause()/03");
-        const match = value.match(/^Like\((.*)\)$/);
-        console.log(
-          "QueryBuilderHelper::processArrayWhereClause()/dbField:",
-          dbField
-        );
-        if (match) {
-          console.log("QueryBuilderHelper::processArrayWhereClause()/04");
-          console.log(
-            "QueryBuilderHelper::processArrayWhereClause()/match:",
-            match
-          );
-          let likeValue = match[1];
-          console.log(
-            "QueryBuilderHelper::processArrayWhereClause()/likeValue:",
-            likeValue
-          );
-          if (likeValue.startsWith("'") && likeValue.endsWith("'")) {
-            likeValue = likeValue.slice(1, -1);
-          }
-          if (index === 0) {
-            console.log("QueryBuilderHelper::processArrayWhereClause()/05");
-            console.log(
-              "QueryBuilderHelper::processArrayWhereClause()/likeValue:",
-              likeValue
-            );
-            console.log(
-              "QueryBuilderHelper::processArrayWhereClause()/`${dbField} LIKE :${key}`:",
-              `${dbField} LIKE :${key}`
-            );
-            console.log(
-              "QueryBuilderHelper::processArrayWhereClause()/{ [key]: likeValue }:",
-              { [key]: likeValue }
-            );
-            queryBuilder.where(`${dbField} LIKE :${key}`, { [key]: likeValue });
-          } else {
-            console.log("QueryBuilderHelper::processArrayWhereClause()/06");
-            console.log(
-              "QueryBuilderHelper::processArrayWhereClause()/`${dbField} LIKE :${key}`:",
-              `${dbField} LIKE :${key}`
-            );
-            console.log(
-              "QueryBuilderHelper::processArrayWhereClause()/{ [key]: likeValue }:",
-              { [key]: likeValue }
-            );
-            queryBuilder.orWhere(`${dbField} LIKE :${key}`, {
-              [key]: likeValue,
-            });
-          }
-        }
+      if (index === 0) {
+        queryBuilder.where(`${dbField} ${expr}`);
       } else {
-        console.log("QueryBuilderHelper::processArrayWhereClause()/07");
-        if (index === 0) {
-          console.log("QueryBuilderHelper::processArrayWhereClause()/08");
-          console.log(
-            "QueryBuilderHelper::processArrayWhereClause()/`${dbField} LIKE :${key}`:",
-            `${dbField} LIKE :${key}`
-          );
-          console.log(
-            "QueryBuilderHelper::processArrayWhereClause()/{ [key]: likeValue }:",
-            { [key]: value }
-          );
-          queryBuilder.where(`${dbField} = :${key}`, { [key]: value });
-        } else {
-          console.log("QueryBuilderHelper::processArrayWhereClause()/09");
-          console.log(
-            "QueryBuilderHelper::processArrayWhereClause()/`${dbField} LIKE :${key}`:",
-            `${dbField} LIKE :${key}`
-          );
-          console.log(
-            "QueryBuilderHelper::processArrayWhereClause()/{ [key]: likeValue }:",
-            { [key]: value }
-          );
-          queryBuilder.orWhere(`${dbField} = :${key}`, { [key]: value });
-        }
+        queryBuilder.orWhere(`${dbField} ${expr}`);
       }
     });
   }
 
-  private getDatabaseColumnName(field: string): string {
-    const column = this.repository.metadata.findColumnWithPropertyName(field);
-    return column ? column.databaseName : field;
+  // private getDatabaseColumnName(field: string): string {
+  //   const column = this.repository.metadata.findColumnWithPropertyName(field);
+  //   return column ? column.databaseName : field;
+  // }
+
+  private getDatabaseColumnName(entityField: string): string {
+    console.log(
+      "QueryBuilderHelper::getDatabaseColumnName()/entityField:",
+      entityField
+    );
+    const column = this.repository.metadata.columns.find(
+      (col) => col.propertyName === entityField
+    );
+    // console.log('QueryBuilderHelper::getDatabaseColumnName()/column:', column)
+    return column?.databaseName || entityField;
   }
 
   isEmptyObject(obj) {
@@ -435,5 +529,209 @@ export class QueryBuilderHelper {
     queryBuilder.set({ [jsonField]: () => updateFields });
 
     return this;
+  }
+
+  ///////////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Extending capacity for andWhere and orWhere
+   */
+
+  private isObject(value: any): boolean {
+    return typeof value === "object" && value !== null && !Array.isArray(value);
+  }
+
+  private isPlainWhereObject(where: any): boolean {
+    return this.isObject(where) && !where.andWhere && !where.orWhere;
+  }
+
+  // private processSmartWhereClause(
+  //   queryBuilder: SelectQueryBuilder<any>,
+  //   where: IQueryWhere | Array<{ [field: string]: string }>
+  // ) {
+  //   console.log("QueryBuilderHelper::processSmartWhereClause()/01");
+  //   console.log("QueryBuilderHelper::processSmartWhereClause()/where:", JSON.stringify(where));
+  //   if (Array.isArray(where)) {
+  //     console.log("QueryBuilderHelper::processSmartWhereClause()/02");
+  //     this.processArrayWhereClause(queryBuilder, where); // OR logic
+  //     console.log("QueryBuilderHelper::processSmartWhereClause()/03");
+  //   } else if (this.isPlainWhereObject(where)) {
+  //     console.log("QueryBuilderHelper::processSmartWhereClause()/04");
+  //     this.processObjectWhereClause(queryBuilder, where); // AND logic
+  //   } else {
+  //     console.log("QueryBuilderHelper::processSmartWhereClause()/05");
+  //     const typed = where as IQueryWhere;
+  //     if (typed.andWhere && Array.isArray(typed.andWhere)) {
+  //       console.log("QueryBuilderHelper::processSmartWhereClause()/06");
+  //       typed.andWhere.forEach((c, i) => {
+  //         console.log("QueryBuilderHelper::processSmartWhereClause()/07");
+  //         console.log("QueryBuilderHelper::processSmartWhereClause()/c:", c);
+  //         const [field, expr] = Object.entries(c)[0];
+  //         if (i === 0 && !queryBuilder.expressionMap.wheres.length) {
+  //           console.log("QueryBuilderHelper::processSmartWhereClause()/08");
+  //           queryBuilder.where(`${field} ${expr}`);
+  //         } else {
+  //           console.log("QueryBuilderHelper::processSmartWhereClause()/09");
+  //           queryBuilder.andWhere(`${field} ${expr}`);
+  //         }
+  //       });
+  //     }
+  //     console.log("QueryBuilderHelper::processSmartWhereClause()/10");
+  //     if (typed.orWhere && Array.isArray(typed.orWhere)) {
+  //       console.log("QueryBuilderHelper::processSmartWhereClause()/11");
+  //       typed.orWhere.forEach((c, i) => {
+  //         console.log("QueryBuilderHelper::processSmartWhereClause()/12");
+  //         const [field, expr] = Object.entries(c)[0];
+  //         if (queryBuilder.expressionMap.wheres.length === 0 && i === 0) {
+  //           console.log("QueryBuilderHelper::processSmartWhereClause()/13");
+  //           queryBuilder.where(`${field} ${expr}`);
+  //         } else {
+  //           console.log("QueryBuilderHelper::processSmartWhereClause()/14");
+  //           queryBuilder.orWhere(`${field} ${expr}`);
+  //         }
+  //       });
+  //     }
+  //   }
+  // }
+  // private processSmartWhereClause(
+  //   queryBuilder: SelectQueryBuilder<any>,
+  //   where: IQueryWhere | Array<{ [field: string]: string }>
+  // ) {
+  //   console.log("QueryBuilderHelper::processSmartWhereClause()/01");
+  //   console.log(
+  //     "QueryBuilderHelper::processSmartWhereClause()/where:",
+  //     JSON.stringify(where)
+  //   );
+
+  //   if (Array.isArray(where)) {
+  //     console.log("QueryBuilderHelper::processSmartWhereClause()/02");
+  //     this.processArrayWhereClause(queryBuilder, where); // OR logic
+  //     console.log("QueryBuilderHelper::processSmartWhereClause()/03");
+  //   } else if (this.isPlainWhereObject(where)) {
+  //     console.log("QueryBuilderHelper::processSmartWhereClause()/04");
+  //     this.processObjectWhereClause(queryBuilder, where); // AND logic
+  //   } else {
+  //     console.log("QueryBuilderHelper::processSmartWhereClause()/05");
+  //     const typed = where as IQueryWhere;
+
+      
+  //     if (typed.andWhere && Array.isArray(typed.andWhere)) {
+  //       console.log("QueryBuilderHelper::processSmartWhereClause()/06");
+  //       queryBuilder.andWhere(
+  //         new Brackets((qb) => {
+  //           typed.andWhere!.forEach((c, i) => {
+  //             console.log("QueryBuilderHelper::processSmartWhereClause()/07");
+  //             const [field, expr] = Object.entries(c)[0];
+  //             const dbField = `${
+  //               this.repository.metadata.name
+  //             }.${this.getDatabaseColumnName(field)}`;
+  //             if (i === 0) {
+  //               qb.where(`${dbField} ${expr}`);
+  //             } else {
+  //               qb.andWhere(`${dbField} ${expr}`);
+  //             }
+  //           });
+  //         })
+  //       );
+  //     }
+
+  //     if (typed.orWhere && Array.isArray(typed.orWhere)) {
+  //       console.log("QueryBuilderHelper::processSmartWhereClause()/11");
+  //       queryBuilder.andWhere(
+  //         new Brackets((qb) => {
+  //           typed.orWhere!.forEach((c, i) => {
+  //             const [field, expr] = Object.entries(c)[0];
+  //             const dbField = `${
+  //               this.repository.metadata.name
+  //             }.${this.getDatabaseColumnName(field)}`;
+  //             if (i === 0) {
+  //               qb.where(`${dbField} ${expr}`);
+  //             } else {
+  //               qb.orWhere(`${dbField} ${expr}`);
+  //             }
+  //           });
+  //         })
+  //       );
+  //     }
+  //   }
+  // }
+
+  private processSmartWhereClause(
+    queryBuilder: SelectQueryBuilder<any>,
+    where: IQueryWhere | Array<{ [field: string]: string | number }>
+  ) {
+    console.log("QueryBuilderHelper::processSmartWhereClause()/01");
+    console.log(
+      "QueryBuilderHelper::processSmartWhereClause()/where:",
+      JSON.stringify(where)
+    );
+  
+    if (Array.isArray(where)) {
+      console.log("QueryBuilderHelper::processSmartWhereClause()/02");
+      this.processArrayWhereClause(queryBuilder, where); // OR logic
+      console.log("QueryBuilderHelper::processSmartWhereClause()/03");
+    } else if (this.isPlainWhereObject(where)) {
+      console.log("QueryBuilderHelper::processSmartWhereClause()/04");
+      this.processObjectWhereClause(queryBuilder, where); // AND logic
+    } else {
+      console.log("QueryBuilderHelper::processSmartWhereClause()/05");
+      const typed = where as IQueryWhere;
+  
+      if (typed.andWhere && Array.isArray(typed.andWhere)) {
+        console.log("QueryBuilderHelper::processSmartWhereClause()/06");
+        queryBuilder.andWhere(
+          new Brackets((qb) => {
+            typed.andWhere!.forEach((c, i) => {
+              console.log("QueryBuilderHelper::processSmartWhereClause()/07");
+              const [field, rawExpr] = Object.entries(c)[0];
+              const normalizedExpr = this.normalizeExpr(rawExpr);
+              const dbField = `${
+                this.repository.metadata.name
+              }.${this.getDatabaseColumnName(field)}`;
+              if (i === 0) {
+                qb.where(`${dbField} ${normalizedExpr}`);
+              } else {
+                qb.andWhere(`${dbField} ${normalizedExpr}`);
+              }
+            });
+          })
+        );
+      }
+  
+      if (typed.orWhere && Array.isArray(typed.orWhere)) {
+        console.log("QueryBuilderHelper::processSmartWhereClause()/11");
+        queryBuilder.andWhere(
+          new Brackets((qb) => {
+            typed.orWhere!.forEach((c, i) => {
+              const [field, rawExpr] = Object.entries(c)[0];
+              const normalizedExpr = this.normalizeExpr(rawExpr);
+              const dbField = `${
+                this.repository.metadata.name
+              }.${this.getDatabaseColumnName(field)}`;
+              if (i === 0) {
+                qb.where(`${dbField} ${normalizedExpr}`);
+              } else {
+                qb.orWhere(`${dbField} ${normalizedExpr}`);
+              }
+            });
+          })
+        );
+      }
+    }
+  }
+  
+
+  private normalizeExpr(expr: string | number): string {
+    if (typeof expr === "number") return `= ${expr}`;
+    if (/^(=|<|>|<=|>=|<>|LIKE|IN|IS|BETWEEN|NOT|LIKE|REGEXP)\s*/i.test(expr)) {
+      return expr; // Already includes a valid SQL operator
+    }
+    if (/^\w+\(.*\)$/.test(expr)) {
+      return expr; // Handles SQL functions like Like('%ka%')
+    }
+    if (!isNaN(Number(expr))) {
+      return `= ${expr}`; // string but numeric-like
+    }
+    return `= '${expr}'`; // default fallback
   }
 }
