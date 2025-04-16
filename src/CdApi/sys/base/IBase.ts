@@ -127,6 +127,23 @@ export interface IJsonUpdate {
   value: any; // value to apply to a tarteg item
 }
 
+// json field filter
+export interface IJFilter {
+  jField: string;
+  jPath: string;
+  pathValue: any;
+}
+
+// query builder input
+export interface IQbInput {
+  select?: string[];
+  update?: object;
+  where: IQbFilter[];
+  distinct?: boolean;
+  take?: number;
+  skip?: number;
+}
+
 /**
  * -------------------------------------------------------------------------------------------------------------------------
  * interface ICdResponse
@@ -246,22 +263,7 @@ export interface IServerConfig {
      * 
      */
 
-// json field filter
-export interface IJFilter {
-  jField: string;
-  jPath: string;
-  pathValue: any;
-}
 
-// query builder input
-export interface IQbInput {
-  select?: string[];
-  update?: object;
-  where: IQbFilter[];
-  distinct?: boolean;
-  take?: number;
-  skip?: number;
-}
 
 export const CDOBJ_TYPE_USER = 9;
 export const CDOBJ_TYPE_GROUP = 10;
