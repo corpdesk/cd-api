@@ -69,6 +69,13 @@ export class CompanyViewModel {
 
     @ViewColumn(
         {
+            name: 'company_type_id'
+        }
+    )
+    companyTypeId: string;
+
+    @ViewColumn(
+        {
             name: 'directory_category_guid'
         }
     )
