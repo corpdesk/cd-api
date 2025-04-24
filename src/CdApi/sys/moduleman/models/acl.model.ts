@@ -3,10 +3,8 @@ import {
     PrimaryGeneratedColumn,
     Column,
 } from 'typeorm';
-import { v4 as uuidv4 } from 'uuid';
-import {
-    validateOrReject,
-} from 'class-validator';
+import { IQuery } from '../../base/IBase';
+
 
 @Entity(
     {
@@ -14,7 +12,6 @@ import {
         synchronize: false
     }
 )
-// @CdModel
 export class AclModel {
 
     @PrimaryGeneratedColumn(
@@ -26,38 +23,30 @@ export class AclModel {
 
     @Column({
         name: 'acl_guid',
-        length: 36,
-        default: uuidv4()
     })
     aclGuid?: string;
 
     @Column(
-        'varchar',
         {
             name: 'acl_name',
-            length: 50,
             nullable: true
         }
     )
     aclName: string;
 
     @Column(
-        'char',
         {
             name: 'acl_type_guid',
-            length: 60,
             default: null
         })
     cdObjTypeGuid: string;
 
     @Column(
-        'datetime',
         {
             name: 'last_sync_date',
             default: null
         }
     )
-    // @IsInt()
     lastSyncDate?: string;
 
     @Column(
@@ -67,7 +56,6 @@ export class AclModel {
             default: null
         }
     )
-    // @IsInt()
     lastModificationDate?: string;
 
     @Column(
@@ -76,7 +64,6 @@ export class AclModel {
             default: null
         }
     )
-    // @IsInt()
     parentModuleGuid?: string;
 
     @Column(
@@ -85,7 +72,6 @@ export class AclModel {
             default: null
         }
     )
-    // @IsInt()
     parentClassGuid?: string;
 
     @Column(
@@ -94,7 +80,6 @@ export class AclModel {
             default: null
         }
     )
-    // @IsInt()
     parentObj?: string;
 
     @Column(
@@ -104,7 +89,6 @@ export class AclModel {
             default: null
         }
     )
-    // @IsInt()
     cdObjDispName?: string;
 
     @Column(
@@ -113,7 +97,6 @@ export class AclModel {
             default: null
         }
     )
-    // @IsInt()
     docId?: number;
 
     @Column(
@@ -123,7 +106,6 @@ export class AclModel {
             default: null
         }
     )
-    // @IsInt()
     showName?: boolean;
 
     @Column(
@@ -133,7 +115,6 @@ export class AclModel {
             default: null
         }
     )
-    // @IsInt()
     icon?: string;
 
     @Column(
@@ -143,7 +124,6 @@ export class AclModel {
             default: null
         }
     )
-    // @IsInt()
     showIcon?: boolean;
 
     @Column(
@@ -153,7 +133,6 @@ export class AclModel {
             default: null
         }
     )
-    // @IsInt()
     currVal?: string;
 
     @Column(
@@ -163,17 +142,18 @@ export class AclModel {
             default: null
         }
     )
-    // @IsInt()
     enabled?: boolean;
 
-    // @OneToMany(type => DocModel, doc => doc.user) // note: we will create user property in the Docs class
-    // docs: DocModel[];
+}
 
-    // // HOOKS
-    // @BeforeInsert()
-    // @BeforeUpdate()
-    // async validate() {
-    //     await validateOrReject(this);
-    // }
-
+export function siGet(q:IQuery){
+    return {
+        serviceModel: AclModel,
+        docName: 'AclModel::siGet',
+        cmd: {
+            action: 'find',
+            query: q
+        },
+        dSource: 1
+    }
 }
