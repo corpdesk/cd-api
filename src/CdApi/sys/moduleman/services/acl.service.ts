@@ -508,6 +508,92 @@ export class AclService {
     });
   }
 
+  // /**
+  //  * {
+  //         "ctx": "Sys",
+  //         "m": "Moduleman",
+  //         "c": "Acl",
+  //         "a": "Update",
+  //         "dat": {
+  //             "f_vals": [
+  //                 {
+  //                     "query": {
+  //                         "update": {
+  //                             "aclName": "/corp-deskv1.2.1.2/system/modules/comm/controllers"
+  //                         },
+  //                         "where": {
+  //                             "aclId": 45762
+  //                         }
+  //                     }
+  //                 }
+  //             ],
+  //             "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+  //         },
+  //         "args": {}
+  //     }
+  //  * @param req
+  //  * @param res
+  //  */
+  update(req, res) {
+    // console.log('AclService::update()/01');
+    let q = this.b.getQuery(req);
+    q = this.beforeUpdate(q);
+    const serviceInput = {
+      serviceModel: AclModel,
+      docName: "AclService::update",
+      cmd: {
+        action: "update",
+        query: q,
+      },
+      dSource: 1,
+    };
+    // console.log('AclService::update()/02')
+    this.b.update$(req, res, serviceInput).subscribe((ret) => {
+      this.b.cdResp.data = ret;
+      this.b.respond(req, res);
+    });
+  }
+
+  updateSL(req, res) {
+    console.log("AclService::update()/01");
+    let q = this.b.getQuery(req);
+    q = this.beforeUpdateSL(q);
+    const serviceInput = {
+      serviceModel: AclModel,
+      docName: "AclService::update",
+      cmd: {
+        action: "update",
+        query: q,
+      },
+      dSource: 1,
+    };
+    console.log("AclService::update()/02");
+    this.b.updateSL$(req, res, serviceInput).subscribe((ret:any) => {
+      this.b.cdResp.data = ret;
+      this.b.connSLClose();
+      this.b.respond(req, res);
+    });
+  }
+
+  /**
+   * harmonise any data that can
+   * result in type error;
+   * @param q
+   * @returns
+   */
+  beforeUpdate(q: any) {
+    if (q.update.aclEnabled === "") {
+      q.update.aclEnabled = null;
+    }
+    return q;
+  }
+
+  beforeUpdateSL(q: any) {
+    if (q.update.billEnabled === "") {
+      q.update.billEnabled = null;
+    }
+    return q;
+  }
   delete(req, res) {
     const q = this.b.getQuery(req);
     console.log("AclService::delete()/q:", q);
