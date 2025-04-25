@@ -105,16 +105,18 @@ export class BaseService {
   ds: any = null;
 
   async init(req, res) {
-    this.logger.logInfo("BaseService::init()/01:");
+    this.logger.logDebug("BaseService::init()/01:");
     try {
       if (!this.db) {
         this.db = new TypeOrmDatasource();
         this.ds = await this.db.getConnection(); // ✅ Store DataSource
       }
-      this.logger.logInfo("BaseService::init()/this.models:", this.models);
+      this.logger.logDebug("BaseService::init()/this.models:", this.models);
     } catch (e) {
-      this.logger.logInfo("BaseService::init()/02:");
-      this.logger.logInfo(`BaseService::init() failed:${(e as Error).message}`);
+      this.logger.logDebug("BaseService::init()/02:");
+      this.logger.logDebug(
+        `BaseService::init() failed:${(e as Error).message}`
+      );
       this.err.push(`BaseService::init() failed:${(e as Error).message}`);
     }
   }
@@ -123,17 +125,17 @@ export class BaseService {
     const iMax = 5;
     const i = 1;
     try {
-      this.logger.logInfo("BaseService::initSqlite()/01");
+      this.logger.logDebug("BaseService::initSqlite()/01");
       if (this.sqliteConn) {
-        this.logger.logInfo("BaseService::initSqlite()/02");
+        this.logger.logDebug("BaseService::initSqlite()/02");
       } else {
-        this.logger.logInfo("BaseService::initSqlite()/03");
+        this.logger.logDebug("BaseService::initSqlite()/03");
         // await this.setSLConn(i)
         this.sqliteConn = await this.db;
       }
     } catch (e) {
-      this.logger.logInfo("BaseService::initSqlite()/04");
-      this.logger.logInfo("initSqlite()/Error:", e);
+      this.logger.logDebug("BaseService::initSqlite()/04");
+      this.logger.logDebug("initSqlite()/Error:", e);
       // const p = e.toString().search('AlreadyHasActiveConnectionError');
       // if (p === -1 && i < iMax) {
       //     i++;
@@ -164,50 +166,50 @@ export class BaseService {
   }
 
   // async connectDatabase(i: number = 1): Promise<Connection> {
-  //   this.logger.logInfo("connectDatabase()/01");
+  //   this.logger.logDebug("connectDatabase()/01");
   //   const opts: ConnectionOptions = await sqliteConfigFx(
   //     `sqlite${i.toString()}`
   //   );
   //   let connection: Connection | undefined;
   //   try {
-  //     this.logger.logInfo("connectDatabase()/02");
+  //     this.logger.logDebug("connectDatabase()/02");
   //     const connectionManager = getConnectionManager();
-  //     this.logger.logInfo("connectDatabase()/03");
+  //     this.logger.logDebug("connectDatabase()/03");
   //     // calling connection.close() doesn't actually delete it from the map, so "has" will still be true;
   //     // so if this is anything but the first attempt, try to create the connection again
   //     if (connectionManager.has(opts.name) && i === 1) {
-  //       this.logger.logInfo("connectDatabase()/04");
+  //       this.logger.logDebug("connectDatabase()/04");
   //       // using a connection already connected (note this is a simplified version for lambda environment ...
   //       // see also: https://github.com/typeorm/typeorm/issues/3427
   //       connection = await connectionManager.get(`sqlite${i.toString()}`);
-  //       this.logger.logInfo("connectDatabase()/05");
+  //       this.logger.logDebug("connectDatabase()/05");
   //       if (!connection.isConnected) {
-  //         this.logger.logInfo("connectDatabase()/06");
+  //         this.logger.logDebug("connectDatabase()/06");
   //         throw new Error(
   //           "Existing connection found but is not really connected"
   //         );
   //       }
-  //       this.logger.logInfo("connectDatabase()/07");
+  //       this.logger.logDebug("connectDatabase()/07");
   //     } else {
-  //       this.logger.logInfo("connectDatabase()/08");
+  //       this.logger.logDebug("connectDatabase()/08");
   //       connection = await connectionManager.create(opts);
-  //       this.logger.logInfo("connectDatabase()/09");
+  //       this.logger.logDebug("connectDatabase()/09");
   //       await connection.connect();
   //     }
-  //     this.logger.logInfo("connectDatabase()/10");
+  //     this.logger.logDebug("connectDatabase()/10");
   //     return await connection;
   //   } catch (e) {
   //     i++;
-  //     this.logger.logInfo("connectDatabase()/11");
+  //     this.logger.logDebug("connectDatabase()/11");
   //     if (i >= 5) {
   //       console.error(
   //         "Giving up after too many connection attempts, throwing error"
   //       );
   //       throw e;
   //     }
-  //     this.logger.logInfo("connectDatabase()/12");
+  //     this.logger.logDebug("connectDatabase()/12");
   //     if (connection || connection.isConnected || connection.close()) {
-  //       this.logger.logInfo("connectDatabase()/13");
+  //       this.logger.logDebug("connectDatabase()/13");
   //       const delayInMilliseconds = 200 * i;
   //       await setTimeout(async () => {
   //         // connection.close();
@@ -290,15 +292,15 @@ export class BaseService {
    */
   async resolveCls(req, res, clsCtx) {
     try {
-      this.logger.logInfo("BaseService::resolveCls()/01:");
+      this.logger.logDebug("BaseService::resolveCls()/01:");
       console.log("BaseService::resolveCls/clsCtx.path:", clsCtx.path);
       const eImport = await import(clsCtx.path);
-      this.logger.logInfo("BaseService::resolveCls()/02:");
+      this.logger.logDebug("BaseService::resolveCls()/02:");
       const eCls = eImport[clsCtx.clsName];
-      this.logger.logInfo("BaseService::resolveCls()/03:");
+      this.logger.logDebug("BaseService::resolveCls()/03:");
       const cls = new eCls();
       this.ds = clsCtx.dataSource;
-      this.logger.logInfo("BaseService::resolveCls()/04:");
+      this.logger.logDebug("BaseService::resolveCls()/04:");
       if (this.sess) {
         // set sessData in req so it is available thoughout the bootstrap
         req.post.sessData = this.sess;
@@ -356,7 +358,7 @@ export class BaseService {
 
   async valid(req, res): Promise<boolean> {
     const pl = req.post;
-    this.logger.logInfo("BaseService::valid()req.post:", {
+    this.logger.logDebug("BaseService::valid()req.post:", {
       pl: JSON.stringify(req.post),
     });
     this.pl = pl;
@@ -377,8 +379,8 @@ export class BaseService {
   }
 
   async noToken(req, res) {
-    this.logger.logInfo("BaseService::noToken()/01");
-    this.logger.logInfo("BaseService::noToken()/req.post:", {
+    this.logger.logDebug("BaseService::noToken()/01");
+    this.logger.logDebug("BaseService::noToken()/req.post:", {
       pl: JSON.stringify(req.post),
     });
     const pl = req.post;
@@ -398,9 +400,9 @@ export class BaseService {
       m === "User" &&
       (a === "Login" || a === "Register" || a === "ActivateUser")
     ) {
-      this.logger.logInfo("BaseService::noToken()/02");
+      this.logger.logDebug("BaseService::noToken()/02");
       if (m === "User" && a === "Register") {
-        this.logger.logInfo("BaseService::noToken()/03");
+        this.logger.logDebug("BaseService::noToken()/03");
         this.isRegRequest = true;
       }
       ret = true;
@@ -423,7 +425,7 @@ export class BaseService {
     if ("MSISDN" in pl) {
       ret = true;
     }
-    this.logger.logInfo("BaseService::noToken()/returning ret:", {
+    this.logger.logDebug("BaseService::noToken()/returning ret:", {
       return: ret,
     });
     return ret;
@@ -484,10 +486,10 @@ export class BaseService {
   //   };
   // }
   async setAppState(succ: boolean, i: IRespInfo | null, ss: ISessResp | null) {
-    CdLogger.debug('BaseService::setAppState()/01')
+    CdLogger.debug("BaseService::setAppState()/01");
 
     if (succ === false) {
-      CdLogger.debug('BaseService::setAppState()/02')
+      CdLogger.debug("BaseService::setAppState()/02");
       this.cdResp.data = [];
     }
     // if(this.sess){
@@ -496,8 +498,8 @@ export class BaseService {
     //   CdLogger.debug('BaseService::setAppState()/03')
     //   CdLogger.warn('session is not set')
     // }
-    
-    CdLogger.debug('BaseService::setAppState()/ss:', ss)
+
+    CdLogger.debug("BaseService::setAppState()/ss:", ss);
     this.cdResp.app_state = {
       success: succ,
       info: i,
@@ -513,10 +515,10 @@ export class BaseService {
 
   /**
    * Under selected modes, client ip may be necessary as part of response
-   * @param ss 
+   * @param ss
    */
-  getClientId(clientId:any) {
-    CdLogger.debug('BaseService::setClientId()/01')
+  getClientId(clientId: any) {
+    CdLogger.debug("BaseService::setClientId()/01");
     const allowedModes = [
       RunMode.UNRESTRICTED_DEVELOPER_MODE,
       RunMode.VERBOSE_MONITORING,
@@ -525,12 +527,12 @@ export class BaseService {
     ];
 
     if (allowedModes.includes(config.runMode)) {
-      CdLogger.debug('BaseService::setClientId()/02')
-      CdLogger.debug('BaseService::setClientId()/clientId:', clientId)
+      CdLogger.debug("BaseService::setClientId()/02");
+      CdLogger.debug("BaseService::setClientId()/clientId:", clientId);
       return clientId;
     } else {
-      CdLogger.debug('BaseService::setClientId()/03')
-      CdLogger.warn('clientId is not allowed at this time')
+      CdLogger.debug("BaseService::setClientId()/03");
+      CdLogger.warn("clientId is not allowed at this time");
       return null;
     }
   }
@@ -731,14 +733,14 @@ export class BaseService {
   }
 
   async respond(req, res) {
-    this.logger.logInfo("**********starting respond(res)*********");
+    this.logger.logDebug("**********starting respond(res)*********");
     // res.status(200).json(this.cdResp);
     let ret;
     try {
-      this.logger.logInfo("BaseService::respond(res)/this.pl:", {
+      this.logger.logDebug("BaseService::respond(res)/this.pl:", {
         post: req.post,
       });
-      this.logger.logInfo("BaseService::respond(res)/this.cdResp:", {
+      this.logger.logDebug("BaseService::respond(res)/this.cdResp:", {
         cdResp: this.cdResp,
       });
       ret = res.status(200).json(this.cdResp);
@@ -779,27 +781,30 @@ export class BaseService {
     extData: string | null = null,
     fValsIndex: number | null = null
   ) {
-    this.logger.logInfo("BaseService::getPlData()/01");
+    this.logger.logDebug("BaseService::getPlData()/01");
+    this.logger.logDebug(`BaseService::getPlData()/extData1:${extData}`);
     let ret = null;
     const svSess = new SessionService();
     if (this.validatePlData(req, extData)) {
       try {
         if (extData) {
-          this.logger.logInfo("BaseService::getPlData()/02");
+          this.logger.logDebug("BaseService::getPlData()/02");
+          this.logger.logDebug(`BaseService::getPlData()/fValsIndex:${fValsIndex}`);
+          this.logger.logDebug(`BaseService::getPlData()/req.post.dat.f_vals[0]:${JSON.stringify(req.post.dat.f_vals[0])}`);
           if (fValsIndex) {
             ret = req.post.dat.f_vals[fValsIndex][extData];
           } else {
             ret = req.post.dat.f_vals[0][extData];
           }
         } else {
-          this.logger.logInfo("BaseService::getPlData()/03");
+          this.logger.logDebug("BaseService::getPlData()/03");
           if (fValsIndex) {
             ret = req.post.dat.f_vals[fValsIndex].data;
           } else {
             ret = req.post.dat.f_vals[0].data;
           }
         }
-        this.logger.logInfo("BaseService::getPlData()/04");
+        this.logger.logDebug("BaseService::getPlData()/04");
         console.log("BaseService::getData()/ret:", ret);
         return ret;
       } catch (e) {
@@ -817,27 +822,27 @@ export class BaseService {
     extData: string | null = null,
     fValsIndex: number | null = null
   ) {
-    this.logger.logInfo("BaseService::getPlQuery()/01");
+    this.logger.logDebug("BaseService::getPlQuery()/01");
     let ret = null;
     const svSess = new SessionService();
     if (this.validatePlData(req, extData)) {
       try {
         if (extData) {
-          this.logger.logInfo("BaseService::getPlQuery()/02");
+          this.logger.logDebug("BaseService::getPlQuery()/02");
           if (fValsIndex) {
             ret = req.post.dat.f_vals[fValsIndex][extData];
           } else {
             ret = req.post.dat.f_vals[0][extData];
           }
         } else {
-          this.logger.logInfo("BaseService::getPlQuery()/03");
+          this.logger.logDebug("BaseService::getPlQuery()/03");
           if (fValsIndex) {
             ret = req.post.dat.f_vals[fValsIndex].query;
           } else {
             ret = req.post.dat.f_vals[0].query;
           }
         }
-        this.logger.logInfo("BaseService::getPlQuery()/04");
+        this.logger.logDebug("BaseService::getPlQuery()/04");
         console.log("BaseService::getQuery()/ret:", ret);
         return ret;
       } catch (e) {
@@ -855,12 +860,12 @@ export class BaseService {
     item: ObjectItem,
     extData: string = null
   ): Promise<void> {
-    this.logger.logInfo("BaseService::setPlData()/item:", item);
+    this.logger.logDebug("BaseService::setPlData()/item:", item);
     if (extData) {
-      this.logger.logInfo("BaseService::setPlData()/extData:", {
+      this.logger.logDebug("BaseService::setPlData()/extData:", {
         extData: extData,
       });
-      this.logger.logInfo(
+      this.logger.logDebug(
         "BaseService::setPlData()/req.post.dat.f_vals[0][extData]:",
         req.post.dat.f_vals[0][extData]
       );
@@ -868,7 +873,7 @@ export class BaseService {
     } else {
       req.post.dat.f_vals[0].data[item.key] = item.value;
     }
-    this.logger.logInfo(
+    this.logger.logDebug(
       "BaseService::setPlData()/req.post.dat.f_vals[0]:",
       req.post.dat.f_vals[0]
     );
@@ -886,13 +891,13 @@ export class BaseService {
     item: ObjectItem,
     extData: string = null
   ): Promise<void> {
-    this.logger.logInfo("BaseService::setPlDataM()/item:", item);
+    this.logger.logDebug("BaseService::setPlDataM()/item:", item);
     if (extData) {
       console.log("BaseService::setPlDataM()/extData:", { context: extData });
       console.log("BaseService::setPlDataM()/data:", data[extData]);
       data[extData][item.key] = item.value;
     }
-    this.logger.logInfo("BaseService::setPlDataM()/data:", data);
+    this.logger.logDebug("BaseService::setPlDataM()/data:", data);
   }
 
   /**
@@ -955,14 +960,14 @@ export class BaseService {
   }
 
   getQuery(req) {
-    this.logger.logInfo("BaseService::getQuery()/01");
-    this.logger.logInfo(
+    this.logger.logDebug("BaseService::getQuery()/01");
+    this.logger.logDebug(
       `BaseService::getQuery()/req.post.dat.f_vals[0].query:${JSON.stringify(
         req.post.dat.f_vals[0].query
       )}`
     );
     const q = req.post.dat.f_vals[0].query;
-    this.logger.logInfo(`BaseService::getQuery()/q:${q}`);
+    this.logger.logDebug(`BaseService::getQuery()/q:${q}`);
     this.pl = req.post;
     if (q) {
       return q;
