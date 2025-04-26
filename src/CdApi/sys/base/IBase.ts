@@ -98,26 +98,48 @@ export interface EnvelopFValItem {
  * for setting up query akin to sql query but can also be used against non-sql queries.
  * At its best the syntx should not be dependent on target data store type.
  */
+// export interface IQuery {
+//   select?: string[];
+//   update?: object;
+//   where: IQueryWhere;
+//   jsonUpdate?: IJsonUpdate[]; // This was developed for JSON columns. Its use can be found in the implementation of UserProfile and how CoopMemberProfile has extended UserProfile
+//   distinct?: boolean;
+//   take?: number;
+//   skip?: number;
+//   jFilters?: IJFilter[];
+//   order?: any;
+//   class?: string;
+// }
+
+// export interface IQueryWhere {
+//   // new AND/OR logic
+//   andWhere?: Array<{ [field: string]: string }>;
+//   orWhere?: Array<{ [field: string]: string }>;
+
+//   // legacy-compatible structures
+//   [field: string]: any; // for flat objects or keys not matching and/or
+// }
 export interface IQuery {
   select?: string[];
   update?: object;
   where: IQueryWhere;
-  jsonUpdate?: IJsonUpdate[]; // This was developed for JSON columns. Its use can be found in the implementation of UserProfile and how CoopMemberProfile has extended UserProfile
+  jsonUpdate?: IJsonUpdate[];
   distinct?: boolean;
   take?: number;
   skip?: number;
   jFilters?: IJFilter[];
   order?: any;
   class?: string;
+  extData?: any; // any extra data
 }
 
+// Recursive support for nested 'andWhere' and 'orWhere'
 export interface IQueryWhere {
-  // new AND/OR logic
-  andWhere?: Array<{ [field: string]: string }>;
-  orWhere?: Array<{ [field: string]: string }>;
+  andWhere?: Array<IQueryWhere | { [field: string]: any }>;
+  orWhere?: Array<IQueryWhere | { [field: string]: any }>;
 
-  // legacy-compatible structures
-  [field: string]: any; // for flat objects or keys not matching and/or
+  // legacy-compatible flat conditions
+  [field: string]: any;
 }
 
 // custom json update
@@ -262,8 +284,6 @@ export interface IServerConfig {
 
      * 
      */
-
-
 
 export const CDOBJ_TYPE_USER = 9;
 export const CDOBJ_TYPE_GROUP = 10;
@@ -709,5 +729,5 @@ export interface CdFxReturn<T> {
 export const CD_FX_FAIL = {
   data: null,
   state: false,
-  message: 'Failed!',
+  message: "Failed!",
 };
