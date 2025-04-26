@@ -2,23 +2,31 @@ import { SelectQueryBuilder, Repository, Like, Brackets } from "typeorm";
 import { EntityAdapter } from "./entity-adapter";
 import { IQueryWhere, IServiceInput, QueryInput } from "../base/IBase";
 import { safeStringify } from "./safe-stringify";
+import { Logging } from "../base/winston.log";
 
 export class QueryBuilderHelper {
+  logger: Logging;
   entityAdapter: EntityAdapter;
 
   constructor(private repository: Repository<any>) {
+    this.logger = new Logging();
     this.entityAdapter = new EntityAdapter();
   }
 
   test(query, queryBuilder) {
     if (query.where && Array.isArray(query.where) && query.where.length > 0) {
-      console.log("QueryBuilderHelper::createQueryBuilder/04:");
+      this.logger.logDebug("QueryBuilderHelper::createQueryBuilder/04:");
       query.where.forEach((condition, index) => {
         const key = Object.keys(condition)[0];
-        console.log("QueryBuilderHelper::createQueryBuilder/key:", key);
+        this.logger.logDebug(
+          `QueryBuilderHelper::createQueryBuilder/key:${key}`
+        );
         const value = condition[key];
-        console.log("QueryBuilderHelper::createQueryBuilder/value:", value);
-        console.log(
+        this.logger.logDebug(
+          "QueryBuilderHelper::createQueryBuilder/value:",
+          value
+        );
+        this.logger.logDebug(
           "QueryBuilderHelper::createQueryBuilder/value._type:",
           value._type
         );
@@ -44,66 +52,75 @@ export class QueryBuilderHelper {
       typeof query.where === "object" &&
       this.isEmptyObject(query.where)
     ) {
-      console.log("QueryBuilderHelper::createQueryBuilder/05:");
+      this.logger.logDebug("QueryBuilderHelper::createQueryBuilder/05:");
       // Do not add any where clause
     }
   }
 
   transformWhereClause(where: any): any {
-    console.log("QueryBuilderHelper::transformWhereClause()/01");
-    console.log("QueryBuilderHelper::transformWhereClause()/where:", where);
+    this.logger.logDebug("QueryBuilderHelper::transformWhereClause()/01");
+    this.logger.logDebug(
+      "QueryBuilderHelper::transformWhereClause()/where:",
+      where
+    );
     if (Array.isArray(where)) {
-      console.log("QueryBuilderHelper::transformWhereClause()/where:", where);
-      console.log("QueryBuilderHelper::transformWhereClause()/02");
+      this.logger.logDebug(
+        "QueryBuilderHelper::transformWhereClause()/where:",
+        where
+      );
+      this.logger.logDebug("QueryBuilderHelper::transformWhereClause()/02");
       return where.map((condition) => {
-        console.log("QueryBuilderHelper::transformWhereClause()/03");
-        console.log(
+        this.logger.logDebug("QueryBuilderHelper::transformWhereClause()/03");
+        this.logger.logDebug(
           "QueryBuilderHelper::transformWhereClause()/condition:",
           condition
         );
         const field = Object.keys(condition)[0];
-        console.log("QueryBuilderHelper::transformWhereClause()/04");
+        this.logger.logDebug("QueryBuilderHelper::transformWhereClause()/04");
         const value = condition[field];
-        console.log("QueryBuilderHelper::transformWhereClause()/05");
+        this.logger.logDebug("QueryBuilderHelper::transformWhereClause()/05");
         if (
           typeof value === "string" &&
           value.startsWith("Like(") &&
           value.endsWith(")")
         ) {
-          console.log("QueryBuilderHelper::transformWhereClause()/06");
+          this.logger.logDebug("QueryBuilderHelper::transformWhereClause()/06");
           const match = value.match(/^Like\((.*)\)$/);
-          console.log(
-            "QueryBuilderHelper::transformWhereClause()/value:",
-            value
+          this.logger.logDebug(
+            `QueryBuilderHelper::transformWhereClause()/value:${value}`
           );
-          console.log(
-            "QueryBuilderHelper::transformWhereClause()/match:",
-            match
+          this.logger.logDebug(
+            `QueryBuilderHelper::transformWhereClause()/match:${match}`,
+            
           );
-          console.log("QueryBuilderHelper::transformWhereClause()/07");
+          this.logger.logDebug("QueryBuilderHelper::transformWhereClause()/07");
           if (match) {
-            console.log("QueryBuilderHelper::transformWhereClause()/08");
+            this.logger.logDebug(
+              "QueryBuilderHelper::transformWhereClause()/08"
+            );
             const param = match[1];
-            console.log(
-              "QueryBuilderHelper::transformWhereClause()/param:",
-              param
+            this.logger.logDebug(
+              `QueryBuilderHelper::transformWhereClause()/param:${param}`
             );
             const ret = { [field]: Like(param) };
-            console.log("QueryBuilderHelper::transformWhereClause()/ret:", ret);
+            this.logger.logDebug(
+              "QueryBuilderHelper::transformWhereClause()/ret:",
+              ret
+            );
             return ret;
           }
         }
-        console.log("QueryBuilderHelper::transformWhereClause()/09");
+        this.logger.logDebug("QueryBuilderHelper::transformWhereClause()/09");
         return condition;
       });
     }
-    console.log("QueryBuilderHelper::transformWhereClause()/10");
+    this.logger.logDebug("QueryBuilderHelper::transformWhereClause()/10");
     return where;
   }
 
   transformQueryInput(query: QueryInput): QueryInput {
     const w = this.transformWhereClause(query.where);
-    console.log("QueryBuilderHelper::transformQueryInput()/w:", w);
+    this.logger.logDebug("QueryBuilderHelper::transformQueryInput()/w:", w);
     return {
       ...query,
       where: w,
@@ -113,7 +130,12 @@ export class QueryBuilderHelper {
   async createQueryBuilder(
     serviceInput: IServiceInput
   ): Promise<SelectQueryBuilder<any>> {
-    console.log("QueryBuilderHelper::createQueryBuilder()/01");
+    this.logger.logDebug("QueryBuilderHelper::createQueryBuilder()/01");
+    this.logger.logDebug(
+      `QueryBuilderHelper::createQueryBuilder()/serviceInput.cmd.query: ${JSON.stringify(
+        serviceInput.cmd.query
+      )}`
+    );
     const query = serviceInput.cmd.query;
     const queryBuilder = this.repository.createQueryBuilder(
       this.repository.metadata.name
@@ -121,7 +143,7 @@ export class QueryBuilderHelper {
 
     // Handling SELECT clause
     if (query.select && query.select.length > 0) {
-      console.log("QueryBuilderHelper::createQueryBuilder()/02");
+      this.logger.logDebug("QueryBuilderHelper::createQueryBuilder()/02");
       this.entityAdapter.registerMappingFromEntity(serviceInput.serviceModel);
       const selectDB = await this.entityAdapter.getDbSelect(
         this.repository.metadata.name,
@@ -129,7 +151,7 @@ export class QueryBuilderHelper {
       );
       queryBuilder.select(selectDB);
     } else {
-      console.log("QueryBuilderHelper::createQueryBuilder()/03");
+      this.logger.logDebug("QueryBuilderHelper::createQueryBuilder()/03");
       // const allColumns = this.repository.metadata.columns.map(column => `${this.repository.metadata.name}.${column.databaseName}`);
       // queryBuilder.select(allColumns);
       const allColumns = this.repository.metadata.columns.map(
@@ -140,22 +162,9 @@ export class QueryBuilderHelper {
 
     // Apply DISTINCT if specified
     if (query.distinct) {
-      console.log("QueryBuilderHelper::createQueryBuilder()/03");
+      this.logger.logDebug("QueryBuilderHelper::createQueryBuilder()/03");
       queryBuilder.distinct(true);
     }
-
-    // Handling WHERE clause
-    // if (query.where) {
-    //   if (
-    //     typeof query.where === "object" &&
-    //     !Array.isArray(query.where) &&
-    //     !this.isEmptyObject(query.where)
-    //   ) {
-    //     this.processObjectWhereClause(queryBuilder, query.where);
-    //   } else if (Array.isArray(query.where) && query.where.length > 0) {
-    //     this.processArrayWhereClause(queryBuilder, query.where);
-    //   }
-    // }
 
     // Handling WHERE clause
     if (query.where) {
@@ -202,15 +211,14 @@ export class QueryBuilderHelper {
     queryBuilder: SelectQueryBuilder<any>,
     whereObject: any
   ) {
-    console.log("QueryBuilderHelper::processObjectWhereClause()/01");
+    this.logger.logDebug("QueryBuilderHelper::processObjectWhereClause()/01");
     const entries = Object.entries(whereObject);
     entries.forEach(([field, expr], index) => {
       const dbField = `${
         this.repository.metadata.name
       }.${this.getDatabaseColumnName(field)}`;
-      console.log(
-        "QueryBuilderHelper::processObjectWhereClause()/dbField:",
-        dbField
+      this.logger.logDebug(
+        `QueryBuilderHelper::processObjectWhereClause()/dbField:${dbField}`
       );
       if (index === 0) {
         queryBuilder.where(`${dbField} ${expr}`);
@@ -233,29 +241,38 @@ export class QueryBuilderHelper {
   }
 
   processArrayWhereClause2(queryBuilder: SelectQueryBuilder<any>, where: any) {
-    console.log("QueryBuilderHelper::processArrayWhereClause2/04:");
-    console.log("QueryBuilderHelper::processArrayWhereClause2/where:", where);
+    this.logger.logDebug("QueryBuilderHelper::processArrayWhereClause2/04:");
+    this.logger.logDebug(
+      "QueryBuilderHelper::processArrayWhereClause2/where:",
+      where
+    );
     let strWhere = JSON.stringify(where);
-    console.log(
-      "QueryBuilderHelper::processArrayWhereClause2/where1:",
-      strWhere
+    this.logger.logDebug(
+      `QueryBuilderHelper::processArrayWhereClause2/where1:${strWhere}`
     );
     const a = `:"Like\\(`; // Escape the '(' character
     const b = `')"}`;
     const regex = new RegExp(a, "g");
     strWhere = strWhere.replace(regex, b);
-    console.log(
-      "QueryBuilderHelper::processArrayWhereClause2/strWhere:",
-      strWhere
+    this.logger.logDebug(
+      `QueryBuilderHelper::processArrayWhereClause2/strWhere:${strWhere}`
     );
     where = JSON.parse(strWhere);
-    console.log("QueryBuilderHelper::processArrayWhereClause2/where2:", where);
+    this.logger.logDebug(
+      "QueryBuilderHelper::processArrayWhereClause2/where2:",
+      where
+    );
     where.forEach((condition, index) => {
       const key = Object.keys(condition)[0];
-      console.log("QueryBuilderHelper::processArrayWhereClause2/key:", key);
+      this.logger.logDebug(
+        `QueryBuilderHelper::processArrayWhereClause2/key:${key}`
+      );
       const value = condition[key];
-      console.log("QueryBuilderHelper::processArrayWhereClause2/value:", value);
-      console.log(
+      this.logger.logDebug(
+        "QueryBuilderHelper::processArrayWhereClause2/value:",
+        value
+      );
+      this.logger.logDebug(
         "QueryBuilderHelper::processArrayWhereClause2/value._type:",
         value._type
       );
@@ -266,7 +283,7 @@ export class QueryBuilderHelper {
 
       if (value._type === "like") {
         let likeValue = value._value; // Extract the value inside Like()
-        console.log(
+        this.logger.logDebug(
           "QueryBuilderHelper::processArrayWhereClause2/likeValue:",
           likeValue
         );
@@ -274,13 +291,11 @@ export class QueryBuilderHelper {
         if (likeValue.startsWith("'") && likeValue.endsWith("'")) {
           likeValue = likeValue.slice(1, -1);
         }
-        console.log(
-          "QueryBuilderHelper::processArrayWhereClause2/`${dbField} LIKE :${key}`:",
-          `${dbField} LIKE :${key}`
+        this.logger.logDebug(
+          `QueryBuilderHelper::processArrayWhereClause2/${dbField} LIKE :${key}`
         );
-        console.log(
-          "QueryBuilderHelper::processArrayWhereClause2/{ [key]: likeValue }:",
-          { [key]: likeValue }
+        this.logger.logDebug(
+          `QueryBuilderHelper::processArrayWhereClause2/{ [key]: likeValue }:{ [${key}]: ${likeValue} }`
         );
         queryBuilder.orWhere(`${dbField} LIKE :${key}`, { [key]: likeValue });
       } else {
@@ -294,15 +309,14 @@ export class QueryBuilderHelper {
     queryBuilder: SelectQueryBuilder<any>,
     whereArray: Array<any>
   ) {
-    console.log("QueryBuilderHelper::processArrayWhereClause()/01");
+    this.logger.logDebug("QueryBuilderHelper::processArrayWhereClause()/01");
     whereArray.forEach((condition, index) => {
       const [field, expr] = Object.entries(condition)[0];
       const dbField = `${
         this.repository.metadata.name
       }.${this.getDatabaseColumnName(field)}`;
-      console.log(
-        "QueryBuilderHelper::processArrayWhereClause()/dbField:",
-        dbField
+      this.logger.logDebug(
+        `QueryBuilderHelper::processArrayWhereClause()/dbField:${dbField}`
       );
       if (index === 0) {
         queryBuilder.where(`${dbField} ${expr}`);
@@ -318,14 +332,13 @@ export class QueryBuilderHelper {
   // }
 
   private getDatabaseColumnName(entityField: string): string {
-    console.log(
-      "QueryBuilderHelper::getDatabaseColumnName()/entityField:",
-      entityField
+    this.logger.logDebug(
+      `QueryBuilderHelper::getDatabaseColumnName()/entityField:${entityField}`
     );
     const column = this.repository.metadata.columns.find(
       (col) => col.propertyName === entityField
     );
-    // console.log('QueryBuilderHelper::getDatabaseColumnName()/column:', column)
+    // this.logger.logDebug('QueryBuilderHelper::getDatabaseColumnName()/column:', column)
     return column?.databaseName || entityField;
   }
 
@@ -381,28 +394,31 @@ export class QueryBuilderHelper {
     queryBuilder: SelectQueryBuilder<any>,
     where: IQueryWhere | Array<{ [field: string]: string | number }>
   ) {
-    console.log("QueryBuilderHelper::processSmartWhereClause()/01");
-    console.log(
-      "QueryBuilderHelper::processSmartWhereClause()/where:",
-      JSON.stringify(where)
+    this.logger.logDebug("QueryBuilderHelper::processSmartWhereClause()/01");
+    this.logger.logDebug(
+      `QueryBuilderHelper::processSmartWhereClause()/where:${JSON.stringify(
+        where
+      )}`
     );
 
     if (Array.isArray(where)) {
-      console.log("QueryBuilderHelper::processSmartWhereClause()/02");
+      this.logger.logDebug("QueryBuilderHelper::processSmartWhereClause()/02");
       this.processArrayWhereClause(queryBuilder, where); // OR logic
-      console.log("QueryBuilderHelper::processSmartWhereClause()/03");
+      this.logger.logDebug("QueryBuilderHelper::processSmartWhereClause()/03");
     } else if (this.isPlainWhereObject(where)) {
-      console.log("QueryBuilderHelper::processSmartWhereClause()/04");
+      this.logger.logDebug("QueryBuilderHelper::processSmartWhereClause()/04");
       this.processObjectWhereClause(queryBuilder, where); // AND logic
     } else {
-      console.log("QueryBuilderHelper::processSmartWhereClause()/05");
+      this.logger.logDebug("QueryBuilderHelper::processSmartWhereClause()/05");
       const typed = where as IQueryWhere;
 
       if (typed.andWhere && Array.isArray(typed.andWhere)) {
-        console.log("QueryBuilderHelper::processSmartWhereClause()/06");
+        this.logger.logDebug(
+          "QueryBuilderHelper::processSmartWhereClause()/06"
+        );
         queryBuilder.andWhere(
           new Brackets((qb) => {
-            typed.andWhere!.forEach((c:any, i) => {
+            typed.andWhere!.forEach((c: any, i) => {
               if (c.orWhere) {
                 qb[i === 0 ? "where" : "andWhere"](
                   new Brackets((subQb) => {
@@ -436,7 +452,9 @@ export class QueryBuilderHelper {
       }
 
       if (typed.orWhere && Array.isArray(typed.orWhere)) {
-        console.log("QueryBuilderHelper::processSmartWhereClause()/11");
+        this.logger.logDebug(
+          "QueryBuilderHelper::processSmartWhereClause()/11"
+        );
         queryBuilder.andWhere(
           new Brackets((qb) => {
             typed.orWhere!.forEach((c, i) => {
