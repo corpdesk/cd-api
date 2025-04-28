@@ -29,22 +29,22 @@ export class Logging {
     this._logger = this._initializeWinston();
   }
 
-  public logInfo(msg: LogMessage, context?: LogContext) {
+  public logInfo(msg: LogMessage, context?: LogContext | string | number ) {
     this._log(msg, LogLevel.INFO, context);
   }
-  public logWarn(msg: LogMessage, context?: LogContext) {
+  public logWarn(msg: LogMessage, context?: LogContext | string | number ) {
     this._log(msg, LogLevel.WARN, context);
   }
-  public logError(msg: LogMessage, context?: LogContext) {
+  public logError(msg: LogMessage, context?: LogContext | string | number ) {
     this._log(msg, LogLevel.ERROR, context);
   }
-  public logDebug(msg: LogMessage, context?: LogContext) {
+  public logDebug(msg: LogMessage, context?: LogContext | string | number ) {
     if (process.env.NODE_ENV !== "production") {
       this._log(msg, LogLevel.DEBUG, context); // Don't log debug in production
     }
   }
 
-  private _log(msg: LogMessage, level: LogLevel, context?: LogContext) {
+  private _log(msg: LogMessage, level: LogLevel, context?: LogContext | string | number ) {
     this._logger.log(level, msg, { context: context });
   }
 

@@ -266,7 +266,7 @@ export interface IProfileGroupAccess {
 
 export interface IUserProfile {
     fieldPermissions: IUserProfileAccess;
-    avatar?: string; // URL or base64-encoded image
+    avatar?: object; //
     userData: UserModel;
     areasOfInterest?: string[];
     bio?: string;

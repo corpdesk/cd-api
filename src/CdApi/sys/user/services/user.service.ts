@@ -1,15 +1,9 @@
 import { createConnection, getConnection } from "typeorm";
 import "reflect-metadata";
+import { cloneDeep } from "lodash"; // Import lodash if you choose to use it.
+
 // import { defer, from, interval, Observable, of, mergeMap, pipe, combineLatest } from 'rxjs';
 import * as Rx from "rxjs";
-import { map, tap, pluck, reduce, filter, take } from "rxjs/operators";
-import { Request, Response, NextFunction } from "express";
-import axios, { AxiosResponse, AxiosRequestConfig } from "axios";
-// import * as objectsToCsv from 'objects-to-csv';
-import * as Lá from "lodash";
-import * as R from "ramda";
-import objectsToCsv from "../../base/objectsToCsv";
-import { configure, getLogger, Appender } from "log4js";
 import { BaseService } from "../../base/base.service";
 import {
   UserModel,
@@ -114,11 +108,11 @@ export class UserService extends CdService {
         dSource: 1,
       };
       const newUser: UserModel = await this.b.create(req, res, serviceInput);
-      this.logger.logInfo("UserService::create()/newUser:", newUser);
+      this.logger.logDebug(`UserService::create()/newUser:${newUser}`);
       const plData = this.b.getPlData(req);
-      this.logger.logInfo("UserService::create()/plData:", plData);
+      this.logger.logDebug("UserService::create()/plData:", plData);
       const retAfterCreate = await this.afterCreate(req, res, newUser);
-      console.log(`retAfterCreate: ${JSON.stringify(retAfterCreate)}`);
+      this.logger.logDebug(`retAfterCreate: ${JSON.stringify(retAfterCreate)}`);
       delete newUser.password; // do not return password field even though it is hashed
       this.b.cdResp.data = await newUser;
       this.b.cdResp.app_state.success = true;
@@ -159,7 +153,7 @@ export class UserService extends CdService {
   }
 
   async validateCreate(req, res) {
-    this.logger.logInfo("UserService::validateCreate()/01");
+    this.logger.logDebug("UserService::validateCreate()/01");
     const svConsumer = new ConsumerService();
     const params = {
       controllerInstance: this,
@@ -167,17 +161,17 @@ export class UserService extends CdService {
     };
     this.plData = this.b.getPlData(req);
     if (await this.b.validateUnique(req, res, params)) {
-      this.logger.logInfo("UserService::validateCreate()/01");
+      this.logger.logDebug("UserService::validateCreate()/01");
       if (await this.b.validateRequired(req, res, this.cRules)) {
-        this.logger.logInfo("UserService::validateCreate()/02");
+        this.logger.logDebug("UserService::validateCreate()/02");
         if (!svConsumer.getConsumerGuid(req)) {
-          this.logger.logInfo("UserService::validateCreate()/03");
+          this.logger.logDebug("UserService::validateCreate()/03");
           this.b.err.push(
             "valid consumer token is missing in the auth request"
           );
           return false;
         } else {
-          this.logger.logInfo("UserService::validateCreate()/04");
+          this.logger.logDebug("UserService::validateCreate()/04");
           const plData = await this.b.getPlData(req);
           if (
             (await this.svConsumer.consumerGuidIsValid(
@@ -186,13 +180,13 @@ export class UserService extends CdService {
               plData.consumerGuid
             )) === false
           ) {
-            this.logger.logInfo("UserService::validateCreate()/05");
+            this.logger.logDebug("UserService::validateCreate()/05");
             this.b.err.push("consumer token is not valid");
             return false;
           }
-          this.logger.logInfo("UserService::validateCreate()/06");
+          this.logger.logDebug("UserService::validateCreate()/06");
         }
-        this.logger.logInfo("UserService::validateCreate()/07");
+        this.logger.logDebug("UserService::validateCreate()/07");
         return true;
       } else {
         this.b.err.push(
@@ -211,23 +205,23 @@ export class UserService extends CdService {
   async afterCreate(req, res, userData: UserModel) {
     const sessData: SessionModel = await this.authI(req, res);
     this.b.sess = [sessData];
-    this.logger.logInfo("UserService::afterCreate()/sessData:", sessData);
+    this.logger.logDebug("UserService::afterCreate()/sessData:", sessData);
     // update req with token
     req.post.dat.token = sessData.cdToken;
     const svGroup = new GroupService();
     svGroup.b = this.b;
     // every user must have 'pals' group after registration
     const palGroup = await svGroup.createPalsGroup(req, res, userData);
-    this.logger.logInfo("UserService::afterCreate()/palGroup:", {
+    this.logger.logDebug("UserService::afterCreate()/palGroup:", {
       palGroup: palGroup,
     });
     return await this.regisrationNotification(req, res, userData);
   }
 
   async regisrationNotification(req, res, newUser) {
-    this.logger.logInfo("starting UserService::regisrationNotification()");
+    this.logger.logDebug("starting UserService::regisrationNotification()");
     if (userConfig.register.notification.email) {
-      this.logger.logInfo("UserService::regisrationNotification()/newUser:", {
+      this.logger.logDebug("UserService::regisrationNotification()/newUser:", {
         u: newUser,
       });
       const nt = new NotificationTemplate();
@@ -238,25 +232,25 @@ export class UserService extends CdService {
         this.plData.msg,
         newUser
       );
-      console.log(`mailRet: ${JSON.stringify(mailRet)}`);
+      this.logger.logDebug(`mailRet: ${JSON.stringify(mailRet)}`);
     }
   }
 
   async activateUser(req, res, q?: IQuery) {
     try {
-      this.logger.logInfo("UserService::activateUser()/01");
+      this.logger.logDebug("UserService::activateUser()/01");
       if (!q) {
         q = this.b.getQuery(req);
-        this.logger.logInfo("UserService::activateUser()/02");
-        this.logger.logInfo(
+        this.logger.logDebug("UserService::activateUser()/02");
+        this.logger.logDebug(
           `UserService::activateUser()/q:${JSON.stringify(q)}`
         );
       }
       const qUser: IQuery = q;
-      this.logger.logInfo("UserService::activateUser()/qUser:", qUser);
+      this.logger.logDebug("UserService::activateUser()/qUser:", qUser);
       if (await this.validateActivateUser(req, res, qUser)) {
-        this.logger.logInfo("UserService::activateUser()/03");
-        this.logger.logInfo("UserService::activateUser()/validation passed:");
+        this.logger.logDebug("UserService::activateUser()/03");
+        this.logger.logDebug("UserService::activateUser()/validation passed:");
         /**
          * update the user to active state
          */
@@ -275,15 +269,15 @@ export class UserService extends CdService {
           },
           dSource: 1,
         };
-        this.logger.logInfo("UserService::activateUser()/04");
-        this.logger.logInfo(
+        this.logger.logDebug("UserService::activateUser()/04");
+        this.logger.logDebug(
           `UserService::activateUser()/serviceInput:${JSON.stringify(
             serviceInput
           )}`
         );
         const retUpdate = await this.updateI(req, res, serviceInput);
-        this.logger.logInfo("UserService::activateUser()/05");
-        this.logger.logInfo(
+        this.logger.logDebug("UserService::activateUser()/05");
+        this.logger.logDebug(
           "UserService::activateUser()/retUpdate:",
           retUpdate
         );
@@ -291,21 +285,21 @@ export class UserService extends CdService {
          * if update of records is succesfull, get user data'
          */
         if (retUpdate.affected > 0) {
-          this.logger.logInfo("UserService::activateUser()/06");
+          this.logger.logDebug("UserService::activateUser()/06");
           // construct service input
           const siUser = this.b.siGet(
             qUser,
             "UserService:activateUser",
             UserModel
           );
-          this.logger.logInfo("UserService::activateUser()/07");
-          this.logger.logInfo(
+          this.logger.logDebug("UserService::activateUser()/07");
+          this.logger.logDebug(
             `UserService::activateUser()/siUser:${JSON.stringify(siUser)}`
           );
           // get user data data
           const userData: UserModel[] = await this.read(req, res, siUser);
-          this.logger.logInfo("UserService::activateUser()/08");
-          this.logger.logInfo(
+          this.logger.logDebug("UserService::activateUser()/08");
+          this.logger.logDebug(
             "UserService::activateUser()/userData:",
             userData
           );
@@ -315,8 +309,8 @@ export class UserService extends CdService {
           const svSess = new SessionService();
           // get consumer payload
           const pl: ConsumerModel = this.b.getPlData(req, "consumer");
-          this.logger.logInfo("UserService::activateUser()/pl:", pl);
-          this.logger.logInfo("UserService::activateUser()/pl.consumerGuid:", {
+          this.logger.logDebug("UserService::activateUser()/pl:", pl);
+          this.logger.logDebug("UserService::activateUser()/pl.consumerGuid:", {
             consumerGuid: pl.consumerGuid,
           });
           svSess.sessData.consumerGuid = pl.consumerGuid;
@@ -341,8 +335,8 @@ export class UserService extends CdService {
           const svCdObj = new CdObjService();
           const sessionDataExt: ISessionDataExt =
             await svSess.getSessionDataExt(req, res, true);
-          this.logger.logInfo("UserService::activateUser()/09");
-          this.logger.logInfo(
+          this.logger.logDebug("UserService::activateUser()/09");
+          this.logger.logDebug(
             `UserService::activateUser()/sessionDataExt:${JSON.stringify(
               sessionDataExt
             )}`
@@ -356,7 +350,7 @@ export class UserService extends CdService {
             cdObjTypeGuid: "a237cc2b-e895-4596-a963-9b6e74d0f7b2", // user
             parentModuleGuid: "00e7c6a8-83e4-40e2-bd27-51fcff9ce63b", // user module
           };
-          this.logger.logInfo(
+          this.logger.logDebug(
             `UserService::purgeUser()/cdObjData:${JSON.stringify(cdObjData)}`
           );
           const si = {
@@ -366,19 +360,19 @@ export class UserService extends CdService {
             docName: "CdObjService::CreateI",
             dSource: 1,
           };
-          // this.logger.logInfo(`UserService::purgeUser()/si:${JSON.stringify(si)}`);
+          // this.logger.logDebug(`UserService::purgeUser()/si:${JSON.stringify(si)}`);
           const createIParams: CreateIParams = {
             serviceInput: si,
             controllerData: cdObjData,
           };
-          // this.logger.logInfo(`UserService::purgeUser()/createIParams:${JSON.stringify(createIParams)}`);
+          // this.logger.logDebug(`UserService::purgeUser()/createIParams:${JSON.stringify(createIParams)}`);
           let respCreateCdObj: CdObjModel = (await svCdObj.createI(
             req,
             res,
             createIParams
           )) as CdObjModel;
-          this.logger.logInfo("UserService::activateUser()/10");
-          this.logger.logInfo("UserService::activateUser()/respCreateCdObj:", {
+          this.logger.logDebug("UserService::activateUser()/10");
+          this.logger.logDebug("UserService::activateUser()/respCreateCdObj:", {
             resp: respCreateCdObj,
           });
 
@@ -396,14 +390,14 @@ export class UserService extends CdService {
           //   },
           //   dSource: 1,
           // };
-          // this.logger.logInfo("UserService::activateUser()/11");
+          // this.logger.logDebug("UserService::activateUser()/11");
           // let respGetCdObj = (await this.read(
           //   req,
           //   res,
           //   siGetCdObj
           // )) as CdObjModel[];
-          // this.logger.logInfo("UserService::activateUser()/12");
-          // this.logger.logInfo("UserService::activateUser()/respGetCdObj:", {
+          // this.logger.logDebug("UserService::activateUser()/12");
+          // this.logger.logDebug("UserService::activateUser()/respGetCdObj:", {
           //   resp: JSON.stringify(respGetCdObj),
           // });
 
@@ -411,7 +405,7 @@ export class UserService extends CdService {
            * - create a corresponding consumerResource (user) for session consumer
            *
            */
-          // this.logger.logInfo("UserService::activateUser()/respGetCdObj.cdObjGuid:", {cdObjGuid: respGetCdObj.cdObjGuid,});
+          // this.logger.logDebug("UserService::activateUser()/respGetCdObj.cdObjGuid:", {cdObjGuid: respGetCdObj.cdObjGuid,});
           const svConsumerResource = new ConsumerResourceService();
           const consumerResourceData: ConsumerResourceModel = {
             cdObjTypeGuid: "a237cc2b-e895-4596-a963-9b6e74d0f7b2", // user
@@ -424,7 +418,7 @@ export class UserService extends CdService {
             objId: userData[0].userId,
             consumerResourceEnabled: true,
           };
-          this.logger.logInfo(
+          this.logger.logDebug(
             `UserService::activateUser()/consumerResourceData:${JSON.stringify(
               consumerResourceData
             )}`
@@ -440,23 +434,23 @@ export class UserService extends CdService {
             serviceInput: siConsRes,
             controllerData: consumerResourceData,
           };
-          // this.logger.logInfo(
+          // this.logger.logDebug(
           //   `UserService::activateUser()/createIParamsConsRes:${JSON.stringify(
           //     createIParamsConsRes
           //   )}`
           // );
-          this.logger.logInfo("UserService::activateUser()/13");
+          this.logger.logDebug("UserService::activateUser()/13");
           let respCreateConsRes = await svConsumerResource.createI(
             req,
             res,
             createIParamsConsRes
           );
-          this.logger.logInfo("UserService::activateUser()/14");
-          this.logger.logInfo(
+          this.logger.logDebug("UserService::activateUser()/14");
+          this.logger.logDebug(
             "UserService::activateUser()/respCreateConsRes:",
             { resp: respCreateConsRes }
           );
-          this.logger.logInfo("UserService::activateUser()/14-1");
+          this.logger.logDebug("UserService::activateUser()/14-1");
           /*
            * - join personal group member
            * - Note: all consumers should have the module 'personal' as a resource
@@ -470,10 +464,10 @@ export class UserService extends CdService {
             cdObjTypeId: 9, // user
             groupMemberEnabled: true,
           };
-          this.logger.logInfo(
+          this.logger.logDebug(
             `UserService::purgeUser()/groupData:${JSON.stringify(groupData)}`
           );
-          this.logger.logInfo("UserService::activateUser()/14-2");
+          this.logger.logDebug("UserService::activateUser()/14-2");
           const siGroupMember = {
             serviceInstance: svGroupMember,
             serviceModel: GroupMemberModel,
@@ -481,25 +475,25 @@ export class UserService extends CdService {
             docName: "CdObjService::activateUser",
             dSource: 1,
           };
-          this.logger.logInfo("UserService::activateUser()/14-3");
+          this.logger.logDebug("UserService::activateUser()/14-3");
           const createIParamsGroupMember: CreateIParams = {
             serviceInput: siGroupMember,
             controllerData: groupData,
           };
-          // this.logger.logInfo(
+          // this.logger.logDebug(
           //   `UserService::activateUser()/createIParamsGroupMember:${JSON.stringify(
           //     createIParamsGroupMember
           //   )}`
           // );
-          this.logger.logInfo("UserService::activateUser()/14-4");
-          this.logger.logInfo("UserService::activateUser()/15");
+          this.logger.logDebug("UserService::activateUser()/14-4");
+          this.logger.logDebug("UserService::activateUser()/15");
           let respCreateGroupMember = await this.createI(
             req,
             res,
             createIParamsGroupMember
           );
-          this.logger.logInfo("UserService::activateUser()/16");
-          this.logger.logInfo(
+          this.logger.logDebug("UserService::activateUser()/16");
+          this.logger.logDebug(
             "UserService::activateUser()/respCreateGroupMember:",
             { resp: respCreateGroupMember }
           );
@@ -555,21 +549,21 @@ export class UserService extends CdService {
   // }
 
   async validateActivateUser(req, res, q: IQuery): Promise<boolean> {
-    this.logger.logInfo("UserService::validateActivateUser()/01");
-    this.logger.logInfo(
+    this.logger.logDebug("UserService::validateActivateUser()/01");
+    this.logger.logDebug(
       `UserService::validateActivateUser()/q: ${JSON.stringify(q)}`
     );
     let ret = false;
 
     if (!("where" in q)) {
-      this.logger.logInfo("UserService::validateActivateUser()/02");
-      this.logger.logInfo("UserService::validateActivateUser()/q:", q);
+      this.logger.logDebug("UserService::validateActivateUser()/02");
+      this.logger.logDebug("UserService::validateActivateUser()/q:", q);
       return false;
     }
 
     if (!("activationKey" in q.where)) {
-      this.logger.logInfo("UserService::validateActivateUser()/03");
-      this.logger.logInfo("UserService::validateActivateUser()/q:", q);
+      this.logger.logDebug("UserService::validateActivateUser()/03");
+      this.logger.logDebug("UserService::validateActivateUser()/q:", q);
       return false;
     }
 
@@ -583,22 +577,22 @@ export class UserService extends CdService {
       dSource: 1,
     };
     const userData = await this.read(req, res, serviceInput);
-    this.logger.logInfo("UserService::validateActivateUser()/04");
-    this.logger.logInfo(
+    this.logger.logDebug("UserService::validateActivateUser()/04");
+    this.logger.logDebug(
       "UserService::validaUserServUserService::activateUser()/04ice::activateUser()/serviceInput:UserServUserService::activateUser()/04ice::activateUser()/serviceInput:teActivationKey()/userData:",
       userData
     );
     // const userData: UserModel[] = await this.read(req, res, q);
-    console.log(
+    this.logger.logDebug(
       `UserService::validateActivationKey()/userData:${JSON.stringify(
         userData
       )}`
     );
     if (userData.length > 0) {
-      this.logger.logInfo("UserService::validatePurgeUser()/05");
+      this.logger.logDebug("UserService::validatePurgeUser()/05");
       ret = true;
     } else {
-      this.logger.logInfo("UserService::validatePurgeUser()/06");
+      this.logger.logDebug("UserService::validatePurgeUser()/06");
       ret = false;
     }
     return ret;
@@ -625,7 +619,7 @@ export class UserService extends CdService {
       })
       .catch(async (error) => {
         getConnection().close();
-        this.logger.logInfo(`Error: ${error}`);
+        this.logger.logDebug(`Error: ${error}`);
         // return error;
         await this.b.respond(req, res);
       });
@@ -672,7 +666,7 @@ export class UserService extends CdService {
   }
 
   async update(req, res) {
-    // this.logger.logInfo('UserService::update()/01');
+    // this.logger.logDebug('UserService::update()/01');
     let q = this.b.getQuery(req);
     q = this.beforeUpdate(q);
     const serviceInput = {
@@ -684,7 +678,7 @@ export class UserService extends CdService {
       },
       dSource: 1,
     };
-    // this.logger.logInfo('UserService::update()/02')
+    // this.logger.logDebug('UserService::update()/02')
     this.b.update$(req, res, serviceInput).subscribe((ret) => {
       this.b.cdResp.data = ret;
       this.b.respond(req, res);
@@ -737,7 +731,7 @@ export class UserService extends CdService {
      * @param res 
      */
   async updatePassword(req, res) {
-    // this.logger.logInfo('UserService::update()/01');
+    // this.logger.logDebug('UserService::update()/01');
     await this.beforeUpdatePassword(req, res, this.b.getQuery(req));
     const serviceInput = {
       serviceModel: UserModel,
@@ -748,8 +742,8 @@ export class UserService extends CdService {
       },
       dSource: 1,
     };
-    this.logger.logInfo("UserService::update()/02");
-    this.logger.logInfo("UserService::update()/serviceInput:", serviceInput);
+    this.logger.logDebug("UserService::update()/02");
+    this.logger.logDebug("UserService::update()/serviceInput:", serviceInput);
     this.b.update$(req, res, serviceInput).subscribe((ret) => {
       this.b.cdResp.data = ret;
       this.b.respond(req, res);
@@ -759,20 +753,20 @@ export class UserService extends CdService {
   async beforeUpdatePassword(req, res, q: IQuery) {
     this.plData = this.b.getPlData(req);
     // 1. get cUser
-    this.logger.logInfo("UserService::beforeUpdatePassword()/q:", q);
+    this.logger.logDebug("UserService::beforeUpdatePassword()/q:", q);
     this.requestPswd = req.post.dat.f_vals[0].oldPassword;
-    this.logger.logInfo(
+    this.logger.logDebug(
       "UserService::beforeUpdatePassword()/this.requestPswd:",
       { requestPswd: this.requestPswd }
     );
     // 1. confirm old password
     const qExists = { where: { userId: q.where.userId } };
     const cUser = await this.getUserI(req, res, qExists);
-    this.logger.logInfo("UserService::beforeUpdatePassword()/cUser:", cUser);
+    this.logger.logDebug("UserService::beforeUpdatePassword()/cUser:", cUser);
     if (cUser.length > 0) {
       if (await this.verifyPassword(req, res, cUser)) {
         // old password is valid
-        this.logger.logInfo(
+        this.logger.logDebug(
           "UserService::beforeUpdatePassword()/req.post.dat.f_vals[0].update.password 1:",
           req.post.dat.f_vals[0].query.update.password
         );
@@ -781,7 +775,7 @@ export class UserService extends CdService {
           req.post.dat.f_vals[0].query.update.password,
           10
         );
-        this.logger.logInfo(
+        this.logger.logDebug(
           "UserService::beforeUpdatePassword()/req.post.dat.f_vals[0].update.password 2:",
           req.post.dat.f_vals[0].query.update.password
         );
@@ -810,7 +804,7 @@ export class UserService extends CdService {
     if (q == null) {
       q = this.b.getQuery(req);
     }
-    console.log("UserService::getUserI/q:", q);
+    this.logger.logDebug("UserService::getUserI/q:", q);
     const serviceInput = {
       serviceModel: UserModel,
       docName: "UserService::getUserI",
@@ -823,7 +817,7 @@ export class UserService extends CdService {
     try {
       return this.b.read(req, res, serviceInput);
     } catch (e) {
-      this.logger.logInfo("UserService::getUserI()/e:", e);
+      this.logger.logDebug("UserService::getUserI()/e:", e);
       this.b.err.push(e.toString());
       const i = {
         messages: this.b.err,
@@ -839,7 +833,7 @@ export class UserService extends CdService {
     if (q == null) {
       q = this.b.getQuery(req);
     }
-    console.log("UserService::getI/q:", q);
+    this.logger.logDebug("UserService::getI/q:", q);
     const serviceInput = {
       serviceModel: UserModel,
       docName: "UserService::getI",
@@ -852,7 +846,7 @@ export class UserService extends CdService {
     try {
       return this.b.read(req, res, serviceInput);
     } catch (e) {
-      this.logger.logInfo("UserService::getI()/e:", e);
+      this.logger.logDebug("UserService::getI()/e:", e);
       this.b.err.push(e.toString());
       const i = {
         messages: this.b.err,
@@ -865,7 +859,7 @@ export class UserService extends CdService {
   }
 
   remove(req, res): Promise<void> {
-    this.logger.logInfo(`starting SessionService::remove()`);
+    this.logger.logDebug(`starting SessionService::remove()`);
     return null;
   }
 
@@ -882,12 +876,12 @@ export class UserService extends CdService {
   }
 
   async auth(req, res) {
-    this.logger.logInfo("UserService::auth()/01");
+    this.logger.logDebug("UserService::auth()/01");
     const svSess = new SessionService();
-    this.logger.logInfo("auth()/UserModel:", {
+    this.logger.logDebug("auth()/UserModel:", {
       userModel: JSON.stringify(UserModel),
     });
-    this.logger.logInfo("auth()/req.post:", {
+    this.logger.logDebug("auth()/req.post:", {
       dat: JSON.stringify(req.post.dat),
     });
     this.plData = this.b.getPlData(req);
@@ -911,14 +905,14 @@ export class UserService extends CdService {
       dSource: 1,
     };
     const result: UserModel[] = await this.b.get(req, res, serviceInput);
-    this.logger.logInfo("UserService::auth()/result:", result);
+    this.logger.logDebug("UserService::auth()/result:", result);
     const guest = await this.resolveGuest(req, res, result);
-    this.logger.logInfo("UserService::auth()/guest:", guest);
+    this.logger.logDebug("UserService::auth()/guest:", guest);
     try {
-      this.logger.logInfo("UserService::auth()/02");
+      this.logger.logDebug("UserService::auth()/02");
       await this.authResponse(req, res, guest);
     } catch (e) {
-      this.logger.logInfo("UserService::auth()/03");
+      this.logger.logDebug("UserService::auth()/03");
       this.b.i.app_msg = `oops! there was an error fetching response`;
       this.b.err.push(this.b.i.app_msg);
       this.b.setAppState(false, this.b.i, svSess.sessResp);
@@ -927,22 +921,22 @@ export class UserService extends CdService {
   }
 
   async resolveGuest(req, res, guestArr: UserModel[]): Promise<UserModel> {
-    this.logger.logInfo("UserService::resolveGuest()/01");
+    this.logger.logDebug("UserService::resolveGuest()/01");
     const plData = this.b.getPlData(req);
-    this.logger.logInfo("UserService::resolveGuest()/plData:", plData);
+    this.logger.logDebug("UserService::resolveGuest()/plData:", plData);
     if (guestArr.length > 0) {
-      this.logger.logInfo("UserService::resolveGuest()/02");
+      this.logger.logDebug("UserService::resolveGuest()/02");
       // search if given username exists
-      this.logger.logInfo(
+      this.logger.logDebug(
         "UserService::resolveGuest()/this.plData:",
         this.plData
       );
       let cUser: UserModel[] = guestArr.filter(
         (u) => u.userName === this.plData.userName
       );
-      this.logger.logInfo("UserService::resolveGuest()/cUser:", cUser);
+      this.logger.logDebug("UserService::resolveGuest()/cUser:", cUser);
       if (cUser.length > 0) {
-        this.logger.logInfo("UserService::resolveGuest()/03");
+        this.logger.logDebug("UserService::resolveGuest()/03");
         this.requestPswd = this.plData.password;
         // if exists, check password
         // ...check password
@@ -951,7 +945,7 @@ export class UserService extends CdService {
            * handle if password is valid but the user is disabled...
            */
           if (!cUser[0].userEnabled) {
-            this.logger.logInfo("UserService::resolveGuest()/040");
+            this.logger.logDebug("UserService::resolveGuest()/040");
             this.b.i.app_msg =
               "You are attempting to access an inactive account";
             cUser = guestArr.filter((u) => u.userName === "anon");
@@ -961,20 +955,20 @@ export class UserService extends CdService {
           /**
            * handle successful login
            */
-          this.logger.logInfo("UserService::resolveGuest()/031");
+          this.logger.logDebug("UserService::resolveGuest()/031");
           // if password is ok, return user data
           this.loginState = true;
           this.b.i.app_msg = `Welcome ${cUser[0].userName}!`;
           return cUser[0];
         } else {
-          this.logger.logInfo("UserService::resolveGuest()/040");
+          this.logger.logDebug("UserService::resolveGuest()/040");
           // else if password is invialid, select anon user and return
           this.b.i.app_msg = "Login failed!";
           cUser = guestArr.filter((u) => u.userName === "anon");
           return cUser[0];
         }
       } else {
-        this.logger.logInfo("UserService::resolveGuest()/04");
+        this.logger.logDebug("UserService::resolveGuest()/04");
         // else if user name does not exists, seach for anon user and return
         this.b.i.app_msg = "Login failed!";
         cUser = guestArr.filter((u) => u.userName === "anon");
@@ -984,15 +978,15 @@ export class UserService extends CdService {
   }
 
   async verifyPassword(req, res, cUser: UserModel[]) {
-    this.logger.logInfo("UserService::verifyPassword()/01");
+    this.logger.logDebug("UserService::verifyPassword()/01");
     // const plData = await this.b.getPlData(req);
-    // this.logger.logInfo('UserService::verifyPassword()/plData:', plData)
-    this.logger.logInfo("UserService::verifyPassword()/cUser:", cUser);
-    // this.logger.logInfo('UserService::verifyPassword()/plData.password:', plData.password)
-    this.logger.logInfo("UserService::verifyPassword()/cUser.password:", {
+    // this.logger.logDebug('UserService::verifyPassword()/plData:', plData)
+    this.logger.logDebug("UserService::verifyPassword()/cUser:", cUser);
+    // this.logger.logDebug('UserService::verifyPassword()/plData.password:', plData.password)
+    this.logger.logDebug("UserService::verifyPassword()/cUser.password:", {
       pswd: cUser[0].password,
     });
-    this.logger.logInfo("UserService::verifyPassword()/this.requestPswd:", {
+    this.logger.logDebug("UserService::verifyPassword()/this.requestPswd:", {
       requestPswd: this.requestPswd,
     });
     let validPassword: any = null;
@@ -1003,16 +997,16 @@ export class UserService extends CdService {
       validPassword = await bcrypt.compare(this.requestPswd, cUser[0].password);
     }
 
-    this.logger.logInfo("UserService::verifyPassword()/02");
-    this.logger.logInfo(
+    this.logger.logDebug("UserService::verifyPassword()/02");
+    this.logger.logDebug(
       "UserService::verifyPassword()/validPassword:",
       validPassword
     );
     if (validPassword) {
-      this.logger.logInfo("UserService::verifyPassword()/03");
+      this.logger.logDebug("UserService::verifyPassword()/03");
       return true;
     } else {
-      this.logger.logInfo("UserService::verifyPassword()/04");
+      this.logger.logDebug("UserService::verifyPassword()/04");
       return false;
     }
   }
@@ -1025,7 +1019,7 @@ export class UserService extends CdService {
    */
   async authI(req, res): Promise<SessionModel> {
     // const svSess = new SessionService();
-    this.logger.logInfo("auth()/req.post:", { dat: req.post.dat });
+    this.logger.logDebug("auth()/req.post:", { dat: req.post.dat });
     const q: IQuery = {
       // get requested user and 'anon' data/ anon data is used in case of failure
       where: [{ userName: this.plData.userName }, { userName: "anon" }],
@@ -1042,24 +1036,24 @@ export class UserService extends CdService {
     };
     const result: UserModel[] = await this.b.get(req, res, serviceInput);
     const guest = await this.resolveGuest(req, res, result);
-    this.logger.logInfo("UserService::auth1()/guest:", guest);
+    this.logger.logDebug("UserService::auth1()/guest:", guest);
     return await this.srvSess.create(req, res, guest);
   }
 
   async authResponse(req, res, guest: UserModel) {
-    this.logger.logInfo("UserService::authResponse()/01");
+    this.logger.logDebug("UserService::authResponse()/01");
     this.b.logTimeStamp("UserService::authResponse/01");
-    // this.logger.logInfo('UserService::authResponse/01:');
+    // this.logger.logDebug('UserService::authResponse/01:');
     const svSession = new SessionService();
     const clientId = await svSession.getDeviceNetId(req);
-    this.logger.logInfo(
+    this.logger.logDebug(
       `UserService::authResponse/clientId:${JSON.stringify(clientId)}`
     );
     this.processResponse$(req, res, guest).subscribe((ret: any) => {
-      this.logger.logInfo("UserService::authResponse()/02");
+      this.logger.logDebug("UserService::authResponse()/02");
       this.b.logTimeStamp("ModuleService::authResponse/02/ret:");
 
-      // this.logger.logInfo(`UserService::authResponse()/02/ret:${JSON.stringify(ret)}`, ret);
+      // this.logger.logDebug(`UserService::authResponse()/02/ret:${JSON.stringify(ret)}`, ret);
       // const i = null;
       const sessData: ISessResp = {
         cd_token: ret.sessResult.cdToken,
@@ -1068,22 +1062,22 @@ export class UserService extends CdService {
         ttl: ret.sessResult.ttl,
         clientId: this.b.getClientId(clientId),
       };
-      this.logger.logInfo(
+      this.logger.logDebug(
         `UserService::authResponse/sessData:${JSON.stringify(sessData)}`
       );
 
       if (ret.modulesUserData.menuData.length > 0) {
-        this.logger.logInfo("UserService::authResponse()/03");
+        this.logger.logDebug("UserService::authResponse()/03");
         ret.modulesUserData.menuData = ret.modulesUserData.menuData.filter(
           (menu) => menu !== null
         );
       } else {
-        this.logger.logInfo("UserService::authResponse()/04");
+        this.logger.logDebug("UserService::authResponse()/04");
         this.b.i.app_msg = `Sorry, you must be a member of this company to access any resources`;
         this.loginState = false;
         ret.modulesUserData.menuData = [];
       }
-      this.logger.logInfo("UserService::authResponse()/05");
+      this.logger.logDebug("UserService::authResponse()/05");
       this.b.i.messages = this.b.err;
       this.b.setAppState(this.loginState, this.b.i, sessData);
       this.b.cdResp.data = ret.modulesUserData;
@@ -1160,7 +1154,7 @@ export class UserService extends CdService {
     if (q == null) {
       q = this.b.getQuery(req);
     }
-    this.logger.logInfo("UserService::getUser/f:", q);
+    this.logger.logDebug("UserService::getUser/f:", q);
     const serviceInput = {
       serviceModel: UserModel,
       docName: "UserService::getUser$",
@@ -1172,7 +1166,7 @@ export class UserService extends CdService {
     };
     try {
       this.b.read$(req, res, serviceInput).subscribe((r) => {
-        this.logger.logInfo("UserService::read$()/r:", r);
+        this.logger.logDebug("UserService::read$()/r:", r);
         this.b.i.code = "UserController::Get";
         const svSess = new SessionService();
         svSess.sessResp.cd_token = req.post.dat.token;
@@ -1182,7 +1176,7 @@ export class UserService extends CdService {
         this.b.respond(req, res);
       });
     } catch (e) {
-      this.logger.logInfo("UserService::read$()/e:", e);
+      this.logger.logDebug("UserService::read$()/e:", e);
       this.b.err.push(e.toString());
       const i = {
         messages: this.b.err,
@@ -1196,7 +1190,7 @@ export class UserService extends CdService {
 
   getUserCount(req, res) {
     const q = this.b.getQuery(req);
-    this.logger.logInfo("UserService::getUserCount/q:", q);
+    this.logger.logDebug("UserService::getUserCount/q:", q);
     const serviceInput = {
       serviceModel: UserViewModel,
       docName: "UserService::getUserCount$",
@@ -1218,7 +1212,7 @@ export class UserService extends CdService {
   }
 
   // getUserQB(req, res) {
-  //     console.log('CompanyService::getUserQB()/1')
+  //     this.logger.logDebug('CompanyService::getUserQB()/1')
   //     // const map = this.b.entityAdapter.registerMappingFromEntity(UserViewModel);
   //     const q = this.b.getQuery(req);
   //     const serviceInput = {
@@ -1244,7 +1238,7 @@ export class UserService extends CdService {
   // }
 
   getUserQB(req, res) {
-    console.log("UserService::getUserQB()/1");
+    this.logger.logDebug("UserService::getUserQB()/1");
     this.b.entityAdapter.registerMappingFromEntity(UserViewModel);
     const q = this.b.getQuery(req);
     const serviceInput = {
@@ -1270,7 +1264,7 @@ export class UserService extends CdService {
 
   // getUserTypeCount(req, res) {
   //     const q = this.b.getQuery(req);
-  //     this.logger.logInfo('UserService::getUserCount/q:', q);
+  //     this.logger.logDebug('UserService::getUserCount/q:', q);
   //     const serviceInput = {
   //         serviceModel: UserTypeModel,
   //         docName: 'UserService::getUserCount$',
@@ -1294,7 +1288,7 @@ export class UserService extends CdService {
 
   delete(req, res) {
     const q = this.b.getQuery(req);
-    this.logger.logInfo("UserService::delete()/q:", q);
+    this.logger.logDebug("UserService::delete()/q:", q);
     const serviceInput = {
       serviceModel: UserModel,
       docName: "UserService::delete",
@@ -1319,28 +1313,28 @@ export class UserService extends CdService {
    * @param res
    */
   async purgeUser(req, res, q?: IQuery) {
-    this.logger.logInfo("UserService::purgeUser()/01");
+    this.logger.logDebug("UserService::purgeUser()/01");
     if (!q) {
       q = this.b.getQuery(req);
-      this.logger.logInfo("UserService::purgeUser()/02");
-      this.logger.logInfo(`UserService::purgeUser()/pl:${JSON.stringify(q)}`);
+      this.logger.logDebug("UserService::purgeUser()/02");
+      this.logger.logDebug(`UserService::purgeUser()/pl:${JSON.stringify(q)}`);
     }
 
-    this.logger.logInfo("UserService::purgeUser()/03");
+    this.logger.logDebug("UserService::purgeUser()/03");
     if (this.validatePurgeUser(req, res, q)) {
-      this.logger.logInfo("UserService::purgeUser()/04");
+      this.logger.logDebug("UserService::purgeUser()/04");
       // let q: IQuery;
       if ("userId" in q.where) {
-        this.logger.logInfo("UserService::purgeUser()/05");
+        this.logger.logDebug("UserService::purgeUser()/05");
         q = {
           where: {
             userId: q.where.userId,
           },
         };
       }
-      this.logger.logInfo("UserService::purgeUser()/06");
+      this.logger.logDebug("UserService::purgeUser()/06");
       if ("userGuid" in q.where) {
-        this.logger.logInfo("UserService::purgeUser()/07");
+        this.logger.logDebug("UserService::purgeUser()/07");
         q = {
           where: {
             userGuid: q.where.userGuid,
@@ -1357,10 +1351,10 @@ export class UserService extends CdService {
         },
         dSource: 1,
       };
-      this.logger.logInfo("UserService::purgeUser()/08");
+      this.logger.logDebug("UserService::purgeUser()/08");
       const userData = await this.read(req, res, serviceInput);
-      this.logger.logInfo("UserService::purgeUser()/10");
-      this.logger.logInfo("UserService::purgeUser()/userData:", userData);
+      this.logger.logDebug("UserService::purgeUser()/10");
+      this.logger.logDebug("UserService::purgeUser()/userData:", userData);
       /**
        * if user data'
        */
@@ -1368,7 +1362,7 @@ export class UserService extends CdService {
         /**
          * - remove corresponding user as cdObj
          */
-        this.logger.logInfo("UserService::purgeUser()/11");
+        this.logger.logDebug("UserService::purgeUser()/11");
         const svCdObj = new CdObjService();
         const si = {
           serviceInstance: svCdObj,
@@ -1381,9 +1375,9 @@ export class UserService extends CdService {
           },
           dSource: 1,
         };
-        this.logger.logInfo("UserService::purgeUser()/12");
+        this.logger.logDebug("UserService::purgeUser()/12");
         let respDeleteCdObj = await this.b.delete(req, res, si);
-        this.logger.logInfo("UserService::purgeUser()/respDeleteCdObj:", {
+        this.logger.logDebug("UserService::purgeUser()/respDeleteCdObj:", {
           resp: respDeleteCdObj,
         });
 
@@ -1403,15 +1397,15 @@ export class UserService extends CdService {
           },
           dSource: 1,
         };
-        this.logger.logInfo("UserService::purgeUser()/13");
+        this.logger.logDebug("UserService::purgeUser()/13");
         let respDeleteConsRes = await this.b.delete(req, res, siConsRes);
-        this.logger.logInfo("UserService::purgeUser()/respDeleteConsRes:", {
+        this.logger.logDebug("UserService::purgeUser()/respDeleteConsRes:", {
           resp: respDeleteConsRes,
         });
         /*
          * - remove user from personal group
          */
-        this.logger.logInfo("UserService::purgeUser()/14");
+        this.logger.logDebug("UserService::purgeUser()/14");
         const svGroupMember = new GroupMemberService();
         const siGroupMember = {
           serviceInstance: svGroupMember,
@@ -1424,16 +1418,19 @@ export class UserService extends CdService {
           },
           dSource: 1,
         };
-        this.logger.logInfo("UserService::purgeUser()/15");
+        this.logger.logDebug("UserService::purgeUser()/15");
         let respCreateGroupMember = await this.b.delete(
           req,
           res,
           siGroupMember
         );
-        this.logger.logInfo("UserService::purgeUser()/respCreateGroupMember:", {
-          resp: respCreateGroupMember,
-        });
-        this.logger.logInfo("UserService::purgeUser()/16");
+        this.logger.logDebug(
+          "UserService::purgeUser()/respCreateGroupMember:",
+          {
+            resp: respCreateGroupMember,
+          }
+        );
+        this.logger.logDebug("UserService::purgeUser()/16");
         /**
          * remove user
          */
@@ -1448,12 +1445,12 @@ export class UserService extends CdService {
           },
           dSource: 1,
         };
-        this.logger.logInfo("UserService::purgeUser()/17");
+        this.logger.logDebug("UserService::purgeUser()/17");
         let respUser = await this.b.delete(req, res, siUser);
-        this.logger.logInfo("UserService::purgeUser()/respUser:", {
+        this.logger.logDebug("UserService::purgeUser()/respUser:", {
           resp: respUser,
         });
-        this.logger.logInfo("UserService::purgeUser()/17");
+        this.logger.logDebug("UserService::purgeUser()/17");
         this.b.cdResp.data = userData;
         this.b.cdResp.app_state.success = true;
         this.b.i.app_msg = `user has been purged from the system!`;
@@ -1479,11 +1476,11 @@ export class UserService extends CdService {
   }
 
   validatePurgeUser(req, res, q: IQuery): boolean {
-    this.logger.logInfo("UserService::validatePurgeUser()/01");
-    this.logger.logInfo("UserService::validatePurgeUser()/q:", q);
+    this.logger.logDebug("UserService::validatePurgeUser()/01");
+    this.logger.logDebug("UserService::validatePurgeUser()/q:", q);
 
     if (!q || !q.where) {
-      this.logger.logInfo("UserService::validatePurgeUser()/02");
+      this.logger.logDebug("UserService::validatePurgeUser()/02");
       return false;
     }
 
@@ -1491,11 +1488,11 @@ export class UserService extends CdService {
     const hasUserId = "userId" in q.where && q.where.userId;
 
     if (!(hasUserGuid || hasUserId)) {
-      this.logger.logInfo("UserService::validatePurgeUser()/03");
+      this.logger.logDebug("UserService::validatePurgeUser()/03");
       return false;
     }
 
-    this.logger.logInfo("UserService::validatePurgeUser()/04");
+    this.logger.logDebug("UserService::validatePurgeUser()/04");
     return true;
   }
 
@@ -1528,7 +1525,7 @@ export class UserService extends CdService {
         res,
         true
       );
-      console.log(
+      this.logger.logDebug(
         "UserService::updateCurrentUserProfile()/sessionDataExt:",
         sessionDataExt
       );
@@ -1543,7 +1540,7 @@ export class UserService extends CdService {
         res,
         sessionDataExt.currentUser.userId
       );
-      console.log(
+      this.logger.logDebug(
         "UserService:updateCurrentUserProfile()/existingUserProfile:",
         existingUserProfile
       );
@@ -1556,12 +1553,12 @@ export class UserService extends CdService {
                     - use session data to modify 'userData' in the default user profile
                     - 
                 */
-        console.log("UserService::updateCurrentUserProfile()/01");
-        console.log(
+        this.logger.logDebug("UserService::updateCurrentUserProfile()/01");
+        this.logger.logDebug(
           "UserService::updateCurrentUserProfile()/jsonUpdate:",
           jsonUpdate
         );
-        console.log(
+        this.logger.logDebug(
           "UserService::updateCurrentUserProfile()/existingUserProfile:",
           existingUserProfile
         );
@@ -1569,7 +1566,7 @@ export class UserService extends CdService {
           existingUserProfile,
           jsonUpdate
         );
-        console.log(
+        this.logger.logDebug(
           "UserService::updateCurrentUserProfile()/strUserProfile2:",
           modifiedUserProfile
         );
@@ -1582,11 +1579,11 @@ export class UserService extends CdService {
                     - do update based on given jsonUpdate in the api request
                     - converting to string and then updating the userProfile field in the row/s defined in query.where property.
                 */
-        console.log("UserService::updateCurrentUserProfile()/021");
+        this.logger.logDebug("UserService::updateCurrentUserProfile()/021");
         const { password, userProfile, ...filteredUserData } =
           sessionDataExt.currentUser;
         userProfileDefault.userData = filteredUserData;
-        console.log(
+        this.logger.logDebug(
           "UserService::updateCurrentUserProfile()/userProfileDefault:",
           userProfileDefault
         );
@@ -1594,16 +1591,16 @@ export class UserService extends CdService {
           userProfileDefault,
           jsonUpdate
         );
-        console.log(
+        this.logger.logDebug(
           "UserService::updateCurrentUserProfile()/modifiedUserProfile:",
           modifiedUserProfile
         );
         strUserProfile = JSON.stringify(modifiedUserProfile);
       }
 
-      console.log("UserService::updateCurrentUserProfile()/03");
+      this.logger.logDebug("UserService::updateCurrentUserProfile()/03");
       requestQuery.update = { userProfile: strUserProfile };
-      console.log(
+      this.logger.logDebug(
         "UserService::updateCurrentUserProfile()/requestQuery:",
         requestQuery
       );
@@ -1619,7 +1616,7 @@ export class UserService extends CdService {
           query: requestQuery,
         },
       };
-      console.log(
+      this.logger.logDebug(
         "UserService::updateCurrentUserProfile()/serviceInput:",
         serviceInput
       );
@@ -1655,7 +1652,7 @@ export class UserService extends CdService {
   //
 
   async existingUserProfile(req, res, cuid) {
-    console.log("UserServices::existingUserProfile())/cuid:", cuid);
+    this.logger.logDebug(`UserServices::existingUserProfile())/cuid:${cuid}`);
     const si: IServiceInput = {
       serviceInstance: this,
       serviceModel: UserModel,
@@ -1679,24 +1676,43 @@ export class UserService extends CdService {
 
   async getUserProfile(req, res) {
     try {
+      this.logger.logDebug("UserService::getUserProfile()/01");
       const pl = this.b.getPlData(req);
       const userId = pl.userId;
 
       // Retrieve the user profile using an internal method
       const profile = await this.getUserProfileI(req, res, userId);
-
-      // Respond with the retrieved profile data
-      this.b.cdResp.data = profile;
-      return await this.b.respond(req, res);
+      if (profile) {
+        this.logger.logDebug("UserService::getUserProfile()/02");
+        this.b.i.code = "UserService::getUserProfile";
+        const svSess = new SessionService();
+        svSess.sessResp.cd_token = req.post.dat.token;
+        svSess.sessResp.ttl = svSess.getTtl();
+        await this.b.setAppState(true, this.b.i, svSess.sessResp);
+        this.b.cdResp.data = profile;
+        await this.b.respond(req, res);
+      } else {
+        this.logger.logDebug("UserService::getUserProfile()/03");
+        const e = "the user provided is invalid";
+        this.b.err.push(e);
+        const i = {
+          messages: this.b.err,
+          code: "UserService:getProfile",
+          app_msg: "",
+        } as IRespInfo;
+        this.b.serviceErr(req, res, e, i.code);
+        this.b.respond(req, res);
+      }
     } catch (e) {
+      this.logger.logDebug("UserService::getUserProfile()/04");
       this.b.err.push(e.toString());
       const i = {
         messages: this.b.err,
         code: "UserService:getProfile",
         app_msg: "",
       };
-      await this.b.serviceErr(req, res, e, i.code);
-      await this.b.respond(req, res);
+      this.b.serviceErr(req, res, e, i.code);
+      this.b.respond(req, res);
     }
   }
 
@@ -1706,7 +1722,9 @@ export class UserService extends CdService {
       const svSession = new SessionService();
       const session = await svSession.getSession(req, res);
       const userId = session[0].currentUserId;
-      console.log("UserServices::getCurrentUserProfile9)/userId:", userId);
+      this.logger.logDebug(
+        `UserServices::getCurrentUserProfile9)/userId:${userId}`
+      );
       // Retrieve the user profile using an internal method
       const profile = await this.getUserProfileI(req, res, userId);
 
@@ -1732,43 +1750,52 @@ export class UserService extends CdService {
     userId: number
   ): Promise<IUserProfile | null> {
     try {
+      this.logger.logDebug("UserServices::getUserProfileI()/01");
+      this.logger.logDebug("UserServices::getUserProfileI()/userId:", userId);
       // // Use BaseService to retrieve user profile
       // const result = await this.b.read(req, res, serviceInput);
       const user = await this.getUserByID(req, res, userId);
-      console.log("UserServices::getUserProfileI()/user:", user);
-      console.log("UserServices::getUserProfileI()/00");
+      this.logger.logDebug("UserServices::getUserProfileI()/user:", JSON.stringify(user));
+      this.logger.logDebug("UserServices::getUserProfileI()/02");
       if (user && user[0].userProfile) {
-        console.log("UserServices::getUserProfileI()/01");
-        let userProfileJSON = user[0].userProfile;
+        this.logger.logDebug("UserServices::getUserProfileI()/03");
+
+        // Create a deep copy of user[0].userProfile to avoid circular references
+        let userProfileJSON: IUserProfile = cloneDeep(user[0].userProfile); // deep copy using lodash
 
         if ("userData" in userProfileJSON) {
-          console.log("UserServices::getUserProfileI()/02");
+          this.logger.logDebug("UserServices::getUserProfileI()/04");
           // profile data is valid
-
           // update with latest user data
-          userProfileJSON.userData = user[0];
+          let userData: UserModel = cloneDeep(user[0]);
+          delete(userData.userProfile);
+          delete(userData.password);
+          userProfileJSON.userData = userData;
         } else {
-          console.log("UserServices::getUserProfileI()/03");
+          this.logger.logDebug("UserServices::getUserProfileI()/05");
           // profile data is not set, so set it from default
-          userProfileJSON = userProfileDefault;
+          userProfileJSON = cloneDeep(userProfileDefault); // deep copy for the default profile
+
           /**
-           * this stage should be modified to
-           * filter data based on pwermission setting
-           * permission data can further be relied on
+           * This stage can be modified to:
+           * filter data based on permission settings
+           * Permission data can further be relied on
            * by the front end for hidden or other features of accessibility
            * to user profile data.
-           * This mechanism can be applied to all corpdesk resources
+           * This mechanism can be applied to all Corpdesk resources
            */
           userProfileJSON.userData = user[0];
         }
-        console.log("UserServices::getUserProfileI()/04");
-        return userProfileJSON; // Parse the JSON field
+
+        this.logger.logDebug("UserServices::getUserProfileI()/06");
+        return userProfileJSON; // Return the cloned userProfileJSON
       } else {
-        console.log("UserServices::getUserProfileI()/05");
+        this.logger.logDebug("UserServices::getUserProfileI()/07");
         return null;
       }
     } catch (e) {
-      this.b.err.push(e.toString());
+      this.logger.logDebug("UserServices::getUserProfileI()/08");
+      this.b.err.push(`The user provided is invalid; ${e.toString()}`);
       const i = {
         messages: this.b.err,
         code: "UserService:getProfile",
@@ -1813,24 +1840,27 @@ export class UserService extends CdService {
 
   // Helper method to validate profile data
   async validateProfileData(req, res, profileData: any): Promise<boolean> {
-    console.log("UserService::validateProfileData()/profileData:", profileData);
+    this.logger.logDebug(
+      "UserService::validateProfileData()/profileData:",
+      profileData
+    );
     // const profileData: IUserProfile = updateData.update.userProfile
-    // console.log("UserService::validateProfileData()/profileData:", profileData)
+    // this.logger.logDebug("UserService::validateProfileData()/profileData:", profileData)
     // Check if profileData is null or undefined
     if (!profileData) {
-      console.log("UserService::validateProfileData()/01");
+      this.logger.logDebug("UserService::validateProfileData()/01");
       return false;
     }
 
     // Validate that the required fields of IUserProfile exist
     if (!profileData.fieldPermissions || !profileData.userData) {
-      console.log("UserService::validateProfileData()/02");
+      this.logger.logDebug("UserService::validateProfileData()/02");
       return false;
     }
 
     // Example validation for bio length
     if (profileData.bio && profileData.bio.length > 500) {
-      console.log("UserService::validateProfileData()/03");
+      this.logger.logDebug("UserService::validateProfileData()/03");
       const e = "Bio data is too long";
       this.b.err.push(e);
       const i = {

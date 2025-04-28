@@ -138,54 +138,59 @@ export class UserController extends CdController {
         }
     }
 
-    // {
-    //     "ctx": "Sys",
-    //     "m": "Moduleman",
-    //     "c": "User",
-    //     "a": "GetType",
-    //     "dat": {
-    //         "f_vals": [
-    //             {
-    //                 "query": {
-    //                     "where": {}
-    //                 }
-    //             }
-    //         ],
-    //         "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
-    //     },
-    //     "args": null
-    // }
-    // async GetType(req, res) {
-    //     try {
-    //         await this.svUser.getUserTypeCount(req, res);
-    //     } catch (e) {
-    //         this.b.serviceErr(req, res, e, 'UserController:Get');
-    //     }
-    // }
+    /**
+     * 
+     * {
+        "ctx": "Sys",
+        "m": "Moduleman",
+        "c": "User",
+        "a": "GetType",
+        "dat": {
+            "f_vals": [
+                {
+                    "query": {
+                        "where": {}
+                    }
+                }
+            ],
+            "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+        },
+        "args": null
+    }
+    async GetType(req, res) {
+        try {
+            await this.svUser.getUserTypeCount(req, res);
+        } catch (e) {
+            this.b.serviceErr(req, res, e, 'UserController:Get');
+        }
+    }
 
-    // {
-    //     "ctx": "Sys",
-    //     "m": "User",
-    //     "c": "User",
-    //     "a": "GetCount",
-    //     "dat": {
-    //         "f_vals": [
-    //             {
-    //                 "query": {
-    //                     "select": [
-    //                         "userName",
-    //                         "userGuid"
-    //                     ],
-    //                     "where": {},
-    //                     "take": 5,
-    //                     "skip": 0
-    //                 }
-    //             }
-    //         ],
-    //         "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
-    //     },
-    //     "args": null
-    // }
+    {
+        "ctx": "Sys",
+        "m": "User",
+        "c": "User",
+        "a": "GetCount",
+        "dat": {
+            "f_vals": [
+                {
+                    "query": {
+                        "select": [
+                            "userName",
+                            "userGuid"
+                        ],
+                        "where": {},
+                        "take": 5,
+                        "skip": 0
+                    }
+                }
+            ],
+            "token": "08f45393-c10e-4edd-af2c-bae1746247a1"
+        },
+        "args": null
+    }
+     * @param req 
+     * @param res 
+     */
     async GetCount(req, res) {
         try {
             // await this.svUser.getUserCount(req, res);
@@ -198,7 +203,6 @@ export class UserController extends CdController {
 
     async GetUserProfile(req, res) {
         try {
-            // await this.svUser.getUserCount(req, res);
             await this.svUser.getUserProfile(req, res);
         } catch (e) {
             await this.b.serviceErr(req, res, e, 'UserController:getUserProfile');

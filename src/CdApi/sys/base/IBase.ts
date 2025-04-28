@@ -167,6 +167,30 @@ export interface IQbInput {
 }
 
 /**
+ * constraining the update attribute to specific models in different services.
+ * By using Array<keyof T> for the select attribute, you constrain the select array to valid fields of the model type T.
+ * This approach improves type safety and ensures that you don't accidentally select invalid fields.
+ * This type-safe approach helps prevent errors at compile-time, making your code more reliable and maintainable.
+ */
+export interface QueryInput {
+  select?: string[];
+  where?: any; // Already exists, but we'll use it for dynamic WHERE conditions
+  update?: Record<string, any>; // New property to specify which fields to update
+  take?: number;
+  skip?: number;
+}
+
+// query builder filter
+export interface IQbFilter {
+  field: string;
+  operator: string;
+  val: string;
+  conjType?: string;
+  dataType: string;
+  jPath?: string;
+}
+
+/**
  * -------------------------------------------------------------------------------------------------------------------------
  * interface ICdResponse
  * -------------------------------------------------------------------------------------------------------------------------
@@ -187,10 +211,51 @@ export interface ICdResponse {
   data: object;
 }
 
+// export interface IRespInfo {
+//   messages: string[]; // array of errors encountered
+//   code: string; // error code. Corpdesk use this to code the exact spot of error by controller and action
+//   app_msg: any; // general response message (can be set with string, or null)
+// }
 export interface IRespInfo {
   messages: string[]; // array of errors encountered
-  code: string; // error code. Corpdesk use this to code the exact spot of error by controller and action
+  code: string; // error code. Corpdesk uses this to code the exact spot of error by controller and action
   app_msg: any; // general response message (can be set with string, or null)
+
+  // Merged state into a single property `respState`
+  respState?: {
+    cdLevel: CdResponseState; // -1 for error, 0 for success, 1 for warning, etc.
+    cdDescription?: string; // Custom description for Corpdesk-specific state
+
+    httpCode: HttpState; // HTTP status code (e.g., 200, 400, etc.)
+    httpDescription?: string; // HTTP status description (e.g., "OK", "Bad Request")
+  };
+}
+
+export enum CdResponseState {
+  SUCCESS = 0,       // Represents a successful operation
+  WARNING = 1,       // Represents a non-critical warning (e.g., partial success)
+  ERROR = -1,        // Represents a failure or error
+  INFO = 2,          // Represents informational messages (e.g., processing steps)
+  PARTIAL_ERROR = -2, // Represents a partial error (e.g., part of the operation failed)
+  UNDEFINED = -99,    // Represents an undefined or unknown state
+}
+
+export enum HttpState {
+  OK = 200,                     // OK: The request has succeeded.
+  CREATED = 201,                // CREATED: The request has been fulfilled and resulted in a new resource being created.
+  ACCEPTED = 202,               // ACCEPTED: The request has been accepted for processing, but the processing has not been completed.
+  NO_CONTENT = 204,             // NO_CONTENT: The server has successfully processed the request, but is not returning any content.
+  
+  BAD_REQUEST = 400,            // BAD_REQUEST: The server could not understand the request due to invalid syntax.
+  UNAUTHORIZED = 401,           // UNAUTHORIZED: The client must authenticate itself to get the requested response.
+  FORBIDDEN = 403,              // FORBIDDEN: The client does not have access rights to the content.
+  NOT_FOUND = 404,              // NOT_FOUND: The server can not find the requested resource.
+  
+  INTERNAL_SERVER_ERROR = 500,  // INTERNAL_SERVER_ERROR: The server has encountered a situation it doesn't know how to handle.
+  NOT_IMPLEMENTED = 501,        // NOT_IMPLEMENTED: The request method is not supported by the server and cannot be handled.
+  BAD_GATEWAY = 502,            // BAD_GATEWAY: The server, while acting as a gateway or proxy, received an invalid response from the upstream server.
+  SERVICE_UNAVAILABLE = 503,    // SERVICE_UNAVAILABLE: The server is not ready to handle the request (overloaded or down for maintenance).
+  GATEWAY_TIMEOUT = 504,        // GATEWAY_TIMEOUT: The server, while acting as a gateway or proxy, did not get a response in time from the upstream server.
 }
 
 export interface ISessResp {
@@ -575,49 +640,6 @@ export interface IAllowedModules {
 export interface IMenuRelations {
   menuParent: MenuViewModel;
   menuChildren: MenuViewModel[];
-}
-
-/**
- * constraining the update attribute to specific models in different services.
- * By using Array<keyof T> for the select attribute, you constrain the select array to valid fields of the model type T.
- * This approach improves type safety and ensures that you don't accidentally select invalid fields.
- * This type-safe approach helps prevent errors at compile-time, making your code more reliable and maintainable.
- */
-// export type SelectType<T> = Array<keyof T>;
-// export interface IQuery<T = any> {
-//     select?: SelectType<T>;
-//     update?: T;
-//     where: any;
-//     take?: number;
-//     skip?: number;
-//     jFilters?: IJFilter[];
-//     order?: any;
-//     class?: string;
-// }
-
-// export interface QueryInput {
-//     select?: string[];
-//     where?: any;
-//     take?: number;
-//     skip?: number;
-// }
-
-export interface QueryInput {
-  select?: string[];
-  where?: any; // Already exists, but we'll use it for dynamic WHERE conditions
-  update?: Record<string, any>; // New property to specify which fields to update
-  take?: number;
-  skip?: number;
-}
-
-// query builder filter
-export interface IQbFilter {
-  field: string;
-  operator: string;
-  val: string;
-  conjType?: string;
-  dataType: string;
-  jPath?: string;
 }
 
 export interface ObjectItem {
