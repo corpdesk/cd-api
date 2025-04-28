@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 // import { color, log, red, green, cyan, cyanBright, blue, yellow } from 'console-log-colors';
 // import { bold, white, gray } from 'console-log-colors';
 import * as Lá from "lodash";
+import { instanceToPlain } from "class-transformer";
 import {
   CreateIParams,
   ICdRequest,
@@ -84,7 +85,12 @@ export class BaseService {
     messages: [],
     code: "",
     app_msg: "",
-    respState:{cdLevel:null, cdDescription:null, httpCode:null, httpDescription: null}
+    respState: {
+      cdLevel: null,
+      cdDescription: null,
+      httpCode: null,
+      httpDescription: null,
+    },
   };
   isInvalidFields = [];
   isRegRequest = false;
@@ -734,6 +740,12 @@ export class BaseService {
           messages: [],
           code: "",
           app_msg: "",
+          respState: {
+            cdLevel: null,
+            cdDescription: null,
+            httpCode: null,
+            httpDescription: null,
+          },
         },
         sess: {
           cd_token: this.getGuid(),
@@ -788,48 +800,137 @@ export class BaseService {
     return ret;
   }
 
+  // async preFlight(req, res) {
+  //   this.logger.logDebug("**********starting preFlight(res)*********");
+
+  //   this.logger.logDebug(`BaseService::getPlData()/this.cdResp:${this.cdResp}`);
+
+  //   // Safely stringify the response and check for circular references
+  //   let safeResp = JsonHelper.safeStringify(this.cdResp);
+
+  //   // Detect if [Circular] marker exists
+  //   if (safeResp.includes("[Circular]")) {
+  //     const warningMsg =
+  //       "[WARNING]: This response had circular anomaly and has been truncated. See areas marked with [Circular].";
+
+  //     // Parse the response and add the warning message
+  //     let safeRespJson: ICdResponse = JSON.parse(safeResp);
+
+  //     // Ensure the app_msg and messages properties exist
+  //     const appStateInfo = safeRespJson.app_state?.info;
+  //     if (!appStateInfo.app_msg) {
+  //       appStateInfo.app_msg = "";
+  //     }
+  //     if (!Array.isArray(appStateInfo.messages)) {
+  //       appStateInfo.messages = [];
+  //     }
+
+  //     // Accumulate the warning messages
+  //     appStateInfo.app_msg += `; ${warningMsg}`;
+  //     appStateInfo.messages.push(warningMsg);
+  //     appStateInfo.respState.cdLevel = CdResponseState.WARNING;
+  //     appStateInfo.respState.httpCode = HttpState.ACCEPTED
+
+  //     // Update the response object
+  //     safeRespJson.app_state.info = appStateInfo;
+
+  //     // Stringify the modified object
+  //     safeResp = JSON.stringify(safeRespJson);
+
+  //     // Log the warning
+  //     this.logger.logWarn(warningMsg);
+  //   }
+
+  //   // Return the final response (JSON parsed again)
+  //   return JSON.parse(safeResp);
+  // }
+
   async preFlight(req, res) {
     this.logger.logDebug("**********starting preFlight(res)*********");
+    this.logger.logDebug(
+      `BaseService::getPlData()/this.cdResp:`,
+      JSON.stringify(this.cdResp)
+    );
 
-    // Safely stringify the response and check for circular references
-    let safeResp = JsonHelper.safeStringify(this.cdResp);
-
-    // Detect if [Circular] marker exists
+    // Step 1: Sanitize the cdResp data safely
+    const sanitizedCdResp = this.deepSanitize(this.cdResp);
+    // Step 2: Safely stringify the sanitized response
+    let safeResp = JsonHelper.safeStringify(sanitizedCdResp);
+    // Step 3: Detect if [Circular] marker exists
     if (safeResp.includes("[Circular]")) {
-      const warningMsg =
-        "[WARNING]: This response had circular anomaly and has been truncated. See areas marked with [Circular].";
-
-      // Parse the response and add the warning message
-      let safeRespJson: ICdResponse = JSON.parse(safeResp);
-
-      // Ensure the app_msg and messages properties exist
-      const appStateInfo = safeRespJson.app_state?.info;
-      if (!appStateInfo.app_msg) {
-        appStateInfo.app_msg = "";
+      try {
+        safeResp = this.setCircularError(safeResp);
+      } catch (e) {
+        this.logger.logWarn("An attempt to set error condition failed");
+        this.logger.logError(e.toString());
       }
-      if (!Array.isArray(appStateInfo.messages)) {
-        appStateInfo.messages = [];
-      }
-
-      // Accumulate the warning messages
-      appStateInfo.app_msg += `; ${warningMsg}`;
-      appStateInfo.messages.push(warningMsg);
-      appStateInfo.respState.cdLevel = CdResponseState.WARNING;
-      appStateInfo.respState.httpCode = HttpState.ACCEPTED
-
-
-      // Update the response object
-      safeRespJson.app_state.info = appStateInfo;
-
-      // Stringify the modified object
-      safeResp = JSON.stringify(safeRespJson);
-
-      // Log the warning
-      this.logger.logWarn(warningMsg);
     }
+    this.logger.logDebug(`BaseService::getPlData()/15`);
 
     // Return the final response (JSON parsed again)
     return JSON.parse(safeResp);
+  }
+
+  setCircularError(safeResp: string){
+    this.logger.logDebug(`BaseService::setCircularError()/01`);
+    const warningMsg =
+      "[WARNING]: This response had circular anomaly and has been truncated. See areas marked with [Circular].";
+
+    // Parse the response and add the warning message
+    let safeRespJson: ICdResponse = JSON.parse(safeResp);
+    // Ensure the app_msg and messages properties exist
+    const appStateInfo = safeRespJson.app_state?.info;
+    if (!appStateInfo.app_msg) {
+      appStateInfo.app_msg = "";
+    }
+    if (!Array.isArray(appStateInfo.messages)) {
+      appStateInfo.messages = [];
+    }
+    // Accumulate the warning messages
+    appStateInfo.app_msg += `; ${warningMsg}`;
+    appStateInfo.messages.push(warningMsg);
+    appStateInfo.respState.cdLevel = CdResponseState.WARNING;
+    appStateInfo.respState.httpCode = HttpState.ACCEPTED;
+    // Update the response object
+    safeRespJson.app_state.info = appStateInfo;
+    // Stringify the modified object
+    safeResp = JSON.stringify(safeRespJson);
+    // Log the warning
+    this.logger.logWarn(warningMsg);
+    return safeResp
+  }
+
+  private deepSanitize(obj: any): any {
+    if (Array.isArray(obj)) {
+      return obj.map((item) => this.deepSanitize(item));
+    } else if (obj !== null && typeof obj === "object") {
+      // If it's a TypeORM entity or a class instance, transform it
+      if (
+        typeof obj.constructor === "function" &&
+        obj.constructor.name !== "Object"
+      ) {
+        try {
+          return instanceToPlain(obj);
+        } catch (e) {
+          // If instanceToPlain fails for some reason, fallback to copying plain properties
+          const plainObj = {};
+          for (const key in obj) {
+            plainObj[key] = this.deepSanitize(obj[key]);
+          }
+          return plainObj;
+        }
+      } else {
+        // Pure JSON object (not an instance), process normally
+        const newObj = {};
+        for (const key in obj) {
+          newObj[key] = this.deepSanitize(obj[key]);
+        }
+        return newObj;
+      }
+    } else {
+      // Primitive (string, number, boolean, null, undefined)
+      return obj;
+    }
   }
 
   /**

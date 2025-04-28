@@ -21,9 +21,10 @@
  * const jsonData = { <JSON data as provided > };
  * const jsonUpdate: JUpdateInstruction[] = [ <JSON updates as provided> ];
  * const updatedData = JMorph.applyUpdates(jsonData, jsonUpdate);
- * console.log(updatedData);
+ * this.logger.logDebug(updatedData);
  */
 
+import { Logging } from "../base/winston.log";
 import { safeStringify } from "./safe-stringify";
 
 export interface JUpdateInstruction {
@@ -33,6 +34,7 @@ export interface JUpdateInstruction {
 }
 
 export class JMorph {
+  static logger: Logging = new Logging();
   /**
    * Applies a list of update instructions to the given JSON data.
    * @param jsonData - The JSON object to be modified.
@@ -55,24 +57,24 @@ export class JMorph {
     jsonData: any,
     instruction: JUpdateInstruction
   ): void {
-    console.log("JMorph::applyUpdate()/01");
-    console.log("JMorph::applyUpdate()/jsonData:", JSON.stringify(jsonData));
-    console.log(
+    this.logger.logDebug("JMorph::applyUpdate()/01");
+    this.logger.logDebug("JMorph::applyUpdate()/jsonData:", JSON.stringify(jsonData));
+    this.logger.logDebug(
       "JMorph::applyUpdate()/instruction:",
       JSON.stringify(instruction)
     );
 
     const { path, value, action } = instruction;
-    console.log("JMorph::applyUpdate()/02");
+    this.logger.logDebug("JMorph::applyUpdate()/02");
 
     let target = jsonData;
 
     for (let i = 0; i < path.length - 1; i++) {
-      console.log(`JMorph::applyUpdate()/03/${i}`);
+      this.logger.logDebug(`JMorph::applyUpdate()/03/${i}`);
       let key = path[i];
 
       if (Array.isArray(key)) {
-        console.log(
+        this.logger.logDebug(
           `JMorph::applyUpdate()/Error: Array Detected at ${i}:`,
           key
         );
@@ -82,7 +84,7 @@ export class JMorph {
       }
 
       if (!(key in target)) {
-        console.log(
+        this.logger.logDebug(
           `JMorph::applyUpdate()/Key missing: Creating ${key} at level ${i}`
         );
         target[key] = typeof path[i + 1] === "number" ? [] : {};
@@ -91,7 +93,7 @@ export class JMorph {
       target = target[key]; // Move deeper into the object
 
       if (target === undefined) {
-        console.log(`JMorph::applyUpdate()/Undefined target at level ${i}`);
+        this.logger.logDebug(`JMorph::applyUpdate()/Undefined target at level ${i}`);
         throw new Error(
           `Path error: ${key} does not exist in the provided JSON structure.`
         );
@@ -99,11 +101,11 @@ export class JMorph {
     }
 
     const lastKey = path[path.length - 1];
-    console.log("JMorph::applyUpdate()/target:", target);
-    console.log("JMorph::applyUpdate()/lastKey:", lastKey);
+    this.logger.logDebug("JMorph::applyUpdate()/target:", target);
+    this.logger.logDebug("JMorph::applyUpdate()/lastKey:", lastKey);
 
     if (Array.isArray(target) && !Array.isArray(lastKey)) {
-      console.log(
+      this.logger.logDebug(
         "JMorph::applyUpdate()/Error: Attempting to modify an array without key reference"
       );
       throw new Error(
@@ -128,8 +130,8 @@ export class JMorph {
         JMorph.createEntry(target, lastKey, value);
     }
 
-    console.log("JMorph::applyUpdate()/Completed");
-    console.log("JMorph::applyUpdate()/target2:", target);
+    this.logger.logDebug("JMorph::applyUpdate()/Completed");
+    this.logger.logDebug("JMorph::applyUpdate()/target2:", target);
   }
 
   /**
@@ -138,107 +140,64 @@ export class JMorph {
    * @param key
    * @param value
    */
-  // private static createEntry(
-  //   target: any,
-  //   key: string | number,
-  //   value: any
-  // ): void {
-  //   console.log(`JMorph::createEntry()/target1: ${JSON.stringify(target)}`);
-  //   console.log(`JMorph::createEntry()/key: ${key}`);
-  //   console.log(`JMorph::createEntry()/value: ${JSON.stringify(value)}`);
+  // private static createEntry(target: any, lastKey: any, value: any): void {
+  //   this.logger.logDebug("JMorph::createEntry()/target:", target);
+  //   this.logger.logDebug("JMorph::createEntry()/lastKey:", lastKey);
+  //   this.logger.logDebug("JMorph::createEntry()/value:", value);
 
-  //   if (Array.isArray(target)) {
-  //     // Ensure the value contains a valid unique identifier
-  //     const keyField = Object.keys(value)[0]; // Example: "coopId"
-  //     console.log(
-  //       `JMorph::createEntry()/keyField: ${JSON.stringify(keyField)}`
-  //     );
-  //     if (!(keyField in value)) {
-  //       console.log(
-  //         `JMorph::createEntry()/Error: Key '${keyField}' not found in value.`
-  //       );
-  //       throw new Error(`Missing unique key in the object.`);
-  //     }
+  //   // Validate that target[lastKey] is an array
+  //   const constraintKeys = Array.isArray(lastKey) ? lastKey : [lastKey];
 
-  //     const keyValue = value[keyField];
-  //     console.log(
-  //       `JMorph::createEntry()/keyValue1: ${JSON.stringify(keyValue)}`
-  //     );
+  //   // Only the last segment of the path should be an array of constraint keys
+  //   const arrayRef = target;
 
-  //     // Use .find() to check if an entry with the same keyField value already exists
-  //     const alreadyExists = target.some(
-  //       (item: any) => item[keyField] === keyValue
-  //     );
-  //     console.log(
-  //       `JMorph::createEntry()/keyValue2: ${JSON.stringify(keyValue)}`
-  //     );
-  //     console.log(`JMorph::createEntry()/target2: ${target}`);
-  //     console.log(`JMorph::createEntry()/alreadyExists: ${alreadyExists}`);
+  //   if (!Array.isArray(arrayRef)) {
+  //     this.logger.logError("JMorph::createEntry() - Target is not an array");
+  //     throw new Error("Target for 'create' action must be an array");
+  //   }
 
-  //     if (alreadyExists) {
-  //       console.warn(
-  //         `JMorph::createEntry()/[WARNING]1: Entry with ${keyField}=${keyValue} already exists.`
-  //       );
-  //       // throw new Error(
-  //       //   `Duplicate entry: ${keyField}=${keyValue} already exists.`
-  //       // );
-  //     } else {
-  //       console.log(`JMorph::createEntry()/value: ${JSON.stringify(value)}`);
-  //       // Push the new object directly into the array
-  //       target.push(value);
-  //       console.log(
-  //         `JMorph::createEntry()/[SUCCESS]: Entry added value: ${JSON.stringify(
-  //           value
-  //         )} to the target:`,
-  //         JSON.stringify(target)
-  //       );
-  //     }
+  //   // Build matching logic based on constraintKeys
+  //   const index = arrayRef.findIndex((item: any) => {
+  //     return constraintKeys.every((key) => item[key] === value[key]);
+  //   });
+
+  //   if (index !== -1) {
+  //     this.logger.logDebug(
+  //       `JMorph::createEntry() - Found existing entry at index ${index}. Replacing.`
+  //     );
+  //     arrayRef[index] = value; // Replace existing entry
   //   } else {
-  //     console.log(`JMorph::createEntry()/[WARNING]2: Target is not an array.`);
-  //     throw new Error(`Target is not an array, cannot add a new entry.`);
+  //     this.logger.logDebug(
+  //       "JMorph::createEntry() - No existing entry found. Adding new."
+  //     );
+  //     arrayRef.push(value); // Insert new entry
   //   }
   // }
-  private static createEntry(target: any, lastKey: any, value: any): void {
-    console.log("JMorph::createEntry()/target:", target);
-    console.log("JMorph::createEntry()/lastKey:", lastKey);
-    console.log("JMorph::createEntry()/value:", value);
-
-    // Validate that target[lastKey] is an array
-    const constraintKeys = Array.isArray(lastKey) ? lastKey : [lastKey];
-
-    // Only the last segment of the path should be an array of constraint keys
-    const arrayRef = target;
-
-    if (!Array.isArray(arrayRef)) {
-      console.error("JMorph::createEntry() - Target is not an array");
-      throw new Error("Target for 'create' action must be an array");
-    }
-
-    // Build matching logic based on constraintKeys
-    const index = arrayRef.findIndex((item: any) => {
-      return constraintKeys.every((key) => item[key] === value[key]);
-    });
-
-    if (index !== -1) {
-      console.log(
-        `JMorph::createEntry() - Found existing entry at index ${index}. Replacing.`
-      );
-      arrayRef[index] = value; // Replace existing entry
+  private static createEntry(target: any, lastKey: string, value: any): void {
+    this.logger.logDebug("JMorph::createEntry()/target:", target);
+    this.logger.logDebug("JMorph::createEntry()/lastKey:", lastKey);
+    this.logger.logDebug("JMorph::createEntry()/value:", value);
+  
+    if (Array.isArray(target)) {
+      this.logger.logDebug(`JMorph::createEntry() - Target is array. Pushing new value`);
+      target.push(value);
+    } else if (typeof target === "object" && target !== null) {
+      this.logger.logDebug(`JMorph::createEntry() - Target is object. Assigning property`);
+      target[lastKey] = value;
     } else {
-      console.log(
-        "JMorph::createEntry() - No existing entry found. Adding new."
-      );
-      arrayRef.push(value); // Insert new entry
+      this.logger.logError("JMorph::createEntry() - Target is neither array nor object");
+      throw new Error("Cannot create entry: Target is neither array nor object.");
     }
   }
+  
 
   private static updateEntry(target: any, key: string, value: any): void {
-    console.log(`JMorph::updateEntry()/Updating data at ${key}`);
+    this.logger.logDebug(`JMorph::updateEntry()/Updating data at ${key}`);
     target[key] = value;
   }
 
   private static deleteEntry(target: any, key: string): void {
-    console.log(`JMorph::deleteEntry()/Deleting data at ${key}`);
+    this.logger.logDebug(`JMorph::deleteEntry()/Deleting data at ${key}`);
     delete target[key];
   }
 
@@ -271,7 +230,7 @@ export class JMorph {
         target = target.filter((item) => item[key] !== value[key]);
         break;
       case "read":
-        console.log(target.find((item) => item[key] === value[key]));
+        this.logger.logDebug(target.find((item) => item[key] === value[key]));
         break;
     }
   }
@@ -298,7 +257,7 @@ export class JMorph {
         delete target[key];
         break;
       case "read":
-        console.log(target[key]);
+        this.logger.logDebug(target[key]);
         break;
     }
   }

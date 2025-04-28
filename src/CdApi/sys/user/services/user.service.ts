@@ -1532,7 +1532,7 @@ export class UserService extends CdService {
 
       const requestQuery: IQuery = req.post.dat.f_vals[0].query;
       const jsonUpdate = req.post.dat.f_vals[0].jsonUpdate;
-      let modifiedUserProfile = {};
+      let modifiedUserProfile = {} as IUserProfile;
       let strUserProfile = "{}";
 
       const existingUserProfile = await this.existingUserProfile(
@@ -1587,10 +1587,15 @@ export class UserService extends CdService {
           "UserService::updateCurrentUserProfile()/userProfileDefault:",
           userProfileDefault
         );
-        modifiedUserProfile = await this.modifyProfile(
+        modifiedUserProfile = (await this.modifyProfile(
           userProfileDefault,
           jsonUpdate
-        );
+        )) as IUserProfile;
+        // the update should not contain userData
+        if ("userData" in modifiedUserProfile) {
+          delete modifiedUserProfile.userData;
+        }
+
         this.logger.logDebug(
           "UserService::updateCurrentUserProfile()/modifiedUserProfile:",
           modifiedUserProfile
@@ -1602,7 +1607,7 @@ export class UserService extends CdService {
       requestQuery.update = { userProfile: strUserProfile };
       this.logger.logDebug(
         "UserService::updateCurrentUserProfile()/requestQuery:",
-        requestQuery
+        JSON.stringify(requestQuery)
       );
 
       // update user profile
@@ -1622,10 +1627,15 @@ export class UserService extends CdService {
       );
       // const ret = await this.b.updateJSONColumn(req, res, serviceInput)
       const updateRet = await this.updateI(req, res, serviceInput);
-      const newProfile = await this.existingUserProfile(
+      const newProfile: IUserProfile = await this.existingUserProfile(
         req,
         res,
-        sessionDataExt.currentUser.userId
+        requestQuery.where.userId
+      );
+      delete newProfile.userData.password;
+      this.logger.logDebug(
+        "UserService::updateCurrentUserProfile()/newProfile:",
+        newProfile
       );
       const ret = {
         updateRet: updateRet,
@@ -1754,12 +1764,15 @@ export class UserService extends CdService {
       this.logger.logDebug("UserServices::getUserProfileI()/userId:", userId);
       // // Use BaseService to retrieve user profile
       // const result = await this.b.read(req, res, serviceInput);
-      const user = await this.getUserByID(req, res, userId);
-      this.logger.logDebug("UserServices::getUserProfileI()/user:", JSON.stringify(user));
+      const user: UserModel[] = await this.getUserByID(req, res, userId);
+      this.logger.logDebug(
+        "UserServices::getUserProfileI()/user:",
+        JSON.stringify(user)
+      );
       this.logger.logDebug("UserServices::getUserProfileI()/02");
       if (user && user[0].userProfile) {
         this.logger.logDebug("UserServices::getUserProfileI()/03");
-
+        delete user[0].password;
         // Create a deep copy of user[0].userProfile to avoid circular references
         let userProfileJSON: IUserProfile = cloneDeep(user[0].userProfile); // deep copy using lodash
 
@@ -1768,8 +1781,8 @@ export class UserService extends CdService {
           // profile data is valid
           // update with latest user data
           let userData: UserModel = cloneDeep(user[0]);
-          delete(userData.userProfile);
-          delete(userData.password);
+          delete userData.userProfile;
+          delete userData.password;
           userProfileJSON.userData = userData;
         } else {
           this.logger.logDebug("UserServices::getUserProfileI()/05");
@@ -1791,7 +1804,39 @@ export class UserService extends CdService {
         return userProfileJSON; // Return the cloned userProfileJSON
       } else {
         this.logger.logDebug("UserServices::getUserProfileI()/07");
-        return null;
+        /**
+         * If the profile is null update records to default then return the default profile
+         */
+        // update user profile with default
+        const serviceInput: IServiceInput = {
+          serviceInstance: this,
+          serviceModel: UserModel,
+          docName: "UserService::updateCurrentUserProfile",
+          dSource: 1,
+          cmd: {
+            action: "update",
+            query: {
+              where: { userId: user[0].userId },
+              update: { userProfile: userProfileDefault },
+            },
+          },
+        };
+        this.logger.logDebug(
+          "UserService::updateCurrentUserProfile()/serviceInput:",
+          serviceInput
+        );
+        // const ret = await this.b.updateJSONColumn(req, res, serviceInput)
+        const updateRet = await this.updateI(req, res, serviceInput);
+        this.logger.logDebug(
+          "UserService::updateCurrentUserProfile()/updateRet:",
+          updateRet
+        );
+        if(updateRet.affected > 0){
+          return userProfileDefault;
+        } else {
+          return null
+        }
+        
       }
     } catch (e) {
       this.logger.logDebug("UserServices::getUserProfileI()/08");

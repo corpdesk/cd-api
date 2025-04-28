@@ -19,7 +19,8 @@ export class JsonHelper {
     try {
       return JSON.parse(str);
     } catch (e) {
-      return null; // or throw error if you prefer
+      return null;
     }
   }
 }
+
