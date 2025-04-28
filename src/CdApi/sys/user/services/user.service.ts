@@ -1817,7 +1817,7 @@ export class UserService extends CdService {
             action: "update",
             query: {
               where: { userId: user[0].userId },
-              update: { userProfile: userProfileDefault },
+              update: { userProfile: JSON.stringify(userProfileDefault) },
             },
           },
         };
