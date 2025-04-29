@@ -1553,7 +1553,7 @@ export class UserService extends CdService {
                     - use session data to modify 'userData' in the default user profile
                     - 
                 */
-        this.logger.logDebug("UserService::updateCurrentUserProfile()/01");
+        this.logger.logDebug("UserService::updateUserProfile()/01");
         this.logger.logDebug(
           "UserService::updateCurrentUserProfile()/jsonUpdate:",
           jsonUpdate
@@ -1567,7 +1567,7 @@ export class UserService extends CdService {
           jsonUpdate
         );
         this.logger.logDebug(
-          "UserService::updateCurrentUserProfile()/strUserProfile2:",
+          "UserService::updateUserProfile()/strUserProfile2:",
           modifiedUserProfile
         );
         strUserProfile = JSON.stringify(modifiedUserProfile);
@@ -1579,12 +1579,12 @@ export class UserService extends CdService {
                     - do update based on given jsonUpdate in the api request
                     - converting to string and then updating the userProfile field in the row/s defined in query.where property.
                 */
-        this.logger.logDebug("UserService::updateCurrentUserProfile()/021");
+        this.logger.logDebug("UserService::updateUserProfile()/021");
         const { password, userProfile, ...filteredUserData } =
           sessionDataExt.currentUser;
         userProfileDefault.userData = filteredUserData;
         this.logger.logDebug(
-          "UserService::updateCurrentUserProfile()/userProfileDefault:",
+          "UserService::updateUserProfile()/userProfileDefault:",
           userProfileDefault
         );
         modifiedUserProfile = (await this.modifyProfile(
@@ -1597,16 +1597,16 @@ export class UserService extends CdService {
         }
 
         this.logger.logDebug(
-          "UserService::updateCurrentUserProfile()/modifiedUserProfile:",
+          "UserService::updateUserProfile()/modifiedUserProfile:",
           modifiedUserProfile
         );
         strUserProfile = JSON.stringify(modifiedUserProfile);
       }
 
-      this.logger.logDebug("UserService::updateCurrentUserProfile()/03");
+      this.logger.logDebug("UserService::updateUserProfile()/03");
       requestQuery.update = { userProfile: strUserProfile };
       this.logger.logDebug(
-        "UserService::updateCurrentUserProfile()/requestQuery:",
+        "UserService::updateUserProfile()/requestQuery:",
         JSON.stringify(requestQuery)
       );
 
@@ -1614,7 +1614,7 @@ export class UserService extends CdService {
       const serviceInput: IServiceInput = {
         serviceInstance: this,
         serviceModel: UserModel,
-        docName: "UserService::updateCurrentUserProfile",
+        docName: "UserService::updateUserProfile",
         dSource: 1,
         cmd: {
           action: "update",
@@ -1622,20 +1622,33 @@ export class UserService extends CdService {
         },
       };
       this.logger.logDebug(
-        "UserService::updateCurrentUserProfile()/serviceInput:",
+        "UserService::updateUserProfile()/serviceInput:",
         serviceInput
       );
       // const ret = await this.b.updateJSONColumn(req, res, serviceInput)
       const updateRet = await this.updateI(req, res, serviceInput);
-      const newProfile: IUserProfile = await this.existingUserProfile(
+      const newProfile: IUserProfile[] = await this.existingUserProfile(
         req,
         res,
         requestQuery.where.userId
       );
-      delete newProfile.userData.password;
       this.logger.logDebug(
-        "UserService::updateCurrentUserProfile()/newProfile:",
-        newProfile
+        "UserService::updateUserProfile()/newProfile1:",
+        JSON.stringify(newProfile)
+      );
+
+      /**
+       * No password is droped from the payload
+       */
+      if ("userData" in newProfile[0]) {
+        if ("password" in newProfile[0].userData) {
+          delete newProfile[0].userData.password;
+        }
+      }
+
+      this.logger.logDebug(
+        "UserService::updateUserProfile()/newProfile2:",
+        JSON.stringify(newProfile)
       );
       const ret = {
         updateRet: updateRet,
@@ -1649,7 +1662,7 @@ export class UserService extends CdService {
       this.b.err.push(e.toString());
       const i = {
         messages: this.b.err,
-        code: "UserService:updateCurrentUserProfile",
+        code: "UserService:updateUserProfile",
         app_msg: "",
       };
       await this.b.serviceErr(req, res, e, i.code);
@@ -1811,7 +1824,7 @@ export class UserService extends CdService {
         const serviceInput: IServiceInput = {
           serviceInstance: this,
           serviceModel: UserModel,
-          docName: "UserService::updateCurrentUserProfile",
+          docName: "UserService::getUserProfileI",
           dSource: 1,
           cmd: {
             action: "update",
@@ -1828,15 +1841,14 @@ export class UserService extends CdService {
         // const ret = await this.b.updateJSONColumn(req, res, serviceInput)
         const updateRet = await this.updateI(req, res, serviceInput);
         this.logger.logDebug(
-          "UserService::updateCurrentUserProfile()/updateRet:",
+          "UserService::getUserProfileI()/updateRet:",
           updateRet
         );
-        if(updateRet.affected > 0){
+        if (updateRet.affected > 0) {
           return userProfileDefault;
         } else {
-          return null
+          return null;
         }
-        
       }
     } catch (e) {
       this.logger.logDebug("UserServices::getUserProfileI()/08");
