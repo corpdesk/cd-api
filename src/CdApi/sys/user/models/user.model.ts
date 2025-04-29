@@ -30,6 +30,8 @@ import { CdModel, IsUnique } from '../../base/decorators/validators';
 import { UniqueOnDatabase } from '../../base/decorators/UniqueValidation';
 import { BaseService } from '../../base/base.service';
 import { DocModel } from '../../moduleman/models/doc.model';
+import { env } from 'process';
+import config from '../../../../config';
 
 @Entity(
     {
@@ -319,6 +321,7 @@ export const profileDefaultConfig =[
  * there needs to be a function that set the default 'role' for a user
  */
 export const userProfileDefault: IUserProfile = {
+    avatar:{url: `https://${config.http.hostName}/assets/images/users/avatar-anon.jpg`},
     fieldPermissions: {
         /**
          * specified permission setting for given users to specified fields
