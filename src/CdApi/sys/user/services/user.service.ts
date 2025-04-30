@@ -1787,31 +1787,15 @@ export class UserService extends CdService {
         this.logger.logDebug("UserServices::getUserProfileI()/03");
         delete user[0].password;
         // Create a deep copy of user[0].userProfile to avoid circular references
-        let userProfileJSON: IUserProfile = cloneDeep(user[0].userProfile); // deep copy using lodash
+        let userProfileJSON: IUserProfile = cloneDeep(user[0]); // deep copy using lodash
 
-        if ("userData" in userProfileJSON) {
-          this.logger.logDebug("UserServices::getUserProfileI()/04");
-          // profile data is valid
-          // update with latest user data
-          let userData: UserModel = cloneDeep(user[0]);
-          delete userData.userProfile;
-          delete userData.password;
-          userProfileJSON.userData = userData;
-        } else {
-          this.logger.logDebug("UserServices::getUserProfileI()/05");
-          // profile data is not set, so set it from default
-          userProfileJSON = cloneDeep(userProfileDefault); // deep copy for the default profile
-
-          /**
-           * This stage can be modified to:
-           * filter data based on permission settings
-           * Permission data can further be relied on
-           * by the front end for hidden or other features of accessibility
-           * to user profile data.
-           * This mechanism can be applied to all Corpdesk resources
-           */
-          userProfileJSON.userData = user[0];
-        }
+        this.logger.logDebug("UserServices::getUserProfileI()/04");
+        // profile data is valid
+        // update with latest user data
+        let userData: UserModel = cloneDeep(user[0]);
+        delete userData.userProfile;
+        delete userData.password;
+        userProfileJSON.userData = userData;
 
         this.logger.logDebug("UserServices::getUserProfileI()/06");
         return userProfileJSON; // Return the cloned userProfileJSON
