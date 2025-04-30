@@ -1790,12 +1790,12 @@ export class UserService extends CdService {
         let userProfileJSON: IUserProfile = cloneDeep(user[0]); // deep copy using lodash
 
         this.logger.logDebug("UserServices::getUserProfileI()/04");
-        // profile data is valid
-        // update with latest user data
         let userData: UserModel = cloneDeep(user[0]);
-        delete userData.userProfile;
+        // delete userData.userProfile;
         delete userData.password;
-        userProfileJSON.userData = userData;
+        userProfileJSON = cloneDeep(userData.userProfile) as IUserProfile;
+        userProfileJSON.userData = cloneDeep(userData);
+        delete(userProfileJSON.userData.userProfile);
 
         this.logger.logDebug("UserServices::getUserProfileI()/06");
         return userProfileJSON; // Return the cloned userProfileJSON

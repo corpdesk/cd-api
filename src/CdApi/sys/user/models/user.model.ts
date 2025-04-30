@@ -9,6 +9,7 @@ import {
   Not,
   UpdateDateColumn,
   OneToMany,
+  ObjectLiteral,
 } from "typeorm";
 import * as bcrypt from "bcrypt";
 import { v4 as uuidv4 } from "uuid";
@@ -176,6 +177,7 @@ export class UserModel {
     name: "user_profile",
     default: null,
   })
+  // userProfile?: string | ObjectLiteral;
   userProfile?: string;
 
   @OneToMany((type) => DocModel, (doc) => doc.user) // note: we will create user property in the Docs class
