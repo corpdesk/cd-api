@@ -127,7 +127,7 @@ export interface IProfileGroupAccess {
 // }
 
 export interface ICdDevProjectProfile extends IUserProfile {
-    cdDevProjectship: { 
+    cdDevProject: { 
         memberData: CdDevProjectViewModel[];
         acl: MemberMeta[]; // affiliation with various SACCOS (privilege-related data in various SACCOS)
     };

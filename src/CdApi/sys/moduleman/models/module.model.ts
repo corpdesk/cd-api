@@ -117,3 +117,10 @@ export class ModuleModel {
 
 
 }
+
+export interface ModuleConfig{
+    moduleName: string;
+    ctx: string;
+    enabled: boolean;
+    syncable: boolean;
+  }

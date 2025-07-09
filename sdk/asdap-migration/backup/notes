@@ -1,0 +1,8 @@
+
+
+# copy backup files from remote to localhost
+scp root@asdap.africa:/tmp/devops_backup/devops_home_backup_20250514.zip ~/
+scp root@asdap.africa:/tmp/www_backup/www_backup_20250514.zip ~/
+scp root@asdap.africa:/tmp/apache_backup/apache_configs_20250514.zip ~/
+scp root@asdap.africa:/tmp/letsencrypt_backup/letsencrypt_backup_20250514.zip ~/
+

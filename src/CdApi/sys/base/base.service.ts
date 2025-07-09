@@ -3484,6 +3484,14 @@ export class BaseService {
   //     dSource: 1,
   //   };
   // }
+
+  /**
+   * 
+   * @param q // query
+   * @param dn // docName
+   * @param model // model instance
+   * @returns 
+   */
   siGet<T>(q: IQuery, dn: string, model: new () => T): IServiceInput {
     return {
       serviceModel: model,

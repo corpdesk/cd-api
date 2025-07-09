@@ -25,7 +25,10 @@ import {
     IsJSON,
 } from 'class-validator';
 
-@Entity()
+@Entity({
+  name: "comm",
+  synchronize: false,
+})
 export class Comm {
 
     @PrimaryGeneratedColumn()

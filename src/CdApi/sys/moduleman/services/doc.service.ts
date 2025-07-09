@@ -3,7 +3,7 @@ import { BaseService } from '../../base/base.service';
 import { SessionService } from '../../user/services/session.service';
 import { UserService } from '../../user/services/user.service';
 import { NotificationService } from '../../comm/services/notification.service';
-import { CalendarService } from '../../scheduler/services/calendar.services';
+import { CalendarService } from '../../cd-scheduler/services/calendar.services';
 import { GroupMemberService } from '../../user/services/group-member.service';
 import { ConsumerService } from './consumer.service';
 import { AclService } from './acl.service';

@@ -72,6 +72,13 @@ export class InteRactPubModel {
 
     @Column(
         {
+            name: 'module_cd_obj_id',
+        }
+    )
+    moduleCdObjId: number;
+
+    @Column(
+        {
             name: 'c',
         }
     )
@@ -79,9 +86,23 @@ export class InteRactPubModel {
 
     @Column(
         {
+            name: 'controller_cd_obj_id',
+        }
+    )
+    controllerCdObjId: number;
+
+    @Column(
+        {
             name: 'j_val',
         }
     )
     jVal: string;
+
+    @Column(
+        {
+            name: 'consumer_id',
+        }
+    )
+    consumerId: string;
     
 }

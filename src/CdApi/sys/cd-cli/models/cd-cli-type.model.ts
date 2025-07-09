@@ -2,14 +2,8 @@ import {
     Entity,
     PrimaryGeneratedColumn,
     Column,
-    BeforeInsert,
-    BeforeUpdate,
-    OneToMany
 } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
-import {
-    validateOrReject,
-} from 'class-validator';
 
 
 @Entity(
@@ -62,11 +56,6 @@ export class CdCliTypeModel {
         })
     docId: number;
 
-    // HOOKS
-    @BeforeInsert()
-    @BeforeUpdate()
-    async validate() {
-        await validateOrReject(this);
-    }
+    
 
 }

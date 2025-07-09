@@ -6,6 +6,8 @@ import "reflect-metadata";
 import { DataSource, DataSourceOptions, DatabaseType } from "typeorm";
 import path from "path";
 import { RunMode } from "./CdApi/sys/base/IBase";
+import { inspect } from "util";
+import { ModuleConfig } from "./CdApi/sys/moduleman/models/module.model";
 dotenv.config();
 
 /**
@@ -13,16 +15,57 @@ dotenv.config();
  * the automation should be integrated during installation of given module
  * both front end and backend should be considered in installation process of given module.
  */
-const ENTITIES = [
-  __dirname + "/CdApi/sys/user/models/*.model.ts",
-  __dirname + "/CdApi/sys/moduleman/models/*.model.ts",
-  __dirname + "/CdApi/sys/comm/models/*.model.ts",
-  __dirname + "/CdApi/sys/scheduler/models/*.model.ts",
-  __dirname + "/CdApi/sys/cd-dev/models/*.model.ts",
-  __dirname + "/CdApi/app/cd-accts/models/*.model.ts",
-  __dirname + "/CdApi/app/coops/models/*.model.ts",
-  __dirname + "/CdApi/app/cd-geo/models/*.model.ts",
-];
+// const ENTITIES = [
+//   __dirname + "/CdApi/sys/user/models/*.model.ts",
+//   __dirname + "/CdApi/sys/moduleman/models/*.model.ts",
+//   __dirname + "/CdApi/sys/comm/models/*.model.ts",
+//   __dirname + "/CdApi/sys/cd-cli/models/*.model.ts",
+//   __dirname + "/CdApi/sys/scheduler/models/*.model.ts",
+//   __dirname + "/CdApi/sys/cd-dev/models/*.model.ts",
+//   __dirname + "/CdApi/app/cd-accts/models/*.model.ts",
+//   __dirname + "/CdApi/app/coops/models/*.model.ts",
+//   __dirname + "/CdApi/app/cd-geo/models/*.model.ts",
+// ];
+
+const entitiesConfigPath = path.join(
+  __dirname,
+  "configs",
+  "module-entities.json"
+);
+
+export function loadEntityPaths(): string[] {
+  try {
+    const modules = JSON.parse(fs.readFileSync(entitiesConfigPath, "utf8"));
+    return modules
+      .filter((m: ModuleConfig) => m.enabled)
+      .map((m: ModuleConfig) =>
+        path.join(__dirname, `CdApi/${m.ctx}/${m.moduleName}/models/*.model.ts`)
+      );
+  } catch (err) {
+    console.error("Failed to load entity modules:", err);
+    return [];
+  }
+}
+
+export function loadSyncableEntities(): string[] {
+  try {
+    console.log("start loading syncable entities...");
+    const modules: ModuleConfig[] = JSON.parse(fs.readFileSync(entitiesConfigPath, "utf8"));
+    console.log(
+      `config/loadSyncableEntities()/modules:${inspect(modules, { depth: 2 })}`
+    );
+    return modules
+      .filter((m: ModuleConfig) => m.syncable)
+      .map((m: ModuleConfig) =>
+        path.join(__dirname, `CdApi/${m.ctx}/${m.moduleName}/models/*.model.ts`)
+      );
+  } catch (err) {
+    console.error("Failed to load entity modules:", err);
+    return [];
+  }
+}
+
+const ENTITIES = loadEntityPaths();
 
 export const AppDataSource = new DataSource({
   name: "conn2",
