@@ -1,0 +1,2373 @@
+{
+  "name": "cd-app",
+  "projectGuid": "",
+  "parentProjectGuid": null,
+  "modules": [
+    {
+      "name": "base",
+      "cdModuleType": { "typeName": "cd-api" },
+      "ctx": "sys",
+      "controllers": [],
+      "models": [],
+      "services": []
+    },
+    {
+      "name": "cd-cli",
+      "cdModuleType": { "typeName": "cd-api" },
+      "ctx": "sys",
+      "controllers": [
+        {
+          "name": "cd-cli-profile",
+          "type": "controller",
+          "fileName": "cd-cli-profile.controller.ts"
+        },
+        {
+          "name": "cd-cli",
+          "type": "controller",
+          "fileName": "cd-cli.controller.ts"
+        }
+      ],
+      "models": [
+        { "name": "ICdCli", "fileName": "ICdCli.ts", "fields": [] },
+        {
+          "name": "cd-cli-profile-type",
+          "fileName": "cd-cli-profile-type.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-cli-profile-view",
+          "fileName": "cd-cli-profile-view.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-cli-profile",
+          "fileName": "cd-cli-profile.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-cli-type",
+          "fileName": "cd-cli-type.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-cli-view",
+          "fileName": "cd-cli-view.model.ts",
+          "fields": []
+        },
+        { "name": "cd-cli", "fileName": "cd-cli.model.ts", "fields": [] }
+      ],
+      "services": [
+        {
+          "name": "cd-cli-profile",
+          "type": "service",
+          "fileName": "cd-cli-profile.service.ts"
+        },
+        {
+          "name": "cd-cli-type",
+          "type": "service",
+          "fileName": "cd-cli-type.service.ts"
+        },
+        { "name": "cd-cli", "type": "service", "fileName": "cd-cli.service.ts" }
+      ]
+    },
+    {
+      "name": "cd-dev",
+      "cdModuleType": { "typeName": "cd-api" },
+      "ctx": "sys",
+      "controllers": [
+        {
+          "name": "cd-dev-project",
+          "type": "controller",
+          "fileName": "cd-dev-project.controller.ts"
+        },
+        {
+          "name": "cd-dev",
+          "type": "controller",
+          "fileName": "cd-dev.controller.ts"
+        }
+      ],
+      "models": [
+        { "name": "ICdCli", "fileName": "ICdCli.ts", "fields": [] },
+        {
+          "name": "cd-dev-project-type",
+          "fileName": "cd-dev-project-type.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-dev-project-view",
+          "fileName": "cd-dev-project-view.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-dev-project",
+          "fileName": "cd-dev-project.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-dev-type",
+          "fileName": "cd-dev-type.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-dev-view",
+          "fileName": "cd-dev-view.model.ts",
+          "fields": []
+        },
+        { "name": "cd-dev", "fileName": "cd-dev.model.ts", "fields": [] },
+        {
+          "name": "dev-descriptor",
+          "fileName": "dev-descriptor.model.ts",
+          "fields": []
+        }
+      ],
+      "services": [
+        {
+          "name": "cd-dev-project",
+          "type": "service",
+          "fileName": "cd-dev-project.service.ts"
+        },
+        {
+          "name": "cd-dev-type",
+          "type": "service",
+          "fileName": "cd-dev-type.service.ts"
+        },
+        { "name": "cd-dev", "type": "service", "fileName": "cd-dev.service.ts" }
+      ]
+    },
+    {
+      "name": "cd-push",
+      "cdModuleType": { "typeName": "cd-api" },
+      "ctx": "sys",
+      "controllers": [
+        {
+          "name": "cdpush",
+          "type": "controller",
+          "fileName": "cdpush.controller.ts"
+        },
+        {
+          "name": "websocket",
+          "type": "controller",
+          "fileName": "websocket.controller.ts"
+        }
+      ],
+      "models": [
+        {
+          "name": "cd-push-socket",
+          "fileName": "cd-push-socket.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-push-type",
+          "fileName": "cd-push-type.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-push-view",
+          "fileName": "cd-push-view.model.ts",
+          "fields": []
+        },
+        { "name": "cd-push", "fileName": "cd-push.model.ts", "fields": [] }
+      ],
+      "services": [
+        { "name": "pusher", "type": "service", "fileName": "pusher.ts" },
+        { "name": "sio", "type": "service", "fileName": "sio.service.ts" },
+        {
+          "name": "websocket",
+          "type": "service",
+          "fileName": "websocket.service.ts"
+        }
+      ]
+    },
+    {
+      "name": "cd-scheduler",
+      "cdModuleType": { "typeName": "cd-api" },
+      "ctx": "sys",
+      "controllers": [
+        {
+          "name": "calendarcontroller",
+          "type": "controller",
+          "fileName": "calendarcontroller.ts"
+        },
+        {
+          "name": "schedulercontroller",
+          "type": "controller",
+          "fileName": "schedulercontroller.ts"
+        }
+      ],
+      "models": [
+        { "name": "calendar", "fileName": "calendar.model.ts", "fields": [] },
+        {
+          "name": "cd-scheduler",
+          "fileName": "cd-scheduler.model.ts",
+          "fields": []
+        }
+      ],
+      "services": [
+        {
+          "name": "calendar",
+          "type": "service",
+          "fileName": "calendar.services.ts"
+        },
+        {
+          "name": "scheduler",
+          "type": "service",
+          "fileName": "scheduler.service.ts"
+        }
+      ]
+    },
+    {
+      "name": "comm",
+      "cdModuleType": { "typeName": "cd-api" },
+      "ctx": "sys",
+      "controllers": [
+        {
+          "name": "mail",
+          "type": "controller",
+          "fileName": "mail.controller.ts"
+        },
+        {
+          "name": "output",
+          "type": "controller",
+          "fileName": "output.controller.ts"
+        }
+      ],
+      "models": [
+        { "name": "comm", "fileName": "comm.model.ts", "fields": [] },
+        { "name": "mail", "fileName": "mail.model.ts", "fields": [] },
+        { "name": "pdf", "fileName": "pdf.model.ts", "fields": [] }
+      ],
+      "services": [
+        {
+          "name": "cloudmailinservice",
+          "type": "service",
+          "fileName": "cloudmailinservice.ts"
+        },
+        { "name": "mail", "type": "service", "fileName": "mail.service.ts" },
+        { "name": "memo", "type": "service", "fileName": "memo.service.ts" },
+        {
+          "name": "nodemailerservice",
+          "type": "service",
+          "fileName": "nodemailerservice.ts"
+        },
+        {
+          "name": "notification",
+          "type": "service",
+          "fileName": "notification.service.ts"
+        },
+        {
+          "name": "output",
+          "type": "service",
+          "fileName": "output.service.ts"
+        },
+        {
+          "name": "zeptomai",
+          "type": "service",
+          "fileName": "zeptomai.service.ts"
+        }
+      ]
+    },
+    {
+      "name": "inte-ract",
+      "cdModuleType": { "typeName": "cd-api" },
+      "ctx": "sys",
+      "controllers": [
+        {
+          "name": "inte-ract-association",
+          "type": "controller",
+          "fileName": "inte-ract-association.controller.ts"
+        },
+        {
+          "name": "inte-ract-link",
+          "type": "controller",
+          "fileName": "inte-ract-link.controller.ts"
+        },
+        {
+          "name": "inte-ract-media",
+          "type": "controller",
+          "fileName": "inte-ract-media.controller.ts"
+        },
+        {
+          "name": "inte-ract-pub-scope",
+          "type": "controller",
+          "fileName": "inte-ract-pub-scope.controller.ts"
+        },
+        {
+          "name": "inte-ract-pub",
+          "type": "controller",
+          "fileName": "inte-ract-pub.controller.ts"
+        },
+        {
+          "name": "inte-ract-react",
+          "type": "controller",
+          "fileName": "inte-ract-react.controller.ts"
+        },
+        {
+          "name": "inte-ract-share",
+          "type": "controller",
+          "fileName": "inte-ract-share.controller.ts"
+        },
+        {
+          "name": "inte-ract-subscriber",
+          "type": "controller",
+          "fileName": "inte-ract-subscriber.controller.ts"
+        },
+        {
+          "name": "inte-ract",
+          "type": "controller",
+          "fileName": "inte-ract.controller.ts"
+        }
+      ],
+      "models": [
+        {
+          "name": "inte-ract-association",
+          "fileName": "inte-ract-association.model.ts",
+          "fields": []
+        },
+        {
+          "name": "inte-ract-link",
+          "fileName": "inte-ract-link.model.ts",
+          "fields": []
+        },
+        {
+          "name": "inte-ract-media",
+          "fileName": "inte-ract-media.model.ts",
+          "fields": []
+        },
+        {
+          "name": "inte-ract-pub-scope",
+          "fileName": "inte-ract-pub-scope.model.ts",
+          "fields": []
+        },
+        {
+          "name": "inte-ract-pub-view",
+          "fileName": "inte-ract-pub-view.model.ts",
+          "fields": []
+        },
+        {
+          "name": "inte-ract-pub",
+          "fileName": "inte-ract-pub.model.ts",
+          "fields": []
+        },
+        {
+          "name": "inte-ract-react",
+          "fileName": "inte-ract-react.model.ts",
+          "fields": []
+        },
+        {
+          "name": "inte-ract-share",
+          "fileName": "inte-ract-share.model.ts",
+          "fields": []
+        },
+        {
+          "name": "inte-ract-subscriber",
+          "fileName": "inte-ract-subscriber.model.ts",
+          "fields": []
+        },
+        { "name": "inte-ract", "fileName": "inte-ract.model.ts", "fields": [] }
+      ],
+      "services": [
+        {
+          "name": "inte-ract-association",
+          "type": "service",
+          "fileName": "inte-ract-association.service.ts"
+        },
+        {
+          "name": "inte-ract-link",
+          "type": "service",
+          "fileName": "inte-ract-link.service.ts"
+        },
+        {
+          "name": "inte-ract-media",
+          "type": "service",
+          "fileName": "inte-ract-media.service.ts"
+        },
+        {
+          "name": "inte-ract-pub-scope",
+          "type": "service",
+          "fileName": "inte-ract-pub-scope.service.ts"
+        },
+        {
+          "name": "inte-ract-pub",
+          "type": "service",
+          "fileName": "inte-ract-pub.service.ts"
+        },
+        {
+          "name": "inte-ract-react",
+          "type": "service",
+          "fileName": "inte-ract-react.service.ts"
+        },
+        {
+          "name": "inte-ract-share",
+          "type": "service",
+          "fileName": "inte-ract-share.service.ts"
+        },
+        {
+          "name": "inte-ract-subscriber",
+          "type": "service",
+          "fileName": "inte-ract-subscriber.service.ts"
+        },
+        {
+          "name": "inte-ract",
+          "type": "service",
+          "fileName": "inte-ract.service.ts"
+        }
+      ]
+    },
+    {
+      "name": "moduleman",
+      "cdModuleType": { "typeName": "cd-api" },
+      "ctx": "sys",
+      "controllers": [
+        {
+          "name": "acl",
+          "type": "controller",
+          "fileName": "acl.controller.ts"
+        },
+        {
+          "name": "cd-cache",
+          "type": "controller",
+          "fileName": "cd-cache.controller.ts"
+        },
+        {
+          "name": "cd-log",
+          "type": "controller",
+          "fileName": "cd-log.controller.ts"
+        },
+        {
+          "name": "cd-obj",
+          "type": "controller",
+          "fileName": "cd-obj.controller.ts"
+        },
+        {
+          "name": "company",
+          "type": "controller",
+          "fileName": "company.controller.ts"
+        },
+        {
+          "name": "consumer-resource",
+          "type": "controller",
+          "fileName": "consumer-resource.controller.ts"
+        },
+        {
+          "name": "consumer",
+          "type": "controller",
+          "fileName": "consumer.controller.ts"
+        },
+        {
+          "name": "doc-processing",
+          "type": "controller",
+          "fileName": "doc-processing.ts"
+        },
+        {
+          "name": "menu",
+          "type": "controller",
+          "fileName": "menu.controller.ts"
+        },
+        {
+          "name": "module",
+          "type": "controller",
+          "fileName": "module.controller.ts"
+        }
+      ],
+      "models": [
+        {
+          "name": "acl-module-member-view",
+          "fileName": "acl-module-member-view.model.ts",
+          "fields": []
+        },
+        {
+          "name": "acl-module-view",
+          "fileName": "acl-module-view.model.ts",
+          "fields": []
+        },
+        { "name": "acl-type", "fileName": "acl-type.model.ts", "fields": [] },
+        { "name": "acl", "fileName": "acl.model.ts", "fields": [] },
+        {
+          "name": "acluserview",
+          "fileName": "acluserview.model.ts",
+          "fields": []
+        },
+        { "name": "cd-cache", "fileName": "cd-cache.model.ts", "fields": [] },
+        {
+          "name": "cd-obj-type",
+          "fileName": "cd-obj-type.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-obj-view",
+          "fileName": "cd-obj-view.model.ts",
+          "fields": []
+        },
+        { "name": "cd-obj", "fileName": "cd-obj.model.ts", "fields": [] },
+        {
+          "name": "company-type",
+          "fileName": "company-type.model.ts",
+          "fields": []
+        },
+        {
+          "name": "company-view",
+          "fileName": "company-view.model.ts",
+          "fields": []
+        },
+        { "name": "company", "fileName": "company.model.ts", "fields": [] },
+        {
+          "name": "consumer-resource-type",
+          "fileName": "consumer-resource-type.model.ts",
+          "fields": []
+        },
+        {
+          "name": "consumer-resource-view",
+          "fileName": "consumer-resource-view.model.ts",
+          "fields": []
+        },
+        {
+          "name": "consumer-resource",
+          "fileName": "consumer-resource.model.ts",
+          "fields": []
+        },
+        {
+          "name": "consumer-type",
+          "fileName": "consumer-type.model.ts",
+          "fields": []
+        },
+        {
+          "name": "consumer-view",
+          "fileName": "consumer-view.model.ts",
+          "fields": []
+        },
+        { "name": "consumer", "fileName": "consumer.model.ts", "fields": [] },
+        { "name": "doc-type", "fileName": "doc-type.model.ts", "fields": [] },
+        { "name": "doc", "fileName": "doc.model.ts", "fields": [] },
+        { "name": "menu-view", "fileName": "menu-view.model.ts", "fields": [] },
+        { "name": "menu", "fileName": "menu.model.ts", "fields": [] },
+        {
+          "name": "module-view",
+          "fileName": "module-view.model.ts",
+          "fields": []
+        },
+        { "name": "module", "fileName": "module.model.ts", "fields": [] }
+      ],
+      "services": [
+        { "name": "acl", "type": "service", "fileName": "acl.service.ts" },
+        {
+          "name": "cd-cache",
+          "type": "service",
+          "fileName": "cd-cache.service.ts"
+        },
+        {
+          "name": "cd-log",
+          "type": "service",
+          "fileName": "cd-log.service.ts"
+        },
+        {
+          "name": "cd-obj-type",
+          "type": "service",
+          "fileName": "cd-obj-type.service.ts"
+        },
+        {
+          "name": "cd-obj",
+          "type": "service",
+          "fileName": "cd-obj.service.ts"
+        },
+        {
+          "name": "company",
+          "type": "service",
+          "fileName": "company.service.ts"
+        },
+        {
+          "name": "consumer-resource",
+          "type": "service",
+          "fileName": "consumer-resource.service.ts"
+        },
+        {
+          "name": "consumer",
+          "type": "service",
+          "fileName": "consumer.service.ts"
+        },
+        { "name": "doc", "type": "service", "fileName": "doc.service.ts" },
+        { "name": "jwt", "type": "service", "fileName": "jwt.service.ts" },
+        {
+          "name": "menu",
+          "type": "service",
+          "fileName": "menu.service.original-27-08-2024.ts"
+        },
+        { "name": "menu", "type": "service", "fileName": "menu.service.ts" },
+        {
+          "name": "module",
+          "type": "service",
+          "fileName": "module.service.ts"
+        },
+        {
+          "name": "scheduler",
+          "type": "service",
+          "fileName": "scheduler.service.ts"
+        }
+      ]
+    },
+    {
+      "name": "user",
+      "cdModuleType": { "typeName": "cd-api" },
+      "ctx": "sys",
+      "controllers": [
+        {
+          "name": "group-invitation",
+          "type": "controller",
+          "fileName": "group-invitation.controller.ts"
+        },
+        {
+          "name": "group-member",
+          "type": "controller",
+          "fileName": "group-member.controller.ts"
+        },
+        {
+          "name": "group",
+          "type": "controller",
+          "fileName": "group.controller.ts"
+        },
+        {
+          "name": "user",
+          "type": "controller",
+          "fileName": "user.controller.ts"
+        }
+      ],
+      "models": [
+        {
+          "name": "group-invitation-type",
+          "fileName": "group-invitation-type.model.ts",
+          "fields": []
+        },
+        {
+          "name": "group-invitation",
+          "fileName": "group-invitation.model.ts",
+          "fields": []
+        },
+        {
+          "name": "group-member-view",
+          "fileName": "group-member-view.model.ts",
+          "fields": []
+        },
+        {
+          "name": "group-member",
+          "fileName": "group-member.model.ts",
+          "fields": []
+        },
+        {
+          "name": "group-type",
+          "fileName": "group-type.model.ts",
+          "fields": []
+        },
+        { "name": "group", "fileName": "group.model.ts", "fields": [] },
+        {
+          "name": "registerNotifTemplate",
+          "fileName": "registerNotifTemplate.ts",
+          "fields": []
+        },
+        { "name": "session", "fileName": "session.model.ts", "fields": [] },
+        { "name": "user-view", "fileName": "user-view.model.ts", "fields": [] },
+        { "name": "user", "fileName": "user.model.ts", "fields": [] }
+      ],
+      "services": [
+        {
+          "name": "group-invitation",
+          "type": "service",
+          "fileName": "group-invitation.service.ts"
+        },
+        {
+          "name": "group-member",
+          "type": "service",
+          "fileName": "group-member.service.ts"
+        },
+        { "name": "group", "type": "service", "fileName": "group.service.ts" },
+        {
+          "name": "session",
+          "type": "service",
+          "fileName": "session.service.ts"
+        },
+        { "name": "user", "type": "service", "fileName": "user.service.ts" }
+      ]
+    },
+    {
+      "name": "utils",
+      "cdModuleType": { "typeName": "cd-api" },
+      "ctx": "sys",
+      "controllers": [],
+      "models": [],
+      "services": []
+    },
+    {
+      "name": "abcd",
+      "cdModuleType": { "typeName": "cd-api" },
+      "ctx": "app",
+      "controllers": [
+        {
+          "name": "abcd-efg",
+          "type": "controller",
+          "fileName": "abcd-efg.controller.ts"
+        },
+        {
+          "name": "abcd",
+          "type": "controller",
+          "fileName": "abcd.controller.ts"
+        }
+      ],
+      "models": [
+        { "name": "IAbcds", "fileName": "IAbcds.ts", "fields": [] },
+        {
+          "name": "abcd-efg-type",
+          "fileName": "abcd-efg-type.model.ts",
+          "fields": []
+        },
+        {
+          "name": "abcd-efg-view",
+          "fileName": "abcd-efg-view.model.ts",
+          "fields": []
+        },
+        { "name": "abcd-efg", "fileName": "abcd-efg.model.ts", "fields": [] },
+        { "name": "abcd-type", "fileName": "abcd-type.model.ts", "fields": [] },
+        { "name": "abcd-view", "fileName": "abcd-view.model.ts", "fields": [] },
+        { "name": "abcd", "fileName": "abcd.model.ts", "fields": [] }
+      ],
+      "services": [
+        {
+          "name": "abcd-efg",
+          "type": "service",
+          "fileName": "abcd-efg.service.ts"
+        },
+        {
+          "name": "abcd-type",
+          "type": "service",
+          "fileName": "abcd-type.service.ts"
+        },
+        { "name": "abcd", "type": "service", "fileName": "abcd.service.ts" }
+      ]
+    },
+    {
+      "name": "cd-accts",
+      "cdModuleType": { "typeName": "cd-api" },
+      "ctx": "app",
+      "controllers": [
+        {
+          "name": "bill-item",
+          "type": "controller",
+          "fileName": "bill-item.controller.ts"
+        },
+        {
+          "name": "bill-rate",
+          "type": "controller",
+          "fileName": "bill-rate.controller.ts"
+        },
+        {
+          "name": "bill-unit",
+          "type": "controller",
+          "fileName": "bill-unit.controller.ts"
+        },
+        {
+          "name": "bill",
+          "type": "controller",
+          "fileName": "bill.controller.ts"
+        },
+        {
+          "name": "cd-accts-currency",
+          "type": "controller",
+          "fileName": "cd-accts-currency.controller.ts"
+        },
+        {
+          "name": "cd-accts-expenditure",
+          "type": "controller",
+          "fileName": "cd-accts-expenditure.controller.ts"
+        },
+        {
+          "name": "cd-accts-int-invoice",
+          "type": "controller",
+          "fileName": "cd-accts-int-invoice.controller.ts"
+        },
+        {
+          "name": "cd-accts-receipt",
+          "type": "controller",
+          "fileName": "cd-accts-receipt.controller.ts"
+        },
+        {
+          "name": "cd-accts-transact",
+          "type": "controller",
+          "fileName": "cd-accts-transact.controller.ts"
+        }
+      ],
+      "models": [
+        {
+          "name": "bill-item-view",
+          "fileName": "bill-item-view.model.ts",
+          "fields": []
+        },
+        { "name": "bill-item", "fileName": "bill-item.model.ts", "fields": [] },
+        { "name": "bill-rate", "fileName": "bill-rate.model.ts", "fields": [] },
+        { "name": "bill-type", "fileName": "bill-type.model.ts", "fields": [] },
+        { "name": "bill-unit", "fileName": "bill-unit.model.ts", "fields": [] },
+        { "name": "bill-view", "fileName": "bill-view.model.ts", "fields": [] },
+        { "name": "bill", "fileName": "bill.model.ts", "fields": [] },
+        {
+          "name": "cd-accts-account-type",
+          "fileName": "cd-accts-account-type.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-accts-account-view",
+          "fileName": "cd-accts-account-view.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-accts-account",
+          "fileName": "cd-accts-account.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-accts-currency",
+          "fileName": "cd-accts-currency.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-accts-expenditure-type",
+          "fileName": "cd-accts-expenditure-type.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-accts-expenditure",
+          "fileName": "cd-accts-expenditure.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-accts-int-invoice",
+          "fileName": "cd-accts-int-invoice.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-accts-invoice-vendor-view",
+          "fileName": "cd-accts-invoice-vendor-view.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-accts-receipt",
+          "fileName": "cd-accts-receipt.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-accts-tax-type",
+          "fileName": "cd-accts-tax-type.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-accts-tax",
+          "fileName": "cd-accts-tax.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-accts-transact-media",
+          "fileName": "cd-accts-transact-media.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-accts-transact-state",
+          "fileName": "cd-accts-transact-state.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-accts-transact-type",
+          "fileName": "cd-accts-transact-type.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-accts-transact",
+          "fileName": "cd-accts-transact.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-accts-vendor-statement-view",
+          "fileName": "cd-accts-vendor-statement-view.model.ts",
+          "fields": []
+        },
+        {
+          "name": "invoice-total-settled-view",
+          "fileName": "invoice-total-settled-view.model.ts",
+          "fields": []
+        }
+      ],
+      "services": [
+        {
+          "name": "bill-item",
+          "type": "service",
+          "fileName": "bill-item.service.ts"
+        },
+        {
+          "name": "bill-rate",
+          "type": "service",
+          "fileName": "bill-rate.service.ts"
+        },
+        {
+          "name": "bill-unit",
+          "type": "service",
+          "fileName": "bill-unit.service.ts"
+        },
+        { "name": "bill", "type": "service", "fileName": "bill.service.ts" },
+        {
+          "name": "cd-accts-account",
+          "type": "service",
+          "fileName": "cd-accts-account.service.ts"
+        },
+        {
+          "name": "cd-accts-expenditure",
+          "type": "service",
+          "fileName": "cd-accts-expenditure.service.ts"
+        },
+        {
+          "name": "cd-accts-int-invoice",
+          "type": "service",
+          "fileName": "cd-accts-int-invoice.service.ts"
+        },
+        {
+          "name": "cd-accts-receipt",
+          "type": "service",
+          "fileName": "cd-accts-receipt.service.ts"
+        },
+        {
+          "name": "cd-accts-transact",
+          "type": "service",
+          "fileName": "cd-accts-transact.service.ts"
+        }
+      ]
+    },
+    {
+      "name": "cd-ai",
+      "cdModuleType": { "typeName": "cd-api" },
+      "ctx": "app",
+      "controllers": [],
+      "models": [
+        {
+          "name": "cd-ai-type",
+          "fileName": "cd-ai-type.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-ai-usage-logs-type",
+          "fileName": "cd-ai-usage-logs-type.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-ai-usage-logs",
+          "fileName": "cd-ai-usage-logs.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-ai-usage-logs",
+          "fileName": "cd-ai-usage-logs.view-model.ts",
+          "fields": []
+        },
+        { "name": "cd-ai", "fileName": "cd-ai.model.ts", "fields": [] },
+        { "name": "cd-ai", "fileName": "cd-ai.view-model.ts", "fields": [] }
+      ],
+      "services": []
+    },
+    {
+      "name": "cd-geo",
+      "cdModuleType": { "typeName": "cd-api" },
+      "ctx": "app",
+      "controllers": [
+        {
+          "name": "cd-geo-location",
+          "type": "controller",
+          "fileName": "cd-geo-location.controller.ts"
+        },
+        {
+          "name": "cd-geo-physical-type",
+          "type": "controller",
+          "fileName": "cd-geo-physical-type.controller.ts"
+        },
+        {
+          "name": "cd-geo-political-type",
+          "type": "controller",
+          "fileName": "cd-geo-political-type.controller.ts"
+        },
+        {
+          "name": "cd-geo-proximity",
+          "type": "controller",
+          "fileName": "cd-geo-proximity.controller.ts"
+        },
+        {
+          "name": "cd-geo-track",
+          "type": "controller",
+          "fileName": "cd-geo-track.controller.ts"
+        },
+        {
+          "name": "cd-geo-type",
+          "type": "controller",
+          "fileName": "cd-geo-type.controller.ts"
+        },
+        {
+          "name": "cd-geo",
+          "type": "controller",
+          "fileName": "cd-geo.controller.ts"
+        }
+      ],
+      "models": [
+        {
+          "name": "cd-geo-location-view",
+          "fileName": "cd-geo-location-view.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-geo-location",
+          "fileName": "cd-geo-location.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-geo-physical-type",
+          "fileName": "cd-geo-physical-type.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-geo-political-type",
+          "fileName": "cd-geo-political-type.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-geo-proximity",
+          "fileName": "cd-geo-proximity.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-geo-track",
+          "fileName": "cd-geo-track.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-geo-type",
+          "fileName": "cd-geo-type.model.ts",
+          "fields": []
+        },
+        {
+          "name": "cd-geo-view",
+          "fileName": "cd-geo-view.model.ts",
+          "fields": []
+        },
+        { "name": "cd-geo", "fileName": "cd-geo.model.ts", "fields": [] }
+      ],
+      "services": [
+        {
+          "name": "cd-geo-location",
+          "type": "service",
+          "fileName": "cd-geo-location.service.ts"
+        },
+        {
+          "name": "cd-geo-physical-type",
+          "type": "service",
+          "fileName": "cd-geo-physical-type.service.ts"
+        },
+        {
+          "name": "cd-geo-political-type",
+          "type": "service",
+          "fileName": "cd-geo-political-type.service.ts"
+        },
+        {
+          "name": "cd-geo-proximity",
+          "type": "service",
+          "fileName": "cd-geo-proximity.service.ts"
+        },
+        {
+          "name": "cd-geo-track",
+          "type": "service",
+          "fileName": "cd-geo-track.service.ts"
+        },
+        {
+          "name": "cd-geo-type",
+          "type": "service",
+          "fileName": "cd-geo-type.service.ts"
+        },
+        { "name": "cd-geo", "type": "service", "fileName": "cd-geo.service.ts" }
+      ]
+    },
+    {
+      "name": "cd-hrm",
+      "cdModuleType": { "typeName": "cd-api" },
+      "ctx": "app",
+      "controllers": [
+        {
+          "name": "manager",
+          "type": "controller",
+          "fileName": "manager.controller.ts"
+        }
+      ],
+      "models": [],
+      "services": []
+    },
+    {
+      "name": "coops",
+      "cdModuleType": { "typeName": "cd-api" },
+      "ctx": "app",
+      "controllers": [
+        {
+          "name": "coop-member",
+          "type": "controller",
+          "fileName": "coop-member.controller.ts"
+        },
+        {
+          "name": "coop-stat-public-filter",
+          "type": "controller",
+          "fileName": "coop-stat-public-filter.controller.ts"
+        },
+        {
+          "name": "coop-stat-ref",
+          "type": "controller",
+          "fileName": "coop-stat-ref.controller.ts"
+        },
+        {
+          "name": "coop-stat",
+          "type": "controller",
+          "fileName": "coop-stat.controller.ts"
+        },
+        {
+          "name": "coop",
+          "type": "controller",
+          "fileName": "coop.controller.ts"
+        }
+      ],
+      "models": [
+        { "name": "ICoops", "fileName": "ICoops.ts", "fields": [] },
+        {
+          "name": "coop-member-type",
+          "fileName": "coop-member-type.model.ts",
+          "fields": []
+        },
+        {
+          "name": "coop-member-view",
+          "fileName": "coop-member-view.model.ts",
+          "fields": []
+        },
+        {
+          "name": "coop-member-view",
+          "fileName": "coop-member-view.model_corr.ts",
+          "fields": []
+        },
+        {
+          "name": "coop-member",
+          "fileName": "coop-member.model.ts",
+          "fields": []
+        },
+        {
+          "name": "coop-stat-public-filter",
+          "fileName": "coop-stat-public-filter.model.ts",
+          "fields": []
+        },
+        {
+          "name": "coop-stat-ref",
+          "fileName": "coop-stat-ref.model.ts",
+          "fields": []
+        },
+        {
+          "name": "coop-stat-view",
+          "fileName": "coop-stat-view.model.ts",
+          "fields": []
+        },
+        { "name": "coop-stat", "fileName": "coop-stat.model.ts", "fields": [] },
+        { "name": "coop-type", "fileName": "coop-type.model.ts", "fields": [] },
+        { "name": "coop-view", "fileName": "coop-view.model.ts", "fields": [] },
+        { "name": "coop", "fileName": "coop.model.ts", "fields": [] }
+      ],
+      "services": [
+        {
+          "name": "coop-member",
+          "type": "service",
+          "fileName": "coop-member.service.ts"
+        },
+        {
+          "name": "coop-stat-public-filter",
+          "type": "service",
+          "fileName": "coop-stat-public-filter.service.ts"
+        },
+        {
+          "name": "coop-stat-ref",
+          "type": "service",
+          "fileName": "coop-stat-ref.service.ts"
+        },
+        {
+          "name": "coop-stat",
+          "type": "service",
+          "fileName": "coop-stat.service.ts"
+        },
+        {
+          "name": "coop-type",
+          "type": "service",
+          "fileName": "coop-type.service.ts"
+        },
+        { "name": "coop", "type": "service", "fileName": "coop.service.ts" }
+      ]
+    }
+  ],
+  "description": "",
+  "versionControl": {
+    "name": "CdApi",
+    "repository": {
+      "name": "cd-api",
+      "url": "https://github.com/corpdesk/cd-api.git",
+      "type": "git",
+      "enabled": true,
+      "isPrivate": false,
+      "credentials": { "repoHost": "corpdesk" },
+      "directories": [
+        {
+          "environment": {
+            "name": "workshop",
+            "type": "dev",
+            "workstation": {
+              "name": "emp-12",
+              "machineType": {
+                "name": "physical",
+                "hostMachine": {
+                  "systemResources": {
+                    "cpuCores": 4,
+                    "memory": { "units": "GB", "value": 32 },
+                    "storage": { "units": "TB", "value": 1 }
+                  },
+                  "networkInterfaces": [
+                    {
+                      "hostname": "localhost",
+                      "ip4Addresses": ["127.0.0.1", "192.168.1.6"]
+                    },
+                    { "hostname": "emp-12", "ip4Addresses": ["192.168.1.6"] }
+                  ]
+                }
+              },
+              "os": {
+                "name": "Ubuntu",
+                "version": "22.04",
+                "architecture": "x86_64",
+                "kernelVersion": "5.15.0-79-generic",
+                "distribution": "Ubuntu",
+                "timezone": "UTC"
+              },
+              "workstationAccess": {
+                "accessScope": "local",
+                "physicalAccess": "direct",
+                "interactionType": "cli"
+              },
+              "requiredSoftware": [
+                {
+                  "name": "Node.js",
+                  "version": "18.x",
+                  "category": "tool",
+                  "type": "development",
+                  "source": "npm",
+                  "scope": "global",
+                  "resolution": { "method": "import", "path": "/usr/bin/npm" },
+                  "usage": { "usageContext": "cli" },
+                  "platformCompatibility": {
+                    "languages": ["JavaScript", "Node.js"],
+                    "os": ["Linux", "Windows", "macOS"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Node package manager",
+                    "license": "MIT"
+                  }
+                },
+                {
+                  "name": "vscode.1.82.0",
+                  "version": "1.82.0",
+                  "category": "tool",
+                  "type": "development",
+                  "source": "system",
+                  "scope": "local",
+                  "resolution": {
+                    "method": "include",
+                    "path": "/usr/local/bin/code"
+                  },
+                  "usage": { "usageContext": "editor" },
+                  "platformCompatibility": {
+                    "os": ["Linux", "Windows", "macOS"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Code editor by Microsoft",
+                    "license": "Custom"
+                  }
+                },
+                {
+                  "name": "pnpm.7.16.0",
+                  "version": "7.16.0",
+                  "category": "tool",
+                  "type": "development",
+                  "source": "npm",
+                  "scope": "global",
+                  "resolution": { "method": "import", "path": "/usr/bin/pnpm" },
+                  "usage": { "usageContext": "cli" },
+                  "platformCompatibility": {
+                    "languages": ["JavaScript", "Node.js"],
+                    "os": ["Linux", "Windows", "macOS"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Fast, disk space-efficient package manager",
+                    "license": "MIT"
+                  }
+                },
+                {
+                  "name": "apache.2.4.57",
+                  "version": "2.4.57",
+                  "category": "core",
+                  "type": "production",
+                  "source": "system",
+                  "scope": "global",
+                  "resolution": {
+                    "method": "include",
+                    "path": "/usr/sbin/apache2"
+                  },
+                  "usage": { "usageContext": "api" },
+                  "platformCompatibility": {
+                    "os": ["Linux", "Windows", "macOS"],
+                    "architectures": ["x86_64", "arm64"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Apache HTTP Server",
+                    "license": "Apache-2.0"
+                  }
+                },
+                {
+                  "name": "incus.1.2.3",
+                  "version": "1.2.3",
+                  "category": "tool",
+                  "type": "production",
+                  "source": "system",
+                  "scope": "global",
+                  "resolution": {
+                    "method": "cli",
+                    "path": "/usr/local/bin/incus"
+                  },
+                  "usage": { "usageContext": "utility" },
+                  "platformCompatibility": {
+                    "os": ["Linux"],
+                    "architectures": ["x86_64", "arm64"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Container and VM management",
+                    "license": "Apache-2.0"
+                  }
+                },
+                {
+                  "name": "mysql-server.8.0.34",
+                  "version": "8.0.34",
+                  "category": "core",
+                  "type": "production",
+                  "source": "system",
+                  "scope": "global",
+                  "resolution": {
+                    "method": "include",
+                    "path": "/usr/bin/mysql"
+                  },
+                  "usage": { "usageContext": "service" },
+                  "platformCompatibility": {
+                    "os": ["Linux", "Windows", "macOS"],
+                    "architectures": ["x86_64", "arm64"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Relational database management system",
+                    "license": "GPL"
+                  }
+                },
+                {
+                  "name": "TypeScript",
+                  "version": "latest",
+                  "category": "library",
+                  "type": "development",
+                  "source": "npm",
+                  "scope": "global",
+                  "resolution": { "method": "import", "path": "/usr/bin/tsc" },
+                  "usage": { "usageContext": "cli" },
+                  "installCommand": "npm install -g typescript",
+                  "platformCompatibility": {
+                    "languages": ["JavaScript", "TypeScript"],
+                    "os": ["Linux", "Windows", "macOS"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "TypeScript compiler for JavaScript development",
+                    "license": "Apache-2.0"
+                  }
+                },
+                {
+                  "name": "Redis",
+                  "version": "latest",
+                  "category": "core",
+                  "type": "production",
+                  "source": "system",
+                  "scope": "global",
+                  "resolution": {
+                    "method": "include",
+                    "path": "/usr/bin/redis-server"
+                  },
+                  "usage": { "usageContext": "service" },
+                  "installCommand": "sudo apt install redis-server -y",
+                  "platformCompatibility": {
+                    "os": ["Linux", "Windows", "macOS"],
+                    "architectures": ["x86_64", "arm64"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "In-memory key-value store for caching and message brokering",
+                    "license": "BSD-3-Clause"
+                  }
+                },
+                {
+                  "name": "Git",
+                  "version": "latest",
+                  "category": "tool",
+                  "type": "development",
+                  "source": "system",
+                  "scope": "global",
+                  "resolution": { "method": "cli", "path": "/usr/bin/git" },
+                  "usage": { "usageContext": "version-control" },
+                  "installCommand": "sudo apt install git -y",
+                  "platformCompatibility": {
+                    "os": ["Linux", "Windows", "macOS"],
+                    "architectures": ["x86_64", "arm64"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Distributed version control system",
+                    "license": "GPL-2.0"
+                  }
+                }
+              ]
+            }
+          },
+          "path": "/home/emp-12/cd-cli/dist/CdCli/app/app-craft/workshop/cd-api/output/cd-api",
+          "purpose": "Auto-generated source files",
+          "isDefault": true
+        },
+        {
+          "environment": {
+            "name": "test-bed",
+            "type": "testing",
+            "workstation": {
+              "name": "emp-12",
+              "machineType": {
+                "name": "physical",
+                "hostMachine": {
+                  "systemResources": {
+                    "cpuCores": 4,
+                    "memory": { "units": "GB", "value": 32 },
+                    "storage": { "units": "TB", "value": 1 }
+                  },
+                  "networkInterfaces": [
+                    {
+                      "hostname": "localhost",
+                      "ip4Addresses": ["127.0.0.1", "192.168.1.6"]
+                    },
+                    { "hostname": "emp-12", "ip4Addresses": ["192.168.1.6"] }
+                  ]
+                }
+              },
+              "os": {
+                "name": "Ubuntu",
+                "version": "22.04",
+                "architecture": "x86_64",
+                "kernelVersion": "5.15.0-79-generic",
+                "distribution": "Ubuntu",
+                "timezone": "UTC"
+              },
+              "workstationAccess": {
+                "accessScope": "local",
+                "physicalAccess": "direct",
+                "interactionType": "cli"
+              },
+              "requiredSoftware": [
+                {
+                  "name": "Node.js",
+                  "version": "18.x",
+                  "category": "tool",
+                  "type": "development",
+                  "source": "npm",
+                  "scope": "global",
+                  "resolution": { "method": "import", "path": "/usr/bin/npm" },
+                  "usage": { "usageContext": "cli" },
+                  "platformCompatibility": {
+                    "languages": ["JavaScript", "Node.js"],
+                    "os": ["Linux", "Windows", "macOS"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Node package manager",
+                    "license": "MIT"
+                  }
+                },
+                {
+                  "name": "vscode.1.82.0",
+                  "version": "1.82.0",
+                  "category": "tool",
+                  "type": "development",
+                  "source": "system",
+                  "scope": "local",
+                  "resolution": {
+                    "method": "include",
+                    "path": "/usr/local/bin/code"
+                  },
+                  "usage": { "usageContext": "editor" },
+                  "platformCompatibility": {
+                    "os": ["Linux", "Windows", "macOS"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Code editor by Microsoft",
+                    "license": "Custom"
+                  }
+                },
+                {
+                  "name": "pnpm.7.16.0",
+                  "version": "7.16.0",
+                  "category": "tool",
+                  "type": "development",
+                  "source": "npm",
+                  "scope": "global",
+                  "resolution": { "method": "import", "path": "/usr/bin/pnpm" },
+                  "usage": { "usageContext": "cli" },
+                  "platformCompatibility": {
+                    "languages": ["JavaScript", "Node.js"],
+                    "os": ["Linux", "Windows", "macOS"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Fast, disk space-efficient package manager",
+                    "license": "MIT"
+                  }
+                },
+                {
+                  "name": "apache.2.4.57",
+                  "version": "2.4.57",
+                  "category": "core",
+                  "type": "production",
+                  "source": "system",
+                  "scope": "global",
+                  "resolution": {
+                    "method": "include",
+                    "path": "/usr/sbin/apache2"
+                  },
+                  "usage": { "usageContext": "api" },
+                  "platformCompatibility": {
+                    "os": ["Linux", "Windows", "macOS"],
+                    "architectures": ["x86_64", "arm64"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Apache HTTP Server",
+                    "license": "Apache-2.0"
+                  }
+                },
+                {
+                  "name": "incus.1.2.3",
+                  "version": "1.2.3",
+                  "category": "tool",
+                  "type": "production",
+                  "source": "system",
+                  "scope": "global",
+                  "resolution": {
+                    "method": "cli",
+                    "path": "/usr/local/bin/incus"
+                  },
+                  "usage": { "usageContext": "utility" },
+                  "platformCompatibility": {
+                    "os": ["Linux"],
+                    "architectures": ["x86_64", "arm64"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Container and VM management",
+                    "license": "Apache-2.0"
+                  }
+                },
+                {
+                  "name": "mysql-server.8.0.34",
+                  "version": "8.0.34",
+                  "category": "core",
+                  "type": "production",
+                  "source": "system",
+                  "scope": "global",
+                  "resolution": {
+                    "method": "include",
+                    "path": "/usr/bin/mysql"
+                  },
+                  "usage": { "usageContext": "service" },
+                  "platformCompatibility": {
+                    "os": ["Linux", "Windows", "macOS"],
+                    "architectures": ["x86_64", "arm64"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Relational database management system",
+                    "license": "GPL"
+                  }
+                },
+                {
+                  "name": "TypeScript",
+                  "version": "latest",
+                  "category": "library",
+                  "type": "development",
+                  "source": "npm",
+                  "scope": "global",
+                  "resolution": { "method": "import", "path": "/usr/bin/tsc" },
+                  "usage": { "usageContext": "cli" },
+                  "installCommand": "npm install -g typescript",
+                  "platformCompatibility": {
+                    "languages": ["JavaScript", "TypeScript"],
+                    "os": ["Linux", "Windows", "macOS"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "TypeScript compiler for JavaScript development",
+                    "license": "Apache-2.0"
+                  }
+                },
+                {
+                  "name": "Redis",
+                  "version": "latest",
+                  "category": "core",
+                  "type": "production",
+                  "source": "system",
+                  "scope": "global",
+                  "resolution": {
+                    "method": "include",
+                    "path": "/usr/bin/redis-server"
+                  },
+                  "usage": { "usageContext": "service" },
+                  "installCommand": "sudo apt install redis-server -y",
+                  "platformCompatibility": {
+                    "os": ["Linux", "Windows", "macOS"],
+                    "architectures": ["x86_64", "arm64"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "In-memory key-value store for caching and message brokering",
+                    "license": "BSD-3-Clause"
+                  }
+                },
+                {
+                  "name": "Git",
+                  "version": "latest",
+                  "category": "tool",
+                  "type": "development",
+                  "source": "system",
+                  "scope": "global",
+                  "resolution": { "method": "cli", "path": "/usr/bin/git" },
+                  "usage": { "usageContext": "version-control" },
+                  "installCommand": "sudo apt install git -y",
+                  "platformCompatibility": {
+                    "os": ["Linux", "Windows", "macOS"],
+                    "architectures": ["x86_64", "arm64"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Distributed version control system",
+                    "license": "GPL-2.0"
+                  }
+                }
+              ]
+            }
+          },
+          "path": "/home/emp-12/cd-projects/cd-api/src/CdApi/app/cd-api",
+          "purpose": "Integration and live testing"
+        },
+        {
+          "environment": {
+            "name": "local-cd-api-app",
+            "type": "local-cd-api-app",
+            "workstation": {
+              "name": "emp-12",
+              "machineType": {
+                "name": "physical",
+                "hostMachine": {
+                  "systemResources": {
+                    "cpuCores": 4,
+                    "memory": { "units": "GB", "value": 32 },
+                    "storage": { "units": "TB", "value": 1 }
+                  },
+                  "networkInterfaces": [
+                    {
+                      "hostname": "localhost",
+                      "ip4Addresses": ["127.0.0.1", "192.168.1.6"]
+                    },
+                    { "hostname": "emp-12", "ip4Addresses": ["192.168.1.6"] }
+                  ]
+                }
+              },
+              "os": {
+                "name": "Ubuntu",
+                "version": "22.04",
+                "architecture": "x86_64",
+                "kernelVersion": "5.15.0-79-generic",
+                "distribution": "Ubuntu",
+                "timezone": "UTC"
+              },
+              "workstationAccess": {
+                "accessScope": "local",
+                "physicalAccess": "direct",
+                "interactionType": "cli"
+              },
+              "requiredSoftware": [
+                {
+                  "name": "Node.js",
+                  "version": "18.x",
+                  "category": "tool",
+                  "type": "development",
+                  "source": "npm",
+                  "scope": "global",
+                  "resolution": { "method": "import", "path": "/usr/bin/npm" },
+                  "usage": { "usageContext": "cli" },
+                  "platformCompatibility": {
+                    "languages": ["JavaScript", "Node.js"],
+                    "os": ["Linux", "Windows", "macOS"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Node package manager",
+                    "license": "MIT"
+                  }
+                },
+                {
+                  "name": "vscode.1.82.0",
+                  "version": "1.82.0",
+                  "category": "tool",
+                  "type": "development",
+                  "source": "system",
+                  "scope": "local",
+                  "resolution": {
+                    "method": "include",
+                    "path": "/usr/local/bin/code"
+                  },
+                  "usage": { "usageContext": "editor" },
+                  "platformCompatibility": {
+                    "os": ["Linux", "Windows", "macOS"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Code editor by Microsoft",
+                    "license": "Custom"
+                  }
+                },
+                {
+                  "name": "pnpm.7.16.0",
+                  "version": "7.16.0",
+                  "category": "tool",
+                  "type": "development",
+                  "source": "npm",
+                  "scope": "global",
+                  "resolution": { "method": "import", "path": "/usr/bin/pnpm" },
+                  "usage": { "usageContext": "cli" },
+                  "platformCompatibility": {
+                    "languages": ["JavaScript", "Node.js"],
+                    "os": ["Linux", "Windows", "macOS"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Fast, disk space-efficient package manager",
+                    "license": "MIT"
+                  }
+                },
+                {
+                  "name": "apache.2.4.57",
+                  "version": "2.4.57",
+                  "category": "core",
+                  "type": "production",
+                  "source": "system",
+                  "scope": "global",
+                  "resolution": {
+                    "method": "include",
+                    "path": "/usr/sbin/apache2"
+                  },
+                  "usage": { "usageContext": "api" },
+                  "platformCompatibility": {
+                    "os": ["Linux", "Windows", "macOS"],
+                    "architectures": ["x86_64", "arm64"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Apache HTTP Server",
+                    "license": "Apache-2.0"
+                  }
+                },
+                {
+                  "name": "incus.1.2.3",
+                  "version": "1.2.3",
+                  "category": "tool",
+                  "type": "production",
+                  "source": "system",
+                  "scope": "global",
+                  "resolution": {
+                    "method": "cli",
+                    "path": "/usr/local/bin/incus"
+                  },
+                  "usage": { "usageContext": "utility" },
+                  "platformCompatibility": {
+                    "os": ["Linux"],
+                    "architectures": ["x86_64", "arm64"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Container and VM management",
+                    "license": "Apache-2.0"
+                  }
+                },
+                {
+                  "name": "mysql-server.8.0.34",
+                  "version": "8.0.34",
+                  "category": "core",
+                  "type": "production",
+                  "source": "system",
+                  "scope": "global",
+                  "resolution": {
+                    "method": "include",
+                    "path": "/usr/bin/mysql"
+                  },
+                  "usage": { "usageContext": "service" },
+                  "platformCompatibility": {
+                    "os": ["Linux", "Windows", "macOS"],
+                    "architectures": ["x86_64", "arm64"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Relational database management system",
+                    "license": "GPL"
+                  }
+                },
+                {
+                  "name": "TypeScript",
+                  "version": "latest",
+                  "category": "library",
+                  "type": "development",
+                  "source": "npm",
+                  "scope": "global",
+                  "resolution": { "method": "import", "path": "/usr/bin/tsc" },
+                  "usage": { "usageContext": "cli" },
+                  "installCommand": "npm install -g typescript",
+                  "platformCompatibility": {
+                    "languages": ["JavaScript", "TypeScript"],
+                    "os": ["Linux", "Windows", "macOS"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "TypeScript compiler for JavaScript development",
+                    "license": "Apache-2.0"
+                  }
+                },
+                {
+                  "name": "Redis",
+                  "version": "latest",
+                  "category": "core",
+                  "type": "production",
+                  "source": "system",
+                  "scope": "global",
+                  "resolution": {
+                    "method": "include",
+                    "path": "/usr/bin/redis-server"
+                  },
+                  "usage": { "usageContext": "service" },
+                  "installCommand": "sudo apt install redis-server -y",
+                  "platformCompatibility": {
+                    "os": ["Linux", "Windows", "macOS"],
+                    "architectures": ["x86_64", "arm64"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "In-memory key-value store for caching and message brokering",
+                    "license": "BSD-3-Clause"
+                  }
+                },
+                {
+                  "name": "Git",
+                  "version": "latest",
+                  "category": "tool",
+                  "type": "development",
+                  "source": "system",
+                  "scope": "global",
+                  "resolution": { "method": "cli", "path": "/usr/bin/git" },
+                  "usage": { "usageContext": "version-control" },
+                  "installCommand": "sudo apt install git -y",
+                  "platformCompatibility": {
+                    "os": ["Linux", "Windows", "macOS"],
+                    "architectures": ["x86_64", "arm64"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Distributed version control system",
+                    "license": "GPL-2.0"
+                  }
+                }
+              ]
+            }
+          },
+          "path": "/home/emp-12/cd-projects/cd-api/src/CdApi/app",
+          "purpose": "cd-api apps directory"
+        },
+        {
+          "environment": {
+            "name": "local-cd-api-sys",
+            "type": "local-cd-api-sys",
+            "workstation": {
+              "name": "emp-12",
+              "machineType": {
+                "name": "physical",
+                "hostMachine": {
+                  "systemResources": {
+                    "cpuCores": 4,
+                    "memory": { "units": "GB", "value": 32 },
+                    "storage": { "units": "TB", "value": 1 }
+                  },
+                  "networkInterfaces": [
+                    {
+                      "hostname": "localhost",
+                      "ip4Addresses": ["127.0.0.1", "192.168.1.6"]
+                    },
+                    { "hostname": "emp-12", "ip4Addresses": ["192.168.1.6"] }
+                  ]
+                }
+              },
+              "os": {
+                "name": "Ubuntu",
+                "version": "22.04",
+                "architecture": "x86_64",
+                "kernelVersion": "5.15.0-79-generic",
+                "distribution": "Ubuntu",
+                "timezone": "UTC"
+              },
+              "workstationAccess": {
+                "accessScope": "local",
+                "physicalAccess": "direct",
+                "interactionType": "cli"
+              },
+              "requiredSoftware": [
+                {
+                  "name": "Node.js",
+                  "version": "18.x",
+                  "category": "tool",
+                  "type": "development",
+                  "source": "npm",
+                  "scope": "global",
+                  "resolution": { "method": "import", "path": "/usr/bin/npm" },
+                  "usage": { "usageContext": "cli" },
+                  "platformCompatibility": {
+                    "languages": ["JavaScript", "Node.js"],
+                    "os": ["Linux", "Windows", "macOS"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Node package manager",
+                    "license": "MIT"
+                  }
+                },
+                {
+                  "name": "vscode.1.82.0",
+                  "version": "1.82.0",
+                  "category": "tool",
+                  "type": "development",
+                  "source": "system",
+                  "scope": "local",
+                  "resolution": {
+                    "method": "include",
+                    "path": "/usr/local/bin/code"
+                  },
+                  "usage": { "usageContext": "editor" },
+                  "platformCompatibility": {
+                    "os": ["Linux", "Windows", "macOS"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Code editor by Microsoft",
+                    "license": "Custom"
+                  }
+                },
+                {
+                  "name": "pnpm.7.16.0",
+                  "version": "7.16.0",
+                  "category": "tool",
+                  "type": "development",
+                  "source": "npm",
+                  "scope": "global",
+                  "resolution": { "method": "import", "path": "/usr/bin/pnpm" },
+                  "usage": { "usageContext": "cli" },
+                  "platformCompatibility": {
+                    "languages": ["JavaScript", "Node.js"],
+                    "os": ["Linux", "Windows", "macOS"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Fast, disk space-efficient package manager",
+                    "license": "MIT"
+                  }
+                },
+                {
+                  "name": "apache.2.4.57",
+                  "version": "2.4.57",
+                  "category": "core",
+                  "type": "production",
+                  "source": "system",
+                  "scope": "global",
+                  "resolution": {
+                    "method": "include",
+                    "path": "/usr/sbin/apache2"
+                  },
+                  "usage": { "usageContext": "api" },
+                  "platformCompatibility": {
+                    "os": ["Linux", "Windows", "macOS"],
+                    "architectures": ["x86_64", "arm64"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Apache HTTP Server",
+                    "license": "Apache-2.0"
+                  }
+                },
+                {
+                  "name": "incus.1.2.3",
+                  "version": "1.2.3",
+                  "category": "tool",
+                  "type": "production",
+                  "source": "system",
+                  "scope": "global",
+                  "resolution": {
+                    "method": "cli",
+                    "path": "/usr/local/bin/incus"
+                  },
+                  "usage": { "usageContext": "utility" },
+                  "platformCompatibility": {
+                    "os": ["Linux"],
+                    "architectures": ["x86_64", "arm64"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Container and VM management",
+                    "license": "Apache-2.0"
+                  }
+                },
+                {
+                  "name": "mysql-server.8.0.34",
+                  "version": "8.0.34",
+                  "category": "core",
+                  "type": "production",
+                  "source": "system",
+                  "scope": "global",
+                  "resolution": {
+                    "method": "include",
+                    "path": "/usr/bin/mysql"
+                  },
+                  "usage": { "usageContext": "service" },
+                  "platformCompatibility": {
+                    "os": ["Linux", "Windows", "macOS"],
+                    "architectures": ["x86_64", "arm64"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Relational database management system",
+                    "license": "GPL"
+                  }
+                },
+                {
+                  "name": "TypeScript",
+                  "version": "latest",
+                  "category": "library",
+                  "type": "development",
+                  "source": "npm",
+                  "scope": "global",
+                  "resolution": { "method": "import", "path": "/usr/bin/tsc" },
+                  "usage": { "usageContext": "cli" },
+                  "installCommand": "npm install -g typescript",
+                  "platformCompatibility": {
+                    "languages": ["JavaScript", "TypeScript"],
+                    "os": ["Linux", "Windows", "macOS"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "TypeScript compiler for JavaScript development",
+                    "license": "Apache-2.0"
+                  }
+                },
+                {
+                  "name": "Redis",
+                  "version": "latest",
+                  "category": "core",
+                  "type": "production",
+                  "source": "system",
+                  "scope": "global",
+                  "resolution": {
+                    "method": "include",
+                    "path": "/usr/bin/redis-server"
+                  },
+                  "usage": { "usageContext": "service" },
+                  "installCommand": "sudo apt install redis-server -y",
+                  "platformCompatibility": {
+                    "os": ["Linux", "Windows", "macOS"],
+                    "architectures": ["x86_64", "arm64"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "In-memory key-value store for caching and message brokering",
+                    "license": "BSD-3-Clause"
+                  }
+                },
+                {
+                  "name": "Git",
+                  "version": "latest",
+                  "category": "tool",
+                  "type": "development",
+                  "source": "system",
+                  "scope": "global",
+                  "resolution": { "method": "cli", "path": "/usr/bin/git" },
+                  "usage": { "usageContext": "version-control" },
+                  "installCommand": "sudo apt install git -y",
+                  "platformCompatibility": {
+                    "os": ["Linux", "Windows", "macOS"],
+                    "architectures": ["x86_64", "arm64"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Distributed version control system",
+                    "license": "GPL-2.0"
+                  }
+                }
+              ]
+            }
+          },
+          "path": "/home/emp-12/cd-projects/cd-api/src/CdApi/sys",
+          "purpose": "cd-api system directory"
+        },
+        {
+          "environment": {
+            "name": "local-cd-api",
+            "type": "local-cd-api",
+            "workstation": {
+              "name": "emp-12",
+              "machineType": {
+                "name": "physical",
+                "hostMachine": {
+                  "systemResources": {
+                    "cpuCores": 4,
+                    "memory": { "units": "GB", "value": 32 },
+                    "storage": { "units": "TB", "value": 1 }
+                  },
+                  "networkInterfaces": [
+                    {
+                      "hostname": "localhost",
+                      "ip4Addresses": ["127.0.0.1", "192.168.1.6"]
+                    },
+                    { "hostname": "emp-12", "ip4Addresses": ["192.168.1.6"] }
+                  ]
+                }
+              },
+              "os": {
+                "name": "Ubuntu",
+                "version": "22.04",
+                "architecture": "x86_64",
+                "kernelVersion": "5.15.0-79-generic",
+                "distribution": "Ubuntu",
+                "timezone": "UTC"
+              },
+              "workstationAccess": {
+                "accessScope": "local",
+                "physicalAccess": "direct",
+                "interactionType": "cli"
+              },
+              "requiredSoftware": [
+                {
+                  "name": "Node.js",
+                  "version": "18.x",
+                  "category": "tool",
+                  "type": "development",
+                  "source": "npm",
+                  "scope": "global",
+                  "resolution": { "method": "import", "path": "/usr/bin/npm" },
+                  "usage": { "usageContext": "cli" },
+                  "platformCompatibility": {
+                    "languages": ["JavaScript", "Node.js"],
+                    "os": ["Linux", "Windows", "macOS"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Node package manager",
+                    "license": "MIT"
+                  }
+                },
+                {
+                  "name": "vscode.1.82.0",
+                  "version": "1.82.0",
+                  "category": "tool",
+                  "type": "development",
+                  "source": "system",
+                  "scope": "local",
+                  "resolution": {
+                    "method": "include",
+                    "path": "/usr/local/bin/code"
+                  },
+                  "usage": { "usageContext": "editor" },
+                  "platformCompatibility": {
+                    "os": ["Linux", "Windows", "macOS"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Code editor by Microsoft",
+                    "license": "Custom"
+                  }
+                },
+                {
+                  "name": "pnpm.7.16.0",
+                  "version": "7.16.0",
+                  "category": "tool",
+                  "type": "development",
+                  "source": "npm",
+                  "scope": "global",
+                  "resolution": { "method": "import", "path": "/usr/bin/pnpm" },
+                  "usage": { "usageContext": "cli" },
+                  "platformCompatibility": {
+                    "languages": ["JavaScript", "Node.js"],
+                    "os": ["Linux", "Windows", "macOS"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Fast, disk space-efficient package manager",
+                    "license": "MIT"
+                  }
+                },
+                {
+                  "name": "apache.2.4.57",
+                  "version": "2.4.57",
+                  "category": "core",
+                  "type": "production",
+                  "source": "system",
+                  "scope": "global",
+                  "resolution": {
+                    "method": "include",
+                    "path": "/usr/sbin/apache2"
+                  },
+                  "usage": { "usageContext": "api" },
+                  "platformCompatibility": {
+                    "os": ["Linux", "Windows", "macOS"],
+                    "architectures": ["x86_64", "arm64"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Apache HTTP Server",
+                    "license": "Apache-2.0"
+                  }
+                },
+                {
+                  "name": "incus.1.2.3",
+                  "version": "1.2.3",
+                  "category": "tool",
+                  "type": "production",
+                  "source": "system",
+                  "scope": "global",
+                  "resolution": {
+                    "method": "cli",
+                    "path": "/usr/local/bin/incus"
+                  },
+                  "usage": { "usageContext": "utility" },
+                  "platformCompatibility": {
+                    "os": ["Linux"],
+                    "architectures": ["x86_64", "arm64"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Container and VM management",
+                    "license": "Apache-2.0"
+                  }
+                },
+                {
+                  "name": "mysql-server.8.0.34",
+                  "version": "8.0.34",
+                  "category": "core",
+                  "type": "production",
+                  "source": "system",
+                  "scope": "global",
+                  "resolution": {
+                    "method": "include",
+                    "path": "/usr/bin/mysql"
+                  },
+                  "usage": { "usageContext": "service" },
+                  "platformCompatibility": {
+                    "os": ["Linux", "Windows", "macOS"],
+                    "architectures": ["x86_64", "arm64"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Relational database management system",
+                    "license": "GPL"
+                  }
+                },
+                {
+                  "name": "TypeScript",
+                  "version": "latest",
+                  "category": "library",
+                  "type": "development",
+                  "source": "npm",
+                  "scope": "global",
+                  "resolution": { "method": "import", "path": "/usr/bin/tsc" },
+                  "usage": { "usageContext": "cli" },
+                  "installCommand": "npm install -g typescript",
+                  "platformCompatibility": {
+                    "languages": ["JavaScript", "TypeScript"],
+                    "os": ["Linux", "Windows", "macOS"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "TypeScript compiler for JavaScript development",
+                    "license": "Apache-2.0"
+                  }
+                },
+                {
+                  "name": "Redis",
+                  "version": "latest",
+                  "category": "core",
+                  "type": "production",
+                  "source": "system",
+                  "scope": "global",
+                  "resolution": {
+                    "method": "include",
+                    "path": "/usr/bin/redis-server"
+                  },
+                  "usage": { "usageContext": "service" },
+                  "installCommand": "sudo apt install redis-server -y",
+                  "platformCompatibility": {
+                    "os": ["Linux", "Windows", "macOS"],
+                    "architectures": ["x86_64", "arm64"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "In-memory key-value store for caching and message brokering",
+                    "license": "BSD-3-Clause"
+                  }
+                },
+                {
+                  "name": "Git",
+                  "version": "latest",
+                  "category": "tool",
+                  "type": "development",
+                  "source": "system",
+                  "scope": "global",
+                  "resolution": { "method": "cli", "path": "/usr/bin/git" },
+                  "usage": { "usageContext": "version-control" },
+                  "installCommand": "sudo apt install git -y",
+                  "platformCompatibility": {
+                    "os": ["Linux", "Windows", "macOS"],
+                    "architectures": ["x86_64", "arm64"]
+                  },
+                  "security": { "isSecure": true },
+                  "dependencyMetadata": {
+                    "description": "Distributed version control system",
+                    "license": "GPL-2.0"
+                  }
+                }
+              ]
+            }
+          },
+          "path": "/home/emp-12/cd-projects/cd-api",
+          "purpose": "cd-api root directory"
+        }
+      ]
+    }
+  }
+}
