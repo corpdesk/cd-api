@@ -1,5 +1,7 @@
 {
   "name": "cd-api documentation",
   "description": "Holds the documentation metadata for cd-api",
-  "sections": []
+  "sections": [],
+  "version": "0.8.0",
+  "lastUpdated": "2025-07-23T18:09:26.617Z"
 }

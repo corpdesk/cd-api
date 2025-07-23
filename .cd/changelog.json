@@ -1,5 +1,7 @@
 {
   "name": "cd-api changelog",
   "description": "Tracks version changes, fixes, and features for cd-api",
-  "changelogs": []
+  "changelogs": [],
+  "version": "0.8.0",
+  "lastUpdated": "2025-07-23T18:09:26.609Z"
 }
