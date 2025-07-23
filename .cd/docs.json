@@ -3,12 +3,18 @@
   "description": "Holds the documentation metadata for cd-api",
   "sections": [],
   "version": "0.8.0",
-  "lastUpdated": "2025-07-23T18:56:12.600Z",
+  "lastUpdated": "2025-07-23T19:18:54.920Z",
   "entries": [
     {
       "version": "0.8.1",
       "status": "draft",
       "updatedOn": "2025-07-23T18:56:12.623Z",
+      "summary": "Patch version updated"
+    },
+    {
+      "version": "0.8.1",
+      "status": "draft",
+      "updatedOn": "2025-07-23T19:18:54.944Z",
       "summary": "Patch version updated"
     }
   ]
