@@ -1,8 +1,5 @@
-[
-  {
-    "name": "George Oremo",
-    "email": "george.oremo@gmail.com",
-    "role": "Owner",
-    "profileLink": "https://github.com/georemo"
-  }
-]
+{
+  "name": "cd-api contributors",
+  "description": "List of contributors who have worked on cd-api",
+  "contributors": []
+}

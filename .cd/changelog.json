@@ -1,22 +1,5 @@
-[
-  {
-    "id": "chg-20250708-entity-gen",
-    "version": "1.0.0-beta",
-    "date": "2025-07-08",
-    "author": "George Oremo",
-    "changes": [
-      {
-        "type": "added",
-        "description": "Initial version of entity generator for base/type/view models",
-        "tagRef": "feat/entity-generator",
-        "file": "src/CdCli/services/gen-entity.service.ts"
-      },
-      {
-        "type": "changed",
-        "description": "Refactored generateControllerTypeEntityFile() to use camel+suffix naming",
-        "tagRef": "refactor/entity-type",
-        "file": "src/CdCli/services/gen-entity.service.ts"
-      }
-    ]
-  }
-]
+{
+  "name": "cd-api changelog",
+  "description": "Tracks version changes, fixes, and features for cd-api",
+  "changelogs": []
+}

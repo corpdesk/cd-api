@@ -1,20 +1,5 @@
-[
-  {
-    "id": "doc-dev-guide-1.0.0-beta",
-    "title": "Developer Onboarding Guide",
-    "version": "1.0.0-beta",
-    "path": "sdk/docs/corpdesk-evolution-guide.md",
-    "status": "draft",
-    "summary": "Covers evolution from draft 0.9.0 to automation-ready 1.0.0-beta",
-    "updatedOn": "2025-07-08T19:30:00+03:00"
-  },
-  {
-    "id": "doc-versioning-github",
-    "title": "GitHub Versioning Strategy",
-    "version": "1.0.0-beta",
-    "path": "sdk/docs/github-versioning-guide.md",
-    "status": "draft",
-    "summary": "Explains GitHub facilities and CD-CLI integration for repo versioning",
-    "updatedOn": "2025-07-09T13:35:00+03:00"
-  }
-]
+{
+  "name": "cd-api documentation",
+  "description": "Holds the documentation metadata for cd-api",
+  "sections": []
+}
