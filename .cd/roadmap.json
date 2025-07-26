@@ -10,25 +10,25 @@
       "orderId": 8,
       "tasks": [
         {
-          "name": "Increment Patch Number",
+          "name": "Feature: Increment Patch Number",
           "description": "Auto-increment patch in version.json when a patch task is performed",
           "type": "method",
           "status": "pending"
         },
         {
-          "name": "Roadmap Update Verification",
+          "name": "Feature: Roadmap Update Verification",
           "description": "Ensure roadmap.json is auto-updated during upgrade",
           "type": "method",
           "status": "pending"
         },
         {
-          "name": "Changelog Update Verification",
+          "name": "Feature:Changelog Update Verification",
           "description": "Ensure changelog.json is auto-updated during upgrade",
           "type": "method",
           "status": "pending"
         },
         {
-          "name": "Documentation Update Verification",
+          "name": "Feature:Documentation Update Verification",
           "description": "Ensure docs.json is auto-updated during upgrade",
           "type": "method",
           "status": "pending"
