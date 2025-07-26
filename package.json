@@ -1,6 +1,6 @@
 {
   "name": "cd-api",
-  "version": "0.8.1",
+  "version": "0.8.0",
   "description": "",
   "main": "app.js",
   "scripts": {
@@ -66,5 +66,5 @@
     "winston-daily-rotate-file": "^5.0.0",
     "zeptomail": "^6.2.0"
   },
-  "lastUpdated": "2025-07-23T19:18:54.922Z"
+  "lastUpdated": "2025-07-26T15:28:31.714Z"
 }
