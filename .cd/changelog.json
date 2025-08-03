@@ -3,7 +3,7 @@
   "description": "Tracks version changes, fixes, and features for cd-api",
   "changelogs": [],
   "version": "0.8.0",
-  "lastUpdated": "2025-08-03T17:51:28.857Z",
+  "lastUpdated": "2025-08-03T18:18:55.754Z",
   "entries": [
     {
       "version": "0.8.1",
@@ -14,6 +14,11 @@
       "version": "0.8.1",
       "summary": "Patch increment auto-applied",
       "date": "2025-07-23T19:18:54.943Z"
+    },
+    {
+      "version": "0.8.2",
+      "summary": "Patch increment auto-applied",
+      "date": "2025-08-03T18:18:55.798Z"
     }
   ]
 }
