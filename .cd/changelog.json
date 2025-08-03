@@ -3,7 +3,7 @@
   "description": "Tracks version changes, fixes, and features for cd-api",
   "changelogs": [],
   "version": "0.8.0",
-  "lastUpdated": "2025-07-26T22:01:01.256Z",
+  "lastUpdated": "2025-07-26T22:05:36.277Z",
   "entries": [
     {
       "version": "0.8.1",
