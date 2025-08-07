@@ -61,7 +61,6 @@ import { JsonHelper } from "../utils/json-helper";
 import { inspect } from "util";
 import chalk from "chalk";
 
-
 const USER_ANON = 1000;
 const INVALID_REQUEST = "invalid request";
 
@@ -3547,19 +3546,6 @@ export class BaseService {
    * @param docName - Optional descriptive name; defaults to "CRUD <ModelName>" if not provided
    * @returns IServiceInput object suitable for create/update/delete operations
    */
-  // serviceInputCRUD(
-  //   serviceInstance: any,
-  //   docName = ""
-  // ): IServiceInput {
-  //   return {
-  //     serviceInstance,
-  //     serviceModel: serviceInstance.serviceModel,
-  //     modelName: serviceInstance.modelName,
-  //     serviceModelInstance: serviceInstance.serviceModel,
-  //     docName: docName || `CRUD ${serviceInstance.modelName}`,
-  //     dSource: 1,
-  //   };
-  // }
   serviceInputCRUD(serviceInstance: any): IServiceInput {
     const modelName =
       serviceInstance.modelName ||
@@ -3662,5 +3648,16 @@ export class BaseService {
     const callerLine = stack[depth] || "";
     const match = callerLine.match(/at (\w+)/);
     return match?.[1] ?? "unknownMethod";
+  }
+
+  async beforeCreateGeneric(
+    req,
+    fieldMap: Record<string, any>
+  ): Promise<boolean> {
+    for (const [key, value] of Object.entries(fieldMap)) {
+      const finalValue = value === "GUID" ? this.getGuid() : value;
+      this.setPlData(req, { key, value: finalValue });
+    }
+    return true;
   }
 }
