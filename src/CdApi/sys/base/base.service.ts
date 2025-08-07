@@ -58,6 +58,9 @@ import { TypeOrmDatasource } from "./type-orm-connect";
 import { safeStringify } from "../utils/safe-stringify";
 import { CdLogger } from "../utils/cd-logger";
 import { JsonHelper } from "../utils/json-helper";
+import { inspect } from "util";
+import chalk from "chalk";
+
 
 const USER_ANON = 1000;
 const INVALID_REQUEST = "invalid request";
@@ -871,7 +874,7 @@ export class BaseService {
     return JSON.parse(safeResp);
   }
 
-  setCircularError(safeResp: string){
+  setCircularError(safeResp: string) {
     this.logger.logDebug(`BaseService::setCircularError()/01`);
     const warningMsg =
       "[WARNING]: This response had circular anomaly and has been truncated. See areas marked with [Circular].";
@@ -897,7 +900,7 @@ export class BaseService {
     safeResp = JSON.stringify(safeRespJson);
     // Log the warning
     this.logger.logWarn(warningMsg);
-    return safeResp
+    return safeResp;
   }
 
   private deepSanitize(obj: any): any {
@@ -3486,11 +3489,14 @@ export class BaseService {
   // }
 
   /**
-   * 
-   * @param q // query
-   * @param dn // docName
-   * @param model // model instance
-   * @returns 
+   * @deprecated
+   * This method was an early helper to construct IServiceInput for read/find operations.
+   * Use `serviceInputGet()` instead, which follows clearer naming conventions.
+   *
+   * @param q - The IQuery object defining filters, pagination, etc.
+   * @param dn - A human-readable docName for logging/debugging (e.g., 'Get Members')
+   * @param model - The model constructor to query (e.g., CoopMemberModel)
+   * @returns IServiceInput - A well-structured input object for BaseService read methods
    */
   siGet<T>(q: IQuery, dn: string, model: new () => T): IServiceInput {
     return {
@@ -3502,5 +3508,159 @@ export class BaseService {
       },
       dSource: 1,
     };
+  }
+
+  /**
+   * Constructs a standardized IServiceInput object for read operations.
+   *
+   * Recommended replacement for the deprecated `siGet()` method.
+   * Used when performing actions like find, list, or fetch with filters.
+   *
+   * @param query - IQuery object (filter, take, skip, select, etc.)
+   * @param docName - Descriptive name for tracing/debugging/logging purposes
+   * @param model - The model class (constructor function) to be used in the query
+   * @returns IServiceInput object for use with read operations
+   */
+  serviceInputGet<T>(
+    query: IQuery,
+    docName: string,
+    model: new () => T
+  ): IServiceInput {
+    return {
+      serviceModel: model,
+      docName,
+      cmd: {
+        action: "find",
+        query,
+      },
+      dSource: 1,
+    };
+  }
+
+  /**
+   * Constructs a standardized IServiceInput object for Create, Update, or Delete operations.
+   *
+   * Includes reference to the service instance, its model, and metadata such as docName.
+   * This method is intended for general use across all non-read (CRUD) operations.
+   *
+   * @param serviceInstance - The active service instance (e.g., `this`)
+   * @param docName - Optional descriptive name; defaults to "CRUD <ModelName>" if not provided
+   * @returns IServiceInput object suitable for create/update/delete operations
+   */
+  // serviceInputCRUD(
+  //   serviceInstance: any,
+  //   docName = ""
+  // ): IServiceInput {
+  //   return {
+  //     serviceInstance,
+  //     serviceModel: serviceInstance.serviceModel,
+  //     modelName: serviceInstance.modelName,
+  //     serviceModelInstance: serviceInstance.serviceModel,
+  //     docName: docName || `CRUD ${serviceInstance.modelName}`,
+  //     dSource: 1,
+  //   };
+  // }
+  serviceInputCRUD(serviceInstance: any): IServiceInput {
+    const modelName =
+      serviceInstance.modelName ||
+      (serviceInstance.serviceModel?.constructor?.name ?? "UnknownModel");
+    const methodName = this.getCallerFunctionName();
+    const className = serviceInstance.constructor?.name || "UnknownService";
+
+    return {
+      serviceInstance,
+      serviceModel: serviceInstance.serviceModel.constructor, // ✅ FIXED
+      modelName,
+      serviceModelInstance: serviceInstance.serviceModel,
+      docName: `${methodName} ${className}`,
+      dSource: 1,
+    };
+  }
+
+  /**
+   * Logs structured debug information with timestamp, class/method context, and data.
+   * Automatically resolves the calling method name and supports rich data inspection.
+   *
+   * @param thisArg - The calling class instance (usually `this`)
+   * @param message - A message to include in the log
+   * @param data - Optional data to be logged alongside
+   * @param level - Optional log level (default is "debug")
+   */
+  async logWithContext(
+    thisArg: any,
+    message: string,
+    data?: any,
+    level: "debug" | "info" | "warn" | "error" = "debug"
+  ) {
+    // const chalk = await import("chalk");
+    const caller = this.getCallerInfo(4); // customizable stack depth
+    const className = thisArg.constructor?.name || "UnknownClass";
+    const timestamp = new Date().toLocaleString("en-KE", {
+      timeZone: process.env.TZ || "Africa/Nairobi",
+    });
+
+    const prefix = `[${timestamp}] [${className}::${caller.method}():${caller.line}]`;
+
+    const logMsg = data
+      ? `${prefix}: ${message} — ${inspect(data, { depth: 3, colors: true })}`
+      : `${prefix}: ${message}`;
+
+    switch (level) {
+      case "info":
+        console.log(chalk.green(logMsg));
+        break;
+      case "warn":
+        console.warn(chalk.yellow(logMsg));
+        break;
+      case "error":
+        console.error(chalk.red(logMsg));
+        break;
+      default:
+        console.debug(chalk.blueBright(logMsg));
+        break;
+    }
+  }
+
+  /**
+   * Returns the method name and line number of the calling function.
+   * Useful for contextual logging.
+   *
+   * @param depth - Stack depth to resolve the actual caller
+   * @returns An object with method and line
+   */
+  getCallerInfo(depth = 3): { method: string; line: string } {
+    const stack = new Error().stack?.split("\n") || [];
+    const targetLine = stack[depth] || "";
+
+    const methodMatch = targetLine.match(/at (\w+)/);
+    const method = methodMatch?.[1] || "unknownMethod";
+
+    const lineMatch = targetLine.match(/:(\d+):\d+\)?$/);
+    const line = lineMatch?.[1] || "??";
+
+    return { method, line };
+  }
+
+  /**
+   * Utility to get the name of the function that called the current method.
+   * This uses stack trace introspection — may vary slightly by environment.
+   */
+  /**
+   * Extracts the name of the caller function from the stack trace.
+   * @param depth - Optional depth in the call stack. Default is 3.
+   *                Increase it if more stack frames are involved.
+   */
+  private getCallerFunctionName(depth: number = 3): string {
+    const err = new Error();
+    const stack = err.stack?.split("\n") || [];
+
+    // Example:
+    // [0] Error
+    // [1] at getCallerFunctionName...
+    // [2] at logWithContext...
+    // [3] at create...  <-- default
+    const callerLine = stack[depth] || "";
+    const match = callerLine.match(/at (\w+)/);
+    return match?.[1] ?? "unknownMethod";
   }
 }
